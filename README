@@ -1,0 +1,8 @@
+This code was main mainly for my particular use. Therefore, no care was taken in order to make it perfect. In particular, each configuration appear in the file, so if you want to change anything, you must edit the code.
+
+Running solo.py generates a folder solo, containing files ij.svg where i is a string number, and j a fret number. There is a fret, with a note on string i and  fret j. And nothing else.
+
+Running scale/scale.py generates folders   ''scale/foo'', for each scale ''foo''. In each folder, there is a file fooij where you see the way to play scale foo, starting on string i and fret j. There is also a file index.html which explain the restriction on the scales generated.
+
+Running chords.py generates folders ''chords/open'' ''chords/transpose''. The transpose folder contains subfolder ''/foo'' for each kind of chord ''foo''. This folder contains images ''foo-ij.svg'' showing chord foo with tonic being lowest tone, played on string i and fret j. The ''open'' contains subfolder ''foo/bar'', containing the open chord with tonic ''bar'' and chord ''foo''. It also contains subfolder ''bar'', with only an index file showing the list of ''foo/bar'' folders.
+
