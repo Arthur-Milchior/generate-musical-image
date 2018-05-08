@@ -145,7 +145,7 @@ class SetOfPos:
             y1 = fret_distance/2
             y2 = fret_distance * (nbFretToDraw+.5 )
             f.write("""<line x1="%d" y1="%d" x2="%d" y2="%d" stroke-width="4" stroke="black" />"""%(x,y1 ,x, y2))
-        for i in range (1,self.maxFret+2):
+        for i in range (1,nbFretToDraw+2):
             #lines
             x1 = string_distance/2
             x2 = string_distance * 5.5
@@ -155,6 +155,7 @@ class SetOfPos:
         for pos in self.poss:
             pos._draw(f)
         f.write("</svg>")
+        
     def __str__(self):
         # s = "{"
         # for pos in self.s:
