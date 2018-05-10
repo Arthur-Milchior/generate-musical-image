@@ -27,6 +27,18 @@ names_pos = [
     "C#",
     "D",
     "Eb"]
+nameFromHt = ["Unison", "Half-tone", "Tone", "Third minor", "Third major","Fourth",
+              "Tritone", "Fifth", "Sixth minor", "Sixth major", "Seventh minor", "Seventh major" ]
+class Interval:
+    def __init__(self,ivl):
+        self.ivl = ivl
+
+    def name(self):
+        octave = int(self.ivl/12)
+        ivlInOctave =  (self.ivl %12)
+        ivlName =  nameFromHt[ivlInOctave]
+        name = ivlName + ((" and %d octave"% octave )if octave>0 else "")
+        return name
 class Pos:
     """A position on the guitar, that is, a string and a fret. Fret 0 is open. Fret None is not played"""
     def __init__(self, string,fret):
@@ -65,7 +77,7 @@ class Pos:
 
     def __sub__(self,pos):
         """the number of semitone from self (low) to  pos"""
-        return ((self._absolue() - pos._absolue ()) % 12)
+        return (Interval (self._absolue() - pos._absolue ()))
     def add(self, i, min=0, max = 5):
         """A pos, equal to self, plus i half tone. 
 

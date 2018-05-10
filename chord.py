@@ -6,6 +6,8 @@ fretDifMax = 4 if not modDebug else 2
 lastFret = 12 if not modDebug else 5
 maxChordNumber = 0
 maxChord=""
+considerOpen = True
+
 
 class Chord(SetOfPos):
     """A chord. That is, a fret by string. 0 for empty string"""
@@ -75,7 +77,7 @@ class Chord(SetOfPos):
     def isTransposableChord(self):
         return self.isOneMin() and self.isStandardChord() and self.playable()  and self.atLeastFourString()
     def isAcceptable(self):
-        return (self.onePresent() or self.isOpen())  and self.isStandardChord() and self.playable() and self.atLeastFourString()
+        return (self.onePresent() or self.isOpen()) and self.isStandardChord() and self.playable() and self.atLeastFourString()
     def kind(self):
         """transposable, open, or None"""
         if self.isStandardChord() and self.playable() and self.atLeastFourString():
@@ -125,11 +127,14 @@ class Hts:
         If the 5th is just, return the empty string.
         Otherwise return false
         """
-        if self.isFifthJust() != self.isFifthDimished(): #exactly one of them
+        if self.isFifthDimished(): #exactly one of them
+            if self.isFifthJust():
+                return False
+            if self.isMinor() and (not self.is7min()) and (not self.is7maj()):
+                return "diminished"
             return False
-        if self.isFifthDimished() and self.isMinor() and (not self.is7min()) and (not self.is7maj()):
-            return "diminished"
-        return "" 
+        if self.isFifthJust():
+            return "just"
 
     def hasNotQuality(self):
         return not (self.is6() or self.is7min() or self.is7maj())
@@ -170,8 +175,6 @@ class Hts:
             or
             5 in self.hts#subdominant
             or
-            6 in self.hts#tritone
-            or
             8 in self.hts #dominant #
         )
     def isStandardChord(self):
@@ -203,8 +206,18 @@ class Hts:
             return m
     def __str__(self):
         """Name of chord, assuming it is standard"""
-        return (self.third()+","+
-                self.quality())
+        if self.isFifthJust():
+            fifthName = ""
+        elif self.isFifthDimished():
+            fifthName = "-Dim"
+        else:
+            fifthName = "-None"
+        qualityName=self.quality()
+        if qualityName:
+            qualityName = "-%s" % qualityName
+        if qualityName == "-6" and fifthName:
+            qualityName= "-dim7"
+        return ("%s%s%s"%(self.third(), fifthName, qualityName))
 
 
 def list2dic(l):
@@ -237,7 +250,7 @@ for first_fret in range(1,lastFret+1):
                             if kind == "open" and chord.minFret >first_fret:
                                 #It will be added later, when i is the value on the minFret. Not sure that equality of chords works, and useless to test it.
                                 continue
-                            if  kind:
+                            if  kind == "transposable" or considerOpen :
                                 chords[kind][chord.numberChord].add(chord)
                                     
             
@@ -251,7 +264,7 @@ for kind in chords:
         for chord in chords[kind][size]:
             supersetFound = False
             for chord_ in chords[kind][size+1]:
-                if chord < chord_:
+                if chord < chord_ and chord.minPos == chord_.minPos:
                     debug(chord,end="")
                     debug("deleted, because contained in",end="")
                     supersetFound=True
@@ -362,7 +375,8 @@ for chordName in transposable:
     index += """<li><a href='%s'>transposable %s</li>"""%(folder, chordName)
     anki += "%s\n"% ankiLine
 
-for chordName in opens_chord_base:
+if considerOpen:
+  for chordName in opens_chord_base:
     chordFile = """<html><head><title>List of open %s chords</title></head>
     <body>List of the open %s chords.<ul>""" %(chordName, chordName)
     for base in opens_chord_base[chordName]:
@@ -385,10 +399,10 @@ for chordName in opens_chord_base:
     chordFile += """</ul></body></html>"""
     with open("chord/open/%s/index.html"%chordName,"w") as f:
         f.write(chordFile)
-with open("chord/open/index.html","w") as f:
+  with open("chord/open/index.html","w") as f:
     f.write(chordFile)
     
-for base in opens_base_chord:
+  for base in opens_base_chord:
     baseFile = """<html><head><title>List of open %s chords</title></head>
     <body>List of the open %s chords.<ul>""" %(base, base)
     for chordName in opens_base_chord[base]:
