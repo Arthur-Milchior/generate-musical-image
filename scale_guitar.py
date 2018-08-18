@@ -3,7 +3,7 @@ decreasing_fret_limit=4
 
 import os
 from util import *
-from data import * 
+from scales_list import * 
 def scale2Pos(scale_dif,basePos):
     poss = [basePos]
     lastPos =basePos
@@ -34,16 +34,21 @@ It is assumed that, there is never more than %d fret from the first to the last 
 """%(increase_fret_limit,decreasing_fret_limit)
 
 for (names,scale_dif) in scales_dif:
+    diffs=[]
+    for dif in scale_dif:
+        if not isinstance(dif,int):
+            (_,dif)=dif
+        diffs.add(dif)
     name = names[0]
     folder = "scale/"+name
     ensureFolder(folder)
     web = """<html><head><title>All transposable %s on a standard guitar</title></head><body>Each transposable version of the scale %s.<br/> Successive notes are separated by %s half-notes
-<hr/>"""%(name,name, str(scale_dif))
+<hr/>"""%(name,name, str(diffs))
     for string in range(1,7):
         for fret in range(1,5):
             print ("""considering %s %d-%d"""%(name,string,fret))
             basePos = Pos(string,fret)
-            poss = scale2Pos(scale_dif, basePos)
+            poss = scale2Pos(diffs, basePos)
             if poss is False:
                 print("poss is false:continue")
                 continue

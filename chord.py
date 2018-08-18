@@ -247,10 +247,10 @@ for first_fret in range(1,lastFret+1):
                                           5:f5,
                                           6:f6})
                             kind = chord.kind()
-                            if kind == "open" and chord.minFret >first_fret:
+                            if kind == "open" and chord.minFret >first_fret and considerOpen:
                                 #It will be added later, when i is the value on the minFret. Not sure that equality of chords works, and useless to test it.
                                 continue
-                            if  kind == "transposable" or considerOpen :
+                            if  kind == "transposable"   :
                                 chords[kind][chord.numberChord].add(chord)
                                     
             
@@ -377,7 +377,7 @@ for chordName in transposable:
 
 if considerOpen:
   for chordName in opens_chord_base:
-    chordFile = """<html><head><title>List of open %s chords</title></head>
+    chordsFile = """<html><head><title>List of open %s chords</title></head>
     <body>List of the open %s chords.<ul>""" %(chordName, chordName)
     for base in opens_chord_base[chordName]:
         ankiLine = """open,%s,,%s"""%(base,chord.hts.anki())
@@ -399,8 +399,6 @@ if considerOpen:
     chordFile += """</ul></body></html>"""
     with open("chord/open/%s/index.html"%chordName,"w") as f:
         f.write(chordFile)
-  with open("chord/open/index.html","w") as f:
-    f.write(chordFile)
     
   for base in opens_base_chord:
     baseFile = """<html><head><title>List of open %s chords</title></head>
