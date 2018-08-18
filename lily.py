@@ -1,5 +1,11 @@
 import math
-
+lilyHeader="""#(set! paper-alist (cons '("mon format" . (cons (* 50 mm) (* 200 mm))) paper-alist))
+#(set-default-paper-size "mon format" 'landscape)
+\\version "2.18.2"
+\\header{
+ tagline=""
+}
+"""
 lowLimit={"left":-14,"right":-3}
 highLimit={"left":3,"right":14}
 
@@ -38,26 +44,18 @@ def staff(key,fingering, side):
 """%({"left":"bass","right":"treble"}[side],key,actualFinger(fingering,side))
 
 def lilySide(key,fingering,side):
-    return """\\version "2.18.2"
-\\header{
- tagline=""
-}
-
+    return """%s
 \\score{
 %s}
-"""%(staff(key,fingering,side))
+"""%(lilyHeader,staff(key,fingering,side))
 
 
 def lilyBoth(key,leftFingering,rightFingering):
-    return """\\version "2.18.2"
-\\header{
- tagline=""
-}
-
+    return """%s
 \\score{
   \\new PianoStaff<<
 %s
 %s
   >>
-}"""%(staff(key,rightFingering,"right"),staff(key,leftFingering,"left"))
+}"""%(lilyHeader,staff(key,rightFingering,"right"),staff(key,leftFingering,"left"))
 
