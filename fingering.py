@@ -226,8 +226,8 @@ with open("anki.csv","w")as anki_file:
             if not penaltyLeft.acceptable():
                 print("Warning:Left is not perfect on %s %s.\n\n%s"%(baseNote.getTitleName(),scaleName,penaltyLeft.warning()), file=sys.stderr)
         for nbOctave in [1,2,
-                         3,
-                         4,
+                         # 3,
+                         # 4,
                         ]:
             if doCompile:
                 leftIncreasing=generateLeftFingering(leftExtremalFinger,leftFingeringDic,baseNote,intervals, nbOctave=nbOctave)
@@ -237,17 +237,17 @@ with open("anki.csv","w")as anki_file:
                 rightIncreasing=[42]
             leftDecreasing=list(reversed(leftIncreasing))
             rightDecreasing=list(reversed(rightIncreasing))
-            for kind,leftFingering,rightFingering in[("increasing",leftIncreasing,rightIncreasing),
-                                                     ("decreasing",leftDecreasing,rightDecreasing),
-                                                     ("total",leftIncreasing[:-1]+leftDecreasing,rightIncreasing[:-1]+rightDecreasing),
-                                                     ("reverse",leftDecreasing[:-1]+leftIncreasing,rightDecreasing[:-1]+rightIncreasing)
+            for kind,leftFingering,rightFingering,nbOctaveKind in[("increasing",leftIncreasing,rightIncreasing,1),
+                                                                  ("decreasing",leftDecreasing,rightDecreasing,1),
+                                                                  ("total",leftIncreasing[:-1]+leftDecreasing,rightIncreasing[:-1]+rightDecreasing,2),
+                                                                  ("reverse",leftDecreasing[:-1]+leftIncreasing,rightDecreasing[:-1]+rightIncreasing,2)
             ]:
-                localLilySide = lilySide if doCompile else (lambda x, y, z : 42)
-                localLilyBoth = lilyBoth if doCompile else (lambda x, y, z : 42)
+                localLilySide = lilySide if doCompile else (lambda x, y, z,a : 42)
+                localLilyBoth = lilyBoth if doCompile else (lambda x, y, z,a : 42)
                 for hand,lilyCode in [
-                        ("left",localLilySide(key,leftFingering,"left")),
-                        ("right",localLilySide(key,rightFingering,"right")),
-                        ("both",localLilyBoth(key, leftFingering,rightFingering))
+                        ("left",localLilySide(key,leftFingering,"left",nbOctaveKind*nbOctave)),
+                        ("right",localLilySide(key,rightFingering,"right",nbOctaveKind*nbOctave)),
+                        ("both",localLilyBoth(key, leftFingering,rightFingering,nbOctaveKind*nbOctave))
                 ]:
                     fileName="%s-%s-%s-%d-%s"%(scaleName,baseNameFile,hand,nbOctave,kind)
                     anki_file.write(",<img src='%s.svg'>"%fileName)
@@ -277,7 +277,7 @@ with open("anki.csv","w")as anki_file:
                         os.system("""/home/milchior/bin/lilypond -dbackend=svg -o "%s"  "%s" """%(folder_fileName,folder_fileName_ly))
                         # os.system("""inkscape --verb=FitCanvasToDrawing --verb=FileSave --verb=FileClose "%s.svg"&"""%(folder_fileName))
                         # os.system("""pkill inkscape""")
-                        #os.system("""lilypond  -o "%s" "%s" """%(folder_fileName,folder_fileName_ly))
+                        os.system("""lilypond  -o "%s" "%s" """%(folder_fileName,folder_fileName_ly))
                         #os.system("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
         scale_note_html+="""</ul>
         <footer>
