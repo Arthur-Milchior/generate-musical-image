@@ -1,16 +1,11 @@
 import math
-lilyHeader="""#(set! paper-alist (cons '("mon format" . (cons (* 50 mm) (* 200 mm))) paper-alist))
-#(set-default-paper-size "mon format" 'landscape)
-\\version "2.18.2"
-\\header{
- tagline=""
-}
-"""
+lilyHeader=""""""
 lowLimit={"left":-14,"right":-3}
 highLimit={"left":3,"right":14}
 
 def defaultOctave(note,finger,restart=None):
     return 0
+
 def actualFinger(fingering,side,chooseOctave=defaultOctave):
     text=""
     lastOctave=None
@@ -43,19 +38,32 @@ def staff(key,fingering, side):
 %s}
 """%({"left":"bass","right":"treble"}[side],key,actualFinger(fingering,side))
 
-def lilySide(key,fingering,side):
-    return """%s
+octaveToLength={1:80, 2:135,4:240}
+def lilySide(key,fingering,side,nbOctave=4):
+    length=octaveToLength[nbOctave]
+    return """#(set! paper-alist (cons '("my format" . (cons (* 26 mm) (* %d mm))) paper-alist))
+#(set-default-paper-size "my format" 'landscape)
+\\version "2.18.2"
+\\header{
+ tagline=""
+}
 \\score{
 %s}
-"""%(lilyHeader,staff(key,fingering,side))
+"""%(length,staff(key,fingering,side))
 
+def lilyBoth(key,leftFingering,rightFingering,nbOctave=4):
+    length=octaveToLength[nbOctave]
+    return """#(set! paper-alist (cons '("my format" . (cons (* 45 mm) (* %d mm))) paper-alist))
+#(set-default-paper-size "my format" 'landscape)
+\\version "2.18.2"
+\\header{
+ tagline=""
+}
 
-def lilyBoth(key,leftFingering,rightFingering):
-    return """%s
 \\score{
   \\new PianoStaff<<
 %s
 %s
   >>
-}"""%(lilyHeader,staff(key,rightFingering,"right"),staff(key,leftFingering,"left"))
+}"""%(length,staff(key,rightFingering,"right"),staff(key,leftFingering,"left"))
 
