@@ -256,7 +256,7 @@ with open("anki.csv","w")as anki_file:
                     folder_fileName ="%s/%s"%(folder_scale_note,fileName)
                     folder_fileName_ly =folder_fileName+".ly"
                     folder_fileName_png=folder_fileName+".png"
-                    scale_note_html+="""<li><img src='%s.png'/></li>"""%(fileName)
+                    scale_note_html+="""<li><img src='%s.svg'/></li>"""%(fileName)
                     if os.path.isfile(folder_fileName_ly):
                         debug("%s already exists."%(folder_fileName_ly))
                         with open(folder_fileName_ly) as file:
@@ -273,11 +273,11 @@ with open("anki.csv","w")as anki_file:
                         print("%s should be generated."%(folder_fileName_png))
                         with open(folder_fileName_ly, "w") as file:
                             file.write(lilyCode)
-                        os.system("""lilypond -dbackend=svg -o "%s"  "%s" """%(folder_fileName,folder_fileName_ly))
+                        os.system("""/home/milchior/bin/lilypond -dbackend=svg -o "%s"  "%s" """%(folder_fileName,folder_fileName_ly))
                         # os.system("""inkscape --verb=FitCanvasToDrawing --verb=FileSave --verb=FileClose "%s.svg"&"""%(folder_fileName))
                         # os.system("""pkill inkscape""")
-                        #os.system("""lilypond  -o "%s" "%s" """%(folder_fileName,folder_fileName_ly))
-                        os.system("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
+                        #os.system("""/home/milchior/bin/lilypond  -o "%s" "%s" """%(folder_fileName,folder_fileName_ly))
+                        #os.system("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
         scale_note_html+="""</ul>
         <footer>
         <a src="../../about.html"/>About</a><br/>
