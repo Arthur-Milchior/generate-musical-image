@@ -257,7 +257,7 @@ with open("anki.csv","w")as anki_file:
                     folder_fileName_ly =folder_fileName+".ly"
                     folder_fileName_png=folder_fileName+".png"
                     folder_fileName_svg=folder_fileName+".svg"
-                    scale_note_html+="""<li><img src='%s.svg'/></li>"""%(fileName)
+                    scale_note_html+="""<li><a href='%s.ly'/><img src='%s.svg'/></a></li>"""%(fileName,fileName)
                     if os.path.isfile(folder_fileName_ly):
                         debug("%s already exists."%(folder_fileName_ly))
                         with open(folder_fileName_ly) as file:
@@ -281,7 +281,7 @@ with open("anki.csv","w")as anki_file:
                         #os.system("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
         scale_note_html+="""</ul>
         <footer>
-        <a src="../../about.html"/>About</a><br/>
+        <a href="../../about.html"/>About</a><br/>
         <a href='../..'>Other scales</a><br/>
         <a href='..'>Other note of this scale</a>
         </footer>
@@ -293,7 +293,7 @@ with open("anki.csv","w")as anki_file:
         
     scale_html+="""</ul>
     <footer>
-    <a src="../../about.html"/>About</a><br/>
+    <a href="../../about.html"/>About</a><br/>
     <a href='..'>Other scales</a>
     </footer>
     </body>
@@ -304,7 +304,7 @@ with open("anki.csv","w")as anki_file:
         
 root_html+="""
 </ul>
-<footer><a src="about.html"/>About</a></footer>
+<footer><a href="about.html"/>About</a></footer>
 </body>
 </html>
 """
