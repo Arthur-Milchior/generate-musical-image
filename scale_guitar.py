@@ -3,7 +3,7 @@ decreasing_fret_limit=4
 
 import os
 from util import *
-from data import * 
+from scales_list import * 
 def scale2Pos(scale_dif,basePos):
     poss = [basePos]
     lastPos =basePos

@@ -1,3 +1,3 @@
 import chord
 import solo
-import chord
+import scale_guitar
