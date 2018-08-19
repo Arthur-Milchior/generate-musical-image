@@ -1,3 +1,12 @@
+#It should generate:
+#63 scales
+#12 note
+#2 octaves
+#4 kinds
+#3 hands
+#=18144 images
+#Taking 4 seconds each, it takes 20 hours
+
 from penalty import Penalty
 from note import *
 import os
@@ -5,7 +14,7 @@ import sys
 from util import *
 from lily import *
 from scales_list import scales
-
+lilyProgram="/home/milchior/bin/lilypond "
 
 def generateLeftFingeringDic(currentNote,intervals,fingeringDic=None):
     #generated on 2 octaves to check that transition goes smoothly.
@@ -254,13 +263,10 @@ with open("anki.csv","w")as anki_file:
                     if nbOctave>2 or  not doCompile:
                         continue
                     folder_fileName ="%s/%s"%(folder_scale_note,fileName)
-                    folder_fileName_ly =folder_fileName+".ly"
-                    folder_fileName_png=folder_fileName+".png"
-                    folder_fileName_svg=folder_fileName+".svg"
                     scale_note_html+="""<li><a href='%s.ly'/><img src='%s.svg'/></a></li>"""%(fileName,fileName)
-                    if os.path.isfile(folder_fileName_ly):
-                        debug("%s already exists."%(folder_fileName_ly))
-                        with open(folder_fileName_ly) as file:
+                    if os.path.isfile(folder_fileName+".ly"):
+                        debug("%s already exists."%(folder_fileName+".ly"))
+                        with open(folder_fileName+".ly") as file:
                             last_code = file.read()
                             if last_code!= lilyCode:
                                 debug("Code is distinct, we rewrite")
@@ -272,12 +278,13 @@ with open("anki.csv","w")as anki_file:
                         compile=True
                     if compile:                    
                         print("%s should be generated."%(folder_fileName))
-                        with open(folder_fileName_ly, "w") as file:
+                        with open(folder_fileName+".ly", "w") as file:
                             file.write(lilyCode)
-                        os.system("""/home/milchior/bin/lilypond -dbackend=svg -o "%s"  "%s" """%(folder_fileName,folder_fileName_ly))
+                        os.system("""%s -dpreview -dbackend=svg -o "%s"  "%s" """%(lilyProgram,folder_fileName,folder_fileName+".ly"))
+                        os.system("mv %s.preview.svg %s.svg"%(folder_fileName,folder_fileName))
                         # os.system("""inkscape --verb=FitCanvasToDrawing --verb=FileSave --verb=FileClose "%s.svg"&"""%(folder_fileName))
                         # os.system("""pkill inkscape""")
-                        os.system("""lilypond  -o "%s" "%s" """%(folder_fileName,folder_fileName_ly))
+                        #os.system("""lilypond  -o "%s" "%s" """%(folder_fileName,folder_fileName+".ly"))
                         #os.system("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
         scale_note_html+="""</ul>
         <footer>
