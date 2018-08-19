@@ -38,32 +38,34 @@ def staff(key,fingering, side):
 %s}
 """%({"left":"bass","right":"treble"}[side],key,actualFinger(fingering,side))
 
-octaveToLength={1:80, 2:135,4:240}
+# octaveToLength={1:80, 2:135,4:240}
 def lilySide(key,fingering,side,nbOctave=4):
-    length=octaveToLength[nbOctave]
-    return """#(set! paper-alist (cons '("my format" . (cons (* 26 mm) (* %d mm))) paper-alist))
-#(set-default-paper-size "my format" 'landscape)
-\\version "2.18.2"
-\\header{
- tagline=""
-}
-\\score{
-%s}
-"""%(length,staff(key,fingering,side))
+    #length=octaveToLength[nbOctave]
+    return (#"""#(set! paper-alist (cons '("my format" . (cons (* 26 mm) (* %d mm))) paper-alist))"""+
+        """#(set-default-paper-size "A4" 'landscape)"""+
+        """\\version "2.18.2"
+        \\header{
+        tagline=""
+        }
+        \\score{
+        %s}
+        """%(#length,
+             staff(key,fingering,side)))
 
 def lilyBoth(key,leftFingering,rightFingering,nbOctave=4):
-    length=octaveToLength[nbOctave]
-    return """#(set! paper-alist (cons '("my format" . (cons (* 45 mm) (* %d mm))) paper-alist))
-#(set-default-paper-size "my format" 'landscape)
-\\version "2.18.2"
-\\header{
- tagline=""
-}
-
-\\score{
-  \\new PianoStaff<<
-%s
-%s
-  >>
-}"""%(length,staff(key,rightFingering,"right"),staff(key,leftFingering,"left"))
+    #length=octaveToLength[nbOctave]
+    return (#"""#(set! paper-alist (cons '("my format" . (cons (* 45 mm) (* %d mm))) paper-alist))"""+
+            """#(set-default-paper-size "A4" 'landscape)"""+
+            """\\version "2.18.2"
+            \\header{
+            tagline=""
+            }
+            
+            \\score{
+            \\new PianoStaff<<
+            %s
+            %s
+            >>
+            }"""%(#length,
+                staff(key,rightFingering,"right"),staff(key,leftFingering,"left")))
 
