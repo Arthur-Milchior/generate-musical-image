@@ -263,7 +263,7 @@ with open("anki.csv","w")as anki_file:
                     if nbOctave>2 or  not doCompile:
                         continue
                     folder_fileName ="%s/%s"%(folder_scale_note,fileName)
-                    scale_note_html+="""<li><a href='%s.ly'/><img src='%s.svg'/></a></li>"""%(fileName,fileName)
+                    scale_note_html+="""<li><a href='%s.ly'/><img src='%s.preview.svg'/></a></li>"""%(fileName,fileName)
                     if os.path.isfile(folder_fileName+".ly"):
                         debug("%s already exists."%(folder_fileName+".ly"))
                         with open(folder_fileName+".ly") as file:
