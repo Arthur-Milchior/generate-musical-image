@@ -178,21 +178,13 @@ def generateFingering(currentNote,remainingInterval,fingeringDic):
     return l
 
 
-doCompile=True 
-# scales=[
-#     (["Major"],0,0,
-#      [2,2,1,2,2,2,1]),
-#     # (["Minor harmonic"],3,0,
-#     #  [2,1,2,2,1,3,1]),
-#     # (["blues"],3,0,
-#     #  [(2,3),2,(0,1),1,(2,3),2]),
-# ]
+doCompile=True
 root_html="""
 <html><head><title>Fingerings of every scales</title></head><body>
 <header><h1>Fingerings of every scales</h1></header>
 <ul>
 """
-with open("anki.csv","w")as anki_file:
+with open("""anki.csv""","w")as anki_file:
   for (scaleNames,nbBemol,nbSharp,intervals) in scales:
     scaleName=scaleNames[0]
     root_html+="""<li><a href='%s'>%s</a></li>"""%(scaleName,scaleName)
@@ -201,7 +193,10 @@ with open("anki.csv","w")as anki_file:
         <header><h1>Fingerings of %s</h1></header>
     <ul>
     """%(scaleName,scaleName)
-    for (baseNote,nbBemol_) in twelve_notes:
+    folder_scale="piano_scales/%s"%scaleName
+    ensureFolder(folder_scale)
+    with open("""%s/anki.csv"""%folder_scale,"w")as anki_scale_file:
+      for (baseNote,nbBemol_) in twelve_notes:
         baseNameFile=baseNote.nameForFile()
         baseNameTitle=baseNote.getTitleName()
         scale_html+="""<li><a href='%s'>%s</a></li>"""%(baseNameFile,baseNameTitle)
@@ -218,10 +213,10 @@ with open("anki.csv","w")as anki_file:
         else:
             key=["c","f","bes","ees","aes","des","ges","ces","fes","beses","eeses","aeses", "deses", "ceses", "feses"][nbBemolFinal]
         debug("%s has %d bemol, %s has %d bemol and %d sharp.\nTotal is %d bemol and %d sharp.\nThe key is %s." %(baseNote.getTitleName(),nbBemol_,scaleName,nbBemol,nbSharp, nbSharpFinal, nbBemolFinal,key))
-        folder_scale="piano_scales/%s"%(scaleName)
         folder_scale_note="%s/%s"%(folder_scale,baseNameFile)
         ensureFolder(folder_scale_note)
         anki_file.write("\n%s,%s"%(scaleName,baseNameFile))
+        anki_scale_file.write("\n%s,%s"%(scaleName,baseNameFile))
         if doCompile:
             leftFingeringDic=generateLeftFingeringDic(baseNote, intervals)
             rightFingeringDic=generateRightFingeringDic(baseNote, intervals)
@@ -260,9 +255,12 @@ with open("anki.csv","w")as anki_file:
                 ]:
                     fileName="%s-%s-%s-%d-%s"%(scaleName,baseNameFile,hand,nbOctave,kind)
                     anki_file.write(",<img src='%s.svg'>"%fileName)
-                    if nbOctave>2 or  not doCompile:
+                    anki_scale_file.write(",<img src='%s.svg'>"%fileName)
+                    if nbOctave>2:
                         continue
                     folder_fileName ="%s/%s"%(folder_scale_note,fileName)
+                    if not doCompile:
+                        continue
                     scale_note_html+="""<li><a href='%s.ly'/><img src='%s.svg'/></a></li>"""%(fileName,fileName)
                     if os.path.isfile(folder_fileName+".ly"):
                         debug("%s already exists."%(folder_fileName+".ly"))
@@ -281,7 +279,8 @@ with open("anki.csv","w")as anki_file:
                         with open(folder_fileName+".ly", "w") as file:
                             file.write(lilyCode)
                         os.system("""%s -dpreview -dbackend=svg -o "%s"  "%s" """%(lilyProgram,folder_fileName,folder_fileName+".ly"))
-                        os.system("mv %s.preview.svg %s.svg"%(folder_fileName,folder_fileName))
+                        mv="""mv -f "%s.preview.svg" "%s.svg" """%(folder_fileName,folder_fileName)
+                        os.system(mv)
                         # os.system("""inkscape --verb=FitCanvasToDrawing --verb=FileSave --verb=FileClose "%s.svg"&"""%(folder_fileName))
                         # os.system("""pkill inkscape""")
                         #os.system("""lilypond  -o "%s" "%s" """%(folder_fileName,folder_fileName+".ly"))
