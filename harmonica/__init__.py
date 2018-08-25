@@ -1,4 +1,4 @@
-from  util import *
+from util import *
 square = 30
 
 def drawHarmonica (f, pos, draw):
@@ -21,6 +21,6 @@ def drawHarmonica (f, pos, draw):
 
 for draw in [True,False]:
     for pos in range (1,11):
-        ensureFolder("harmonica")
-        with open("harmonica/%s%d.svg"%("draw" if draw else "blow", pos), "w") as f:
+        ensureFolder("harmonica/images/")
+        with open("harmonica/images/%s%d.svg"%("draw" if draw else "blow", pos), "w") as f:
             drawHarmonica(f,pos,draw)

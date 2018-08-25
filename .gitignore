@@ -104,3 +104,10 @@ ENV/
 *~
 *svg
 *png
+
+piano/scales
+guitar/chord/open/
+guitar/chord/transposable/
+guitar/scale/images
+guitar/solo/images
+*csv

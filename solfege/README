@@ -1,0 +1,17 @@
+This folder contains everything which is related to musical theory.
+
+##Files
+scales.py: contains a class to represent scales. This class contains the list of scales, and a dictionnary from name to scales.
+
+interval.py: contains class used to represent interval.
+--A diatonic interval is an interval, counting only notes in the scale
+--A chromatic interval is an interval, counting each half-tone
+--Alternation is a chromatic interval used to represents sharps and bemol
+--Solfege interval is a pair with a diatonic interval and a chromatic interval. Or equivalently, a diatonic interval and an alteration. This is what allows to distinguish between G and G# (same diatonic interval) and G# and Ab (same chromatic interval) 
+
+note.py: Represents notes.
+--DiatonicNote represents a note as its index in the scale.
+--ChromaticNote represents a note as its index in the chromatic scale.
+--Note represents a note using its diatonic and chromatic position
+
+

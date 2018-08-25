@@ -1,7 +1,13 @@
+"""
+generates pair on note on distinct string.
+Generate an anki note, with this image, and the distance between both strings.
+"""
+
 import os
+from util import *
+folder="guitar/pair/"
 max_fret_distante = 4
-from  util import *
-zeroPath = "pair/0"
+zeroPath = folder+"0"
 ensureFolder(zeroPath)
 anki = ""
 for string in range(1,6):
@@ -13,7 +19,7 @@ for string in range(1,6):
                                 sop = SetOfPos(set([pos1,pos2]))
                                 with open("%s/%d%d-%d%d.svg"%(zeroPath,string,pos, string_,pos_),"w") as f:
                                         sop.draw(f,nbFretMin= 6)
-with open ("pair/anki.csv", "w") as f:
+with open (folder+"anki.csv", "w") as f:
         f.write(anki)
 for string in range(1,6):
         for string_ in range(string+2,7):
@@ -29,5 +35,5 @@ for string in range(1,6):
                         else: #dpos=0
                                 imgDif = """<img src="%d%d-%d%d.svg"/>""" %(string,3,string_,3)
                         anki += """strings %d and %d,%s,%s\n"""%(string,string_,imgDif,name) 
-with open ("pair/anki.csv", "w") as f:
+with open (folder+"/anki.csv", "w") as f:
         f.write(anki)

@@ -1,12 +1,19 @@
+"""Consider each way to place fingers on at least four of the six strings.
+If its a chord, satisfying some condition, the image is generated, and an anki note is also generated. 
+"""
+
 #anki: open/tranposable, starting note(for open),position of tonic (for transposable), 3, 5, 7 (,image,1, 3, 5, 7)*n
+from solfege.interval import *
 from util import *
-modDebug = False
-minNumberString = 4 #if not modDebug else 2
+from .util import *
+modDebug = True
+minNumberString = 4 if not modDebug else 2
 fretDifMax = 4 if not modDebug else 2
 lastFret = 12 if not modDebug else 5
 maxChordNumber = 0
 maxChord=""
-considerOpen = True
+considerOpen = False
+
 
 
 class Chord(SetOfPos):
@@ -20,7 +27,7 @@ class Chord(SetOfPos):
     def anki(self):
         """(pos1,pos3,pos5,posn)"""
         text = ""
-        for (number,hts) in [("1",{0}),("3",{3,4}), ("5",{6,7}), ("n",{9,10,11})]:
+        for (number,hts) in [("1",{Chromatic(0)}),("3",{Chromatic(3),Chromatic(4)}), ("5",{Chromatic(6),Chromatic(7)}), ("n",{Chromatic(9),Chromatic(10),Chromatic(11)})]:
             text +=","
             for i in range(1,7):
                 if i not in self.chord:
@@ -61,17 +68,21 @@ class Chord(SetOfPos):
             if nbGtOne>3:
                 debug ("Closed string and %d elements which are >1"% nbGtOne)
                 return False
+        debug("Playable")
         return True
     def atLeastFourString(self):
         r = self.numberChord>=minNumberString
         if r:
+            debug("At least %d string"%minNumberString)
             return True
         else:
             debug("Only %d strings played"% self.numberChord)
             return False
         
     def isStandardChord(self):
-        return self.hts.isStandardChord()
+        standard=self.hts.isStandardChord()
+        debug("Is it standard: %s"%standard)
+        return  standard
     def isOpenChord(self):
         return self.isOpen() and self.isStandardChord() and self.playable() and self.atLeastFourString()
     def isTransposableChord(self):
@@ -101,14 +112,14 @@ class Chord(SetOfPos):
         
 
 class Hts:
-    """The set of half tone, from the least note"""
+    """The set of chromatic interval (coded as integers) between the notes and the lowest note"""
     def __init__(self, sop):
         minPos = sop.findMinPos()
         self.hts = {pos - minPos for pos in sop if pos.fret is not None}
     def isMinor(self):
-        return 3 in self.hts
+        return ChromaticInterval(3) in self.hts
     def isMajor(self):
-        return 4 in self.hts
+        return ChromaticInterval(4) in self.hts
     def third(self):
         if self.isMinor():
             if self.isMajor():
@@ -119,9 +130,9 @@ class Hts:
         debug("no Third")
         return False
     def isFifthDimished(self):
-        return 6 in self.hts
+        return ChromaticInterval(6) in self.hts
     def isFifthJust(self):
-        return 7 in self.hts
+        return ChromaticInterval(7) in self.hts
     def fifth(self):
         """If the 5th is diminished, and third is minor return "diminished". 
         If the 5th is just, return the empty string.
@@ -139,11 +150,11 @@ class Hts:
     def hasNotQuality(self):
         return not (self.is6() or self.is7min() or self.is7maj())
     def is6(self):
-        return 9 in self.hts
+        return ChromaticInterval(9) in self.hts
     def is7min(self):
-        return 10 in self.hts
+        return ChromaticInterval(10) in self.hts
     def is7maj(self):
-        return 11 in self.hts
+        return ChromaticInterval(11) in self.hts
     def quality(self):
         if self.is6():
             if self.is7min() or self.is7maj():
@@ -159,38 +170,49 @@ class Hts:
             return  "7maj"
         return ""
     def containsTonic(self):
-        return 0 in self.hts
+        return ChromaticInterval(0) in self.hts
     def anki(self):
         """Third, fifth, 7th"""
         return "%s,%s,%s"%(self.third(),self.fifth(),self.quality())
     def contains567(self):
-        return (7 in self.hts
+        return (ChromaticInterval(7) in self.hts
                 or
                 self.quality())
     def wrongNote(self):
-        return(
-            1 in self.hts #half tone
-            or
-            2 in self.hts #subtonic
-            or
-            5 in self.hts#subdominant
-            or
-            8 in self.hts #dominant #
-        )
+        if ChromaticInterval(1) in self.hts:
+            debug("Contains half tone")
+            return False
+        if ChromaticInterval(2) in self.hts:
+            debug("Contains tone")
+            return False
+        if ChromaticInterval(5) in self.hts:
+            debug("contains fourth")
+            return False
+        if ChromaticInterval(8) in self.hts:
+            debug("Contains 6th bemol")
+            return False
+        return True
     def isStandardChord(self):
         "Given a set of notes, is it a standard chord"
-        return ((not self.wrongNote())
-                and
-                self.third()
-                and
-                self.fifth() is not False
-                and
-                self.quality() is not False
-                and 
-                self.containsTonic()
-                and
-                self.contains567()
-        )
+        if self.wrongNote():
+            debug("Contains wrong note")
+            return False
+        if not self.third():
+            debug("Has no third")
+            return False
+        if self.fifth() is False:
+            debug("Has no fifth")
+            return False
+        if self.quality is False:
+            debug("wrong quality")
+            return False
+        if not self.containsTonic():
+            debug("has no tonic")
+            return False
+        if not self.contains567():
+            debug("Has no interval at least 5th")
+            return False
+        return True
     def isNonStandard(self):
         return not self.isStandardChord()
 
@@ -246,12 +268,15 @@ for first_fret in range(1,lastFret+1):
                                           4:f4,
                                           5:f5,
                                           6:f6})
+                            debug("Considering chord %s"%chord)
                             kind = chord.kind()
                             if kind == "open" and chord.minFret >first_fret:
                                 #It will be added later, when i is the value on the minFret. Not sure that equality of chords works, and useless to test it.
                                 continue
-                            if  kind == "transposable" or considerOpen :
-                                chords[kind][chord.numberChord].add(chord)
+                            if  kind == "transposable"  :
+                                chords_kind=chords[kind]
+                                chord_kind_numberChord=chords_kind[chord.numberChord]
+                                chord_kind_numberChord.add(chord)
                                     
             
 
@@ -287,7 +312,7 @@ for kind in chords:
       for chord in chords[kind][i]:
         minPos = chord.findMinPos()
         chordName = str(chord.hts)
-        folder = "chord/%s/%s" % (kind, chordName)
+        folder = "guitar/chord/%s/%s" % (kind, chordName)
         fileName = ("%d-%d-%s"%(minPos.string, minPos.fret, chordName))
 
         #edit name and folder for open file
@@ -361,7 +386,8 @@ for chordName in transposable:
     ankiLine = """transposable,,<img src="%i%i.svg"/>,%s"""%(minPos.string,minPos.fret,chord.hts.anki())
     local = """<html><head><title>List of transposable %s chords</title></head>
     <body>List of the %d transposable %s chords<br/>""" %( chordName, len(transposable[chordName][minPos]), chordName)
-    folder = "chord/transposable/%s" %(chordName)
+    folder = "guitar/chord/transposable/%s" %(chordName)
+    ensureFolder(folder)
     for (fileName, chord) in transposable[chordName][minPos]:
         local +="""<img src="%s"/>""" % fileName
         ankiLine += """",<img src="%s"/>,%s"""%(fileName, chord.anki())
@@ -375,7 +401,9 @@ for chordName in transposable:
     index += """<li><a href='%s'>transposable %s</li>"""%(folder, chordName)
     anki += "%s\n"% ankiLine
 
+ensureFolder("guitar")
 if considerOpen:
+  ensureFolder("guitar/chord/open")
   for chordName in opens_chord_base:
     chordFile = """<html><head><title>List of open %s chords</title></head>
     <body>List of the open %s chords.<ul>""" %(chordName, chordName)
@@ -390,16 +418,17 @@ if considerOpen:
             ankiLine += """",<img src="%s"/>%s"""%(fileName, chord.anki())
         ankiLine += (",,,,,"*(maxChordNumber-len(opens_chord_base[chordName][base])))
         chordBaseFile += """<br/><a href="../../..">List of chords</a>,<a href="../transposable/%s">the transposable %s chords</a></body></html>"""% (chordName, chordName)
-        path = "chord/%s/index.html"%folder
+        path = "guitar/chord/%s/index.html"%folder
         with open(path,"w") as f:
             f.write(chordBaseFile)
         print("Adding open %s %s to index" % (base,chordName))
         index += """<li><a href='%s'>open %s %s</li>"""%(folder, base, chordName)
         anki += "%s\n"% ankiLine
     chordFile += """</ul></body></html>"""
-    with open("chord/open/%s/index.html"%chordName,"w") as f:
+    ensureFolder("guitar/chord/open/%s"%chordName)
+    with open("guitar/chord/open/%s/index.html"%chordName,"w") as f:
         f.write(chordFile)
-  with open("chord/open/index.html","w") as f:
+  with open("guitar/chord/open/index.html","w") as f:
     f.write(chordFile)
     
   for base in opens_base_chord:
@@ -408,16 +437,15 @@ if considerOpen:
     for chordName in opens_base_chord[base]:
         baseFile +="""<li><a href="../%s/%s/">%s</a></li>"""%(base, chordName,chordName)
     baseFile += """</ul></body></html>"""
-    folder = "chord/open/%s"%base
-    ensureFolder(folder)
+    folder = "guitar/chord/open/%s"%base
     path = folder + "/index.html"
     with open(path,"w") as f:
         f.write(baseFile)
 
 
 index += "</ul></body></hmtl>"
-with open("chord/anki.csv","w") as f:
+with open("guitar/chord/anki.csv","w") as f:
     f.write(anki)
-with open("chord/index.html","w") as f:
+with open("guitar/chord/index.html","w") as f:
     f.write(index)
 print("There is up to %d version of the same chord, i.e. chord %s"%(maxChordNumber,maxChord))

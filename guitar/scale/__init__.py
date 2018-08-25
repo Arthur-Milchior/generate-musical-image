@@ -1,15 +1,20 @@
-increase_fret_limit = 4
-decreasing_fret_limit=4
 
+from guitar.util import *
+from .chord import *
 import os
 from util import *
-from scales_list import * 
-def scale2Pos(scale_dif,basePos):
+from .util import *
+from solfege.scales import scales
+
+increase_fret_limit = 4
+decreasing_fret_limit=4
+folder="guitar/scale/images/"
+def scale2Pos(intervals,basePos):
     poss = [basePos]
     lastPos =basePos
     firstFret = basePos.fret
-    for ivl in scale_dif:
-        pos = lastPos.add(ivl, min = max(lastPos.fret -4,1), max = firstFret +4)
+    for interval in intervals:
+        pos = lastPos.add(interval, min = max(lastPos.fret -4,1), max = firstFret +4)
         if pos is None:
             return False
         if pos.string != lastPos.string:
@@ -33,27 +38,23 @@ It is assumed that, there is never more than %d fret from the first to the last 
 <ul>
 """%(increase_fret_limit,decreasing_fret_limit)
 
-for (names,scale_dif) in scales_dif:
-    diffs=[]
-    for dif in scale_dif:
-        if not isinstance(dif,int):
-            (_,dif)=dif
-        diffs.add(dif)
-    name = names[0]
-    folder = "scale/"+name
-    ensureFolder(folder)
+for scale in scales:
+    name = scale.getFirstName()
+    intervals=scale.getInterval()
+    folder_scale = folder+name
+    ensureFolder(folder_scale)
     web = """<html><head><title>All transposable %s on a standard guitar</title></head><body>Each transposable version of the scale %s.<br/> Successive notes are separated by %s half-notes
-<hr/>"""%(name,name, str(diffs))
+<hr/>"""%(name,name, str(intervals))
     for string in range(1,7):
         for fret in range(1,5):
             print ("""considering %s %d-%d"""%(name,string,fret))
             basePos = Pos(string,fret)
-            poss = scale2Pos(diffs, basePos)
+            poss = scale2Pos(intervals, basePos)
             if poss is False:
                 print("poss is false:continue")
                 continue
             file ="%d-%d-%s.svg"%( string, fret, name)
-            path = "%s/%s" %(  folder,file)
+            path = "%s/%s" %(  folder_scale,file)
             sop=SetOfPos(poss)
             print(sop)
             if not sop.isOneMin():
@@ -68,12 +69,12 @@ for (names,scale_dif) in scales_dif:
     for name in names:
         index += "%s, " % name
     index +="""</a></li>"""
-    with open("%s/index.html"% folder,"w") as f:
+    with open("%s/index.html"% folder_scale,"w") as f:
         f.write(web)
 
 
 
 index +="""</ul></body>
 </html>"""
-with open("scale/index.html","w") as f:
+with open(folder+"/index.html","w") as f:
     f.write(index)

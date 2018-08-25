@@ -1,8 +1,9 @@
-This code was main mainly for my particular use. Therefore, no care was taken in order to make it perfect. In particular, each configuration appear in the file, so if you want to change anything, you must edit the code.
+This package goal is to help the packages' author (Arthur Milchior, arthur@milchior.fr) to learn solfege on multiple instruments. In order to do this, it generates notes for the spaced repetition program anki <https://apps.ankiweb.net/>, and images to be used in those notes. The detail of each kind of notes and images is described in the README of each subdirectory.
 
-Running solo.py generates a folder solo, containing files ij.svg where i is a string number, and j a fret number. There is a fret, with a note on string i and  fret j. And nothing else.
+Running python3 . will generate every single notes and images, on each instruments.
+Running python3 instrument should generate the notes and images only for this instrument. In order to generate a single kind of note, see the README inside the subdirectories.
 
-Running scale/scale.py generates folders   ''scale/foo'', for each scale ''foo''. In each folder, there is a file fooij where you see the way to play scale foo, starting on string i and fret j. There is also a file index.html which explain the restriction on the scales generated.
 
-Running chords.py generates folders ''chords/open'' ''chords/transpose''. The transpose folder contains subfolder ''/foo'' for each kind of chord ''foo''. This folder contains images ''foo-ij.svg'' showing chord foo with tonic being lowest tone, played on string i and fret j. The ''open'' contains subfolder ''foo/bar'', containing the open chord with tonic ''bar'' and chord ''foo''. It also contains subfolder ''bar'', with only an index file showing the list of ''foo/bar'' folders.
 
+P.S.:
+This code was main mainly for my particular use. While I tried to comment it, and make it reusable, there is no garantee of any kind. In particular, there may be fault, there may be things which are not academically correct, both in the code, and in the images generated.

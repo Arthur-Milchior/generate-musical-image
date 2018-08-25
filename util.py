@@ -1,9 +1,13 @@
 import os
 
-
-def debug(s, *args, **kwargs):
-    #print(s, *args, **kwargs)
-    pass
+doDebug = False
+def debug(string, params=None):
+    if not doDebug:
+        return
+    if params:
+        print(string%params)
+    else:
+        print(string)
 
 def ensureFolder(folder):
     if not os.path.exists(folder):
