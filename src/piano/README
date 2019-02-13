@@ -1,0 +1,20 @@
+The goal of this package is to generate fingering from every scales, starting on every notes.
+
+The fingerings are represented in an SVG file, representing scales on one and two octaves, increasing, decreasing, increasing and decreasing, decreasing and increasing, left hand, right hand and both hands.
+
+cant_exists.txt contains the list of scales which has not been generated, because no scale satisfy each condition. (e.g. C# pentatonic major can't be played if you simultaneously forbid to use a thumb on a black note, and to have a finger going over a non-thumb finger)
+
+the folder scales contains the actual images, and lilypond code.
+It contains a subfolder by scale, and a subsubfolder by starting note.
+
+#Files
+
+lily.py contains functions used to write the lily file. Those to generate the actual lilypond code, and to compile it into an svg
+
+fingering.py: contains the functions used to generate the fingering, given a scale, a starting note, a hand.
+
+penalty.py: contains a class used to associate a penalty to each fingering. The chosen fingering is the one with the smallest penalty.
+
+note.py: extends solfege.note to add informations related to piano
+
+__init__.py: the file where the actual loops are presented. And where the files (anki, html) are written
