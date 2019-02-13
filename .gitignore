@@ -102,9 +102,11 @@ ENV/
 /_tmp/
 ~
 *~
+chord/
+solo/
 *svg
 *png
-
+*pye
 piano/scales
 guitar/chord/open/
 guitar/chord/transposable/
