@@ -1,8 +1,8 @@
 This package goal is to help the packages' author (Arthur Milchior, arthur@milchior.fr) to learn solfege on multiple instruments. In order to do this, it generates notes for the spaced repetition program anki <https://apps.ankiweb.net/>, and images to be used in those notes. The detail of each kind of notes and images is described in the README of each subdirectory.
 
 Running "python3 ." will generate every single notes and images, on each instruments.
-Running "python3 instrument" should generate the notes and images only for this instrument. In order to generate a single kind of note, see the README inside the subdirectories.
-The Piano directory requires that lilypond is installed. 
+Running "python3 -m instrument" from the src folder should generate the notes and images only for this instrument. In order to generate a single kind of note, see the README inside the subdirectories.
+The Piano directory requires that lilypond is installed.
 
 
 P.S.:

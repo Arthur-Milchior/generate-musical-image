@@ -7,7 +7,7 @@ cant_exists.txt contains the list of scales which has not been generated, becaus
 the folder scales contains the actual images, and lilypond code.
 It contains a subfolder by scale, and a subsubfolder by starting note.
 
-#Files
+# Files
 
 lily.py contains functions used to write the lily file. Those to generate the actual lilypond code, and to compile it into an svg
 
