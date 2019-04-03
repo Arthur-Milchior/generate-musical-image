@@ -3,8 +3,10 @@ from .interval import ChromaticInterval
 from util import debug
 
 class Chord_Pattern(Solfege_Pattern):
+    """A pattern describing a chord."""
     fromInterval=dict()
     def __init__(self,names,intervals,optional=None):
+        """A sequence of interval between the tonic and the other notes of this chord."""
         super().__init__(names)
         intervals={ChromaticInterval(chromatic=interval) for interval in intervals}
         intervals.add(ChromaticInterval(chromatic=0))
@@ -39,4 +41,3 @@ Chord_Pattern(["Dominant seventh flat five chord"],{4,6,10})
 Chord_Pattern(["Dominant seventh chord","major minor seventh chord"],{4,10},7)
 Chord_Pattern(["Major seventh chord"],{4,11},7)
 Chord_Pattern(["Minor seventh chord"],{3,10},7)
-

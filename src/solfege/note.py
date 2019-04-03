@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Classes for notes. They are all represented as an interval from the middle C. 
-Difference between a note and an interval is: 
+Classes for notes. They are all represented as an interval from the middle C.
+Difference between a note and an interval is:
 -two notes can't be added(it's not actually checked)
 -substracting notes lead to an interval
 -the names are different
@@ -13,8 +13,8 @@ import solfege.interval
 from solfege.interval import DiatonicInterval, ChromaticInterval,SolfegeInterval, Alteration, TooBigAlteration
 from util import *
 
-class _Note:#(_Interval):
-    """A note. Similar an interval. 
+class _Note:
+    """A note. Similar an interval.
 
     -A note may be added to an interval, but not to a note
     -Two notes may be substracted, leading to an interval.
@@ -24,22 +24,43 @@ class _Note:#(_Interval):
     def isNote(self):
         return True
 
+    def __neg__(self):
+        raise Exception("Trying to negate a note makes no sens.")
+
     def __sub__(self,other):
-        return self.IntervalClass(value=self.getNumber()-other.getNumber())
-        # self=self.IntervalClass(toCopy=self)
-        # other=other.IntervalClass(toCopy=other)
-        # return self-other
+        if isinstance(other, _Note):
+            return self.subNote(other)
+        else:
+            return self.subInterval(other)
+        # return self + (-other)
+        # selfInterval=self.IntervalClass(toCopy=self)
+#         print(f"""
+# self:{self},
+# other:{other},
+# otherInterval:{otherInterval},
+# minusOtherInterval:{minusOtherInterval},
+# sub: {sub}.""")
+        return sub
+
+    def subInterval(self, other):
+        subOtherInterval = -other
+        sub = self+subOtherInterval
+        return sub
+
+    def subNote(self, other):
+        sub = super().__class__(self.getNumber()-other.getNumber())
 
     def __add__(self,other):
         if isinstance(other,_Note):
             raise Exception("Adding two notes")
-        sum_=super().__add__(other)
+        sum_=super().__add__(other)#Super still makes sens because a class inheriting _Note also inherits some other class.
         return  sum_
 
     def __hash__(self):
         return super().__hash__()
 
     def getOctave(self,scientificNotation=False):
+        """The octave.  By default, starting at middle c. If scientificNotation, starting at C0"""
         octave = super().getOctave()
         return octave+4 if scientificNotation else octave
 
@@ -55,21 +76,24 @@ class DiatonicNote(_Note,DiatonicInterval):
 
 class RoleNone(MyException):
     pass
-    
+
 class ChromaticNote(_Note,ChromaticInterval):
     IntervalClass=ChromaticInterval
     RelatedDiatonicClass=DiatonicNote
     role=["unison", None, None, "third", "third", "third","fifth", "fifth", "fifth", "interval", "interval", "interval" ]
-        
+
     def getColor(self,color=True):
+        """Color to print the note in lilypond"""
         return "black"
-        
+
     def getNoteName(self,withOctave=False):
         noteName= ["C","C#","D","E♭","E","F","F#","G","A♭","A","B♭","B"][self.getNumber() %12]
         octave=str(self.getOctave(scientificNotation=True)) if withOctave else ""
         return noteName+octave
 
     def getNote(self,Class=None):
+        """A solfege note. Diatonic note is guessed. The default class is
+        Note. May return None if no diatonic note can be guessed. """
         diatonic=self.getDiatonic()
         if diatonic is None:
             return None
@@ -80,6 +104,9 @@ class ChromaticNote(_Note,ChromaticInterval):
         return Class(diatonic=diatonic,chromatic=chromatic)
 
     def lily(self, color=True):
+      """Lilypond representation of this note. Colored according to
+      getColor, unless color is set to False.
+      """
       if ("lily",color) not in self.dic:
         diatonic=self.getDiatonic()
         try:
@@ -91,7 +118,7 @@ class ChromaticNote(_Note,ChromaticInterval):
             tba.addInformation("Interval",self.getInterval())
             tba.addInformation("Role",self.role)
             raise
-        lily="%s%s%s " % (diatonic.getName(),alteration.lily(),self.getDiatonic().lilyOctave())
+        lily=f"{diatonic.getName()}{alteration.lily()}{self.getDiatonic().lilyOctave()}"
         if color:
             color=self.getColor()
             if color is None:
@@ -108,17 +135,30 @@ class ChromaticNote(_Note,ChromaticInterval):
             lily= """\\tweak NoteHead.color  #(x11-color '%s)\n%s\n"""%(color,lily)
         self.dic[("lily",color)]=lily
       return self.dic[("lily",color)]
-  
+
 class Note(ChromaticNote,SolfegeInterval):
     IntervalClass= SolfegeInterval
-    DiatonicClass=DiatonicNote
-    ChromaticClass=ChromaticNote
+    DiatonicClass = DiatonicNote
+    ChromaticClass = ChromaticNote
     """A note of the scale, as an interval from middle C."""
 
     def __sub__(self,other):
-        return SolfegeInterval(diatonic=self.getDiatonic().getNumber()-self.getDiatonic().getNumber(),
-                    chromatic=self.getNumber()-self.getNumber())
-    
+        if isinstance(other, Note):
+            return self.subNote(other)
+        else:
+            return self.subInterval(other)
+
+    def subNote(self, other):
+        diatonic = self.getDiatonic()-other.getDiatonic()
+        chromatic = super().__sub__(other)
+        print(f"""
+        diatonic dif is {diatonic},""")
+
+        return SolfegeInterval(
+            diatonic = diatonic,
+            chromatic = chromatic
+        )
+
     def getName(self,kind=None):
         diatonic = self.getDiatonic()
         try:
@@ -126,14 +166,13 @@ class Note(ChromaticNote,SolfegeInterval):
         except TooBigAlteration as tba:
             tba.addInformation("Note",self)
             raise
-        diatonicName=diatonic.getName().upper()
-        alterationName=alteration.getName(kind=kind)
-        return "%s%s" %(diatonicName,alterationName)
+        return f"{diatonic.getName().upper()}{alteration.getName(kind=kind)}"
 
     def correctAlteration(self):
+        """Whether the note has a printable alteration."""
         return  self.getAlteration().printable()
 
-    
+
 #Twelve notes around middle C (with F#=Gb twice), and the number of bemol to add for this key
 twelve_notes=[]
 for (diatonic,alteration,nbBemol) in [(0,0,0),#C

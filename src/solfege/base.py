@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Classes for notes with base. They are a note, with an additional information representing the tonic.
-"""
-
 import math
 import solfege.interval
 from .interval import DiatonicInterval, ChromaticInterval,SolfegeInterval, Alteration, TooBigAlteration#, _Interval
@@ -13,17 +9,12 @@ from .note import DiatonicNote,ChromaticNote,Note,_Note
 class IntervalWithNoRole(MyException):
     """Raised when the difference between base note and an interval has no role. I.e. is 1 or 2."""
     pass
+
 class _NoteWithBase(_Note):
-    """A note. Similar an interval. 
-
-    -A note may be added to an interval, but not to a note
-    -Two notes may be substracted, leading to an interval.
-    -It may has a base. It would be the tonic of a scale. The unison of a chord.  If the base is present, it is a part of the identity, and is tested for equality relation.
-
+    """
+    Classes for notes with base. They are a note, with an additional information representing the tonic.
     """
     def __init__(self,toCopy=None,base=None, **kwargs):
-        # if interval is not None:
-        #     raise Exception("An interval %s is given to create a note."%interval)
         super().__init__(toCopy=toCopy,**kwargs)
         self.base=None
         if isinstance(toCopy,_NoteWithBase):
@@ -57,21 +48,25 @@ class _NoteWithBase(_Note):
         #         raise IntervalWithNoRole#Exception("Adding base %s whose number is %d to note %s, (interval=%s)  the role is None, from %s[%d%%%d=%d]"%(base,base.getNumber(),self,self.interval,self.__class__.role,self.interval.getNumber(),self.__class__.modulo,self.interval.getNumber()%self.__class__.modulo))
         #     self.role= role
         #     #debug("The role of %s is %s"%(self,role))
+
     def getInterval(self):
+        """Interval between the note and its base"""
         if "interval" not in self.dic:
             if self.base is  None or self.value is None:
                 self.dic["interval"]=None
             else:
                 self.dic["interval"]=self-self.base
         return self.dic["interval"]
-    
+
     def getRole(self):
+        """The role of this note, assuming its in a major scale"""
         if "role" not in self.dic:
             interval=self.getInterval()
             interval=interval.getNumber()%self.modulo
             role= self.role[interval]
             self.dic["role"]=role
         return self.dic["role"]
+
     def getBase(self):
         return self.base
 
@@ -79,22 +74,18 @@ class _NoteWithBase(_Note):
 class DiatonicNoteWithBase(_NoteWithBase,DiatonicNote):
     #Saved as the interval from middle C
     role=["Tonic", "supertonic","mediant", "subdominant","dominant","submediant","leading"]
-    def getName(self):
-        return ["c","d","e","f","g","a","b"][self.getNumber() %7]
 
 
-    
+
 class ChromaticNoteWithBase(_NoteWithBase,ChromaticNote):
     RelatedDiatonicClass=DiatonicNoteWithBase
-    role=["unison", None, None, "third", "third", "third","fifth", "fifth", "fifth", "interval", "interval", "interval" ]
-        
     def getColor(self,color=True):
         if color:
             dic={"unison":"black","third": "violet","fifth": "red","interval": "green",None:None}
             return dic[self.getRole()]
         else:
             return "black"
-        
+
 
     def getDiatonic(self):
         """Assuming no base is used"""
@@ -134,7 +125,7 @@ class NoteWithBase(ChromaticNoteWithBase,Note):
     DiatonicClass=DiatonicNote
     ChromaticClass=ChromaticNote
     """A note of the scale, as an interval from middle C."""
-    
+
     def getName(self,kind=None):
         diatonic = self.getDiatonic()
         try:
@@ -149,5 +140,5 @@ class NoteWithBase(ChromaticNoteWithBase,Note):
     def correctAlteration(self):
         return  self.getAlteration().printable()
 
-    
+
 ChromaticNoteWithBase.RelatedSolfegeClass=NoteWithBase

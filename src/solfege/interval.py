@@ -10,13 +10,17 @@ class _Interval:
     It also allows to add it to another such element, negate it, while generating an object of its subclass.
     Such elements can be compared, and basically hashed (the hash being the number itself)
 
-    The number can't be setted, because the object is supposed to be immutable."""
-    
-    """By default, each change to an object create another object of the same class. However, if "ClassToTransposeTo" is not None, the generated object will be an object of class ClassToTransposeTo
+    The number can't be setted, because the object is supposed to be immutable.
+
+    Inheriting class which are instancied should contain the following variable:
+    * modulo: number of note by octave (7 for diatonic, 12 for chromatic)
+    * ClassToTransposeTo: the class of object to generate. If it's None, the class of self is used.
+    * RelatedDiatonicClass: class to which a chromatic object must be converted when a diatonic object is required.
+    * RelatedSolfegeClass: the class to which a diatonic and chromatic object must be converted.
 """
     ClassToTransposeTo=None
     def __init__(self,value=None,toCopy=None,callerClass=None,none=None,**kwargs):
-        """If the interval is passed as argument, it is copied. Otherwise, the value is used. None, if true, means that there is no value and it is acceptable"""
+        """If the interval is passed as argument, it is copied. Otherwise, the value is used. none, if true, means that there is no value and it is acceptable"""
         super().__init__(**kwargs)
         self.dic=dict()
         if none:
@@ -34,18 +38,15 @@ class _Interval:
 
     def isNote(self):
         return False
-        
+
     def hasNumber(self):
         return isinstance(self.value,int)
+
     def getNumber(self):
         if not isinstance(self.value,int):
             raise Exception("A number which is not int but %s"%self.value)
         return self.value
-    def __sub__(self,other):
-        neg=-other
-        if neg.isNote():
-           raise Exception("Neg is %s, which is a note" %neg)
-        return (self+ neg)
+
     def __eq__(self,other):
         # if not isinstance(other,Interval):
         #     return False
@@ -53,11 +54,8 @@ class _Interval:
             raise Exception("Comparison of two distinct classes: %s and %s"%(self.__class__,other.__class__))
         return self.getNumber() == other.getNumber()
 
-    def __neg__(self):
-        Class = self.ClassToTransposeTo or self.__class__
-        return self.__class__(value=-self.getNumber())
-
     def __add__(self,other):
+        """Same class than self. Sum of both intervals"""
         if not isinstance(other,int):
             otherNumber = other.getNumber()
         else:
@@ -66,47 +64,72 @@ class _Interval:
         ret=self.__class__(value=sum_)
         #debug("Adding %s and %s we obtain %s",(self,other,ret))
         return ret
+
+    def __neg__(self):
+        """Same class than self, inverse interval"""
+        Class = self.ClassToTransposeTo or self.__class__
+        return self.__class__(value=-self.getNumber())
+
+    def __sub__(self,other):
+        """Same class than self. This interval minus the other one"""
+        neg=-other
+        if neg.isNote():
+           raise Exception("Neg is %s, which is a note" %neg)
+        return (self+ neg)
+
     def __hash__(self):
         return self.getNumber()
+
     def __le__(self,other):
         if isinstance(other, _Interval):
             other= other.getNumber()
         return self.getNumber()<= other
+
     def __lt__(self,other):
         if isinstance(other, _Interval):
             other= other.getNumber()
         return self.getNumber()< other
+
     def __repr__(self):
         return "%s:%d"%(self.__class__,self.getNumber())
+
     def getOctave(self):
         return math.floor(self.getNumber()/self.__class__.modulo)
 
-    def distinctOctave(self,other):
-        return self.getBaseOctave()==other.getBaseOctave()
     def addOctave(self,nb):
+        """Same note with nb more octave"""
         Class= self.ClassToTransposeTo or self.__class__
         return Class(value=self.getNumber()+nb*self.__class__.modulo)
-    def sameNoteDistinctOctave(self,other):
+
+    def getSameNoteInBaseOctave(self):
+        """Same note in the base octave"""
+        return self.addOctave(-self.getOctave())
+
+    def sameNotesInDifferentOctaves(self,other):
+        """Whether self and other are same note, potentially at distinct octaves"""
+        return self.getSameNoteInBaseOctave() != other.getSameNoteInBaseOctave()
+
+    def differenceInBaseOctave(self,other):
         Class= self.ClassToTransposeTo or self.__class__
         return Class((self.getNumber() -other.getNumber()) %self.__class__.modulo)
-    def getBaseOctave(self):
-        #print(self.__class__)
-        return self.addOctave(-self.getOctave())
-    
-    
+
+
 class DiatonicInterval(_Interval):
-    """An interval, where we count the number of notes in the major scale, and ignore the notes which are absent. B and B# can't be distinguished, since A# does not really exists. However this would allow to distinguish between B# and C"""
+    """An interval, where we count the number of notes in the major scale,
+    and ignore the notes which are absent. B and B# can't be
+    distinguished, since A# does not really exists. However this would
+    allow to distinguish between B# and C"""
     modulo = 7
     def __init__(self,diatonic=None,value=None, **kwargs):
         if diatonic is not None:
             value=diatonic
         super().__init__(value=value,callerClass=DiatonicInterval, **kwargs)
-        
+
     def __add__(self,other):
         if not isinstance(other, DiatonicInterval):
             raise Exception("Adding a DiatonicInterval interval to something which is not a DiatonicInterval but %s"%other)
         return super().__add__(other)
-        
+
 
     def getChromatic(self,scale="Major"):
         """
@@ -126,9 +149,10 @@ class DiatonicInterval(_Interval):
         elif self.getNumber()<0:
             text+=" decreasing"
         return text
-    
-    
+
+
     def lilyOctave(self):
+        """The string which allow to obtain correct octave in lilypond."""
         octave = self.getOctave()
         octaveShift = octave +1
         if octaveShift>0:
@@ -137,20 +161,22 @@ class DiatonicInterval(_Interval):
             return ","*(-octaveShift)
         else:
             return ""
+DiatonicInterval.IntervalClass = DiatonicInterval
 
 class ChromaticInterval(_Interval):
     modulo=12
 
     """the diatonic class to which such a chromatic class must be converted"""
     RelatedDiatonicClass=DiatonicInterval
-    
+
+
 
     """A chromatic interval. Counting the number of half tone between two notes"""
     def __init__(self, chromatic=None, value=None,**kwargs):
         if value is None:
             value=chromatic
-        super().__init__(value=value,callerClass=ChromaticInterval, **kwargs)
-   
+        super().__init__(value=value, callerClass=ChromaticInterval, **kwargs)
+
     def __add__(self,other):
         if not isinstance(other, ChromaticInterval):
             raise Exception("Adding a ChromaticInterval interval to something which is not a ChromaticInterval but %s"%other)
@@ -160,7 +186,7 @@ class ChromaticInterval(_Interval):
         """If this note belong to the diatonic scale, give it.
         Otherwise, give the adjacent diatonic note."""
         if "diatonic" not in self.dic:
-            diatonic=self.RelatedDiatonicClass(diatonic=[0,0,1,2,2,3,3,4,5,5,6,6][self.getBaseOctave().getNumber()]+7*self.getOctave())
+            diatonic=self.RelatedDiatonicClass(diatonic=[0,0,1,2,2,3,3,4,5,5,6,6][self.getSameNoteInBaseOctave().getNumber()]+7*self.getOctave())
             self.dic["diatonic"]=diatonic
             debug("Diatonic of %s is %s"%(self,diatonic))
         return self.dic["diatonic"]
@@ -175,19 +201,19 @@ class ChromaticInterval(_Interval):
             raise
             #debug("The alteration of %s is %s" % (self,alt))
         return alt
-    
+
     def getSolfege(self,diatonic=None):
         """A note. Same chromatic. Diatonic is as close as possible (see getDiatonicNote) or is the note given."""
         if diatonic is None:
             diatonic=self.getDiatonic().getNumber()
         return self.RelatedSolfegeClass(diatonic=diatonic,chromatic=self.getNumber())
-    
-    def getName(self,kind=None,octave=True,side=False):
-        """The name of the interval. 
 
-        octave -- if true, the name is given as supertonic and one octave. 
-        Otherwise it is given as eight
-        
+    def getName(self,kind=None,octave=True,side=False):
+        """The name of the interval.
+
+        octave -- For example: if this variable is set true, the name is given as "supertonic and one octave".
+        Otherwise, if it is set to None, the variable is given as "eight"
+
         side -- Whether to add "increasing" or "decreasing"
 
         kind -- if a number is given, then we consider that we want major/minor, and not a full name
@@ -217,7 +243,7 @@ class ChromaticInterval(_Interval):
         #     return ["diminished","","augmented"][self.getNumber()+1]
         # else:
         #     return ["diminished","minor","major","augmented"][self.getNumber()+2]
-
+ChromaticInterval.IntervalClass = ChromaticInterval
 
 class TooBigAlteration(Exception):
     def __init__(self,value):
@@ -226,25 +252,30 @@ class TooBigAlteration(Exception):
     def __str__(self):
         text="number %d corresponds to no Alteration.\n%s"%(self.value,super().__str__())
         return text
-    
-    
+
+
 class Alteration(ChromaticInterval):
     def printable(self):
+        """Whether the alteration is at most 2 half tone, and thus printable with at most 2 symbols."""
         number=self.getNumber()
         return number is not None and  abs(number) <=2
-    
+
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         if not self.printable():
             raise TooBigAlteration(self.getNumber())
-        
+
     def __add__(self,other):
         raise Exception("Adding alteration ?")
 #        return Diatonic(self.getNumber()+other.getNumber())
-    def getBaseOctave(self):
+
+    def getSameNoteInBaseOctave(self):
         raise Exception("Alteration has no base octave")
+
     def lily(self):
+        """Text to obtain this alteration in Lilypond"""
         return ["eses","es","","is","isis"][self.getNumber()+2]
+
     def getName(self,kind=None):
         if kind is None:
             return ["♭♭","♭","","#","𝄪"][self.getNumber()+2]
@@ -258,36 +289,59 @@ class SolfegeInterval(ChromaticInterval):
     def __init__(self,chromatic=None, diatonic=None, alteration=None,toCopy=None,none=None,**kwargs):
         """If toCopy is present, it is copied
 
-        Otherwise, chromatic and diatonic are used. 
+        Otherwise, chromatic and diatonic are used.
         Otherwise if chromatic is present, it supposed to be the exact value.
         otherwise, alteration should be present, and chromatic is the sum of diatonic and alteration
         """
         if none:
-            super().__init__(none=none)
+            self.initNone(none)
         elif toCopy:
-            if not isinstance(toCopy,SolfegeInterval):
-                raise Exception
-            super().__init__(chromatic=toCopy.getNumber())
-            self.diatonic=toCopy.getDiatonic()
+            self.initCopy(toCopy)
         else:
-            if not isinstance(diatonic,int):
-                raise Exception("diatonic is not int but %s"%(str(diatonic)))
             self.diatonic=self.DiatonicClass(diatonic=diatonic)
             if chromatic is not None:
-                if not isinstance(chromatic,int):
-                    raise Exception("Chromatic is not int but %s"%(str(chromatic)))
-                super().__init__(chromatic=chromatic)
-            elif alteration is not None:
-                if  not isinstance(alteration,int):
-                    raise Exception("Alteration is not int but %s"%(str(alteration)))
-                super().__init__(chromatic=self.diatonic.getChromatic().getNumber()+alteration)
+                self.initChromaticPresent(chromatic)
             else:
-                raise Exception("No alteration, no toCopy, no chromatic, no none")
+                self.initChromaticAbsent(alteration)
+
+    def initNone(none):
+        super().__init__(none=none)
+
+    def initCopy(toCopy):
+        if not isinstance(toCopy,SolfegeInterval):
+            raise Exception
+        super().__init__(chromatic=toCopy.getNumber())
+        self.diatonic=toCopy.getDiatonic()
+
+    def initChromaticPresent(self,chromatic):
+        if not isinstance(chromatic,int):
+            raise Exception("Chromatic is not int but %s"%(str(chromatic)))
+        super().__init__(chromatic=chromatic)
+
+    def initChromaticAbsent(self,alteration):
+        if alteration is not None:
+            if  not isinstance(alteration,int):
+                raise Exception("Alteration is not int but %s"%(str(alteration)))
+            super().__init__(chromatic=self.diatonic.getChromatic().getNumber()+alteration)
+        else:
+            raise Exception("No alteration, no toCopy, no chromatic, no none")
+
+    ###### End of inits
+
+    def __eq__(self,other):
+        diatonicEq = self.getDiatonic() == other.getDiatonic()
+        chromaticEq = super().__eq__(other)
+        return diatonicEq and chromaticEq
+
+    def __hash__(self):
+        return hash(self.getChromatic())
+
     def __neg__(self):
         Class= self.ClassToTransposeTo or self.__class__
         return Class(chromatic=-self.getNumber(),diatonic=-self.getDiatonic().getNumber())
+
     def getChromatic(self):
-        return ChromaticInterval(chromatic=self.getNumber())
+        return self.ChromaticClass(chromatic=self.getNumber())
 
     def getDiatonic(self):
         return self.diatonic
@@ -308,20 +362,16 @@ class SolfegeInterval(ChromaticInterval):
     def addOctave(self,nb):
         Class= self.ClassToTransposeTo or self.__class__
         return Class(chromatic=self.getChromatic().addOctave(nb).getNumber(),diatonic=self.getDiatonic().addOctave(nb).getNumber())
-    
-    def __eq__(self,other):
-        return super().__eq__(other) and  self.getDiatonic() == other.getDiatonic()
-            
-    def getBaseOctave(self):
+
+    def getOctave(self):
+        return self.getDiatonic().getOctave()
+
+    def getSameNoteInBaseOctave(self):
         octaveToAdd=-self.getOctave()
         Class= self.ClassToTransposeTo or self.__class__
         chromatic=self.getChromatic().addOctave(octaveToAdd).getNumber()
         diatonic=self.getDiatonic().addOctave(octaveToAdd).getNumber()
         return Class(chromatic=chromatic,diatonic=diatonic)
 
-    def getOctave(self):
-        return self.getDiatonic().getOctave()
-    def __hash__(self):
-        return hash(self.getChromatic())
-
-ChromaticInterval.RelatedSolfegeClass=SolfegeInterval
+ChromaticInterval.RelatedSolfegeClass = SolfegeInterval
+SolfegeInterval.IntervalClass = SolfegeInterval

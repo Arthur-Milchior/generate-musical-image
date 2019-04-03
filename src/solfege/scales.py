@@ -1,4 +1,4 @@
-"""Contains a class to represent a scale. 
+"""Contains a class to represent a scale.
 
 Also contains all scales from wikipedia, which can be done using the 12 notes from chromatic scales."""
 
@@ -33,7 +33,7 @@ class Scale_Pattern(Solfege_Pattern):
         self.intervals=intervals_correct
         self.bemols=bemols
         self.sharps=sharps
-        
+
 
     def getBemol(self):
         return self.bemols
@@ -49,12 +49,12 @@ Solfege_Pattern.dic[Scale_Pattern]=dict()
 Solfege_Pattern.set_[Scale_Pattern]=list()
 
 
+Scale_Pattern(["Major arpeggio"],   [(2,4),(2,3),(3,5)],0,0),
+Scale_Pattern(["Minor arpeggio"],   [(2,3),(2,4),(3,5)],3,0),
 Scale_Pattern(["Greek Dorian tonos (chromatic genus)"],[1,1,3,2,1,1,3],0,0),
 Scale_Pattern(["Major"],   [2,2,1,2,2,2,1],0,0),
-Scale_Pattern(["Major arpeggio"],   [(2,4),(2,3),(3,5)],0,0),
 Scale_Pattern(["Dominant seventh arpeggio"],   [(2,4),(2,3),(2,3),2],0,0),
 Scale_Pattern(["Minor harmonic"],[2,1,2,2,1,3,1],3,0),
-Scale_Pattern(["Minor arpeggio"],   [(2,3),(2,4),(3,5)],0,0),
 Scale_Pattern(["Blues"],[(2,3),2,(0,1),1,(2,3),2],3,0),
 Scale_Pattern(["Pentatonic minor"],[(2,3),2,2,(2,3),2],3,0),
 Scale_Pattern(["Pentatonic major"],[2,2,(2,3),2,(2,3)],0,0),
