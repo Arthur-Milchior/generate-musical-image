@@ -1,5 +1,5 @@
 from solfege.interval import ChromaticInterval, DiatonicInterval, TooBigAlteration
-import lily.lily 
+import lily.lily
 from util import debug
 import guitar.util
 from .util import  minNumberString
@@ -9,7 +9,7 @@ from solfege.note import Note, DiatonicNote
 from solfege.base import ChromaticNoteWithBase, NoteWithBase
 
 class PosWithBase(Pos,ChromaticNoteWithBase):
-    pass    
+    pass
 
 class SetOfIntervals:
     def __init__(self,set_=None):
@@ -18,10 +18,10 @@ class SetOfIntervals:
         if set_:
             for interval in set_:
                 self.set_.add(interval)
-                self.set_base_octave.add(interval.getBaseOctave())
+                self.set_base_octave.add(interval.getSameNoteInBaseOctave())
 
     def __contains__(self,interval):
-        return interval.getBaseOctave() in self.set_base_octave
+        return interval.getSameNoteInBaseOctave() in self.set_base_octave
 
     def __iter__(self):
         return iter(self.set_base_octave)
@@ -38,10 +38,10 @@ class GuitarChord(SetOfPos):
         for chord in self.chord:
             chord.addBase(minPos)
         self.setOfInterval =SetOfIntervals({chord.getInterval() for chord in self.chord if chord.getInterval() is not None})
-        
+
     def anki(self):
         """return the tuple (pos1,pos3,pos5,posn)
-        
+
         pos1 is the string of length 6, whose x represents a string not played, . a string played, but not for note tonic, and 1 represents a string played for the tonic.
         pos3, pos5  are similar for third and fifth. posn is used for 6th or 7th
         """
@@ -58,15 +58,15 @@ class GuitarChord(SetOfPos):
                     else:
                         text +="."
         return text
-    
+
     def getPosFromString(self,string):
         """The pos corresponding to the chord number i"""
-        return self.chord[string-1] 
+        return self.chord[string-1]
     def fileNameBase(self):
         if "fileNameBase" not in self.dic:
             text=""
             for i in range(1,7):
-                fret=self.getPosFromString(i).fret 
+                fret=self.getPosFromString(i).fret
                 if fret is None:
                     text+= "x"
                 elif isinstance(fret,int):
@@ -82,7 +82,7 @@ class GuitarChord(SetOfPos):
         """At most three frets not being on fret 0 or 1"""
         if "playable" not in self.dic:
           playable=True
-          nbGtOne=0#nb of fret >1 played. 
+          nbGtOne=0#nb of fret >1 played.
           nbOne=0#nb of fret 1 played
           m =12#least non 0 fret played
           M = -1 #greatest fret played
@@ -96,7 +96,7 @@ class GuitarChord(SetOfPos):
                 nbOne +=1
             if pos.fret>1:
                 nbGtOne+=1
-            
+
           if  M-m>4:
             debug("More than four fret of difference between bottom and top")
             playable=False
@@ -111,7 +111,7 @@ class GuitarChord(SetOfPos):
           self.dic["playable"]=playable
           debug("is its playable:%s"% playable)
         return self.dic["playable"]
-    
+
     def enoughStrings(self):
         r = self.numberChord>=minNumberString
         if r:
@@ -120,7 +120,7 @@ class GuitarChord(SetOfPos):
         else:
             debug("Only %d strings played"% self.numberChord)
             return False
-        
+
     def isChord(self):
         """Whether this is both a stanad chord, with 4 notes, and can actually be played"""
         return self.isStandardChord() and self.playable() and self.enoughStrings()
@@ -141,7 +141,7 @@ class GuitarChord(SetOfPos):
             self.dic["isTransposableChord"]=r
             debug("is it a transposable chord:%s"% r)
         return self.dic["isTransposableChord"]
-    
+
     # def isAcceptable(self):
     #     """Whether its a chord I want to consider"""
     #     if "isAcceptable" not in self.dic:
@@ -152,7 +152,7 @@ class GuitarChord(SetOfPos):
 
     def inChordsList(self):
         return True if  Chord_Pattern.getFromInterval(self.setOfInterval) else False
-    
+
     def kind(self):
         """transposable(1 as first string), open, or None"""
         if "kind" not in self.dic:
@@ -175,7 +175,7 @@ class GuitarChord(SetOfPos):
         # self.renversement = renversement
         # self.string = string
         # self.fret = fret
-        
+
 # class SetOfInterval:
 #     """The set of chromatic interval between the notes and the lowest note"""
 #     def __init__(self, sop):
@@ -213,11 +213,11 @@ class GuitarChord(SetOfPos):
                     setPos.add(chord)
                     setNote.add(note)
         return setPos
-        
-    
+
+
     def lily(self, color=True):
         return lily.lily.chord(self.getSetOfNote(),color=color)
-    
+
     def third(self):
         """The kind of third of this chord, or False"""
         if "third" not in self.dic:
@@ -250,9 +250,9 @@ class GuitarChord(SetOfPos):
             self.dic["isFifthJust"]=r
             debug("is it fifth just:%s"% r)
         return self.dic["isFifthJust"]
-    
+
     def fifth(self):
-      """If the 5th is diminished, and third is minor return "diminished". 
+      """If the 5th is diminished, and third is minor return "diminished".
       If the 5th is just, return the empty string.
       Otherwise return false
       """
@@ -332,7 +332,7 @@ class GuitarChord(SetOfPos):
         self.dic["quality"]=r
         debug("Its quality is:%s"% r)
       return self.dic["quality"]
-            
+
     def anki(self):
         """A string containing the kind of Third, of fifth, and of quality"""
         return "%s,%s,%s"%(self.third(),self.fifth(),self.quality())
@@ -360,7 +360,7 @@ class GuitarChord(SetOfPos):
         self.dic["wrong note"]=r
         debug("Does it contains a wrong note: %s"%r)
       return self.dic["wrong note"]
-    
+
     def isStandardChord(self):
       """Given a set of notes, is it a standard chord. I.e.:
       -has a tonic
@@ -391,7 +391,7 @@ class GuitarChord(SetOfPos):
         self.dic["standard"]=r
         debug("Is it standard chord:%s"%r)
       return self.dic["standard"]
-  
+
     def isNonStandard(self):
         return not self.isStandardChord()
 
@@ -413,7 +413,7 @@ class GuitarChord(SetOfPos):
             debug("Pattern name is %s"%self.dic["pattern name"])
             self.dic["pattern name"]
         return self.dic["pattern name"]
-   
+
     def getReallyDescriptiveName(self,withKind=True):
       """Name of chord, assuming it is standard"""
       if "descriptiveName"  not in self.dic:
@@ -446,4 +446,3 @@ class GuitarChord(SetOfPos):
         debug("descriptiveName is %s"%name)
         self.dic["descriptiveName"]=name
       return self.dic["descriptiveName"]
-

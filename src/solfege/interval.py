@@ -91,7 +91,7 @@ class _Interval:
         return self.getNumber()< other
 
     def __repr__(self):
-        return "%s:%d"%(self.__class__,self.getNumber())
+        return "%s(%d)"%(self.__class__.__name__,self.getNumber())
 
     def getOctave(self):
         return math.floor(self.getNumber()/self.__class__.modulo)
@@ -150,7 +150,6 @@ class DiatonicInterval(_Interval):
             text+=" decreasing"
         return text
 
-
     def lilyOctave(self):
         """The string which allow to obtain correct octave in lilypond."""
         octave = self.getOctave()
@@ -161,6 +160,7 @@ class DiatonicInterval(_Interval):
             return ","*(-octaveShift)
         else:
             return ""
+
 DiatonicInterval.IntervalClass = DiatonicInterval
 
 class ChromaticInterval(_Interval):
@@ -168,8 +168,6 @@ class ChromaticInterval(_Interval):
 
     """the diatonic class to which such a chromatic class must be converted"""
     RelatedDiatonicClass=DiatonicInterval
-
-
 
     """A chromatic interval. Counting the number of half tone between two notes"""
     def __init__(self, chromatic=None, value=None,**kwargs):
@@ -249,6 +247,7 @@ class TooBigAlteration(Exception):
     def __init__(self,value):
         self.value=value
         super().__init__()
+
     def __str__(self):
         text="number %d corresponds to no Alteration.\n%s"%(self.value,super().__str__())
         return text
@@ -347,7 +346,7 @@ class SolfegeInterval(ChromaticInterval):
         return self.diatonic
 
     def __repr__(self):
-        return "(%d chromatic,%d diatonic)"%(self.getChromatic().getNumber(),self.getDiatonic().getNumber())
+        return "%s(%d,%d)"%(self.__class__.__name__,self.getChromatic().getNumber(),self.getDiatonic().getNumber())
 
     def __add__(self,other):
         if not isinstance(other, SolfegeInterval):

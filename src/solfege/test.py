@@ -1,5 +1,9 @@
 from .note import Note, DiatonicNote, ChromaticNote
 from .interval import SolfegeInterval, DiatonicInterval, ChromaticInterval
+from .util import Solfege_Pattern
+from .chords import Chord_Pattern
+from .scales import Scale_Pattern
+
 
 unison = DiatonicInterval(0)
 tone = DiatonicInterval(1)
@@ -85,3 +89,9 @@ assert ((C+chromaticSemitone).lily(False)=="des'")
 
 # # print (f"E-C {E-C}")
 # # assert (E - C == third)
+majorScale=Solfege_Pattern.dic[Scale_Pattern].get("Major")
+
+assert(majorScale.getNotes(C)==[Note(0,0), Note(2,1), Note(4,2), Note(5,3), Note(7,4), Note(9,5), Note(11,6), Note(12,7)])
+majorChord=Solfege_Pattern.dic[Chord_Pattern].get("Major triad")
+
+assert(majorChord.getNotes(C)==frozenset({Note(0,0), Note(4,2), Note(7,4)}))

@@ -6,8 +6,9 @@ class Solfege_Pattern:
         for name in names:
             self.dic[self.__class__][name]=self
         self.set_[self.__class__].append(self)
-        
+
     def getFirstName(self):
         return self.names[0]
+
     def getNames(self):
         return self.names

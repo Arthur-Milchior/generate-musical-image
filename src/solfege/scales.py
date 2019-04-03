@@ -7,7 +7,13 @@ import sys
 from .util import Solfege_Pattern
 
 class Scale_Pattern(Solfege_Pattern):
-    def __init__(self,names,intervals,bemols=0,sharps=0):
+    def __init__(self, names, intervals, bemols=0, sharps=0):
+        """
+        intervals -- A list of SolfegeInterval containing the interval between a note and the tonic
+
+        intervals -- list of intervals between two successive notes of the scale. If an interval is an int, it is a chromatic intervals related to the diatonic interval 1. Otherwise its a pair chromatic, diatonic)
+        bemol,sharp -- the number of such to use when the scale starts on C"""
+
         super().__init__(names)
         diatonicSum=0
         chromaticSum=0
@@ -37,14 +43,26 @@ class Scale_Pattern(Solfege_Pattern):
 
     def getBemol(self):
         return self.bemols
+
     def getSharp(self):
         return self.sharps
+
     def getIntervals(self):
         return self.intervals
+
     def getChromaticIntervals(self):
         return [chromatic for (_,chromatic) in self.intervals]
+
     def getDiatonicInterval(self):
         return [diatonic for (diatonic,_) in self.intervals]
+
+    def getNotes(self,base):
+        current = base
+        l = [base]+[base + interval for interval in self.intervals]
+            # current += interval
+            # l.append(current)
+        return l
+
 Solfege_Pattern.dic[Scale_Pattern]=dict()
 Solfege_Pattern.set_[Scale_Pattern]=list()
 

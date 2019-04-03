@@ -14,11 +14,10 @@ from solfege.interval import DiatonicInterval, ChromaticInterval,SolfegeInterval
 from util import *
 
 class _Note:
-    """A note. Similar an interval.
+    """A note. Similar to an interval.
 
-    -A note may be added to an interval, but not to a note
+    -To a note may be added or substracted an interval, but not to a note
     -Two notes may be substracted, leading to an interval.
-    -It may has a base. It would be the tonic of a scale. The unison of a chord.  If the base is present, it is a part of the identity, and is tested for equality relation.
 
     """
     def isNote(self):
@@ -48,7 +47,7 @@ class _Note:
         return sub
 
     def subNote(self, other):
-        sub = super().__class__(self.getNumber()-other.getNumber())
+        return self.IntervalClass(self.getNumber()-other.getNumber())
 
     def __add__(self,other):
         if isinstance(other,_Note):
@@ -73,6 +72,8 @@ class DiatonicNote(_Note,DiatonicInterval):
     def getName(self):
         return ["c","d","e","f","g","a","b"][self.getNumber() %7]
 
+    # def __repr__(self):
+    #     return Diatonic
 
 class RoleNone(MyException):
     pass

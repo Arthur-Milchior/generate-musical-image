@@ -28,15 +28,15 @@ class Fingering:
         return nex
 
     def __contains__(self,note):
-        note=note.getBaseOctave()
+        note=note.getSameNoteInBaseOctave()
         return note in self.dic
-    
+
     def add(self,note,finger):
         """True if adding was useless, because the note is already there.
         False if adding contradicts the note already in the dic
         A new fingering, similar to self, with this note added otherwise"""
         nex=self.copy()
-        note=note.getBaseOctave()
+        note=note.getSameNoteInBaseOctave()
         if self.baseNote is None:
             nex.baseNote =note
             nex.baseFinger=finger
@@ -63,7 +63,7 @@ class Fingering:
         return self.baseFinger
 
     def get(self,note,base=False):
-        note=note.getBaseOctave()
+        note=note.getSameNoteInBaseOctave()
         if base:
             if note!=self.baseNote:
                 raise Exception("Not the correct base not")
@@ -76,12 +76,12 @@ class Fingering:
             text+=", (%s,%d)"%(key,self.dic[key])
         text+="}"
         return text
-    
+
 def generateLeftFingeringDic(currentNote,intervals,fingeringDic=None):
     debug("Generating left fingering for %s",currentNote.getName())
     intervals= intervals+[intervals[0]]
     return generateFingeringDic(currentNote,intervals,"left",fingeringDic=fingeringDic)
-    
+
 def generateRightFingeringDic(currentNote,intervals,fingeringDic=None):
     intervals=[intervals[-1]]+intervals
     return generateFingeringDic(currentNote,intervals,"right",fingeringDic=fingeringDic)
@@ -94,9 +94,9 @@ def generateFingeringDic(baseNote,intervals,side,fingeringDic=None):
 
   return False if no fingering can be found
   Otherwise, return:
-     --the starting finger (lowest for left hand, highest for right hand), 
+     --the starting finger (lowest for left hand, highest for right hand),
      --the fingering for the non-star
-     , and  
+     , and
      --the penalty
   """
   debug("Calling generateFingeringDic")
@@ -125,11 +125,11 @@ def generateFingeringDic(baseNote,intervals,side,fingeringDic=None):
     # if isInitial:
     #     debug("Initial call to aux")
     # #debug("Note %s with finger %d.",(currentNote.getName(),currentFinger))
-    
+
     if currentNote.isBlack() and currentFinger==1:
         debug("One on black. Reject\n\n")
         return False
-    
+
     #debug("note %s, with finger %d in base octave is %s.\n",(currentNote.debug(),currentFinger,noteInBaseoctave.debug()))
     nextFingeringDic = fingeringDic.add(currentNote,currentFinger)
     if nextFingeringDic is False:
@@ -147,13 +147,13 @@ def generateFingeringDic(baseNote,intervals,side,fingeringDic=None):
     nextInterval= remainingIntervals[{"left":0,"right":-1}[side]]
     if side=="right":
         nextInterval=-nextInterval
-    
+
     nextRemainingIntervals={"left":remainingIntervals[1:],"right":remainingIntervals[:-1]}[side]
     nextNote= currentNote+nextInterval
     #debug("With note %s and interval %s we obtain note %s",(currentNote,interval,nextNote))
     localPenalty=Penalty()
     if currentFinger==1:
-        if not baseNote.distinctOctave(currentNote):
+        if not baseNote.sameNotesInDifferentOctaves(currentNote):
             localPenalty=localPenalty.addPassingFinger()
         if not currentNote.adjacent(nextNote):
             localPenalty=localPenalty.addThumbNonAdjacent()
@@ -202,8 +202,8 @@ def generateFingeringDic(baseNote,intervals,side,fingeringDic=None):
       return (bestPenalty.data,bestPenalty)
   debug("No correct first finger. Reject\n\n")
   return False
-    
-    
+
+
 
 def generateLeftFingering(extremalFinger,fingeringDic,baseNote,intervals,nbOctave=1):
     debug("Generate left fingering, starting on note note %s",baseNote)
@@ -220,7 +220,7 @@ def generateRightFingering(extremalFinger,fingeringDic,baseNote, intervals,nbOct
     intervals=intervals*nbOctave
     intervals=intervals[:-1]
     return generateFingering(baseNote, intervals, fingeringDic)+[(endNote,extremalFinger)]
-    
+
 
 def generateFingering(currentNote,remainingInterval,fingeringDic):
     debug("Starting generate fingering. Current note is %s",currentNote)
@@ -232,5 +232,3 @@ def generateFingering(currentNote,remainingInterval,fingeringDic):
             currentNote+=nextInterval
             debug("Next note is %s",currentNote)
     return l
-
-
