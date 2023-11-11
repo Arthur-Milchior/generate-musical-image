@@ -26,13 +26,13 @@ for string in range(1, 6):
                 pos1 = Pos(string, pos)
                 pos2 = Pos(string_, pos_)
                 sop = SetOfPos(set([pos1, pos2]))
-                dif = (pos2 - pos1).getNumber()
+                dif = (pos2 - pos1).get_number()
                 difString = "+%d" % dif if dif > 0 else str(dif)
                 fileName = "%d%d-%d%d.svg" % (string, pos, string_, pos_)
                 with open("%s%s" % (imageFolder, fileName), "w") as f:
                     sop.draw(f, nbFretMin=6)
                 if (pos <= 1 or pos_ <= 1):
-                    name = (pos2 - pos1).getName()
+                    name = (pos2 - pos1).get_name()
                     if pos and pos_:
                         anki += """strings %d and %d,%s,%s,%s\n""" % (string, string_, fileName, name, difString)
                     else:

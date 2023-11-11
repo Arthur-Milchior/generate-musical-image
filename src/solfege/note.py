@@ -8,10 +8,7 @@ Difference between a note and an interval is:
 -the names are different
 """
 
-import math
-import solfege.interval
-from solfege.interval import DiatonicInterval, ChromaticInterval, SolfegeInterval, Alteration, TooBigAlteration
-from util import *
+from solfege.interval import DiatonicInterval, ChromaticInterval, SolfegeInterval, TooBigAlteration
 
 
 class _Note:
@@ -49,7 +46,7 @@ class _Note:
         return sub
 
     def subNote(self, other):
-        return self.IntervalClass(self.getNumber() - other.getNumber())
+        return self.IntervalClass(self.getNumber() - other.get_number())
 
     def __add__(self, other):
         if isinstance(other, _Note):
@@ -72,7 +69,7 @@ class DiatonicNote(_Note, DiatonicInterval):
     # Saved as the interval from middle C
     IntervalClass = DiatonicInterval
 
-    def getName(self):
+    def get_name(self):
         return ["c", "d", "e", "f", "g", "a", "b"][self.getNumber() % 7]
 
     # def __repr__(self):
@@ -101,12 +98,12 @@ class ChromaticNote(_Note, ChromaticInterval):
     def getNote(self, Class=None):
         """A solfege note. Diatonic note is guessed. The default class is
         Note. May return None if no diatonic note can be guessed. """
-        diatonic = self.getDiatonic()
+        diatonic = self.get_diatonic()
         if diatonic is None:
             return None
         if Class is None:
             Class = Note
-        diatonic = diatonic.getNumber()
+        diatonic = diatonic.get_number()
         chromatic = self.getNumber()
         return Class(diatonic=diatonic, chromatic=chromatic)
 
@@ -115,17 +112,17 @@ class ChromaticNote(_Note, ChromaticInterval):
         getColor, unless color is set to False.
         """
         if ("lily", color) not in self.dic:
-            diatonic = self.getDiatonic()
+            diatonic = self.get_diatonic()
             try:
-                alteration = self.getAlteration()
+                alteration = self.get_alteration()
             except TooBigAlteration as tba:
                 tba.addInformation("Note", self)
                 tba.addInformation("Base note", self.base.getNote())
                 tba.addInformation("Base pos", self.base)
-                tba.addInformation("Interval", self.getInterval())
+                tba.addInformation("interval", self.getInterval())
                 tba.addInformation("Role", self.role)
                 raise
-            lily = f"{diatonic.getName()}{alteration.lily()}{self.getDiatonic().lilyOctave()}"
+            lily = f"{diatonic.get_name()}{alteration.lily()}{self.get_diatonic().lily_octave()}"
             if color:
                 color = self.getColor()
                 if color is None:
@@ -136,7 +133,7 @@ class ChromaticNote(_Note, ChromaticInterval):
                         exception.addInformation("Base note", self.base.getNote())
                     else:
                         exception.addInformation("Base note", "no base")
-                    exception.addInformation("Interval", self.getInterval())
+                    exception.addInformation("interval", self.getInterval())
                     exception.addInformation("Role", self.role)
                     raise exception
                 lily = """\\tweak NoteHead.color  #(x11-color '%s)\n%s\n""" % (color, lily)
@@ -157,7 +154,7 @@ class Note(ChromaticNote, SolfegeInterval):
             return self.subInterval(other)
 
     def subNote(self, other):
-        diatonic = self.getDiatonic() - other.getDiatonic()
+        diatonic = self.get_diatonic() - other.get_diatonic()
         chromatic = super().__sub__(other)
         print(f"""
         diatonic dif is {diatonic},""")
@@ -167,18 +164,21 @@ class Note(ChromaticNote, SolfegeInterval):
             chromatic=chromatic
         )
 
-    def getName(self, kind=None):
-        diatonic = self.getDiatonic()
+    def get_name(self, forFile=None):
+        """The name of this note.
+
+        Args: `forFile` -- whether we should avoid non ascii symbol"""
+        diatonic = self.get_diatonic()
         try:
-            alteration = self.getAlteration()
+            alteration = self.get_alteration()
         except TooBigAlteration as tba:
             tba.addInformation("Note", self)
             raise
-        return f"{diatonic.getName().upper()}{alteration.getName(kind=kind)}"
+        return f"{diatonic.get_name().upper()}{alteration.get_name(forFile=forFile)}"
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""
-        return self.getAlteration().printable()
+        return self.get_alteration().printable()
 
 
 # Twelve notes around middle C (with F#=Gb twice), and the number of bemol to add for this key

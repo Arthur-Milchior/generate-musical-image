@@ -30,7 +30,7 @@ class Fingering:
         return nex
 
     def __contains__(self, note):
-        note = note.getSameNoteInBaseOctave()
+        note = note.get_same_note_in_base_octave()
         return note in self.dic
 
     def add(self, note, finger):
@@ -38,7 +38,7 @@ class Fingering:
         False if adding contradicts the note already in the dic
         A new fingering, similar to self, with this note added otherwise"""
         nex = self.copy()
-        note = note.getSameNoteInBaseOctave()
+        note = note.get_same_note_in_base_octave()
         if self.baseNote is None:
             nex.baseNote = note
             nex.baseFinger = finger
@@ -66,7 +66,7 @@ class Fingering:
         return self.baseFinger
 
     def get(self, note, base=False):
-        note = note.getSameNoteInBaseOctave()
+        note = note.get_same_note_in_base_octave()
         if base:
             if note != self.baseNote:
                 raise Exception("Not the correct base not")
@@ -83,7 +83,7 @@ class Fingering:
 
 
 def generateLeftFingeringDic(currentNote, intervals, fingeringDic=None):
-    debug("Generating left fingering for %s", currentNote.getName())
+    debug("Generating left fingering for %s", currentNote.get_name())
     intervals = intervals + [intervals[0]]
     return generateFingeringDic(currentNote, intervals, "left", fingeringDic=fingeringDic)
 
@@ -161,7 +161,7 @@ def generateFingeringDic(baseNote, intervals, side, fingeringDic=None):
         # debug("With note %s and interval %s we obtain note %s",(currentNote,interval,nextNote))
         localPenalty = Penalty()
         if currentFinger == 1:
-            if not baseNote.sameNotesInDifferentOctaves(currentNote):
+            if not baseNote.same_notes_in_different_octaves(currentNote):
                 localPenalty = localPenalty.addPassingFinger()
             if not currentNote.adjacent(nextNote):
                 localPenalty = localPenalty.addThumbNonAdjacent()
@@ -187,7 +187,7 @@ def generateFingeringDic(baseNote, intervals, side, fingeringDic=None):
                     bestPenalty = sumPenalty
                 # break#todo, remove the break. Its only use is debugging.
         if bestPenalty is not None:
-            debug("Return from note %s", currentNote.getName())
+            debug("Return from note %s", currentNote.get_name())
             return (bestPenalty.data, bestPenalty)
         debug("No correct next finger. Reject\n\n")
         return False
@@ -218,14 +218,14 @@ def generateLeftFingering(extremalFinger, fingeringDic, baseNote, intervals, nbO
     intervals = intervals * nbOctave
     nextInterval = intervals[0]
     nextIntervals = intervals[1:]
-    baseNote = baseNote.addOctave(-1 if nbOctave == 1 else -2)
+    baseNote = baseNote.add_octave(-1 if nbOctave == 1 else -2)
     nextNote = baseNote + nextInterval
     debug("When adding %s, we obtain %s", (nextInterval, nextNote))
     return [(baseNote, extremalFinger)] + generateFingering(nextNote, nextIntervals, fingeringDic)
 
 
 def generateRightFingering(extremalFinger, fingeringDic, baseNote, intervals, nbOctave=1):
-    endNote = baseNote.addOctave(nbOctave)
+    endNote = baseNote.add_octave(nbOctave)
     intervals = intervals * nbOctave
     intervals = intervals[:-1]
     return generateFingering(baseNote, intervals, fingeringDic) + [(endNote, extremalFinger)]

@@ -100,7 +100,7 @@ class Pos(ChromaticNote):
         """the number of semitone from self (high note) to pos (low note)"""
         if self.fret is None:
             raise Exception("Trying to substract from a non played string %s" % self)
-        return self.getChromatic() - pos.getChromatic()
+        return self.getChromatic() - pos.get_chromatic()
 
     def add(self, interval, min=0, max=5):
         """A pos, equal to self, with `interval`  semitone added
@@ -113,11 +113,11 @@ class Pos(ChromaticNote):
         assert isinstance(chromaticResult, ChromaticNote)
         max_string = None
         for string in distance_string:
-            if min <= (chromaticResult - distance_string[string]).getNumber() <= max:
+            if min <= (chromaticResult - distance_string[string]).get_number() <= max:
                 if (max_string is None) or (string > max_string):
                     max_string = string
         if max_string:
-            return Pos(max_string, (chromaticResult - distance_string[max_string]).getNumber())
+            return Pos(max_string, (chromaticResult - distance_string[max_string]).get_number())
         else:
             return None
 

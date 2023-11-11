@@ -20,10 +20,10 @@ class SetOfIntervals:
         if set_:
             for interval in set_:
                 self.set_.add(interval)
-                self.set_base_octave.add(interval.getSameNoteInBaseOctave())
+                self.set_base_octave.add(interval.get_same_note_in_base_octave())
 
     def __contains__(self, interval):
-        return interval.getSameNoteInBaseOctave() in self.set_base_octave
+        return interval.get_same_note_in_base_octave() in self.set_base_octave
 
     def __iter__(self):
         return iter(self.set_base_octave)

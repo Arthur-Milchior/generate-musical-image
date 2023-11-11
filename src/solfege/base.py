@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import math
-import solfege.interval
-from .interval import DiatonicInterval, ChromaticInterval, SolfegeInterval, Alteration, TooBigAlteration  # , _Interval
-from util import *
+from .interval import DiatonicInterval, SolfegeInterval, TooBigAlteration  # , _Interval
 from .note import DiatonicNote, ChromaticNote, Note, _Note
 
 
@@ -52,7 +49,7 @@ class _NoteWithBase(_Note):
         #     #debug("The role of %s is %s"%(self,role))
 
     def getInterval(self):
-        """Interval between the note and its base"""
+        """interval between the note and its base"""
         if "interval" not in self.dic:
             if self.base is None or self.value is None:
                 self.dic["interval"] = None
@@ -64,7 +61,7 @@ class _NoteWithBase(_Note):
         """The role of this note, assuming its in a major scale"""
         if "role" not in self.dic:
             interval = self.getInterval()
-            interval = interval.getNumber() % self.modulo
+            interval = interval.get_number() % self.modulo
             role = self.role[interval]
             self.dic["role"] = role
         return self.dic["role"]
@@ -88,7 +85,7 @@ class ChromaticNoteWithBase(_NoteWithBase, ChromaticNote):
         else:
             return "black"
 
-    def getDiatonic(self):
+    def get_diatonic(self):
         """Assuming no base is used"""
         if "diatonic" not in self.dic:
             if self.getNumber() is None:
@@ -97,17 +94,17 @@ class ChromaticNoteWithBase(_NoteWithBase, ChromaticNote):
                 raise Exception("Diatonic asked when the current note %s has no base" % self)
             elif self == self.getBase():
                 # If we can't use the base to determine the diatonic note, we take the more likely one
-                diatonic = super().getDiatonic()
+                diatonic = super().get_diatonic()
                 diatonic.addBase(diatonic)
             else:
                 # Otherwise, we use the role to figure out which diatonic note to use
                 role = self.getRole()
                 diatonicNumber = {"unison": 0, "third": 2, "fifth": 4, "interval": 6}[role]
                 diatonicIntervalBaseOctave = DiatonicInterval(diatonic=diatonicNumber)
-                octave = self.getInterval().getOctave()
-                diatonicInterval = diatonicIntervalBaseOctave.addOctave(octave)
-                diatonic = self.base.getDiatonic() + diatonicInterval
-                diatonic.addBase(self.base.getDiatonic())
+                octave = self.getInterval().get_octave()
+                diatonicInterval = diatonicIntervalBaseOctave.add_octave(octave)
+                diatonic = self.base.get_diatonic() + diatonicInterval
+                diatonic.addBase(self.base.get_diatonic())
                 debug("Note %s's diatonic is not base. Its interval is %s and its diatonic is %s" % (
                 self, diatonicInterval, diatonic))
             self.dic["diatonic"] = diatonic
@@ -129,19 +126,22 @@ class NoteWithBase(ChromaticNoteWithBase, Note):
     ChromaticClass = ChromaticNote
     """A note of the scale, as an interval from middle C."""
 
-    def getName(self, kind=None):
-        diatonic = self.getDiatonic()
+    def get_name(self, forFile=None):
+        """The name of this note.
+
+        Args: `forFile` -- whether we should avoid non ascii symbol"""
+        diatonic = self.get_diatonic()
         try:
-            alteration = self.getAlteration()
+            alteration = self.get_alteration()
         except TooBigAlteration as tba:
             tba.addInformation("Note", self)
             raise
-        diatonicName = diatonic.getName().upper()
-        alterationName = alteration.getName(kind=kind)
+        diatonicName = diatonic.get_name().upper()
+        alterationName = alteration.get_name(forFile=forFile)
         return "%s%s" % (diatonicName, alterationName)
 
     def correctAlteration(self):
-        return self.getAlteration().printable()
+        return self.get_alteration().printable()
 
 
 ChromaticNoteWithBase.RelatedSolfegeClass = NoteWithBase

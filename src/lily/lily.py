@@ -1,6 +1,6 @@
-from solfege.interval import TooBigAlteration
 import os
-import math
+
+from solfege.interval.alteration import TooBigAlteration
 from solfege.note import Note
 
 lilyHeader = """"""
@@ -26,7 +26,7 @@ def _actualFinger(fingering, side, chooseOctave=_defaultOctave):
     for (note, finger) in fingering:
         assert (isinstance(note, Note))
         octave = chooseOctave(note, finger)
-        height = note.getDiatonic().getNumber()
+        height = note.get_diatonic().get_number()
         if octave != lastOctave:
             text += "\ottava #%d\n" % (octave)
             lastOctave = octave

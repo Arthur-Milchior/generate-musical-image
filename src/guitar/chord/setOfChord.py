@@ -171,7 +171,7 @@ for chord in genFret():
     if not (kind and patternName and chord.playable()):
         continue
     if kind == "open":
-        minChromatic = chord.getMinPos().getChromatic()
+        minChromatic = chord.getMinPos().get_chromatic()
         allChords.addChord(patternName, chord, kind, minChromatic)
     else:
         allChords.addChord(patternName, chord, kind)

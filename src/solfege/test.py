@@ -1,8 +1,8 @@
-from .note import Note, DiatonicNote, ChromaticNote
-from .interval import SolfegeInterval, DiatonicInterval, ChromaticInterval
-from .util import Solfege_Pattern
-from .chords import Chord_Pattern
-from .scales import Scale_Pattern
+from note import Note, DiatonicNote, ChromaticNote
+from interval import SolfegeInterval, DiatonicInterval, ChromaticInterval
+from util import Solfege_Pattern
+from chords import Chord_Pattern
+from scales import Scale_Pattern
 
 unison = DiatonicInterval(0)
 tone = DiatonicInterval(1)
