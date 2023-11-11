@@ -6,10 +6,6 @@ from util import MyException
 
 class ChromaticNote(_Note, ChromaticInterval):
     IntervalClass = ChromaticInterval
-    # The role this note is most likely to play in the standard chords
-    # Especially used for guitar cards
-    role = ["unison", None, None, "third", "third", "third", "fifth", "fifth", "fifth", "interval", "interval",
-            "interval"]
 
     def get_color(self, color=True):
         """Color to print the note in lilypond"""

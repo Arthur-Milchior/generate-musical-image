@@ -6,7 +6,7 @@ from solfege.interval.base import _Interval
 
 
 class _Note(_Interval):
-    IntervalClass: type(_Note)
+    IntervalClass = _Interval
     """A note. Similar to an interval.
 
     -To a note may be added or subtracted an interval, but not to a note
@@ -31,9 +31,6 @@ class _Note(_Interval):
 
     def sub_note(self, other: _Note):
         return self.IntervalClass(self.get_number() - other.get_number())
-
-    def get_number(self) -> int:
-        return super().get_number()
 
     def __add__(self, other: _Interval):
         if isinstance(other, _Note):

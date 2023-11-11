@@ -1,8 +1,11 @@
 from .util import *
 from .chord import GuitarChord
 from util import debug
-from solfege.base import IntervalWithNoRole
 
+
+class IntervalWithNoRole(MyException):
+    """Raised when the difference between base note and an interval has no role. I.e. is 1 or 2."""
+    pass
 
 class SetOfSameChord:
     def __init__(self, kind,

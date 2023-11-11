@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-
-from solfege.interval import DiatonicInterval, ChromaticInterval, SolfegeInterval, TooBigAlteration
-
-
-
-class RoleNone(MyException):
-    pass
-
 
 
 
@@ -58,4 +47,3 @@ for (diatonic, alteration, nbBemol) in [(0, 0, 0),  # C
 # ]
 
 # debug("The twelve notes are %s",repr(twelve_notes))
-ChromaticNote.RelatedSolfegeClass = Note

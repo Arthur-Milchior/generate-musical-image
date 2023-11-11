@@ -1,15 +1,14 @@
-from solfege.interval import ChromaticInterval, DiatonicInterval, TooBigAlteration
 import lily.lily
-from util import debug
-import guitar.util
-from .util import minNumberString
 from guitar.pos import SetOfPos, Pos
 from solfege.chords import Chord_Pattern
-from solfege.note import Note, DiatonicNote
-from solfege.base import ChromaticNoteWithBase, NoteWithBase
+from solfege.interval import ChromaticInterval
+from solfege.note import Note
+from solfege.note.with_tonic import ChromaticNoteWithTonic
+from util import debug
+from .util import minNumberString
 
 
-class PosWithBase(Pos, ChromaticNoteWithBase):
+class PosWithBase(Pos, ChromaticNoteWithTonic):
     pass
 
 
@@ -40,7 +39,7 @@ class GuitarChord(SetOfPos):
         super().__init__(self.chord)
         minPos = self.getMinPos()
         for chord in self.chord:
-            chord.addBase(minPos)
+            chord.set_base(minPos)
         self.setOfInterval = SetOfIntervals(
             {chord.get_interval() for chord in self.chord if chord.get_interval() is not None})
 
