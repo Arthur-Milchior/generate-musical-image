@@ -5,10 +5,10 @@ from util import *
 from guitar.pos import Pos, SetOfPos
 from solfege.scales import Scale_Pattern
 import guitar.util
-leafFolder="scale/"
-imageFolder=guitar.util.imageFolder+leafFolder
-ankiFolder=guitar.util.ankiFolder+leafFolder
 
+leafFolder = "scale/"
+imageFolder = guitar.util.imageFolder + leafFolder
+ankiFolder = guitar.util.ankiFolder + leafFolder
 
 index = f"""<html><head><title>All transposable scale on a standard guitar</title></head>
 <body>
@@ -25,41 +25,39 @@ It is assumed that, there is never more than {increase_fret_limit} fret from the
 
 for scale in Scale_Pattern.set_[Scale_Pattern]:
     name = scale.getFirstName()
-    intervals=scale.getIntervals()
-    folder_scale = imageFolder+name
+    intervals = scale.getIntervals()
+    folder_scale = imageFolder + name
     ensureFolder(folder_scale)
     web = """<html><head><title>All transposable %s on a standard guitar</title></head><body>Each transposable version of the scale %s.<br/> Successive notes are separated by %s half-notes
-<hr/>"""%(name,name, str(intervals))
-    for string in range(1,7):
-        for fret in range(1,5):
-            print ("""considering %s %d-%d"""%(name,string,fret))
-            basePos = Pos(string,fret)
+<hr/>""" % (name, name, str(intervals))
+    for string in range(1, 7):
+        for fret in range(1, 5):
+            print("""considering %s %d-%d""" % (name, string, fret))
+            basePos = Pos(string, fret)
             poss = scale2Pos(intervals, basePos)
             if poss is False:
                 print("poss is false:continue")
                 continue
-            file ="%d-%d-%s.svg"%( string, fret, name)
-            path = "%s/%s" %(  folder_scale,file)
-            sop=SetOfPos(poss)
+            file = "%d-%d-%s.svg" % (string, fret, name)
+            path = "%s/%s" % (folder_scale, file)
+            sop = SetOfPos(poss)
             debug(sop)
             if not sop.isOneMin():
                 print("no fret one:continue")
                 continue
             debug("drawing")
-            with open (path, "w") as f:
+            with open(path, "w") as f:
                 sop.draw(f)
-            web += """<img src="%s"/>\n"""%file
-    web+="""</body></html>"""
-    index += """<li><a href="%s">"""%name
+            web += """<img src="%s"/>\n""" % file
+    web += """</body></html>"""
+    index += """<li><a href="%s">""" % name
     for name in scale.getNames():
         index += "%s, " % name
-    index +="""</a></li>"""
-    with open("%s/index.html"% folder_scale,"w") as f:
+    index += """</a></li>"""
+    with open("%s/index.html" % folder_scale, "w") as f:
         f.write(web)
 
-
-
-index +="""</ul></body>
+index += """</ul></body>
 </html>"""
-with open(imageFolder+"/index.html","w") as f:
+with open(imageFolder + "/index.html", "w") as f:
     f.write(index)

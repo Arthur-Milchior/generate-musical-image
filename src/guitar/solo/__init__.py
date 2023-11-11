@@ -3,13 +3,14 @@ import os
 from util import *
 import guitar.util
 from guitar.pos import Pos
-#from .chord import *
-leafFolder="solo/"
-imageFolder=guitar.util.imageFolder+leafFolder
-ankiFolder=guitar.util.ankiFolder+leafFolder
+
+# from .chord import *
+leafFolder = "solo/"
+imageFolder = guitar.util.imageFolder + leafFolder
+ankiFolder = guitar.util.ankiFolder + leafFolder
 
 ensureFolder(imageFolder)
-for string in range(1,7):
-    for pos in range(0,6):
-        with open("%s/%d%d.svg"%(imageFolder,string,pos),"w") as f:
-            Pos(string,pos).draw(f)
+for string in range(1, 7):
+    for pos in range(0, 6):
+        with open("%s/%d%d.svg" % (imageFolder, string, pos), "w") as f:
+            Pos(string, pos).draw(f)

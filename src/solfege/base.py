@@ -2,45 +2,47 @@
 # -*- coding: utf-8 -*-
 import math
 import solfege.interval
-from .interval import DiatonicInterval, ChromaticInterval,SolfegeInterval, Alteration, TooBigAlteration#, _Interval
+from .interval import DiatonicInterval, ChromaticInterval, SolfegeInterval, Alteration, TooBigAlteration  # , _Interval
 from util import *
-from .note import DiatonicNote,ChromaticNote,Note,_Note
+from .note import DiatonicNote, ChromaticNote, Note, _Note
+
 
 class IntervalWithNoRole(MyException):
     """Raised when the difference between base note and an interval has no role. I.e. is 1 or 2."""
     pass
 
+
 class _NoteWithBase(_Note):
     """
     Classes for notes with base. They are a note, with an additional information representing the tonic.
     """
-    def __init__(self,toCopy=None,base=None, **kwargs):
-        super().__init__(toCopy=toCopy,**kwargs)
-        self.base=None
-        if isinstance(toCopy,_NoteWithBase):
-            base=toCopy.getBase()
+
+    def __init__(self, toCopy=None, base=None, **kwargs):
+        super().__init__(toCopy=toCopy, **kwargs)
+        self.base = None
+        if isinstance(toCopy, _NoteWithBase):
+            base = toCopy.getBase()
         if base is not None:
             self.addBase(base)
 
-    def __add__(self,other):
-        sum_=super().__add__(other)
-        base=self.getBase()
+    def __add__(self, other):
+        sum_ = super().__add__(other)
+        base = self.getBase()
         if base is not None:
             sum_.addBase(base)
-        return  sum_
+        return sum_
 
     def __hash__(self):
         return super().__hash__()
 
-    def __eq__(self,other):
-        return super().__eq__(other) and self.getBase()==other.getBase()
+    def __eq__(self, other):
+        return super().__eq__(other) and self.getBase() == other.getBase()
 
-
-    def addBase(self,base):
+    def addBase(self, base):
         assert (base is not None)
-        self.base=base
-        if self.__class__!=base.__class__:
-            raise Exception("Adding a base of a type %s distinct from the class %s"%(base.__class__,self.__class__))
+        self.base = base
+        if self.__class__ != base.__class__:
+            raise Exception("Adding a base of a type %s distinct from the class %s" % (base.__class__, self.__class__))
 
         # if self.hasNumber():
         #     role=self.__class__.role[(self.getNumber()-base.getNumber())%self.__class__.modulo]
@@ -52,93 +54,94 @@ class _NoteWithBase(_Note):
     def getInterval(self):
         """Interval between the note and its base"""
         if "interval" not in self.dic:
-            if self.base is  None or self.value is None:
-                self.dic["interval"]=None
+            if self.base is None or self.value is None:
+                self.dic["interval"] = None
             else:
-                self.dic["interval"]=self-self.base
+                self.dic["interval"] = self - self.base
         return self.dic["interval"]
 
     def getRole(self):
         """The role of this note, assuming its in a major scale"""
         if "role" not in self.dic:
-            interval=self.getInterval()
-            interval=interval.getNumber()%self.modulo
-            role= self.role[interval]
-            self.dic["role"]=role
+            interval = self.getInterval()
+            interval = interval.getNumber() % self.modulo
+            role = self.role[interval]
+            self.dic["role"] = role
         return self.dic["role"]
 
     def getBase(self):
         return self.base
 
 
-class DiatonicNoteWithBase(_NoteWithBase,DiatonicNote):
-    #Saved as the interval from middle C
-    role=["Tonic", "supertonic","mediant", "subdominant","dominant","submediant","leading"]
+class DiatonicNoteWithBase(_NoteWithBase, DiatonicNote):
+    # Saved as the interval from middle C
+    role = ["Tonic", "supertonic", "mediant", "subdominant", "dominant", "submediant", "leading"]
 
 
+class ChromaticNoteWithBase(_NoteWithBase, ChromaticNote):
+    RelatedDiatonicClass = DiatonicNoteWithBase
 
-class ChromaticNoteWithBase(_NoteWithBase,ChromaticNote):
-    RelatedDiatonicClass=DiatonicNoteWithBase
-    def getColor(self,color=True):
+    def getColor(self, color=True):
         if color:
-            dic={"unison":"black","third": "violet","fifth": "red","interval": "green",None:None}
+            dic = {"unison": "black", "third": "violet", "fifth": "red", "interval": "green", None: None}
             return dic[self.getRole()]
         else:
             return "black"
-
 
     def getDiatonic(self):
         """Assuming no base is used"""
         if "diatonic" not in self.dic:
             if self.getNumber() is None:
-                diatonic=None
+                diatonic = None
             elif self.getBase() is None:
-                raise Exception("Diatonic asked when the current note %s has no base"%self)
+                raise Exception("Diatonic asked when the current note %s has no base" % self)
             elif self == self.getBase():
-                #If we can't use the base to determine the diatonic note, we take the more likely one
-                diatonic= super().getDiatonic()
+                # If we can't use the base to determine the diatonic note, we take the more likely one
+                diatonic = super().getDiatonic()
                 diatonic.addBase(diatonic)
             else:
-                #Otherwise, we use the role to figure out which diatonic note to use
-                role=self.getRole()
-                diatonicNumber={"unison":0,"third": 2,"fifth":4 ,"interval": 6}[role]
-                diatonicIntervalBaseOctave=DiatonicInterval(diatonic=diatonicNumber)
-                octave=self.getInterval().getOctave()
-                diatonicInterval=diatonicIntervalBaseOctave.addOctave(octave)
-                diatonic=self.base.getDiatonic()+diatonicInterval
+                # Otherwise, we use the role to figure out which diatonic note to use
+                role = self.getRole()
+                diatonicNumber = {"unison": 0, "third": 2, "fifth": 4, "interval": 6}[role]
+                diatonicIntervalBaseOctave = DiatonicInterval(diatonic=diatonicNumber)
+                octave = self.getInterval().getOctave()
+                diatonicInterval = diatonicIntervalBaseOctave.addOctave(octave)
+                diatonic = self.base.getDiatonic() + diatonicInterval
                 diatonic.addBase(self.base.getDiatonic())
-                debug("Note %s's diatonic is not base. Its interval is %s and its diatonic is %s"%(self,diatonicInterval,diatonic))
-            self.dic["diatonic"]=diatonic
+                debug("Note %s's diatonic is not base. Its interval is %s and its diatonic is %s" % (
+                self, diatonicInterval, diatonic))
+            self.dic["diatonic"] = diatonic
         return self.dic["diatonic"]
 
     def getNote(self):
-        note=super().getNote(Class=NoteWithBase)
-        base=self.getBase()
+        note = super().getNote(Class=NoteWithBase)
+        base = self.getBase()
         if self is base:
             note.addBase(note)
         elif base is not None:
             note.addBase(base.getNote())
         return note
 
-class NoteWithBase(ChromaticNoteWithBase,Note):
-    IntervalClass= SolfegeInterval
-    DiatonicClass=DiatonicNote
-    ChromaticClass=ChromaticNote
+
+class NoteWithBase(ChromaticNoteWithBase, Note):
+    IntervalClass = SolfegeInterval
+    DiatonicClass = DiatonicNote
+    ChromaticClass = ChromaticNote
     """A note of the scale, as an interval from middle C."""
 
-    def getName(self,kind=None):
+    def getName(self, kind=None):
         diatonic = self.getDiatonic()
         try:
-            alteration=self.getAlteration()
+            alteration = self.getAlteration()
         except TooBigAlteration as tba:
-            tba.addInformation("Note",self)
+            tba.addInformation("Note", self)
             raise
-        diatonicName=diatonic.getName().upper()
-        alterationName=alteration.getName(kind=kind)
-        return "%s%s" %(diatonicName,alterationName)
+        diatonicName = diatonic.getName().upper()
+        alterationName = alteration.getName(kind=kind)
+        return "%s%s" % (diatonicName, alterationName)
 
     def correctAlteration(self):
-        return  self.getAlteration().printable()
+        return self.getAlteration().printable()
 
 
-ChromaticNoteWithBase.RelatedSolfegeClass=NoteWithBase
+ChromaticNoteWithBase.RelatedSolfegeClass = NoteWithBase
