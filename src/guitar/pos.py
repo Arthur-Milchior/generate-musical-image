@@ -64,7 +64,7 @@ class Pos(ChromaticNote):
         chroma = self.getChromatic()
         if chroma is None:
             return -100
-        return chroma.getNumber()
+        return chroma.get_number()
 
     def _draw(self, f, color=True):
         f.write(self.svg(color))
@@ -82,7 +82,7 @@ class Pos(ChromaticNote):
                 cy = self.fret * fret_distance
             return """
   <circle cx="%d" cy="%d" r="%d" fill="%s" stroke="%s" stroke-width="3"/>""" % (
-            cx, cy, circle_radius, self.getFillColor(), self.getColor(color=color))
+            cx, cy, circle_radius, self.getFillColor(), self.get_color(color=color))
 
     def getFillColor(self):
         if self.fret == 0:
@@ -94,7 +94,7 @@ class Pos(ChromaticNote):
         if isinstance(pos, Pos):
             return self.subPos(pos)
         else:
-            return self.subInterval(pos)
+            return self.sub_interval(pos)
 
     def subPos(self, pos):
         """the number of semitone from self (high note) to pos (low note)"""

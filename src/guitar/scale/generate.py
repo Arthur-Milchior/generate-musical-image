@@ -25,7 +25,7 @@ It is assumed that, there is never more than {increase_fret_limit} fret from the
 
 for scale in Scale_Pattern.set_[Scale_Pattern]:
     name = scale.getFirstName()
-    intervals = scale.getIntervals()
+    intervals = scale.get_intervals()
     folder_scale = imageFolder + name
     ensureFolder(folder_scale)
     web = """<html><head><title>All transposable %s on a standard guitar</title></head><body>Each transposable version of the scale %s.<br/> Successive notes are separated by %s half-notes

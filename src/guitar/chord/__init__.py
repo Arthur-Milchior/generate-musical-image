@@ -52,13 +52,13 @@ for set_ in allChords:
         raise
     subfolder = "%s/%s/" % (kind, pattern_name)
     if chord.isOpen():
-        subfolder += "%s/" % minPos.getNoteName()
+        subfolder += "%s/" % minPos.get_note_name()
 
     localImage = "%s%s" % (imageFolder, subfolder)
     localAnki = "%s%s" % (ankiFolder, subfolder)
     ensureFolder(localAnki)
     ensureFolder(localImage)
-    ankiLine = "\n%s,%s,%s,%s,%s," % (kind, minPos.getNoteName(withOctave=True), set_.third, set_.fifth, set_.quality)
+    ankiLine = "\n%s,%s,%s,%s,%s," % (kind, minPos.get_note_name(withOctave=True), set_.third, set_.fifth, set_.quality)
     for chord in set_:
         for (color_name, color) in [("color", True), ("black", False)]:
             fileName = chord.fileName()

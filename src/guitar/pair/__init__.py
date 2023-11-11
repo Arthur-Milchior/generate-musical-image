@@ -32,7 +32,7 @@ for string in range(1, 6):
                 with open("%s%s" % (imageFolder, fileName), "w") as f:
                     sop.draw(f, nbFretMin=6)
                 if (pos <= 1 or pos_ <= 1):
-                    name = (pos2 - pos1).get_name()
+                    name = (pos2 - pos1).get_interval_name()
                     if pos and pos_:
                         anki += """strings %d and %d,%s,%s,%s\n""" % (string, string_, fileName, name, difString)
                     else:

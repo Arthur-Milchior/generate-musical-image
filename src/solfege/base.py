@@ -42,13 +42,13 @@ class _NoteWithBase(_Note):
             raise Exception("Adding a base of a type %s distinct from the class %s" % (base.__class__, self.__class__))
 
         # if self.hasNumber():
-        #     role=self.__class__.role[(self.getNumber()-base.getNumber())%self.__class__.modulo]
+        #     role=self.__class__.role[(self.get_number()-base.get_number())%self.__class__.modulo]
         #     if role is None:
-        #         raise IntervalWithNoRole#Exception("Adding base %s whose number is %d to note %s, (interval=%s)  the role is None, from %s[%d%%%d=%d]"%(base,base.getNumber(),self,self.interval,self.__class__.role,self.interval.getNumber(),self.__class__.modulo,self.interval.getNumber()%self.__class__.modulo))
+        #         raise IntervalWithNoRole#Exception("Adding base %s whose number is %d to note %s, (interval=%s)  the role is None, from %s[%d%%%d=%d]"%(base,base.get_number(),self,self.interval,self.__class__.role,self.interval.get_number(),self.__class__.modulo,self.interval.get_number()%self.__class__.modulo))
         #     self.role= role
         #     #debug("The role of %s is %s"%(self,role))
 
-    def getInterval(self):
+    def get_interval(self):
         """interval between the note and its base"""
         if "interval" not in self.dic:
             if self.base is None or self.value is None:
@@ -60,7 +60,7 @@ class _NoteWithBase(_Note):
     def getRole(self):
         """The role of this note, assuming its in a major scale"""
         if "role" not in self.dic:
-            interval = self.getInterval()
+            interval = self.get_interval()
             interval = interval.get_number() % self.modulo
             role = self.role[interval]
             self.dic["role"] = role
@@ -78,7 +78,7 @@ class DiatonicNoteWithBase(_NoteWithBase, DiatonicNote):
 class ChromaticNoteWithBase(_NoteWithBase, ChromaticNote):
     RelatedDiatonicClass = DiatonicNoteWithBase
 
-    def getColor(self, color=True):
+    def get_color(self, color=True):
         if color:
             dic = {"unison": "black", "third": "violet", "fifth": "red", "interval": "green", None: None}
             return dic[self.getRole()]
@@ -88,7 +88,7 @@ class ChromaticNoteWithBase(_NoteWithBase, ChromaticNote):
     def get_diatonic(self):
         """Assuming no base is used"""
         if "diatonic" not in self.dic:
-            if self.getNumber() is None:
+            if self.get_number() is None:
                 diatonic = None
             elif self.getBase() is None:
                 raise Exception("Diatonic asked when the current note %s has no base" % self)
@@ -101,7 +101,7 @@ class ChromaticNoteWithBase(_NoteWithBase, ChromaticNote):
                 role = self.getRole()
                 diatonicNumber = {"unison": 0, "third": 2, "fifth": 4, "interval": 6}[role]
                 diatonicIntervalBaseOctave = DiatonicInterval(diatonic=diatonicNumber)
-                octave = self.getInterval().get_octave()
+                octave = self.get_interval().get_octave()
                 diatonicInterval = diatonicIntervalBaseOctave.add_octave(octave)
                 diatonic = self.base.get_diatonic() + diatonicInterval
                 diatonic.addBase(self.base.get_diatonic())
@@ -110,13 +110,13 @@ class ChromaticNoteWithBase(_NoteWithBase, ChromaticNote):
             self.dic["diatonic"] = diatonic
         return self.dic["diatonic"]
 
-    def getNote(self):
-        note = super().getNote(Class=NoteWithBase)
+    def get_note(self):
+        note = super().get_note(clazz=NoteWithBase)
         base = self.getBase()
         if self is base:
             note.addBase(note)
         elif base is not None:
-            note.addBase(base.getNote())
+            note.addBase(base.get_note())
         return note
 
 
@@ -126,7 +126,7 @@ class NoteWithBase(ChromaticNoteWithBase, Note):
     ChromaticClass = ChromaticNote
     """A note of the scale, as an interval from middle C."""
 
-    def get_name(self, forFile=None):
+    def get_interval_name(self, forFile=None):
         """The name of this note.
 
         Args: `forFile` -- whether we should avoid non ascii symbol"""
@@ -136,8 +136,8 @@ class NoteWithBase(ChromaticNoteWithBase, Note):
         except TooBigAlteration as tba:
             tba.addInformation("Note", self)
             raise
-        diatonicName = diatonic.get_name().upper()
-        alterationName = alteration.get_name(forFile=forFile)
+        diatonicName = diatonic.get_interval_name().upper()
+        alterationName = alteration.get_interval_name(forFile=forFile)
         return "%s%s" % (diatonicName, alterationName)
 
     def correctAlteration(self):

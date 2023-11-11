@@ -22,9 +22,9 @@ assert (third - tone == tone)
 assert (tone - third == -tone)
 assert (unison - third == thirdDescending)
 
-assert (C.getOctave() == 0)
-# assert ((C-tone).getOctave()==-1)
-assert (D.getOctave() == 0)
+assert (C.get_octave() == 0)
+# assert ((C-tone).get_octave()==-1)
+assert (D.get_octave() == 0)
 
 assert (C + unison == C)
 assert (C + tone == D)

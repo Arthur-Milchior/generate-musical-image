@@ -69,7 +69,7 @@ class SetOfSameChord:
         text = "Set_of_same_chord "
         min_ = self.getMinChromatic()
         if min_:
-            text += min_.getNoteName(withOctave=True)
+            text += min_.get_note_name(withOctave=True)
         text += self.getPatternName()
         text += repr(self.set_)
         return text

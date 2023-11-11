@@ -1,164 +1,167 @@
-from __future__ import annotations
-
-import math
-from typing import Optional
 import unittest
+from typing import Optional
+
+from solfege.interval.chromatic import ChromaticInterval
+from solfege.interval.diatonic import DiatonicInterval
 
 
-class _Interval:
-    """This class is the basis for each kind of interval. It should never be used directly.
-    It allows to represent a number, access it.
-    It also allows to add it to another such element, negate it, while generating an object of its subclass.
-    Such elements can be compared, and basically hashed (the hash being the number itself)
+class SolfegeInterval:
+    pass
 
-    The number can't be set, because the object is supposed to be immutable.
 
-    Inheriting class which are instantiated should contain the following variable:
-    * modulo: number of note by octave (7 for diatonic, 12 for chromatic)
-    * ClassToTransposeTo: the class of object to generate. If it's None, the class of self is used.
-    * RelatedDiatonicClass: class to which a chromatic object must be converted when a diatonic object is required.
-    * RelatedSolfegeClass: the class to which a diatonic and chromatic object must be converted.
-"""
-    ClassToTransposeTo = None
-    modulo: int
+class Interval(ChromaticInterval):
+    """A solfège interval. Composed of both a diatonic interval and a chromatic interval."""
+    DiatonicClass = DiatonicInterval
+    ChromaticClass = ChromaticInterval
 
-    def __init__(self, value=None, toCopy: Optional[_Interval] = None, callerClass=None, none=None, **kwargs):
-        """If the interval is passed as argument, it is copied. Otherwise, the value is used. none, if true,
-        means that there is no value and it is acceptable"""
-        super().__init__(**kwargs)
-        self.dic = dict()
+    def __init__(self, chromatic: Optional[int] = None, diatonic: Optional[int] = None,
+                 alteration: Optional[int] = None,
+                 toCopy: Optional[SolfegeInterval] = None,
+                 none=None, **kwargs):
+        """If toCopy is present, it is copied
+
+        Otherwise, chromatic and diatonic are used.
+        Otherwise, if chromatic is present, it supposed to be the exact value.
+        otherwise, alteration should be present, and chromatic is the sum of diatonic and alteration
+        """
+        assert (alteration is not None or chromatic is not None or toCopy is not None or none is not None)
         if none:
-            assert (value is None)
+            super().__init__(none=none)
+            assert (chromatic is None)
+            assert (diatonic is None)
+            assert (alteration is None)
             assert (toCopy is None)
-            assert (callerClass is None)
-            self.value = None
-            return
-        if toCopy is not None:
-            if not isinstance(toCopy, callerClass):
-                raise Exception("An interval: %s is not of the class %s" % (toCopy, callerClass))
-            number = toCopy.get_number() if toCopy.has_number() else None
+        elif toCopy:
+            assert (chromatic is None)
+            assert (diatonic is None)
+            assert (alteration is None)
+            assert (isinstance(toCopy, Interval))
+            super().__init__(chromatic=toCopy.get_number())
+            self.diatonic = toCopy.getDiatonic()
         else:
-            number = value
-        if not isinstance(number, int):
-            raise (Exception("A result which is not a number but %s.\n value:%s, toCopy:%s, callerClass:%s,none:%s" % (
-                number, value, toCopy, callerClass, none)))
-        self.value = number
-
-    def is_note(self):
-        """True if it's a note. False if it's an interval"""
-        return False
-
-    def has_number(self):
-        return isinstance(self.value, int)
-
-    def get_number(self):
-        if not isinstance(self.value, int):
-            raise Exception("A number which is not int but %s" % self.value)
-        return self.value
+            self.diatonic = self.__class__.DiatonicClass(diatonic=diatonic)
+            if chromatic is not None:
+                assert (isinstance(chromatic, int))
+                super().__init__(chromatic=chromatic)
+            else:
+                assert alteration
+                assert (isinstance(alteration, int))
+                self.initChromaticAbsent(alteration)
+                super().__init__(chromatic=self.diatonic.get_chromatic().get_number() + alteration)
 
     def __eq__(self, other):
-        # if not isinstance(other,interval):
-        #     return False
-        if self.__class__ != other.__class__:
-            raise Exception("Comparison of two distinct classes: %s and %s" % (self.__class__, other.__class__))
-        return self.get_number() == other.get_number()
-
-    def __add__(self, other):
-        """Sum of both intervals. Class of `self`"""
-        if not isinstance(other, int):
-            otherNumber = other.get_number()
-        else:
-            otherNumber = other
-        sum_ = self.get_number() + otherNumber
-        ret = self.__class__(value=sum_)
-        # debug("Adding %s and %s we obtain %s",(self,other,ret))
-        return ret
-
-    def __neg__(self):
-        """Inverse interval"""
-        Class = self.ClassToTransposeTo or self.__class__
-        return self.__class__(value=-self.get_number())
-
-    def __sub__(self, other):
-        """This interval minus the other one. Class of `self`"""
-        neg = -other
-        if neg.is_note():
-            raise Exception("Neg is %s, which is a note" % neg)
-        return (self + neg)
+        diatonicEq = self.get_diatonic() == other.get_diatonic()
+        chromaticEq = super().__eq__(other)
+        return diatonicEq and chromaticEq
 
     def __hash__(self):
-        return self.get_number()
+        return hash(self.get_chromatic())
 
-    def __le__(self, other):
-        if isinstance(other, _Interval):
-            other = other.get_number()
-        return self.get_number() <= other
+    def __neg__(self):
+        Class = self.ClassToTransposeTo or self.__class__
+        return Class(chromatic=-self.get_number(), diatonic=-self.get_diatonic().get_number())
 
-    def __lt__(self, other):
-        if isinstance(other, _Interval):
-            other = other.get_number()
-        return self.get_number() < other
+    def get_chromatic(self):
+        return self.ChromaticClass(chromatic=self.get_number())
+
+    def get_diatonic(self):
+        return self.diatonic
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.get_number()})"
+        return f"{self.__class__.__name__}(chromatic = {self.get_chromatic().get_number()}, diatonic = {self.get_diatonic().get_number()})"
 
-    def get_octave(self):
-        """The octave number. 0 for unison/central C up to seventh/C one octave above."""
-        return math.floor(self.get_number() / self.__class__.modulo)
+    def __add__(self, other):
+        diatonic = self.get_diatonic() + other.get_diatonic()
+        chromatic = self.get_chromatic() + other.get_chromatic()
+        from solfege.note.base import _Note
+        if self.ClassToTransposeTo:
+            clazz = self.ClassToTransposeTo
+        elif isinstance(other, _Note):
+            clazz = other.__class__
+        else:
+            clazz =  self.__class__
+        interval = clazz(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
+        return interval
 
     def add_octave(self, nb):
-        """Same note with nb more octave"""
         Class = self.ClassToTransposeTo or self.__class__
-        return Class(value=self.get_number() + nb * self.__class__.modulo)
+        return Class(chromatic=self.get_chromatic().add_octave(nb).get_number(),
+                     diatonic=self.get_diatonic().add_octave(nb).get_number())
+
+    def get_octave(self):
+        return self.get_diatonic().get_octave()
 
     def get_same_note_in_base_octave(self):
-        """Same note in the base octave"""
-        return self.add_octave(-self.get_octave())
-
-    def same_notes_in_different_octaves(self, other):
-        """Whether self and other are same note, potentially at distinct octaves"""
-        return self.get_same_note_in_base_octave() == other.get_same_note_in_base_octave()
-
-    def difference_in_base_octave(self, other):
-        """self-other, in octave"""
-        Class = self.ClassToTransposeTo or self.__class__
-        return Class((self.get_number() - other.get_number()) % self.__class__.modulo)
+        octaveToAdd = -self.get_octave()
+        return self.add_octave(octaveToAdd)
 
 
-class TestInterval(unittest.TestCase):
-    zero = _Interval(0)
-    un = _Interval(1)
-    moins_un = _Interval(-1)
-    deux = _Interval(2)
-    trois = _Interval(3)
+ChromaticInterval.RelatedSolfegeClass = Interval
+Interval.IntervalClass = Interval
+
+
+class TestChromaticInterval(unittest.TestCase):
+    minus_octave = Interval(-12, -7)
+    minus_second_minor = Interval(-1, -1)
+    unison = Interval(0, 0)
+    second_minor = Interval(1, 1)
+    second_major = Interval(2, 1)
+    third_minor = Interval(3, 2)
+    octave = Interval(12, 7)
 
     def test_is_note(self):
-        self.assertFalse(self.zero.is_note())
+        self.assertFalse(self.unison.is_note())
 
     def test_has_number(self):
-        self.assertTrue(self.zero.has_number())
+        self.assertTrue(self.unison.has_number())
 
     def test_get_number(self):
-        self.assertEquals(self.zero.get_number(), 0)
+        self.assertEquals(self.unison.get_number(), 0)
 
     def test_equal(self):
-        self.assertEquals(self.zero, self.zero)
-        self.assertNotEquals(self.un, self.zero)
-        self.assertEquals(self.un, self.un)
+        self.assertEquals(self.unison, self.unison)
+        self.assertNotEquals(self.second_major, self.unison)
+        self.assertEquals(self.second_major, self.second_major)
 
     def test_add(self):
-        self.assertEquals(self.un + self.deux, self.trois)
+        self.assertEquals(self.second_major + self.second_minor, self.third_minor)
 
     def test_neg(self):
-        self.assertEquals(-self.un, self.moins_un)
+        self.assertEquals(-self.second_minor, self.minus_second_minor)
 
     def test_sub(self):
-        self.assertEquals(self.trois - self.deux, self.un)
+        self.assertEquals(self.third_minor - self.second_major, self.second_minor)
 
     def test_lt(self):
-        self.assertLess(self.un, self.deux)
-        self.assertLessEqual(self.un, self.deux)
-        self.assertLessEqual(self.un, self.un)
+        self.assertLess(self.second_minor, self.second_major)
+        self.assertLessEqual(self.second_minor, self.second_major)
+        self.assertLessEqual(self.second_major, self.second_major)
 
     def test_repr(self):
-        self.assertEquals(repr(self.un), "_Interval(1)")
+        self.assertEquals(repr(self.second_major), "Interval(chromatic = 2, diatonic = 1)")
+
+    def test_get_octave(self):
+        self.assertEquals(self.unison.get_octave(), 0)
+        self.assertEquals(self.minus_octave.get_octave(), -1)
+        self.assertEquals(self.octave.get_octave(), 1)
+
+    def test_add_octave(self):
+        self.assertEquals(self.octave.add_octave(-1), self.unison)
+        self.assertEquals(self.unison.add_octave(1), self.octave)
+        self.assertEquals(self.octave.add_octave(-2), self.minus_octave)
+        self.assertEquals(self.minus_octave.add_octave(2), self.octave)
+
+    def test_same_note_in_base_octave(self):
+        self.assertEquals(self.octave.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.minus_octave.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.unison.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.second_major.get_same_note_in_base_octave(), self.second_major)
+
+    def test_same_note_in_different_octaves(self):
+        self.assertFalse(self.second_major.same_notes_in_different_octaves(self.unison))
+        self.assertFalse(self.second_major.same_notes_in_different_octaves(self.octave))
+        self.assertFalse(self.second_major.same_notes_in_different_octaves(self.minus_octave))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.unison))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.octave))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.minus_octave))
+        self.assertTrue(self.octave.same_notes_in_different_octaves(self.minus_octave))

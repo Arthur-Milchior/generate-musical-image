@@ -42,7 +42,7 @@ class GuitarChord(SetOfPos):
         for chord in self.chord:
             chord.addBase(minPos)
         self.setOfInterval = SetOfIntervals(
-            {chord.getInterval() for chord in self.chord if chord.getInterval() is not None})
+            {chord.get_interval() for chord in self.chord if chord.get_interval() is not None})
 
     def anki(self):
         """return the tuple (pos1,pos3,pos5,posn)
@@ -57,7 +57,7 @@ class GuitarChord(SetOfPos):
                                         ("n", {ChromaticInterval(9), ChromaticInterval(10), ChromaticInterval(11)})]:
             text += ","
             for i in self.chord:
-                interval = self.chord[i].getInterval()
+                interval = self.chord[i].get_interval()
                 if interval is None:
                     text += "x"
                 else:
@@ -220,7 +220,7 @@ class GuitarChord(SetOfPos):
             if chord.fret is not None:
                 chromatic = chord.getChromatic()
                 assert (isinstance(chord, ChromaticNoteWithBase))
-                note = chromatic.getNote()
+                note = chromatic.get_note()
                 assert (isinstance(note, Note))
                 if note not in setNote:
                     setPos.add(chord)

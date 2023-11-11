@@ -25,7 +25,7 @@ for scale in Scale_Pattern.set_[Scale_Pattern]:
     scaleName = scale.getFirstName()
     nbBemol = scale.getBemol()
     nbSharp = scale.getSharp()
-    intervals = scale.getIntervals()
+    intervals = scale.get_intervals()
     root_html += """<li><a href='%s'>%s</a></li>""" % (scaleName, scaleName)
     scale_html = """
     <html><head><title>Fingerings of %s</title></head><body>
@@ -36,8 +36,8 @@ for scale in Scale_Pattern.set_[Scale_Pattern]:
     ensureFolder(folder_scale)
     with open("""%s/anki.csv""" % folder_scale, "w") as anki_scale_file:
         for (baseNote, nbBemol_) in twelve_notes:
-            baseNameTitle = baseNote.get_name()
-            baseNameFile = baseNote.get_name("file")
+            baseNameTitle = baseNote.get_interval_name()
+            baseNameFile = baseNote.get_interval_name("file")
             scale_html += """<li><a href='%s'>%s</a></li>""" % (baseNameFile, baseNameTitle)
             scale_note_html = """
         <html><head><title>Fingerings of %s %s</title></head><body>
@@ -54,7 +54,7 @@ for scale in Scale_Pattern.set_[Scale_Pattern]:
                 ["c", "f", "bes", "ees", "aes", "des", "ges", "ces", "fes", "beses", "eeses", "aeses", "deses", "ceses",
                  "feses"][nbBemolFinal]
             debug("%s has %d bemol, %s has %d bemol and %d sharp.\nTotal is %d bemol and %d sharp.\nThe key is %s." % (
-                baseNote.get_name(), nbBemol_, scaleName, nbBemol, nbSharp, nbSharpFinal, nbBemolFinal, key))
+                baseNote.get_interval_name(), nbBemol_, scaleName, nbBemol, nbSharp, nbSharpFinal, nbBemolFinal, key))
             folder_scale_note = "%s%s/" % (folder_scale, baseNameFile)
             ensureFolder(folder_scale_note)
             anki += ("\n%s,%s" % (scaleName, baseNameFile))
@@ -76,7 +76,7 @@ for scale in Scale_Pattern.set_[Scale_Pattern]:
                     raise
                 if not leftFingeringDic or not rightFingeringDic:
                     print("""Warning:scale "%s" starting on "%s" can't exist !!!\n\n\n""" % (
-                    scaleName, baseNote.get_name()), file=sys.stderr)
+                    scaleName, baseNote.get_interval_name()), file=sys.stderr)
                     dont_exists.append((scaleName, baseNote))
                     continue
                 else:
@@ -89,10 +89,10 @@ for scale in Scale_Pattern.set_[Scale_Pattern]:
                 ((rightExtremalFinger, rightFingeringDic), penaltyRight) = rightFingeringDic
                 if not penaltyRight.acceptable():
                     print("Warning:Right is not perfect on %s %s.\n%s" % (
-                        baseNote.get_name(), scaleName, penaltyRight.warning()), file=sys.stderr)
+                        baseNote.get_interval_name(), scaleName, penaltyRight.warning()), file=sys.stderr)
                 if not penaltyLeft.acceptable():
                     print("Warning:Left is not perfect on %s %s.\n\n%s" % (
-                        baseNote.get_name(), scaleName, penaltyLeft.warning()), file=sys.stderr)
+                        baseNote.get_interval_name(), scaleName, penaltyLeft.warning()), file=sys.stderr)
             for nbOctave in [1, 2,
                              # 3,
                              # 4,
@@ -211,5 +211,5 @@ Author: <a href="mailto:arthur@milchior.fr"/>Arthur Milchior</a>. Don't hesitate
 with open("""piano/anki.csv""", "w") as anki_file:
     anki_file.write(anki)
 with open("""piano/cant_exists.txt""", "w") as cant:
-    cant.write("%s, %s" % (scaleName, baseNote.get_name()))
+    cant.write("%s, %s" % (scaleName, baseNote.get_interval_name()))
 print("piano ended")

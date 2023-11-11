@@ -1,6 +1,6 @@
 import unittest
 
-from solfege.interval.interval import _Interval
+from solfege.interval.base import _Interval
 
 
 class DiatonicInterval(_Interval):
@@ -9,9 +9,10 @@ class DiatonicInterval(_Interval):
     distinguished, since A# does not really exist. However, this would
     allow to distinguish between B# and C"""
     modulo = 7
+    # RelatedChromaticClass = ChromaticInterval moved to __init__
 
     def __init__(self, diatonic=None, value=None, **kwargs):
-        if value is  None:
+        if value is None:
             assert (diatonic is not None)
             value = diatonic
         else:
@@ -29,10 +30,9 @@ class DiatonicInterval(_Interval):
         Give the chromatic interval associated to the current diatonic interval in some scale.
           By default, the scale is the major one."""
         # TODO scale= Scale.dic[scale] currently, only major is used
-        import solfege.interval.chromatic
-        return solfege.interval.chromatic.ChromaticInterval(12 * self.get_octave() + [0, 2, 4, 5, 7, 9, 11][self.get_number() % 7])
+        return self.RelatedChromaticClass(12 * self.get_octave() + [0, 2, 4, 5, 7, 9, 11][self.get_number() % 7])
 
-    def get_name(self, showOctave=True):
+    def get_interval_name(self, showOctave=True):
         if self.get_number() == 0:
             return "unison"
         size = abs(self.get_number())
@@ -66,86 +66,86 @@ DiatonicInterval.IntervalClass = DiatonicInterval
 
 
 class TestDiatonicInterval(unittest.TestCase):
-    zero = DiatonicInterval(0)
-    un = DiatonicInterval(1)
-    moins_un = DiatonicInterval(-1)
-    deux = DiatonicInterval(2)
-    trois = DiatonicInterval(3)
-    sept = DiatonicInterval(7)
-    six = DiatonicInterval(6)
-    moins_six = DiatonicInterval(-6)
-    moins_sept = DiatonicInterval(-7)
-    moins_huit = DiatonicInterval(-8)
+    unison = DiatonicInterval(0)
+    seconde = DiatonicInterval(1)
+    seconde_descendante = DiatonicInterval(-1)
+    tierce = DiatonicInterval(2)
+    quarte = DiatonicInterval(3)
+    octave = DiatonicInterval(7)
+    septieme = DiatonicInterval(6)
+    septieme_descendante = DiatonicInterval(-6)
+    octave_descendante = DiatonicInterval(-7)
+    seconde_descendante_descendante = DiatonicInterval(-8)
 
     def test_is_note(self):
-        self.assertFalse(self.zero.is_note())
+        self.assertFalse(self.unison.is_note())
 
     def test_has_number(self):
-        self.assertTrue(self.zero.has_number())
+        self.assertTrue(self.unison.has_number())
 
     def test_get_number(self):
-        self.assertEquals(self.zero.get_number(), 0)
+        self.assertEquals(self.unison.get_number(), 0)
 
     def test_equal(self):
-        self.assertEquals(self.zero, self.zero)
-        self.assertNotEquals(self.un, self.zero)
-        self.assertEquals(self.un, self.un)
+        self.assertEquals(self.unison, self.unison)
+        self.assertNotEquals(self.seconde, self.unison)
+        self.assertEquals(self.seconde, self.seconde)
 
     def test_add(self):
-        self.assertEquals(self.un + self.deux, self.trois)
+        self.assertEquals(self.seconde + self.tierce, self.quarte)
 
     def test_neg(self):
-        self.assertEquals(-self.un, self.moins_un)
+        self.assertEquals(-self.seconde, self.seconde_descendante)
 
     def test_sub(self):
-        self.assertEquals(self.trois - self.deux, self.un)
+        self.assertEquals(self.quarte - self.tierce, self.seconde)
 
     def test_lt(self):
-        self.assertLess(self.un, self.deux)
-        self.assertLessEqual(self.un, self.deux)
-        self.assertLessEqual(self.un, self.un)
+        self.assertLess(self.seconde, self.tierce)
+        self.assertLessEqual(self.seconde, self.tierce)
+        self.assertLessEqual(self.seconde, self.seconde)
 
     def test_repr(self):
-        self.assertEquals(repr(self.un), "DiatonicInterval(1)")
+        self.assertEquals(repr(self.seconde), "DiatonicInterval(1)")
 
     def test_get_octave(self):
-        self.assertEquals(self.zero.get_octave(), 0)
-        self.assertEquals(self.six.get_octave(), 0)
-        self.assertEquals(self.moins_six.get_octave(), -1)
-        self.assertEquals(self.moins_sept.get_octave(), -1)
-        self.assertEquals(self.moins_huit.get_octave(), -2)
-        self.assertEquals(self.sept.get_octave(), 1)
+        self.assertEquals(self.unison.get_octave(), 0)
+        self.assertEquals(self.septieme.get_octave(), 0)
+        self.assertEquals(self.septieme_descendante.get_octave(), -1)
+        self.assertEquals(self.octave_descendante.get_octave(), -1)
+        self.assertEquals(self.seconde_descendante_descendante.get_octave(), -2)
+        self.assertEquals(self.octave.get_octave(), 1)
 
     def test_lily_octave(self):
-        self.assertEquals(self.zero.lily_octave(), "'")
-        self.assertEquals(self.six.lily_octave(), "'")
-        self.assertEquals(self.moins_six.lily_octave(), "")
-        self.assertEquals(self.moins_sept.lily_octave(), "")
-        self.assertEquals(self.moins_huit.lily_octave(), ",")
-        self.assertEquals(self.sept.lily_octave(), "''")
+        self.assertEquals(self.unison.lily_octave(), "'")
+        self.assertEquals(self.septieme.lily_octave(), "'")
+        self.assertEquals(self.septieme_descendante.lily_octave(), "")
+        self.assertEquals(self.octave_descendante.lily_octave(), "")
+        self.assertEquals(self.seconde_descendante_descendante.lily_octave(), ",")
+        self.assertEquals(self.octave.lily_octave(), "''")
 
     def test_add_octave(self):
-        self.assertEquals(self.sept.add_octave(-1), self.zero)
-        self.assertEquals(self.zero.add_octave(1), self.sept)
-        self.assertEquals(self.sept.add_octave(-2), self.moins_sept)
-        self.assertEquals(self.moins_sept.add_octave(2), self.sept)
+        self.assertEquals(self.octave.add_octave(-1), self.unison)
+        self.assertEquals(self.unison.add_octave(1), self.octave)
+        self.assertEquals(self.octave.add_octave(-2), self.octave_descendante)
+        self.assertEquals(self.octave_descendante.add_octave(2), self.octave)
 
     def test_same_note_in_base_octave(self):
-        self.assertEquals(self.sept.get_same_note_in_base_octave(), self.zero)
-        self.assertEquals(self.moins_sept.get_same_note_in_base_octave(), self.zero)
-        self.assertEquals(self.zero.get_same_note_in_base_octave(), self.zero)
-        self.assertEquals(self.un.get_same_note_in_base_octave(), self.un)
-        self.assertEquals(self.moins_un.get_same_note_in_base_octave(), self.six)
+        self.assertEquals(self.octave.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.octave_descendante.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.unison.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.seconde.get_same_note_in_base_octave(), self.seconde)
+        self.assertEquals(self.seconde_descendante.get_same_note_in_base_octave(), self.septieme)
 
     def test_same_note_in_different_octaves(self):
-        self.assertFalse(self.un.same_notes_in_different_octaves(self.zero))
-        self.assertFalse(self.un.same_notes_in_different_octaves(self.sept))
-        self.assertFalse(self.un.same_notes_in_different_octaves(self.moins_sept))
-        self.assertFalse(self.un.same_notes_in_different_octaves(self.moins_un))
-        self.assertTrue(self.zero.same_notes_in_different_octaves(self.zero))
-        self.assertTrue(self.zero.same_notes_in_different_octaves(self.sept))
-        self.assertTrue(self.zero.same_notes_in_different_octaves(self.moins_sept))
-        self.assertTrue(self.sept.same_notes_in_different_octaves(self.moins_sept))
+        self.assertFalse(self.seconde.same_notes_in_different_octaves(self.unison))
+        self.assertFalse(self.seconde.same_notes_in_different_octaves(self.octave))
+        self.assertFalse(self.seconde.same_notes_in_different_octaves(self.octave_descendante))
+        self.assertFalse(self.seconde.same_notes_in_different_octaves(self.seconde_descendante))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.unison))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.octave))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.octave_descendante))
+        self.assertTrue(self.octave.same_notes_in_different_octaves(self.octave_descendante))
 
     def test_get_chromatic(self):
         from solfege.interval.chromatic import ChromaticInterval
@@ -170,57 +170,57 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertEquals(DiatonicInterval(-9).get_chromatic(), ChromaticInterval(-15))
 
     def test_get_name_no_octave(self):
-        self.assertEquals(DiatonicInterval(0).get_name(showOctave=False), "unison")
-        self.assertEquals(DiatonicInterval(1).get_name(showOctave=False), "second")
-        self.assertEquals(DiatonicInterval(2).get_name(showOctave=False), "third")
-        self.assertEquals(DiatonicInterval(3).get_name(showOctave=False), "fourth")
-        self.assertEquals(DiatonicInterval(4).get_name(showOctave=False), "fifth")
-        self.assertEquals(DiatonicInterval(5).get_name(showOctave=False), "sixth")
-        self.assertEquals(DiatonicInterval(6).get_name(showOctave=False), "seventh")
-        self.assertEquals(DiatonicInterval(7).get_name(showOctave=False), "unison")
-        self.assertEquals(DiatonicInterval(8).get_name(showOctave=False), "second")
-        self.assertEquals(DiatonicInterval(9).get_name(showOctave=False), "third")
-        self.assertEquals(DiatonicInterval(-1).get_name(showOctave=False), "second decreasing")
-        self.assertEquals(DiatonicInterval(-2).get_name(showOctave=False), "third decreasing")
-        self.assertEquals(DiatonicInterval(-3).get_name(showOctave=False), "fourth decreasing")
-        self.assertEquals(DiatonicInterval(-4).get_name(showOctave=False), "fifth decreasing")
-        self.assertEquals(DiatonicInterval(-5).get_name(showOctave=False), "sixth decreasing")
-        self.assertEquals(DiatonicInterval(-6).get_name(showOctave=False), "seventh decreasing")
-        self.assertEquals(DiatonicInterval(-7).get_name(showOctave=False), "unison decreasing")
-        self.assertEquals(DiatonicInterval(-8).get_name(showOctave=False), "second decreasing")
-        self.assertEquals(DiatonicInterval(-9).get_name(showOctave=False), "third decreasing")
+        self.assertEquals(DiatonicInterval(0).get_interval_name(showOctave=False), "unison")
+        self.assertEquals(DiatonicInterval(1).get_interval_name(showOctave=False), "second")
+        self.assertEquals(DiatonicInterval(2).get_interval_name(showOctave=False), "third")
+        self.assertEquals(DiatonicInterval(3).get_interval_name(showOctave=False), "fourth")
+        self.assertEquals(DiatonicInterval(4).get_interval_name(showOctave=False), "fifth")
+        self.assertEquals(DiatonicInterval(5).get_interval_name(showOctave=False), "sixth")
+        self.assertEquals(DiatonicInterval(6).get_interval_name(showOctave=False), "seventh")
+        self.assertEquals(DiatonicInterval(7).get_interval_name(showOctave=False), "unison")
+        self.assertEquals(DiatonicInterval(8).get_interval_name(showOctave=False), "second")
+        self.assertEquals(DiatonicInterval(9).get_interval_name(showOctave=False), "third")
+        self.assertEquals(DiatonicInterval(-1).get_interval_name(showOctave=False), "second decreasing")
+        self.assertEquals(DiatonicInterval(-2).get_interval_name(showOctave=False), "third decreasing")
+        self.assertEquals(DiatonicInterval(-3).get_interval_name(showOctave=False), "fourth decreasing")
+        self.assertEquals(DiatonicInterval(-4).get_interval_name(showOctave=False), "fifth decreasing")
+        self.assertEquals(DiatonicInterval(-5).get_interval_name(showOctave=False), "sixth decreasing")
+        self.assertEquals(DiatonicInterval(-6).get_interval_name(showOctave=False), "seventh decreasing")
+        self.assertEquals(DiatonicInterval(-7).get_interval_name(showOctave=False), "unison decreasing")
+        self.assertEquals(DiatonicInterval(-8).get_interval_name(showOctave=False), "second decreasing")
+        self.assertEquals(DiatonicInterval(-9).get_interval_name(showOctave=False), "third decreasing")
 
     def test_get_name_with_octave(self):
-        self.assertEquals(DiatonicInterval(0).get_name(showOctave=True), "unison")
-        self.assertEquals(DiatonicInterval(1).get_name(showOctave=True), "second")
-        self.assertEquals(DiatonicInterval(2).get_name(showOctave=True), "third")
-        self.assertEquals(DiatonicInterval(3).get_name(showOctave=True), "fourth")
-        self.assertEquals(DiatonicInterval(4).get_name(showOctave=True), "fifth")
-        self.assertEquals(DiatonicInterval(5).get_name(showOctave=True), "sixth")
-        self.assertEquals(DiatonicInterval(6).get_name(showOctave=True), "seventh")
-        self.assertEquals(DiatonicInterval(7).get_name(showOctave=True), "octave")
-        self.assertEquals(DiatonicInterval(8).get_name(showOctave=True), "octave and second")
-        self.assertEquals(DiatonicInterval(9).get_name(showOctave=True), "octave and third")
-        self.assertEquals(DiatonicInterval(10).get_name(showOctave=True), "octave and fourth")
-        self.assertEquals(DiatonicInterval(11).get_name(showOctave=True), "octave and fifth")
-        self.assertEquals(DiatonicInterval(12).get_name(showOctave=True), "octave and sixth")
-        self.assertEquals(DiatonicInterval(13).get_name(showOctave=True), "octave and seventh")
-        self.assertEquals(DiatonicInterval(14).get_name(showOctave=True), "2 octaves")
-        self.assertEquals(DiatonicInterval(15).get_name(showOctave=True), "2 octaves and second")
-        self.assertEquals(DiatonicInterval(16).get_name(showOctave=True), "2 octaves and third")
-        self.assertEquals(DiatonicInterval(-1).get_name(showOctave=True), "second decreasing")
-        self.assertEquals(DiatonicInterval(-2).get_name(showOctave=True), "third decreasing")
-        self.assertEquals(DiatonicInterval(-3).get_name(showOctave=True), "fourth decreasing")
-        self.assertEquals(DiatonicInterval(-4).get_name(showOctave=True), "fifth decreasing")
-        self.assertEquals(DiatonicInterval(-5).get_name(showOctave=True), "sixth decreasing")
-        self.assertEquals(DiatonicInterval(-6).get_name(showOctave=True), "seventh decreasing")
-        self.assertEquals(DiatonicInterval(-7).get_name(showOctave=True), "octave decreasing")
-        self.assertEquals(DiatonicInterval(-8).get_name(showOctave=True), "octave and second decreasing")
-        self.assertEquals(DiatonicInterval(-9).get_name(showOctave=True), "octave and third decreasing")
-        self.assertEquals(DiatonicInterval(-10).get_name(showOctave=True), "octave and fourth decreasing")
-        self.assertEquals(DiatonicInterval(-11).get_name(showOctave=True), "octave and fifth decreasing")
-        self.assertEquals(DiatonicInterval(-12).get_name(showOctave=True), "octave and sixth decreasing")
-        self.assertEquals(DiatonicInterval(-13).get_name(showOctave=True), "octave and seventh decreasing")
-        self.assertEquals(DiatonicInterval(-14).get_name(showOctave=True), "2 octaves decreasing")
-        self.assertEquals(DiatonicInterval(-15).get_name(showOctave=True), "2 octaves and second decreasing")
-        self.assertEquals(DiatonicInterval(-16).get_name(showOctave=True), "2 octaves and third decreasing")
+        self.assertEquals(DiatonicInterval(0).get_interval_name(showOctave=True), "unison")
+        self.assertEquals(DiatonicInterval(1).get_interval_name(showOctave=True), "second")
+        self.assertEquals(DiatonicInterval(2).get_interval_name(showOctave=True), "third")
+        self.assertEquals(DiatonicInterval(3).get_interval_name(showOctave=True), "fourth")
+        self.assertEquals(DiatonicInterval(4).get_interval_name(showOctave=True), "fifth")
+        self.assertEquals(DiatonicInterval(5).get_interval_name(showOctave=True), "sixth")
+        self.assertEquals(DiatonicInterval(6).get_interval_name(showOctave=True), "seventh")
+        self.assertEquals(DiatonicInterval(7).get_interval_name(showOctave=True), "octave")
+        self.assertEquals(DiatonicInterval(8).get_interval_name(showOctave=True), "octave and second")
+        self.assertEquals(DiatonicInterval(9).get_interval_name(showOctave=True), "octave and third")
+        self.assertEquals(DiatonicInterval(10).get_interval_name(showOctave=True), "octave and fourth")
+        self.assertEquals(DiatonicInterval(11).get_interval_name(showOctave=True), "octave and fifth")
+        self.assertEquals(DiatonicInterval(12).get_interval_name(showOctave=True), "octave and sixth")
+        self.assertEquals(DiatonicInterval(13).get_interval_name(showOctave=True), "octave and seventh")
+        self.assertEquals(DiatonicInterval(14).get_interval_name(showOctave=True), "2 octaves")
+        self.assertEquals(DiatonicInterval(15).get_interval_name(showOctave=True), "2 octaves and second")
+        self.assertEquals(DiatonicInterval(16).get_interval_name(showOctave=True), "2 octaves and third")
+        self.assertEquals(DiatonicInterval(-1).get_interval_name(showOctave=True), "second decreasing")
+        self.assertEquals(DiatonicInterval(-2).get_interval_name(showOctave=True), "third decreasing")
+        self.assertEquals(DiatonicInterval(-3).get_interval_name(showOctave=True), "fourth decreasing")
+        self.assertEquals(DiatonicInterval(-4).get_interval_name(showOctave=True), "fifth decreasing")
+        self.assertEquals(DiatonicInterval(-5).get_interval_name(showOctave=True), "sixth decreasing")
+        self.assertEquals(DiatonicInterval(-6).get_interval_name(showOctave=True), "seventh decreasing")
+        self.assertEquals(DiatonicInterval(-7).get_interval_name(showOctave=True), "octave decreasing")
+        self.assertEquals(DiatonicInterval(-8).get_interval_name(showOctave=True), "octave and second decreasing")
+        self.assertEquals(DiatonicInterval(-9).get_interval_name(showOctave=True), "octave and third decreasing")
+        self.assertEquals(DiatonicInterval(-10).get_interval_name(showOctave=True), "octave and fourth decreasing")
+        self.assertEquals(DiatonicInterval(-11).get_interval_name(showOctave=True), "octave and fifth decreasing")
+        self.assertEquals(DiatonicInterval(-12).get_interval_name(showOctave=True), "octave and sixth decreasing")
+        self.assertEquals(DiatonicInterval(-13).get_interval_name(showOctave=True), "octave and seventh decreasing")
+        self.assertEquals(DiatonicInterval(-14).get_interval_name(showOctave=True), "2 octaves decreasing")
+        self.assertEquals(DiatonicInterval(-15).get_interval_name(showOctave=True), "2 octaves and second decreasing")
+        self.assertEquals(DiatonicInterval(-16).get_interval_name(showOctave=True), "2 octaves and third decreasing")

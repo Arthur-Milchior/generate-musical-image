@@ -83,7 +83,7 @@ class Fingering:
 
 
 def generateLeftFingeringDic(currentNote, intervals, fingeringDic=None):
-    debug("Generating left fingering for %s", currentNote.get_name())
+    debug("Generating left fingering for %s", currentNote.get_interval_name())
     intervals = intervals + [intervals[0]]
     return generateFingeringDic(currentNote, intervals, "left", fingeringDic=fingeringDic)
 
@@ -187,7 +187,7 @@ def generateFingeringDic(baseNote, intervals, side, fingeringDic=None):
                     bestPenalty = sumPenalty
                 # break#todo, remove the break. Its only use is debugging.
         if bestPenalty is not None:
-            debug("Return from note %s", currentNote.get_name())
+            debug("Return from note %s", currentNote.get_interval_name())
             return (bestPenalty.data, bestPenalty)
         debug("No correct next finger. Reject\n\n")
         return False

@@ -1,7 +1,7 @@
 import unittest
 from typing import Optional
 
-from solfege.interval.interval import _Interval
+from solfege.interval.base import _Interval
 
 
 class ChromaticInterval(_Interval):
@@ -51,7 +51,7 @@ class ChromaticInterval(_Interval):
             diatonic = self.get_diatonic().get_number()
         return self.RelatedSolfegeClass(diatonic=diatonic, chromatic=self.get_number())
 
-    def get_name(self, kind=None, octave=True, side=False):
+    def get_interval_name(self, kind=None, octave=True, side=False):
         """The name of the interval.
 
         octave -- For example: if this variable is set true, the name is given as "supertonic and one octave".
@@ -63,7 +63,7 @@ class ChromaticInterval(_Interval):
         todo
         """
         if self < 0:
-            name = (-self).get_name(kind=kind, octave=octave, side=False)
+            name = (-self).get_interval_name(kind=kind, octave=octave, side=False)
             if side:
                 return name + " decreasing"
             else:
@@ -91,83 +91,83 @@ ChromaticInterval.IntervalClass = ChromaticInterval
 
 
 class TestChromaticInterval(unittest.TestCase):
-    zero = ChromaticInterval(0)
-    un = ChromaticInterval(1)
-    moins_un = ChromaticInterval(-1)
-    deux = ChromaticInterval(2)
-    trois = ChromaticInterval(3)
+    unison = ChromaticInterval(0)
+    second_minor = ChromaticInterval(1)
+    second_minor_descending = ChromaticInterval(-1)
+    second_major = ChromaticInterval(2)
+    third_minor = ChromaticInterval(3)
     sept = ChromaticInterval(7)
     six = ChromaticInterval(6)
-    onze = ChromaticInterval(11)
-    douze = ChromaticInterval(12)
-    moins_six = ChromaticInterval(-6)
-    moins_sept = ChromaticInterval(-7)
-    moins_huit = ChromaticInterval(-8)
-    moins_onze = ChromaticInterval(-11)
-    moins_douze = ChromaticInterval(-12)
-    moins_treize = ChromaticInterval(-13)
+    seventh = ChromaticInterval(11)
+    octave = ChromaticInterval(12)
+    fourth_augmented_descending = ChromaticInterval(-6)
+    fourth_descending = ChromaticInterval(-7)
+    fifth_augmented_descending = ChromaticInterval(-8)
+    seventh_descending = ChromaticInterval(-11)
+    octave_descending = ChromaticInterval(-12)
+    eighth_descending = ChromaticInterval(-13)
 
     def test_is_note(self):
-        self.assertFalse(self.zero.is_note())
+        self.assertFalse(self.unison.is_note())
 
     def test_has_number(self):
-        self.assertTrue(self.zero.has_number())
+        self.assertTrue(self.unison.has_number())
 
     def test_get_number(self):
-        self.assertEquals(self.zero.get_number(), 0)
+        self.assertEquals(self.unison.get_number(), 0)
 
     def test_equal(self):
-        self.assertEquals(self.zero, self.zero)
-        self.assertNotEquals(self.un, self.zero)
-        self.assertEquals(self.un, self.un)
+        self.assertEquals(self.unison, self.unison)
+        self.assertNotEquals(self.second_minor, self.unison)
+        self.assertEquals(self.second_minor, self.second_minor)
 
     def test_add(self):
-        self.assertEquals(self.un + self.deux, self.trois)
+        self.assertEquals(self.second_minor + self.second_major, self.third_minor)
 
     def test_neg(self):
-        self.assertEquals(-self.un, self.moins_un)
+        self.assertEquals(-self.second_minor, self.second_minor_descending)
 
     def test_sub(self):
-        self.assertEquals(self.trois - self.deux, self.un)
+        self.assertEquals(self.third_minor - self.second_major, self.second_minor)
 
     def test_lt(self):
-        self.assertLess(self.un, self.deux)
-        self.assertLessEqual(self.un, self.deux)
-        self.assertLessEqual(self.un, self.un)
+        self.assertLess(self.second_minor, self.second_major)
+        self.assertLessEqual(self.second_minor, self.second_major)
+        self.assertLessEqual(self.second_minor, self.second_minor)
 
     def test_repr(self):
-        self.assertEquals(repr(self.un), "ChromaticInterval(1)")
+        self.assertEquals(repr(self.second_minor), "ChromaticInterval(1)")
 
     def test_get_octave(self):
-        self.assertEquals(self.zero.get_octave(), 0)
+        self.assertEquals(self.unison.get_octave(), 0)
         self.assertEquals(self.six.get_octave(), 0)
-        self.assertEquals(self.moins_onze.get_octave(), -1)
-        self.assertEquals(self.moins_douze.get_octave(), -1)
-        self.assertEquals(self.moins_treize.get_octave(), -2)
-        self.assertEquals(self.douze.get_octave(), 1)
+        self.assertEquals(self.seventh_descending.get_octave(), -1)
+        self.assertEquals(self.octave_descending.get_octave(), -1)
+        self.assertEquals(self.eighth_descending.get_octave(), -2)
+        self.assertEquals(self.octave.get_octave(), 1)
 
     def test_add_octave(self):
-        self.assertEquals(self.douze.add_octave(-1), self.zero)
-        self.assertEquals(self.zero.add_octave(1), self.douze)
-        self.assertEquals(self.douze.add_octave(-2), self.moins_douze)
-        self.assertEquals(self.moins_douze.add_octave(2), self.douze)
+        self.assertEquals(self.octave.add_octave(-1), self.unison)
+        self.assertEquals(self.unison.add_octave(1), self.octave)
+        self.assertEquals(self.octave.add_octave(-2), self.octave_descending)
+        self.assertEquals(self.octave_descending.add_octave(2), self.octave)
 
     def test_same_note_in_base_octave(self):
-        self.assertEquals(self.douze.get_same_note_in_base_octave(), self.zero)
-        self.assertEquals(self.moins_douze.get_same_note_in_base_octave(), self.zero)
-        self.assertEquals(self.zero.get_same_note_in_base_octave(), self.zero)
-        self.assertEquals(self.un.get_same_note_in_base_octave(), self.un)
-        self.assertEquals(self.moins_un.get_same_note_in_base_octave(), self.onze)
+        self.assertEquals(self.octave.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.octave_descending.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.unison.get_same_note_in_base_octave(), self.unison)
+        self.assertEquals(self.second_minor.get_same_note_in_base_octave(), self.second_minor)
+        self.assertEquals(self.second_minor_descending.get_same_note_in_base_octave(), self.seventh)
 
     def test_same_note_in_different_octaves(self):
-        self.assertFalse(self.un.same_notes_in_different_octaves(self.zero))
-        self.assertFalse(self.un.same_notes_in_different_octaves(self.douze))
-        self.assertFalse(self.un.same_notes_in_different_octaves(self.moins_douze))
-        self.assertFalse(self.un.same_notes_in_different_octaves(self.moins_un))
-        self.assertTrue(self.zero.same_notes_in_different_octaves(self.zero))
-        self.assertTrue(self.zero.same_notes_in_different_octaves(self.douze))
-        self.assertTrue(self.zero.same_notes_in_different_octaves(self.moins_douze))
-        self.assertTrue(self.douze.same_notes_in_different_octaves(self.moins_douze))
+        self.assertFalse(self.second_minor.same_notes_in_different_octaves(self.unison))
+        self.assertFalse(self.second_minor.same_notes_in_different_octaves(self.octave))
+        self.assertFalse(self.second_minor.same_notes_in_different_octaves(self.octave_descending))
+        self.assertFalse(self.second_minor.same_notes_in_different_octaves(self.second_minor_descending))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.unison))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.octave))
+        self.assertTrue(self.unison.same_notes_in_different_octaves(self.octave_descending))
+        self.assertTrue(self.octave.same_notes_in_different_octaves(self.octave_descending))
         
     def test_get_diatonic(self):
         from solfege.interval.diatonic import DiatonicInterval
@@ -202,36 +202,36 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEquals(ChromaticInterval(-14).get_diatonic(), DiatonicInterval(-8))
 
     def test_get_solfege(self):
-        from solfege.interval.solfege import SolfegeInterval
-        self.assertEquals(ChromaticInterval(0).get_solfege(), SolfegeInterval(0, 0))
-        self.assertEquals(ChromaticInterval(1).get_solfege(), SolfegeInterval(1, 0))
-        self.assertEquals(ChromaticInterval(2).get_solfege(), SolfegeInterval(2, 1))
-        self.assertEquals(ChromaticInterval(3).get_solfege(), SolfegeInterval(3, 2))
-        self.assertEquals(ChromaticInterval(4).get_solfege(), SolfegeInterval(4, 2))
-        self.assertEquals(ChromaticInterval(5).get_solfege(), SolfegeInterval(5, 3))
-        self.assertEquals(ChromaticInterval(6).get_solfege(), SolfegeInterval(6, 3))
-        self.assertEquals(ChromaticInterval(7).get_solfege(), SolfegeInterval(7, 4))
-        self.assertEquals(ChromaticInterval(8).get_solfege(), SolfegeInterval(8, 5))
-        self.assertEquals(ChromaticInterval(9).get_solfege(), SolfegeInterval(9, 5))
-        self.assertEquals(ChromaticInterval(10).get_solfege(), SolfegeInterval(10, 6))
-        self.assertEquals(ChromaticInterval(11).get_solfege(), SolfegeInterval(11, 6))
-        self.assertEquals(ChromaticInterval(12).get_solfege(), SolfegeInterval(12, 7))
-        self.assertEquals(ChromaticInterval(13).get_solfege(), SolfegeInterval(13, 7))
-        self.assertEquals(ChromaticInterval(14).get_solfege(), SolfegeInterval(14, 8))
-        self.assertEquals(ChromaticInterval(-1).get_solfege(), SolfegeInterval(-1, -1))
-        self.assertEquals(ChromaticInterval(-2).get_solfege(), SolfegeInterval(-2, -1))
-        self.assertEquals(ChromaticInterval(-3).get_solfege(), SolfegeInterval(-3, -2))
-        self.assertEquals(ChromaticInterval(-4).get_solfege(), SolfegeInterval(-4, -2))
-        self.assertEquals(ChromaticInterval(-5).get_solfege(), SolfegeInterval(-5, -3))
-        self.assertEquals(ChromaticInterval(-6).get_solfege(), SolfegeInterval(-6, -4))
-        self.assertEquals(ChromaticInterval(-7).get_solfege(), SolfegeInterval(-7, -4))
-        self.assertEquals(ChromaticInterval(-8).get_solfege(), SolfegeInterval(-8, -5))
-        self.assertEquals(ChromaticInterval(-9).get_solfege(), SolfegeInterval(-9, -5))
-        self.assertEquals(ChromaticInterval(-10).get_solfege(), SolfegeInterval(-10, -6))
-        self.assertEquals(ChromaticInterval(-11).get_solfege(), SolfegeInterval(-11, -7))
-        self.assertEquals(ChromaticInterval(-12).get_solfege(), SolfegeInterval(-12, -7))
-        self.assertEquals(ChromaticInterval(-13).get_solfege(), SolfegeInterval(-13, -8))
-        self.assertEquals(ChromaticInterval(-14).get_solfege(), SolfegeInterval(-14, -8))
+        from solfege.interval.interval import Interval
+        self.assertEquals(ChromaticInterval(0).get_solfege(), Interval(0, 0))
+        self.assertEquals(ChromaticInterval(1).get_solfege(), Interval(1, 0))
+        self.assertEquals(ChromaticInterval(2).get_solfege(), Interval(2, 1))
+        self.assertEquals(ChromaticInterval(3).get_solfege(), Interval(3, 2))
+        self.assertEquals(ChromaticInterval(4).get_solfege(), Interval(4, 2))
+        self.assertEquals(ChromaticInterval(5).get_solfege(), Interval(5, 3))
+        self.assertEquals(ChromaticInterval(6).get_solfege(), Interval(6, 3))
+        self.assertEquals(ChromaticInterval(7).get_solfege(), Interval(7, 4))
+        self.assertEquals(ChromaticInterval(8).get_solfege(), Interval(8, 5))
+        self.assertEquals(ChromaticInterval(9).get_solfege(), Interval(9, 5))
+        self.assertEquals(ChromaticInterval(10).get_solfege(), Interval(10, 6))
+        self.assertEquals(ChromaticInterval(11).get_solfege(), Interval(11, 6))
+        self.assertEquals(ChromaticInterval(12).get_solfege(), Interval(12, 7))
+        self.assertEquals(ChromaticInterval(13).get_solfege(), Interval(13, 7))
+        self.assertEquals(ChromaticInterval(14).get_solfege(), Interval(14, 8))
+        self.assertEquals(ChromaticInterval(-1).get_solfege(), Interval(-1, -1))
+        self.assertEquals(ChromaticInterval(-2).get_solfege(), Interval(-2, -1))
+        self.assertEquals(ChromaticInterval(-3).get_solfege(), Interval(-3, -2))
+        self.assertEquals(ChromaticInterval(-4).get_solfege(), Interval(-4, -2))
+        self.assertEquals(ChromaticInterval(-5).get_solfege(), Interval(-5, -3))
+        self.assertEquals(ChromaticInterval(-6).get_solfege(), Interval(-6, -4))
+        self.assertEquals(ChromaticInterval(-7).get_solfege(), Interval(-7, -4))
+        self.assertEquals(ChromaticInterval(-8).get_solfege(), Interval(-8, -5))
+        self.assertEquals(ChromaticInterval(-9).get_solfege(), Interval(-9, -5))
+        self.assertEquals(ChromaticInterval(-10).get_solfege(), Interval(-10, -6))
+        self.assertEquals(ChromaticInterval(-11).get_solfege(), Interval(-11, -7))
+        self.assertEquals(ChromaticInterval(-12).get_solfege(), Interval(-12, -7))
+        self.assertEquals(ChromaticInterval(-13).get_solfege(), Interval(-13, -8))
+        self.assertEquals(ChromaticInterval(-14).get_solfege(), Interval(-14, -8))
 
     def test_get_alteration(self):
         from solfege.interval.alteration import Alteration

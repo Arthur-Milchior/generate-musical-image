@@ -29,8 +29,8 @@ class Scale_Pattern(Solfege_Pattern):
                 diatonic = DiatonicInterval(diatonic)
             if isinstance(chromatic, int):
                 chromatic = ChromaticInterval(chromatic)
-            diatonicSum += diatonic.getNumber()
-            chromaticSum += chromatic.getNumber()
+            diatonicSum += diatonic.get_number()
+            chromaticSum += chromatic.get_number()
             interval = SolfegeInterval(chromatic=chromaticSum, diatonic=diatonicSum)
             intervals_correct.append(interval)
         if diatonicSum != 7:
@@ -47,7 +47,7 @@ class Scale_Pattern(Solfege_Pattern):
     def getSharp(self):
         return self.sharps
 
-    def getIntervals(self):
+    def get_intervals(self):
         return self.intervals
 
     def getChromaticIntervals(self):
