@@ -1,3 +1,5 @@
+import unittest
+
 from solfege.note import ChromaticNote
 from solfege.note.with_tonic.base import _NoteWithTonic
 
@@ -15,7 +17,13 @@ class ChromaticNoteWithTonic(_NoteWithTonic, ChromaticNote):
             return dic[self.get_role()]
         else:
             return "black"
-    #
+
+class TestChromaticNoteWithTonic(unittest.TestCase):
+    def test_eq(self):
+        zero = ChromaticNoteWithTonic(chromatic=0, tonic=True)
+        self.assertEquals(zero.get_number(), 0)
+        self.assertEquals(zero.get_tonic(), zero)
+
     # def get_diatonic(self):
     #     """Assuming no base is used"""
     #     if "diatonic" not in self.dic:

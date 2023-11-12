@@ -7,6 +7,7 @@ from solfege.interval import ChromaticInterval, DiatonicInterval
 import sys
 
 from .interval.interval import Interval
+from .note.with_tonic import NoteWithTonic
 from .util import Solfege_Pattern
 
 
@@ -50,13 +51,13 @@ class ScalePattern(Solfege_Pattern):
     def get_intervals(self):
         return self._intervals
 
-    def getChromaticIntervals(self):
+    def get_chromatic_intervals(self):
         return [chromatic for (_, chromatic) in self._intervals]
 
-    def getDiatonicInterval(self):
+    def get_diatonic_intervals(self):
         return [diatonic for (diatonic, _) in self._intervals]
 
-    def getNotes(self, tonic):
+    def get_notes(self, tonic):
         """This scale starting at [tonic]"""
         return [tonic] + [tonic + interval for interval in self._intervals]
 
@@ -159,13 +160,13 @@ ScalePattern(["Octave"], [(7, 12)], 0, 0),
 # (["Harmonic"],0,0,[3,1,1,2,2,3]),
 
 class TestScalePattern(unittest.TestCase):
-    def test_minor(self):
-        pat = ScalePattern(["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], 3, 0)
-        self.assertEquals(pat._flats, 3)
-        self.assertEquals(pat._sharps, 0)
-        self.assertEquals(pat._diatonic_sum, 7)
-        self.assertEquals(pat._chromatic_sum, 12)
-        self.assertEquals(pat._intervals, [
+    minor = ScalePattern(["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], 3, 0)
+    def test_eq(self):
+        self.assertEquals(self.minor._flats, 3)
+        self.assertEquals(self.minor._sharps, 0)
+        self.assertEquals(self.minor._diatonic_sum, 7)
+        self.assertEquals(self.minor._chromatic_sum, 12)
+        self.assertEquals(self.minor._intervals, [
             Interval(chromatic=2, diatonic=1),
             Interval(chromatic=1, diatonic=1),
             Interval(chromatic=2, diatonic=1),
@@ -174,3 +175,10 @@ class TestScalePattern(unittest.TestCase):
             Interval(chromatic=2, diatonic=1),
             Interval(chromatic=1, diatonic=1),
         ])
+
+    def test_get_notes(self):
+        tonic = NoteWithTonic(diatonic=0, chromatic=0, tonic=True)
+        self.assertEquals(self.minor.get_notes(tonic),
+                          [
+                              NoteWithTonic(diatonic=0, chromatic=0, tonic=0)
+                          ])

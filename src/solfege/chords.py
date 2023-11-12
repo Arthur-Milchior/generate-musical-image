@@ -1,9 +1,11 @@
+from .interval.interval import Interval
 from .util import Solfege_Pattern
 
 
 class ChordPattern(Solfege_Pattern):
     """A pattern describing a chord.
 
+    names -- the list of names of this chord. Or a single name.
     intervals -- set of chromatic interval, between the tonic and a note of the chord.
     optional -- Whether the 5th is optional
     fromInterval -- associate to a set of interval the class of the chord it represents.
@@ -17,11 +19,8 @@ class ChordPattern(Solfege_Pattern):
         super().__init__(names)
         self.fifthOptional = optional
         intervals.add((0, 0))
-        self.intervalsWithoutFifth = frozenset(
-            {Interval(chromatic=chromatic, diatonic=diatonic) for chromatic, diatonic in intervals if
-             diatonic != 5})
-        self.intervals = frozenset(
-            {Interval(chromatic=chromatic, diatonic=diatonic) for chromatic, diatonic in intervals})
+        self.intervals = frozenset(Interval.factory(interval) for interval in intervals)
+        self.intervalsWithoutFifth = frozenset(interval for interval in self.intervals if interval.get_diatonic().get_number() != 5)
         self.add(self.intervals)
         if optional:
             self.add(self.intervalsWithoutFifth)
