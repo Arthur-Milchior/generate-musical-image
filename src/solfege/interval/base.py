@@ -20,7 +20,8 @@ class _Interval:
     * RelatedSolfegeClass: the class to which a diatonic and chromatic object must be converted.
 """
     ClassToTransposeTo = None
-    modulo: int
+    number_of_interval_in_an_octave: int
+    IntervalClass: type(_Interval)
 
     def __init__(self, value=None, toCopy: Optional[_Interval] = None, callerClass=None, none=None, **kwargs):
         """If the interval is passed as argument, it is copied. Otherwise, the value is used. none, if true,
@@ -56,6 +57,10 @@ class _Interval:
             raise Exception("A number which is not int but %s" % self.value)
         return self.value
 
+    @classmethod
+    def get_one_octave(cls):
+        return cls.IntervalClass(value= cls.number_of_interval_in_an_octave)
+
     def __eq__(self, other):
         if self.__class__ != other.__class__:
             raise Exception(f"Comparison of two distinct classes: {self.__class__} and {other.__class__}")
@@ -77,10 +82,20 @@ class _Interval:
         # debug("Adding %s and %s we obtain %s",(self,other,ret))
         return ret
 
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __mul__(self, other):
+        assert (isinstance(other, int))
+        from solfege.note.base import _Note
+        assert (not isinstance(self, _Note))
+        clazz = self.ClassToTransposeTo or self.__class__
+        return clazz(value = self.get_number() * other)
+
     def __neg__(self):
         """Inverse interval"""
-        Class = self.ClassToTransposeTo or self.__class__
-        return self.__class__(value=-self.get_number())
+        clazz = self.ClassToTransposeTo or self.__class__
+        return clazz(value=-self.get_number())
 
     def __sub__(self, other):
         """This interval minus the other one. Class of `self`"""
@@ -103,32 +118,31 @@ class _Interval:
         return self.get_number() < other
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.get_number()})"
+        return f"{self.__class__.__name__}(value={self.get_number()})"
 
     def get_octave(self):
         """The octave number. 0 for unison/central C up to seventh/C one octave above."""
-        return math.floor(self.get_number() / self.__class__.modulo)
+        return math.floor(self.get_number() / self.__class__.number_of_interval_in_an_octave)
 
     def add_octave(self, nb):
         """Same note with nb more octave"""
-        Class = self.ClassToTransposeTo or self.__class__
-        return Class(value=self.get_number() + nb * self.__class__.modulo)
+        return self + self.get_one_octave() * nb
 
-    def get_same_note_in_base_octave(self):
+    def get_in_base_octave(self):
         """Same note in the base octave"""
         return self.add_octave(-self.get_octave())
 
-    def same_notes_in_different_octaves(self, other):
+    def equals_modulo_octave(self, other):
         """Whether self and other are same note, potentially at distinct octaves"""
-        return self.get_same_note_in_base_octave() == other.get_same_note_in_base_octave()
+        return self.get_in_base_octave() == other.get_in_base_octave()
 
     def difference_in_base_octave(self, other):
         """self-other, in octave"""
         Class = self.ClassToTransposeTo or self.__class__
-        return Class((self.get_number() - other.get_number()) % self.__class__.modulo)
+        return Class((self.get_number() - other.get_number()) % self.__class__.number_of_interval_in_an_octave)
 
 
-class TestInterval(unittest.TestCase):
+class TestBaseInterval(unittest.TestCase):
     zero = _Interval(0)
     un = _Interval(1)
     moins_un = _Interval(-1)
@@ -164,4 +178,10 @@ class TestInterval(unittest.TestCase):
         self.assertLessEqual(self.un, self.un)
 
     def test_repr(self):
-        self.assertEquals(repr(self.un), "_Interval(1)")
+        self.assertEquals(repr(self.un), "_Interval(value=1)")
+
+    def test_mul(self):
+        self.assertEquals(self.zero * 4, self.zero)
+        self.assertEquals(self.un * 2, self.deux)
+        self.assertEquals(2 * self.un, self.deux)
+        self.assertEquals(4 * self.zero , self.zero)

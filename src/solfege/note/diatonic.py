@@ -42,8 +42,8 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(self.D4, self.D4)
 
     def test_add(self):
-        self.assertEquals(self.D4 + self.tierce, self.F4)
-        self.assertEquals(self.tierce + self.D4, self.F4)
+        self.assertEquals(self.D4 + self.third, self.F4)
+        self.assertEquals(self.third + self.D4, self.F4)
         with self.assertRaises(Exception):
             _ = self.D4 + self.D4
 
@@ -52,10 +52,10 @@ class TestDiatonicNote(TestDiatonicInterval):
             _ = -self.D4
 
     def test_sub(self):
-        self.assertEquals(self.F4 - self.tierce, self.D4)
-        self.assertEquals(self.F4 - self.D4, self.tierce)
+        self.assertEquals(self.F4 - self.third, self.D4)
+        self.assertEquals(self.F4 - self.D4, self.third)
         with self.assertRaises(Exception):
-            _ = self.tierce - self.D4
+            _ = self.third - self.D4
 
     def test_lt(self):
         self.assertLess(self.D4, self.F4)
@@ -63,7 +63,7 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
-        self.assertEquals(repr(self.D4), "DiatonicNote(1)")
+        self.assertEquals(repr(self.D4), "DiatonicNote(value=1)")
 
     def test_get_octave(self):
         self.assertEquals(self.C4.get_octave(), 0)
@@ -88,21 +88,21 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(self.C3.add_octave(2), self.C5)
 
     def test_same_note_in_base_octave(self):
-        self.assertEquals(self.C5.get_same_note_in_base_octave(), self.C4)
-        self.assertEquals(self.C3.get_same_note_in_base_octave(), self.C4)
-        self.assertEquals(self.C4.get_same_note_in_base_octave(), self.C4)
-        self.assertEquals(self.D4.get_same_note_in_base_octave(), self.D4)
-        self.assertEquals(self.B3.get_same_note_in_base_octave(), self.B4)
+        self.assertEquals(self.C5.get_in_base_octave(), self.C4)
+        self.assertEquals(self.C3.get_in_base_octave(), self.C4)
+        self.assertEquals(self.C4.get_in_base_octave(), self.C4)
+        self.assertEquals(self.D4.get_in_base_octave(), self.D4)
+        self.assertEquals(self.B3.get_in_base_octave(), self.B4)
 
     def test_same_note_in_different_octaves(self):
-        self.assertFalse(self.D4.same_notes_in_different_octaves(self.C4))
-        self.assertFalse(self.D4.same_notes_in_different_octaves(self.C5))
-        self.assertFalse(self.D4.same_notes_in_different_octaves(self.C3))
-        self.assertFalse(self.D4.same_notes_in_different_octaves(self.B3))
-        self.assertTrue(self.C4.same_notes_in_different_octaves(self.C4))
-        self.assertTrue(self.C4.same_notes_in_different_octaves(self.C5))
-        self.assertTrue(self.C4.same_notes_in_different_octaves(self.C3))
-        self.assertTrue(self.C5.same_notes_in_different_octaves(self.C3))
+        self.assertFalse(self.D4.equals_modulo_octave(self.C4))
+        self.assertFalse(self.D4.equals_modulo_octave(self.C5))
+        self.assertFalse(self.D4.equals_modulo_octave(self.C3))
+        self.assertFalse(self.D4.equals_modulo_octave(self.B3))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C4))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C5))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C3))
+        self.assertTrue(self.C5.equals_modulo_octave(self.C3))
 
     def test_get_chromatic(self):
         from solfege.note.chromatic import ChromaticNote

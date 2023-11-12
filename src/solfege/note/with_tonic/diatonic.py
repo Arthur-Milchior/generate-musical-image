@@ -11,6 +11,17 @@ class DiatonicNoteWithTonic(_NoteWithTonic, DiatonicNote):
 
 
 class TestDiatonicNoteWithTonic(unittest.TestCase):
+    C4 = DiatonicNoteWithTonic(value=0, tonic=True)
+    D4 = DiatonicNoteWithTonic(value=1, tonic=C4)
+    B3 = DiatonicNoteWithTonic(value=-1, tonic=C4)
+    E4 = DiatonicNoteWithTonic(value=2, tonic=C4)
+    F4 = DiatonicNoteWithTonic(value=3, tonic=C4)
+    C5 = DiatonicNoteWithTonic(value=7, tonic=C4)
+    B4 = DiatonicNoteWithTonic(value=6, tonic=C4)
+    D3 = DiatonicNoteWithTonic(value=-6, tonic=C4)
+    C3 = DiatonicNoteWithTonic(value=-7, tonic=C4)
+    B2 = DiatonicNoteWithTonic(value=-8, tonic=C4)
+
     def test_eq(self):
         n1_1 = DiatonicNoteWithTonic(value=1, tonic=True)
         n1_1_ = DiatonicNoteWithTonic(value=1, tonic=True)
@@ -78,3 +89,34 @@ class TestDiatonicNoteWithTonic(unittest.TestCase):
         self.assertEquals(DiatonicNoteWithTonic(value=8, tonic=D4).get_role(), "tonic")
         self.assertEquals(DiatonicNoteWithTonic(value=-6, tonic=D4).get_role(), "tonic")
         self.assertEquals(DiatonicNoteWithTonic(value=-7, tonic=D4).get_role(), "leading")
+
+    def test_get_octave(self):
+        self.assertEquals(self.C4.get_octave(), 0)
+        self.assertEquals(self.B4.get_octave(), 0)
+        self.assertEquals(self.D3.get_octave(), -1)
+        self.assertEquals(self.C3.get_octave(), -1)
+        self.assertEquals(self.B2.get_octave(), -2)
+        self.assertEquals(self.C5.get_octave(), 1)
+
+    def test_add_octave(self):
+        self.assertEquals(self.C5.add_octave(-1), self.C4)
+        self.assertEquals(self.C4.add_octave(1), self.C5)
+        self.assertEquals(self.C5.add_octave(-2), self.C3)
+        self.assertEquals(self.C3.add_octave(2), self.C5)
+
+    def test_same_note_in_base_octave(self):
+        self.assertEquals(self.C5.get_in_base_octave(), self.C4)
+        self.assertEquals(self.C3.get_in_base_octave(), self.C4)
+        self.assertEquals(self.C4.get_in_base_octave(), self.C4)
+        self.assertEquals(self.D4.get_in_base_octave(), self.D4)
+        self.assertEquals(self.B3.get_in_base_octave(), self.B4)
+
+    def test_same_note_in_different_octaves(self):
+        self.assertFalse(self.D4.equals_modulo_octave(self.C4))
+        self.assertFalse(self.D4.equals_modulo_octave(self.C5))
+        self.assertFalse(self.D4.equals_modulo_octave(self.C3))
+        self.assertFalse(self.D4.equals_modulo_octave(self.B3))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C4))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C5))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C3))
+        self.assertTrue(self.C5.equals_modulo_octave(self.C3))

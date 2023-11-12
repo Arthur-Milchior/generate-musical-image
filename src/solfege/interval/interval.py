@@ -7,8 +7,6 @@ from solfege.interval.chromatic import ChromaticInterval
 from solfege.interval.diatonic import DiatonicInterval
 
 
-
-
 class Interval(ChromaticInterval):
     """A solfège interval. Composed of both a diatonic interval and a chromatic interval."""
     DiatonicClass = DiatonicInterval
@@ -48,7 +46,7 @@ class Interval(ChromaticInterval):
                 assert (isinstance(alteration, int))
                 self.initChromaticAbsent(alteration)
                 super().__init__(chromatic=self._diatonic.get_chromatic().get_number() + alteration)
-                
+
     @classmethod
     def factory(cls, interval):
         """Allow a simple representation of intervals.
@@ -95,21 +93,28 @@ class Interval(ChromaticInterval):
         elif isinstance(other, _Note):
             clazz = other.__class__
         else:
-            clazz =  self.__class__
-        interval = clazz(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
-        return interval
+            clazz = self.__class__
+        return clazz(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
 
-    def add_octave(self, nb):
-        Class = self.ClassToTransposeTo or self.__class__
-        return Class(chromatic=self.get_chromatic().add_octave(nb).get_number(),
-                     diatonic=self.get_diatonic().add_octave(nb).get_number())
+    def __mul__(self, other):
+        from solfege.note.base import _Note
+        assert (not isinstance(self, _Note))
+        assert (isinstance(other, int))
+        diatonic = self.get_diatonic() * other
+        chromatic = self.get_chromatic() * other
+        clazz = self.ClassToTransposeTo or self.__class__
+        return clazz(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
+
+    @classmethod
+    def get_one_octave(cls):
+        return Interval(chromatic=12, diatonic=7)
 
     def get_octave(self):
         return self.get_diatonic().get_octave()
 
-    def get_same_note_in_base_octave(self):
-        octaveToAdd = -self.get_octave()
-        return self.add_octave(octaveToAdd)
+    def get_in_base_octave(self):
+        octave_to_add = -self.get_octave()
+        return self.add_octave(octave_to_add)
 
 
 ChromaticInterval.RelatedSolfegeClass = Interval
@@ -122,6 +127,7 @@ class TestChromaticInterval(unittest.TestCase):
     unison = Interval(0, 0)
     second_minor = Interval(1, 1)
     second_major = Interval(2, 1)
+    third_major = Interval(4, 2)
     third_minor = Interval(3, 2)
     octave = Interval(12, 7)
 
@@ -167,21 +173,20 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEquals(self.octave.add_octave(-2), self.minus_octave)
         self.assertEquals(self.minus_octave.add_octave(2), self.octave)
 
-    def test_same_note_in_base_octave(self):
-        self.assertEquals(self.octave.get_same_note_in_base_octave(), self.unison)
-        self.assertEquals(self.minus_octave.get_same_note_in_base_octave(), self.unison)
-        self.assertEquals(self.unison.get_same_note_in_base_octave(), self.unison)
-        self.assertEquals(self.second_major.get_same_note_in_base_octave(), self.second_major)
+    def test_same_interval_in_base_octave(self):
+        self.assertEquals(self.octave.get_in_base_octave(), self.unison)
+        self.assertEquals(self.minus_octave.get_in_base_octave(), self.unison)
+        self.assertEquals(self.unison.get_in_base_octave(), self.unison)
+        self.assertEquals(self.second_major.get_in_base_octave(), self.second_major)
 
-    def test_same_note_in_different_octaves(self):
-        self.assertFalse(self.second_major.same_notes_in_different_octaves(self.unison))
-        self.assertFalse(self.second_major.same_notes_in_different_octaves(self.octave))
-        self.assertFalse(self.second_major.same_notes_in_different_octaves(self.minus_octave))
-        self.assertTrue(self.unison.same_notes_in_different_octaves(self.unison))
-        self.assertTrue(self.unison.same_notes_in_different_octaves(self.octave))
-        self.assertTrue(self.unison.same_notes_in_different_octaves(self.minus_octave))
-        self.assertTrue(self.octave.same_notes_in_different_octaves(self.minus_octave))
-
+    def test_same_interval_in_different_octave(self):
+        self.assertFalse(self.second_major.equals_modulo_octave(self.unison))
+        self.assertFalse(self.second_major.equals_modulo_octave(self.octave))
+        self.assertFalse(self.second_major.equals_modulo_octave(self.minus_octave))
+        self.assertTrue(self.unison.equals_modulo_octave(self.unison))
+        self.assertTrue(self.unison.equals_modulo_octave(self.octave))
+        self.assertTrue(self.unison.equals_modulo_octave(self.minus_octave))
+        self.assertTrue(self.octave.equals_modulo_octave(self.minus_octave))
 
     def test_clean_interval_interval(self):
         i = Interval(chromatic=3, diatonic=2)
@@ -191,4 +196,13 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEquals(Interval.factory(3), Interval(chromatic=3, diatonic=1))
 
     def test_clean_interval_tuple(self):
-        self.assertEquals(Interval.factory((2, 3)), Interval(chromatic=3, diatonic=2))
+        self.assertEquals(Interval.factory((3, 2)), Interval(chromatic=3, diatonic=2))
+
+    def test_mul(self):
+        self.assertEquals(self.unison * 4, self.unison)
+        self.assertEquals(self.second_major * 2, self.third_major)
+        self.assertEquals(2 * self.second_major, self.third_major)
+        self.assertEquals(4 * self.unison, self.unison)
+
+    def test_one_octave(self):
+        self.assertEquals(Interval.get_one_octave(), Interval(chromatic=12, diatonic=7))

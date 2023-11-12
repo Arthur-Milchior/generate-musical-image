@@ -111,7 +111,7 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
-        self.assertEquals(repr(self.D4), "ChromaticNote(2)")
+        self.assertEquals(repr(self.D4), "ChromaticNote(value=2)")
 
     def test_get_octave(self):
         self.assertEquals(self.C4.get_octave(), 0)
@@ -128,21 +128,21 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertEquals(self.C3.add_octave(2), self.C5)
 
     def test_same_note_in_base_octave(self):
-        self.assertEquals(self.C5.get_same_note_in_base_octave(), self.C4)
-        self.assertEquals(self.C3.get_same_note_in_base_octave(), self.C4)
-        self.assertEquals(self.C4.get_same_note_in_base_octave(), self.C4)
-        self.assertEquals(self.D4.get_same_note_in_base_octave(), self.D4)
-        self.assertEquals(self.B3.get_same_note_in_base_octave(), self.B4)
+        self.assertEquals(self.C5.get_in_base_octave(), self.C4)
+        self.assertEquals(self.C3.get_in_base_octave(), self.C4)
+        self.assertEquals(self.C4.get_in_base_octave(), self.C4)
+        self.assertEquals(self.D4.get_in_base_octave(), self.D4)
+        self.assertEquals(self.B3.get_in_base_octave(), self.B4)
 
     def test_same_note_in_different_octaves(self):
-        self.assertFalse(self.D4.same_notes_in_different_octaves(self.C4))
-        self.assertFalse(self.D4.same_notes_in_different_octaves(self.C5))
-        self.assertFalse(self.D4.same_notes_in_different_octaves(self.C3))
-        self.assertFalse(self.D4.same_notes_in_different_octaves(self.B3))
-        self.assertTrue(self.C4.same_notes_in_different_octaves(self.C4))
-        self.assertTrue(self.C4.same_notes_in_different_octaves(self.C5))
-        self.assertTrue(self.C4.same_notes_in_different_octaves(self.C3))
-        self.assertTrue(self.C5.same_notes_in_different_octaves(self.C3))
+        self.assertFalse(self.D4.equals_modulo_octave(self.C4))
+        self.assertFalse(self.D4.equals_modulo_octave(self.C5))
+        self.assertFalse(self.D4.equals_modulo_octave(self.C3))
+        self.assertFalse(self.D4.equals_modulo_octave(self.B3))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C4))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C5))
+        self.assertTrue(self.C4.equals_modulo_octave(self.C3))
+        self.assertTrue(self.C5.equals_modulo_octave(self.C3))
 
     def test_get_interval_name(self):
         self.assertEquals(ChromaticNote(0).get_note_name(), "C")
@@ -237,3 +237,7 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertEquals(ChromaticNote(-12).get_solfege(), Note(-12, -7))
         self.assertEquals(ChromaticNote(-13).get_solfege(), Note(-13, -8))
         self.assertEquals(ChromaticNote(-14).get_solfege(), Note(-14, -8))
+
+    def test_mul(self):
+        with self.assertRaises(Exception):
+            _ = self.D4 * 4

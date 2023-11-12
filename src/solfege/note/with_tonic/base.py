@@ -45,9 +45,17 @@ class _NoteWithTonic(_Note):
     def __hash__(self):
         return super().__hash__()
 
-    def __eq__(self, other):
+    def __eq__(self, other: _NoteWithTonic):
         # Testing with get_number because the tonic of the tonic is itself, so no need to recurse
-        return super().__eq__(other) and self.get_tonic().get_number() == other.get_tonic().get_number()
+        if not super().__eq__(other):
+            return False
+        self_tonic = self.get_tonic()
+        other_tonic = other.get_tonic()
+        if self_tonic is None:
+            return other_tonic is None
+        if other_tonic is None:
+            return False
+        return self_tonic.get_number() == other_tonic.get_number()
 
     def __sub__(self, other: Union[_NoteWithTonic, _Interval]):
         if isinstance(other, _NoteWithTonic):
@@ -74,13 +82,16 @@ class _NoteWithTonic(_Note):
         """The role of this note, assuming it's in a major scale"""
         if "role" not in self.dic:
             interval = self.get_interval()
-            interval = interval.get_number() % self.modulo
+            interval = interval.get_number() % self.number_of_interval_in_an_octave
             role = self.role[interval]
             self.dic["role"] = role
         return self.dic["role"]
 
     def get_tonic(self) -> _NoteWithTonic:
         return self._tonic
+
+    def __repr__(self):
+        return f"""{self.__class__.__name__}(value={self.get_number()}, repr={"self" if self._tonic is self else repr(self._tonic)})"""
 
 
 class TestNoteWithTonic(unittest.TestCase):
@@ -129,6 +140,9 @@ class TestNoteWithTonic(unittest.TestCase):
         n2 = n1 + _Interval(value=2)
         self.assertEquals(n2.get_tonic(), n1)
         self.assertEquals(n2.get_number(), 3)
+        self.assertEquals(n2, _NoteWithTonic(value=3, tonic=n1))
+        with self.assertRaises(Exception):
+            _ = n1 + n1
 
     def test_sub_note(self):
         n1 = _NoteWithTonic(value=1, tonic=True)
@@ -139,5 +153,7 @@ class TestNoteWithTonic(unittest.TestCase):
             _ = n1 - _NoteWithTonic(value=1, tonic=n2)
 
     def test_sub_interval(self):
-        n = _NoteWithTonic(value=1, tonic=True)
-        self.assertEquals(n - _Interval(1), _NoteWithTonic(value=0, tonic=n))
+        n1 = _NoteWithTonic(value=1, tonic=True)
+        n2 = _NoteWithTonic(value=2, tonic=n1)
+        self.assertEquals(n1 - _Interval(1), _NoteWithTonic(value=0, tonic=n1))
+        self.assertEquals(n2 - _Interval(1), _NoteWithTonic(value=1, tonic=n1))

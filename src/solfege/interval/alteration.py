@@ -28,7 +28,7 @@ class Alteration(solfege.interval.chromatic.ChromaticInterval):
     def __add__(self, other):
         raise Exception("Adding alteration ?")
 
-    def get_same_note_in_base_octave(self):
+    def get_in_base_octave(self):
         raise Exception("Alteration has no base octave")
 
     def lily(self):
