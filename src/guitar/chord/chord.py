@@ -1,6 +1,6 @@
 import lily.lily
 from guitar.pos import SetOfPos, Pos
-from solfege.chords import Chord_Pattern
+from solfege.chords import ChordPattern
 from solfege.interval import ChromaticInterval
 from solfege.note import Note
 from solfege.note.with_tonic import ChromaticNoteWithTonic
@@ -160,7 +160,7 @@ class GuitarChord(SetOfPos):
     #     return self.dic["isAcceptable"]
 
     def inChordsList(self):
-        return True if Chord_Pattern.getFromInterval(self.setOfInterval) else False
+        return True if ChordPattern.getFromInterval(self.setOfInterval) else False
 
     def kind(self):
         """transposable(1 as first string), open, or None"""
@@ -423,7 +423,7 @@ class GuitarChord(SetOfPos):
 
     def getPatternName(self):
         if "pattern name" not in self.dic:
-            chord = Chord_Pattern.getFromInterval(self.setOfInterval)
+            chord = ChordPattern.getFromInterval(self.setOfInterval)
             if chord is None:
                 self.dic["pattern name"] = None
             else:

@@ -3,7 +3,7 @@ print("Running piano")
 import sys
 from .fingering import *
 from solfege.interval import TooBigAlteration
-from solfege.scales import Scale_Pattern
+from solfege.scales import ScalePattern
 import lily.lily
 from .note import twelve_notes
 import util
@@ -21,10 +21,10 @@ root_html = """
 
 anki = ""
 dont_exists = []
-for scale in Scale_Pattern.set_[Scale_Pattern]:
+for scale in ScalePattern.set_[ScalePattern]:
     scaleName = scale.getFirstName()
-    nbBemol = scale.getBemol()
-    nbSharp = scale.getSharp()
+    nbBemol = scale.get_number_of_bemols()
+    nbSharp = scale.get_number_of_sharps()
     intervals = scale.get_intervals()
     root_html += """<li><a href='%s'>%s</a></li>""" % (scaleName, scaleName)
     scale_html = """

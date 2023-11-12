@@ -3,7 +3,7 @@ import os
 from .utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
 from util import *
 from guitar.pos import Pos, SetOfPos
-from solfege.scales import Scale_Pattern
+from solfege.scales import ScalePattern
 import guitar.util
 
 leafFolder = "scale/"
@@ -23,7 +23,7 @@ It is assumed that, there is never more than {increase_fret_limit} fret from the
 <ul>
 """
 
-for scale in Scale_Pattern.set_[Scale_Pattern]:
+for scale in ScalePattern.set_[ScalePattern]:
     name = scale.getFirstName()
     intervals = scale.get_intervals()
     folder_scale = imageFolder + name

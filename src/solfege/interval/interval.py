@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 from typing import Optional
 
@@ -5,8 +7,6 @@ from solfege.interval.chromatic import ChromaticInterval
 from solfege.interval.diatonic import DiatonicInterval
 
 
-class SolfegeInterval:
-    pass
 
 
 class Interval(ChromaticInterval):
@@ -16,7 +16,7 @@ class Interval(ChromaticInterval):
 
     def __init__(self, chromatic: Optional[int] = None, diatonic: Optional[int] = None,
                  alteration: Optional[int] = None,
-                 toCopy: Optional[SolfegeInterval] = None,
+                 toCopy: Optional[Interval] = None,
                  none=None, **kwargs):
         """If toCopy is present, it is copied
 
@@ -37,9 +37,9 @@ class Interval(ChromaticInterval):
             assert (alteration is None)
             assert (isinstance(toCopy, Interval))
             super().__init__(chromatic=toCopy.get_number())
-            self.diatonic = toCopy.getDiatonic()
+            self._diatonic = toCopy.getDiatonic()
         else:
-            self.diatonic = self.__class__.DiatonicClass(diatonic=diatonic)
+            self._diatonic = self.__class__.DiatonicClass(diatonic=diatonic)
             if chromatic is not None:
                 assert (isinstance(chromatic, int))
                 super().__init__(chromatic=chromatic)
@@ -47,7 +47,23 @@ class Interval(ChromaticInterval):
                 assert alteration
                 assert (isinstance(alteration, int))
                 self.initChromaticAbsent(alteration)
-                super().__init__(chromatic=self.diatonic.get_chromatic().get_number() + alteration)
+                super().__init__(chromatic=self._diatonic.get_chromatic().get_number() + alteration)
+                
+    @classmethod
+    def factory(cls, interval):
+        """Allow a simple representation of intervals.
+        An interval return itself
+        A pair is considered as (chromatic, diatonic)
+        An int is considered as a chromatic value, for diatonic one."""
+
+        if isinstance(interval, Interval):
+            return interval
+        if isinstance(interval, int):
+            return cls(chromatic=interval, diatonic=1)
+        if isinstance(interval, tuple):
+            assert (len(interval) == 2)
+            diatonic, chromatic = interval
+            return cls(chromatic=chromatic, diatonic=diatonic)
 
     def __eq__(self, other):
         diatonicEq = self.get_diatonic() == other.get_diatonic()
@@ -65,7 +81,7 @@ class Interval(ChromaticInterval):
         return self.ChromaticClass(chromatic=self.get_number())
 
     def get_diatonic(self):
-        return self.diatonic
+        return self._diatonic
 
     def __repr__(self):
         return f"{self.__class__.__name__}(chromatic = {self.get_chromatic().get_number()}, diatonic = {self.get_diatonic().get_number()})"
@@ -165,3 +181,14 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertTrue(self.unison.same_notes_in_different_octaves(self.octave))
         self.assertTrue(self.unison.same_notes_in_different_octaves(self.minus_octave))
         self.assertTrue(self.octave.same_notes_in_different_octaves(self.minus_octave))
+
+
+    def test_clean_interval_interval(self):
+        i = Interval(chromatic=2, diatonic=3)
+        self.assertEquals(Interval.factory(i), i)
+
+    def test_clean_interval_int(self):
+        self.assertEquals(Interval.factory(3), Interval(chromatic=3, diatonic=1))
+
+    def test_clean_interval_tuple(self):
+        self.assertEquals(Interval.factory((2, 3)), Interval(chromatic=3, diatonic=2))
