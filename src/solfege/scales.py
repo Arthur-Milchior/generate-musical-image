@@ -59,7 +59,12 @@ class ScalePattern(SolfegePattern):
 
     def get_notes(self, tonic):
         """This scale starting at [tonic]"""
-        return [tonic] + [tonic + interval for interval in self._intervals]
+        scale = [tonic]
+        last_note = tonic
+        for interval in self._intervals:
+            last_note += interval
+            scale.append(last_note)
+        return scale
 
 ScalePattern(["Major arpeggio"], [(4, 2), (3, 2), (5, 3)], 0, 0),
 ScalePattern(["Minor arpeggio"], [(3, 2), (4, 2), (5, 3)], 3, 0),
@@ -176,5 +181,12 @@ class TestScalePattern(unittest.TestCase):
         tonic = NoteWithTonic(diatonic=0, chromatic=0, tonic=True)
         self.assertEquals(self.minor.get_notes(tonic),
                           [
-                              NoteWithTonic(diatonic=0, chromatic=0, tonic=0)
+                              NoteWithTonic(diatonic=0, chromatic=0, tonic=tonic),
+                              NoteWithTonic(diatonic=1, chromatic=2, tonic=tonic),
+                              NoteWithTonic(diatonic=2, chromatic=3, tonic=tonic),
+                              NoteWithTonic(diatonic=3, chromatic=5, tonic=tonic),
+                              NoteWithTonic(diatonic=4, chromatic=7, tonic=tonic),
+                              NoteWithTonic(diatonic=5, chromatic=9, tonic=tonic),
+                              NoteWithTonic(diatonic=6, chromatic=11, tonic=tonic),
+                              NoteWithTonic(diatonic=7, chromatic=12, tonic=tonic),
                           ])

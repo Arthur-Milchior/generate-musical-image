@@ -64,16 +64,16 @@ class TestChordPattern(unittest.TestCase):
     def test_from_interval(self):
         self.assertEquals(ChordPattern.getFromInterval(frozenset({
             Interval(chromatic=0, diatonic=0),
-            Interval(chromatic=2, diatonic=3),
-            Interval(chromatic=4, diatonic=7),
-            Interval(chromatic=6, diatonic=10)
+            Interval(chromatic=3, diatonic=2),
+            Interval(chromatic=7, diatonic=4),
+            Interval(chromatic=10, diatonic=6)
         }
         )), minor_seven)
 
     def test_from_interval_no_fifth(self):
         self.assertEquals(ChordPattern.getFromInterval(frozenset({
             Interval(chromatic=0, diatonic=0),
-            Interval(chromatic=2, diatonic=3),
-            Interval(chromatic=6, diatonic=10)
+            Interval(chromatic=3, diatonic=2),
+            Interval(chromatic=10, diatonic=6)
         }
         )), minor_seven)
