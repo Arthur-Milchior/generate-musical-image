@@ -1,3 +1,5 @@
+import unittest
+
 from .interval.interval import Interval
 from .solfege_pattern import SolfegePattern
 
@@ -20,19 +22,19 @@ class ChordPattern(SolfegePattern):
         self.fifthOptional = optional
         intervals.add((0, 0))
         self.intervals = frozenset(Interval.factory(interval) for interval in intervals)
-        self.intervalsWithoutFifth = frozenset(interval for interval in self.intervals if interval.get_diatonic().get_number() != 5)
-        self.add(self.intervals)
+        self.intervalsWithoutFifth = frozenset(
+            interval for interval in self.intervals if interval.get_diatonic().get_number() != 4)
+        self._add(self.intervals)
         if optional:
-            self.add(self.intervalsWithoutFifth)
+            self._add(self.intervalsWithoutFifth)
         self.optional = optional
 
+    @staticmethod
     def getFromInterval(intervals):
-        """Given a set of interval, return the object having this set of intervals
-
-        Class method."""
+        """Given a set of interval, return the object having this set of intervals."""
         return ChordPattern.fromInterval.get(frozenset(intervals))
 
-    def add(self, intervals):
+    def _add(self, intervals):
         """ensure that, given the set of intervals, current object can be retrieved"""
         self.fromInterval[intervals] = self
 
@@ -41,7 +43,7 @@ class ChordPattern(SolfegePattern):
 
 
 ChordPattern(["Major triad"], {(4, 2), (7, 4)})
-ChordPattern(["Minor triad"], {(3, 2), (7, 4)})
+minor = ChordPattern(["Minor triad"], {(3, 2), (7, 4)})
 ChordPattern(["Augmented triad"], {(4, 2), (8, 4)})
 ChordPattern(["Diminished triad"], {(3, 2), (6, 4)})
 ChordPattern(["Minor major seventh chord"], {(3, 2), (7, 4), (11, 6)}, True)
@@ -55,4 +57,23 @@ ChordPattern(["Augmented seventh chord", "seventh augmented fifth chord", "seven
 ChordPattern(["Dominant seventh flat five chord"], {(4, 2), (6, 4), (10, 6)})
 ChordPattern(["Dominant seventh chord", "major minor seventh chord"], {(4, 2), (7, 4), (10, 6)}, True)
 ChordPattern(["Major seventh chord"], {(4, 2), (7, 4), (11, 6)}, True)
-ChordPattern(["Minor seventh chord"], {(3, 2), (7, 4), (10, 6)}, True)
+minor_seven = ChordPattern(["Minor seventh chord"], {(3, 2), (7, 4), (10, 6)}, True)
+
+
+class TestChordPattern(unittest.TestCase):
+    def test_from_interval(self):
+        self.assertEquals(ChordPattern.getFromInterval(frozenset({
+            Interval(chromatic=0, diatonic=0),
+            Interval(chromatic=2, diatonic=3),
+            Interval(chromatic=4, diatonic=7),
+            Interval(chromatic=6, diatonic=10)
+        }
+        )), minor_seven)
+
+    def test_from_interval_no_fifth(self):
+        self.assertEquals(ChordPattern.getFromInterval(frozenset({
+            Interval(chromatic=0, diatonic=0),
+            Interval(chromatic=2, diatonic=3),
+            Interval(chromatic=6, diatonic=10)
+        }
+        )), minor_seven)

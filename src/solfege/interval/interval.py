@@ -62,7 +62,7 @@ class Interval(ChromaticInterval):
             return cls(chromatic=interval, diatonic=1)
         if isinstance(interval, tuple):
             assert (len(interval) == 2)
-            diatonic, chromatic = interval
+            chromatic, diatonic = interval
             return cls(chromatic=chromatic, diatonic=diatonic)
 
     def __eq__(self, other):
@@ -184,7 +184,7 @@ class TestChromaticInterval(unittest.TestCase):
 
 
     def test_clean_interval_interval(self):
-        i = Interval(chromatic=2, diatonic=3)
+        i = Interval(chromatic=3, diatonic=2)
         self.assertEquals(Interval.factory(i), i)
 
     def test_clean_interval_int(self):
