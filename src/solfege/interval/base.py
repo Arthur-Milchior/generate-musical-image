@@ -130,6 +130,9 @@ class _Interval:
 
     def get_in_base_octave(self):
         """Same note in the base octave"""
+        octave = self.get_octave()
+        if octave is 0:
+            return self
         return self.add_octave(-self.get_octave())
 
     def equals_modulo_octave(self, other):

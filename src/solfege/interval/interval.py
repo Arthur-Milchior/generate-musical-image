@@ -112,10 +112,6 @@ class Interval(ChromaticInterval):
     def get_octave(self):
         return self.get_diatonic().get_octave()
 
-    def get_in_base_octave(self):
-        octave_to_add = -self.get_octave()
-        return self.add_octave(octave_to_add)
-
 
 ChromaticInterval.RelatedSolfegeClass = Interval
 Interval.IntervalClass = Interval

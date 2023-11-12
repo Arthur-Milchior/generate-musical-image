@@ -99,13 +99,56 @@ class Fingering:
         text += "}"
         return text
 
+
 class TestFingering(unittest.TestCase):
-    def test_add_first_note(self):
-        empty = Fingering(right_hand=True)
-        tonic = NoteWithTonic(chromatic=0, diatonic=0, tonic=True)
-        thumb_0 = empty.add(tonic, 1)
-        self.assertIsInstance(thumb_0, Fingering)
-        self.assertEquals(thumb_0.get_first_finger(), 1)
-        self.assertEquals(thumb_0.get_last_finger(), None)
-        self.assertEquals(thumb_0.tonic, tonic)
-        self.assertEquals(repr(thumb_0), "Fingering:{ (base=)}")
+    empty = Fingering(right_hand=True)
+    tonic = NoteWithTonic(chromatic=0, diatonic=0, tonic=True)
+    octave = NoteWithTonic(chromatic=12, diatonic=7, tonic=tonic)
+    second = NoteWithTonic(chromatic=2, diatonic=1, tonic=tonic)
+    thumb_0 = empty.add(tonic, 1)
+    index_1 = thumb_0.add(second, 2)
+    ended = index_1.add(octave, 5)
+
+    def test_one_note(self):
+        self.assertIsInstance(self.thumb_0, Fingering)
+        self.assertEquals(self.thumb_0.get_first_finger(), 1)
+        self.assertEquals(self.thumb_0.get_last_finger(), None)
+        self.assertEquals(self.thumb_0.tonic, self.tonic)
+        self.assertEquals(self.thumb_0.get_finger(self.tonic), None)
+        self.assertEquals(self.thumb_0.get_finger(self.tonic, starting_finger=True), 1)
+        self.assertEquals(self.thumb_0.get_finger(self.second), None)
+        with self.assertRaises(Exception):
+            self.thumb_0.get_finger(self.second, starting_finger=True)
+        self.assertEquals(repr(self.thumb_0), "Fingering:{ (base=NoteWithTonic(value=0, repr=self),1)}")
+
+    def test_ended(self):
+        self.assertIsInstance(self.ended, Fingering)
+        self.assertEquals(self.ended.get_first_finger(), 1)
+        self.assertEquals(self.ended.get_last_finger(), 5)
+        self.assertEquals(self.ended.tonic, self.tonic)
+        self.assertEquals(self.ended.get_finger(self.tonic), 5)
+        self.assertEquals(self.ended.get_finger(self.tonic, starting_finger=True), 1)
+        self.assertEquals(self.ended.get_finger(self.second), 2)
+        with self.assertRaises(Exception):
+            self.ended.get_finger(self.second, starting_finger=True)
+
+    def test_two_note(self):
+        self.assertIsInstance(self.index_1, Fingering)
+        self.assertEquals(self.index_1.get_first_finger(), 1)
+        self.assertEquals(self.index_1.get_last_finger(), None)
+        self.assertEquals(self.index_1.tonic, self.tonic)
+        self.assertEquals(self.index_1.get_finger(self.tonic), None)
+        self.assertEquals(self.index_1.get_finger(self.tonic, starting_finger=True), 1)
+        self.assertEquals(self.index_1.get_finger(self.second), 2)
+        with self.assertRaises(Exception):
+            self.index_1.get_finger(self.second, starting_finger=True)
+        self.assertEquals(repr(self.index_1), "Fingering:{ (base=NoteWithTonic(value=0, repr=self),1), "
+                                              "(NoteWithTonic(value=2, repr=NoteWithTonic(value=0, repr=self)),2)}")
+
+    def test_add_two_same_note(self):
+        self.assertTrue(self.index_1.add(self.second, 2))
+        self.assertFalse(self.index_1.add(self.second, 3))
+
+    def test_add_three_tonic_same_note(self):
+        self.assertTrue(self.ended.add(self.octave, 5))
+        self.assertFalse(self.ended.add(self.octave, 1))
