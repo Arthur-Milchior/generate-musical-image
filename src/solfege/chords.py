@@ -1,8 +1,8 @@
 from .interval.interval import Interval
-from .util import Solfege_Pattern
+from .solfege_pattern import SolfegePattern
 
 
-class ChordPattern(Solfege_Pattern):
+class ChordPattern(SolfegePattern):
     """A pattern describing a chord.
 
     names -- the list of names of this chord. Or a single name.
@@ -39,9 +39,6 @@ class ChordPattern(Solfege_Pattern):
     def getNotes(self, base):
         return frozenset({base + interval for interval in self.intervals})
 
-
-Solfege_Pattern.dic[ChordPattern] = dict()
-Solfege_Pattern.set_[ChordPattern] = list()
 
 ChordPattern(["Major triad"], {(4, 2), (7, 4)})
 ChordPattern(["Minor triad"], {(3, 2), (7, 4)})

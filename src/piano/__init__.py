@@ -21,8 +21,8 @@ root_html = """
 
 anki = ""
 dont_exists = []
-for scale in ScalePattern.set_[ScalePattern]:
-    scaleName = scale.getFirstName()
+for scale in ScalePattern.class_to_patterns[ScalePattern]:
+    scaleName = scale.get_the_first_of_the_name()
     nbBemol = scale.get_number_of_bemols()
     nbSharp = scale.get_number_of_sharps()
     intervals = scale.get_intervals()

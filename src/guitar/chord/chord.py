@@ -427,7 +427,7 @@ class GuitarChord(SetOfPos):
             if chord is None:
                 self.dic["pattern name"] = None
             else:
-                self.dic["pattern name"] = chord.getFirstName()
+                self.dic["pattern name"] = chord.get_the_first_of_the_name()
             debug("Pattern name is %s" % self.dic["pattern name"])
             self.dic["pattern name"]
         return self.dic["pattern name"]

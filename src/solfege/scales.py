@@ -8,10 +8,10 @@ import sys
 
 from .interval.interval import Interval
 from .note.with_tonic import NoteWithTonic
-from .util import Solfege_Pattern
+from .solfege_pattern import SolfegePattern
 
 
-class ScalePattern(Solfege_Pattern):
+class ScalePattern(SolfegePattern):
     def __init__(self, names, intervals, flats=0, sharps=0):
         """
         intervals -- A list of intervals.
@@ -60,10 +60,6 @@ class ScalePattern(Solfege_Pattern):
     def get_notes(self, tonic):
         """This scale starting at [tonic]"""
         return [tonic] + [tonic + interval for interval in self._intervals]
-
-
-Solfege_Pattern.dic[ScalePattern] = dict()
-Solfege_Pattern.set_[ScalePattern] = list()
 
 ScalePattern(["Major arpeggio"], [(2, 4), (2, 3), (3, 5)], 0, 0),
 ScalePattern(["Minor arpeggio"], [(2, 3), (2, 4), (3, 5)], 3, 0),

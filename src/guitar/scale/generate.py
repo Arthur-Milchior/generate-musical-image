@@ -23,8 +23,8 @@ It is assumed that, there is never more than {increase_fret_limit} fret from the
 <ul>
 """
 
-for scale in ScalePattern.set_[ScalePattern]:
-    name = scale.getFirstName()
+for scale in ScalePattern.class_to_patterns[ScalePattern]:
+    name = scale.get_the_first_of_the_name()
     intervals = scale.get_intervals()
     folder_scale = imageFolder + name
     ensureFolder(folder_scale)
@@ -51,7 +51,7 @@ for scale in ScalePattern.set_[ScalePattern]:
             web += """<img src="%s"/>\n""" % file
     web += """</body></html>"""
     index += """<li><a href="%s">""" % name
-    for name in scale.getNames():
+    for name in scale.get_names():
         index += "%s, " % name
     index += """</a></li>"""
     with open("%s/index.html" % folder_scale, "w") as f:
