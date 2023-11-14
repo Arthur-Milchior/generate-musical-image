@@ -1,6 +1,6 @@
 import unittest
 
-from solfege.interval.base import AbstractInterval
+from solfege.interval.abstract import AbstractInterval
 
 
 class DiatonicInterval(AbstractInterval):

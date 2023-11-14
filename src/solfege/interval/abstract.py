@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import Optional
+from typing import Optional, TypeVar
 import unittest
 
 
@@ -68,7 +68,7 @@ class AbstractInterval:
 
     def __add__(self, other):
         """Sum of both intervals. Class of `self`"""
-        from solfege.note.base import AbstractNote
+        from solfege.note.abstract import AbstractNote
         if isinstance(other, AbstractNote):
             clazz = other.__class__
         else:
@@ -87,7 +87,7 @@ class AbstractInterval:
 
     def __mul__(self, other):
         assert (isinstance(other, int))
-        from solfege.note.base import AbstractNote
+        from solfege.note.abstract import AbstractNote
         assert (not isinstance(self, AbstractNote))
         clazz = self.ClassToTransposeTo or self.__class__
         return clazz(value = self.get_number() * other)
@@ -144,6 +144,8 @@ class AbstractInterval:
         Class = self.ClassToTransposeTo or self.__class__
         return Class((self.get_number() - other.get_number()) % self.__class__.number_of_interval_in_an_octave)
 
+
+IntervalType = TypeVar('IntervalType', bound=AbstractInterval)
 
 class TestBaseInterval(unittest.TestCase):
     zero = AbstractInterval(0)

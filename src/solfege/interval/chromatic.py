@@ -1,7 +1,7 @@
 import unittest
 from typing import Optional
 
-from solfege.interval.base import AbstractInterval
+from solfege.interval.abstract import AbstractInterval
 
 
 class ChromaticInterval(AbstractInterval):

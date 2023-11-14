@@ -3,8 +3,8 @@ from __future__ import annotations
 import unittest
 from typing import Dict, Optional, Union
 
-from solfege.interval.base import AbstractInterval
-from solfege.note.base import AbstractNote
+from solfege.interval.abstract import AbstractInterval
+from solfege.note.abstract import AbstractNote
 
 
 class _NoteWithTonic(AbstractNote):

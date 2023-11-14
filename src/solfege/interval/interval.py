@@ -63,7 +63,7 @@ class Interval(ChromaticInterval):
             chromatic, diatonic = interval
             return cls(chromatic=chromatic, diatonic=diatonic)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Interval):
         diatonicEq = self.get_diatonic() == other.get_diatonic()
         chromaticEq = super().__eq__(other)
         return diatonicEq and chromaticEq
@@ -87,7 +87,7 @@ class Interval(ChromaticInterval):
     def __add__(self, other):
         diatonic = self.get_diatonic() + other.get_diatonic()
         chromatic = self.get_chromatic() + other.get_chromatic()
-        from solfege.note.base import AbstractNote
+        from solfege.note.abstract import AbstractNote
         if self.ClassToTransposeTo:
             clazz = self.ClassToTransposeTo
         elif isinstance(other, AbstractNote):
@@ -97,7 +97,7 @@ class Interval(ChromaticInterval):
         return clazz(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
 
     def __mul__(self, other):
-        from solfege.note.base import AbstractNote
+        from solfege.note.abstract import AbstractNote
         assert (not isinstance(self, AbstractNote))
         assert (isinstance(other, int))
         diatonic = self.get_diatonic() * other

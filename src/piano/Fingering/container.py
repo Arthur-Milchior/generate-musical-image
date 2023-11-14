@@ -4,9 +4,10 @@ import unittest
 from typing import Dict, Optional
 
 from piano.pianonote import PianoNote
+from solfege.interval.interval import Interval
 from solfege.note import Note
 from solfege.note.with_tonic import NoteWithTonic
-from solfege.Scale.pattern import ScalePattern
+from solfege.Scale.pattern import ScalePattern, minor_melodic
 
 
 class Fingering:
@@ -88,12 +89,11 @@ class Fingering:
         """The finger used to start the scale. Usually a thumb"""
         return self.finger_for_the_tonic_at_start
 
-    def get_finger(self, note, starting_finger=False) -> Optional[int]:
+    def get_finger(self, note: Note, starting_finger=False) -> Optional[int]:
         """Get the finger for `note`.
         If `note` is the tonic and `starting_finger` holds, get the starting finger"""
         note = note.get_in_base_octave()
         if starting_finger:
-            assert (note == self.tonic)
             return self.finger_for_the_tonic_at_start
         return self._dic.get(note)
 
@@ -104,13 +104,17 @@ class Fingering:
         text += "}"
         return text
 
-    def concrete(self, starting_note: Note, scale: ScalePattern, number_of_octaves: int = 1):
-        first_note =
-        if self.is_right:
-
-        lastNote = PianoNote(chromatic=starting_note.get_chromatic().get_number(), diatonic=starting_note.get_diatonic().get_number(), finger=self.get_finger(starting_note, starting_finger=True)).
-        l = []
-
+    def generate(self, starting_note: Note, scale_pattern: ScalePattern[Interval], number_of_octaves: int = 1):
+        assert starting_note.equals_modulo_octave(starting_note)
+        scale = scale_pattern.generate(starting_note, number_of_octaves=number_of_octaves)
+        fingered_scale = [
+            PianoNote(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number(),
+                      finger=self.get_finger(note)) for
+            note in scale.notes]
+        pos_of_last_note = -1 if self.right_hand else 0
+        last_note = fingered_scale[pos_of_last_note]
+        last_note.finger = self.get_finger(note=last_note, starting_finger=True)
+        return fingered_scale
 
 
 class TestFingering(unittest.TestCase):
@@ -165,3 +169,39 @@ class TestFingering(unittest.TestCase):
     def test_add_three_tonic_same_note(self):
         self.assertTrue(self.ended.add(self.octave, 5))
         self.assertFalse(self.ended.add(self.octave, 1))
+
+    def test_generate(self):
+        tonic = PianoNote(diatonic=0, chromatic=0, finger=1)
+        minor_melodic_fingering = Fingering(right_hand=True)
+        notes = [tonic,
+                 PianoNote(diatonic=1, chromatic=2, finger=2),
+                 PianoNote(diatonic=2, chromatic=3, finger=3),
+                 PianoNote(diatonic=3, chromatic=5, finger=1),
+                 PianoNote(diatonic=4, chromatic=7, finger=2),
+                 PianoNote(diatonic=5, chromatic=9, finger=3),
+                 PianoNote(diatonic=6, chromatic=11, finger=4),
+                 PianoNote(diatonic=7, chromatic=12, finger=5),
+                 ]
+        for note in notes:
+            minor_melodic_fingering.add(note, finger=note.finger)
+        self.assertEquals(minor_melodic_fingering.generate(starting_note=tonic, scale_pattern=minor_melodic),
+                          notes)
+        self.assertEquals(
+            minor_melodic_fingering.generate(starting_note=tonic, scale_pattern=minor_melodic, number_of_octaves=2),
+            [
+                PianoNote(diatonic=0, chromatic=0, finger=1),
+                PianoNote(diatonic=1, chromatic=2, finger=2),
+                PianoNote(diatonic=2, chromatic=3, finger=3),
+                PianoNote(diatonic=3, chromatic=5, finger=1),
+                PianoNote(diatonic=4, chromatic=7, finger=2),
+                PianoNote(diatonic=5, chromatic=9, finger=3),
+                PianoNote(diatonic=6, chromatic=11, finger=4),
+                PianoNote(diatonic=7, chromatic=12, finger=1),
+                PianoNote(diatonic=8, chromatic=14, finger=2),
+                PianoNote(diatonic=9, chromatic=15, finger=3),
+                PianoNote(diatonic=10, chromatic=17, finger=1),
+                PianoNote(diatonic=11, chromatic=19, finger=2),
+                PianoNote(diatonic=12, chromatic=21, finger=3),
+                PianoNote(diatonic=13, chromatic=23, finger=4),
+                PianoNote(diatonic=14, chromatic=24, finger=5),
+            ])

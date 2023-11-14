@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 
 from solfege.interval.diatonic import DiatonicInterval, TestDiatonicInterval
-from solfege.note.base import AbstractNote
+from solfege.note.abstract import AbstractNote
 
 
 class DiatonicNote(AbstractNote, DiatonicInterval):

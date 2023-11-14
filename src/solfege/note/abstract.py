@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Union
+from typing import Union, TypeVar
 
-from solfege.interval.base import AbstractInterval, TestBaseInterval
+from solfege.interval.abstract import AbstractInterval, TestBaseInterval
 
 
 class AbstractNote(AbstractInterval):
@@ -48,6 +48,7 @@ class AbstractNote(AbstractInterval):
         return octave + 4 if scientificNotation else octave
 
 
+NoteType = TypeVar('NoteType', bound=AbstractNote)
 
 class TestBaseNote(TestBaseInterval):
     C4 = AbstractNote(0)

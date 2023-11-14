@@ -21,8 +21,8 @@ anki = ""
 dont_exists = []
 for scale in ScalePattern.class_to_patterns[ScalePattern]:
     scaleName = scale.get_the_first_of_the_name()
-    nbBemol = scale.get_number_of_bemols()
-    nbSharp = scale.get_number_of_sharps()
+    number_of_flats = scale.get_number_of_flats()
+    number_of_sharps = scale.get_number_of_sharps()
     intervals = scale.get_intervals()
     root_html += """<li><a href='%s'>%s</a></li>""" % (scaleName, scaleName)
     scale_html = """
@@ -43,16 +43,16 @@ for scale in ScalePattern.class_to_patterns[ScalePattern]:
         <ul>
         """ % (baseNameTitle, scaleName, baseNameTitle, scaleName)
 
-            nbSharpFinal = nbSharp - nbBemol_
-            nbBemolFinal = nbBemol + nbBemol_
-            if nbSharpFinal > nbBemolFinal:
-                key = ["c", "g", "d", "a", "e", "b", "fis", "cis", "gis", "dis", "ais", "eis", "bis"][nbSharpFinal]
+            final_number_of_sharps = number_of_sharps - nbBemol_
+            final_number_of_flats = number_of_flats + nbBemol_
+            if final_number_of_sharps > final_number_of_flats:
+                key = ["c", "g", "d", "a", "e", "b", "fis", "cis", "gis", "dis", "ais", "eis", "bis"][final_number_of_sharps]
             else:
                 key = \
                 ["c", "f", "bes", "ees", "aes", "des", "ges", "ces", "fes", "beses", "eeses", "aeses", "deses", "ceses",
-                 "feses"][nbBemolFinal]
+                 "feses"][final_number_of_flats]
             debug("%s has %d bemol, %s has %d bemol and %d sharp.\nTotal is %d bemol and %d sharp.\nThe key is %s." % (
-                baseNote.get_interval_name(), nbBemol_, scaleName, nbBemol, nbSharp, nbSharpFinal, nbBemolFinal, key))
+                baseNote.get_interval_name(), nbBemol_, scaleName, number_of_flats, number_of_sharps, final_number_of_sharps, final_number_of_flats, key))
             folder_scale_note = "%s%s/" % (folder_scale, baseNameFile)
             ensureFolder(folder_scale_note)
             anki += ("\n%s,%s" % (scaleName, baseNameFile))
