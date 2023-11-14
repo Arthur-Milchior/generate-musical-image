@@ -9,7 +9,6 @@ from solfege.note.base import AbstractNote
 Also contains all scales from wikipedia, which can be done using the 12 notes from chromatic scales."""
 import unittest
 
-from solfege.interval import ChromaticInterval, DiatonicInterval
 import sys
 
 from solfege.interval.interval import Interval
@@ -80,16 +79,22 @@ class ScalePattern(SolfegePattern):
             scale.append(last_note)
         return scale
 
-    def reverse(self):
+    def __neg__(self):
         return ScalePattern(names=self.names, intervals=[-interval for interval in reversed(self._intervals)],
                             flats=self._flats, sharps=self._sharps, increasing=not self.increasing, record=False)
 
-    def generate(self, tonic: AbstractNote):
+    def generate(self, tonic: AbstractNote, nb_octave=1):
+        """The notes, starting at tonic, following this pattern for nb_octave.
+        If nb_octave is negative, the generated scale is decreasing."""
+        assert nb_octave != 0
+        if nb_octave < 0:
+            return (-self).generate(tonic, -nb_octave)
         current_note = tonic
         notes = [tonic]
-        for interval in self._intervals:
-            current_note += interval
-            notes.append(current_note)
+        for _ in range(nb_octave):
+            for interval in self._intervals:
+                current_note += interval
+                notes.append(current_note)
         return Scale(notes=notes)
 
 
@@ -224,8 +229,8 @@ class TestScalePattern(unittest.TestCase):
                               NoteWithTonic(diatonic=7, chromatic=12, tonic=tonic),
                           ])
 
-    def test_reversed(self):
-        reversed = minor_melodic.reverse()
+    def test_neg(self):
+        reversed = -minor_melodic
         expected = ScalePattern(["Minor melodic"],
                                 [
                                     Interval(diatonic=-1, chromatic=- 1),
@@ -248,7 +253,49 @@ class TestScalePattern(unittest.TestCase):
             Note(chromatic=7, diatonic=4),
             Note(chromatic=9, diatonic=5),
             Note(chromatic=11, diatonic=6),
-            Note(chromatic=12, diatonic=7)
+            Note(chromatic=12, diatonic=7),
         ])
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0))
+        self.assertEquals(expected, generated)
+
+    def test_generate_two(self):
+        expected = Scale(notes=[
+            Note(chromatic=0, diatonic=0),
+            Note(chromatic=2, diatonic=1),
+            Note(chromatic=3, diatonic=2),
+            Note(chromatic=5, diatonic=3),
+            Note(chromatic=7, diatonic=4),
+            Note(chromatic=9, diatonic=5),
+            Note(chromatic=11, diatonic=6),
+            Note(chromatic=12, diatonic=7),
+            Note(chromatic=14, diatonic=8),
+            Note(chromatic=15, diatonic=9),
+            Note(chromatic=17, diatonic=10),
+            Note(chromatic=19, diatonic=11),
+            Note(chromatic=21, diatonic=12),
+            Note(chromatic=23, diatonic=13),
+            Note(chromatic=24, diatonic=14),
+        ])
+        generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), nb_octave=2)
+        self.assertEquals(expected, generated)
+
+    def test_generate_minus_two(self):
+        expected = Scale(notes=[
+            Note(chromatic=0, diatonic=0),
+            Note(chromatic=-1, diatonic=-1),
+            Note(chromatic=-3, diatonic=-2),
+            Note(chromatic=-5, diatonic=-3),
+            Note(chromatic=-7, diatonic=-4),
+            Note(chromatic=-9, diatonic=-5),
+            Note(chromatic=-10, diatonic=-6),
+            Note(chromatic=-12, diatonic=-7),
+            Note(chromatic=-13, diatonic=-8),
+            Note(chromatic=-15, diatonic=-9),
+            Note(chromatic=-17, diatonic=-10),
+            Note(chromatic=-19, diatonic=-11),
+            Note(chromatic=-21, diatonic=-12),
+            Note(chromatic=-22, diatonic=-13),
+            Note(chromatic=-24, diatonic=-14),
+        ])
+        generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), nb_octave=-2)
         self.assertEquals(expected, generated)

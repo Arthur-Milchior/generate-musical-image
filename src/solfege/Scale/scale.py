@@ -13,4 +13,4 @@ class Scale:
         return self.notes == other.notes
 
     def __repr__(self):
-        return f"Scale(notes={self.notes}, pattern={self.pattern})"
+        return f"Scale(notes={self.notes})"
