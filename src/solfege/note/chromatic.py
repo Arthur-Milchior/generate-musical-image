@@ -1,10 +1,10 @@
 from solfege.interval.alteration import TooBigAlteration
-from solfege.note.base import _Note
+from solfege.note.base import AbstractNote
 from solfege.interval.chromatic import ChromaticInterval, TestChromaticInterval
 from util import MyException
 
 
-class ChromaticNote(_Note, ChromaticInterval):
+class ChromaticNote(AbstractNote, ChromaticInterval):
     IntervalClass = ChromaticInterval
 
     def get_color(self, color=True):

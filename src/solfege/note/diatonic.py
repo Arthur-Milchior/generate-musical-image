@@ -3,10 +3,10 @@ from __future__ import annotations
 import unittest
 
 from solfege.interval.diatonic import DiatonicInterval, TestDiatonicInterval
-from solfege.note.base import _Note
+from solfege.note.base import AbstractNote
 
 
-class DiatonicNote(_Note, DiatonicInterval):
+class DiatonicNote(AbstractNote, DiatonicInterval):
     """A diatonic note"""
     # Saved as the interval from middle C
     IntervalClass = DiatonicInterval

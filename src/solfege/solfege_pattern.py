@@ -11,7 +11,8 @@ class SolfegePattern:
     """associate to each class the list of all instances of this class"""
     class_to_patterns = dict()
 
-    def __init__(self, names: Union[str, List[str]]):
+    def __init__(self, names: Union[str, List[str]], record=True):
+        """"""
         if isinstance(names, str):
             names = [names]
         self.names = names
@@ -23,7 +24,8 @@ class SolfegePattern:
         for name in names:
             self.class_to_name_to_pattern[clazz][name] = self
 
-        self.class_to_patterns[clazz].append(self)
+        if record:
+            self.class_to_patterns[clazz].append(self)
 
     def get_the_first_of_the_name(self):
         """The first of all the names associated to this pattern. Hopefully the most canonical one"""

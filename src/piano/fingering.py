@@ -6,172 +6,168 @@
 # 3 hands
 # =18144 images
 # Taking 4 seconds each, it takes 20 hours
-from typing import Dict
+from typing import Optional, List
 
 import util
-from solfege.note import Note
-from .penalty import Penalty
+from piano.Fingering.container import Fingering
+from piano.Fingering.penalty import Penalty
+from piano.pianonote import PianoNote
+from solfege.interval.interval import Interval
 
 lilyProgram = "lilypond "
 
 
-
-def generateLeftFingeringDic(currentNote, intervals, fingeringDic=None):
+def generate_left_fingering_dic(currentNote: PianoNote, intervals: List[Interval],
+                                fingering_dic: Optional[Fingering] = None):
     util.debug("Generating left fingering for %s", currentNote.get_interval_name())
+    # repeating last interval so that we ensure we can go on second octave of the scale even if first and last finger
+    # are different.
     intervals = intervals + [intervals[0]]
-    return generateFingeringDic(currentNote, intervals, "left", fingeringDic=fingeringDic)
+    return generate_fingering_dic(currentNote, intervals, False, fingering=fingering_dic)
 
 
-def generateRightFingeringDic(currentNote, intervals, fingeringDic=None):
+def generate_right_fingering_dic(currentNote: PianoNote, intervals: List[Interval],
+                                 fingering_dic: Optional[Fingering] = None):
+    # repeating last interval so that we ensure we can go on second octave of the scale even if first and last finger
+    # are different.
     intervals = [intervals[-1]] + intervals
-    return generateFingeringDic(currentNote, intervals, "right", fingeringDic=fingeringDic)
+    return generate_fingering_dic(currentNote, intervals, True, fingering=fingering_dic)
 
 
-def generateFingeringDic(baseNote, intervals, side, fingeringDic=None):
-    """Associating to current note and each note of the remaining interval a fingering for  hand whose side is side
+def generate_fingering_dic(base_note: PianoNote, intervals: List[Interval], is_right: bool,
+                           fingering: Optional[Fingering] = None) -> Optional[Penalty]:
+    """
+    Returns the best penalty extending `fingering` to add `base_note`, and then one note per interval starting at
+    `base_note`.
 
-    baseNote -- the note where the scale start
-    if fingeringDic is a dictionnary from (non-initial) note to fingering. This should be respected in other choice. (normally not used anymore)
+    For the left hand, the notes added are thus:
+    * base_note
+    * base_note + intervals[0]
+    * base_note + intervals[0] + intervals[1]
+     that is, the generation starts from the side of the pinky finger, from the lowest note, up to the thumb/higher
+     note. On the right hand it is the reverse.
 
     return False if no fingering can be found
     Otherwise, return:
        --the starting finger (lowest for left hand, highest for right hand),
-       --the fingering for the non-star
+       --the fingering for the non-starting notes
        , and
        --the penalty
     """
-    util.debug("Calling generateFingeringDic")
-    util.debug("-base note:%s", baseNote)
-    util.debug("-side: %s", side)
-    util.debug("-intervals: %s", intervals)
 
-    def aux(currentNote, remainingIntervals, currentFinger, fingeringDic, isInitial=True):
-        """Associating to current note and each note of the remaining interval a fingering for hand indicated by "side"
+    if fingering is None:
+        fingering = Fingering()
 
-        currentNote is the note to which a fingering must be associated
-        if currentFinger is None, it is 5 or 4. Otherwise it is the fingering proposed for currentNote
-        if fingeringDic is a dictionnary from (non-initial) note to fingering. This should be respected in other choice.
-        isInitial state whether we are just starting to generate the scale (in this case, the fingering of the first note should not be added to the dictionnary)
-
-        return False if no fingering can be found
-        Otherwise, return:
-        --the map from non-initial notes to finger)
-        --penalty
+    def aux(current_note: PianoNote, remaining_intervals: List[Interval], current_finger: int, fingering: Fingering) -> \
+            Optional[Penalty]:
         """
-        util.debug("-Calling aux")
-        util.debug("--current finger: %d", currentFinger)
-        util.debug("--current note: %s", currentNote)
-        if isInitial:
-            util.debug("--initial")
-        util.debug("--intervals: %s", str(remainingIntervals))
-        # if isInitial:
-        #     debug("Initial call to aux")
-        # #debug("Note %s with finger %d.",(currentNote.getName(),currentFinger))
+        Return the best extension of `fingering`, with `current_note` associated to `current_finger`.
+        The extension should be valid for the notes
+        * current_note
+        * current_note + remaining_intervals[0]
+        * current_note + remaining_intervals[0] + remaining_intervals[1]
+         and so on, for the left hand.
+         and in reverse for the right hand.
 
-        if currentNote.is_black() and currentFinger == 1:
-            util.debug("One on black. Reject\n\n")
-            return False
+         Return the best penalty if it exists.
+        """
 
-        # debug("note %s, with finger %d in base octave is %s.\n",(currentNote.debug(),currentFinger,noteInBaseoctave.debug()))
-        nextFingeringDic = fingeringDic.add(currentNote, currentFinger)
-        if nextFingeringDic is False:
-            util.debug("This note has already a finger, and it is different")
-            return False
-        if nextFingeringDic is True:
-            nextFingeringDic = fingeringDic
-        if not remainingIntervals:
-            util.debug("No remaining intervals, thus we return immediatly")
-            endingFinger = nextFingeringDic.getLastFinger()
-            niceExtremity = nextFingeringDic.isEndNice()
-            penalty = Penalty(endingFinger=endingFinger, niceExtremity=niceExtremity, data=nextFingeringDic)
-            return (nextFingeringDic, penalty)
+        if current_note.is_black() and current_finger == 1:
+            return None
 
-        nextInterval = remainingIntervals[{"left": 0, "right": -1}[side]]
-        if side == "right":
-            nextInterval = -nextInterval
+        next_fingering = fingering.add(current_note, current_finger)
+        if next_fingering is False:
+            # Another finger is associated to this note (up to octave, and not including the starting finger)
+            return None
+        if next_fingering is True:
+            # This association is already in the Fingering.
+            next_fingering = fingering
+        if not remaining_intervals:
+            ending_finger = next_fingering.get_last_finger()
+            nice_extremity = next_fingering.is_end_nice()
+            return Penalty(ending_finger=ending_finger, nice_extremity=nice_extremity, fingering=next_fingering)
 
-        nextRemainingIntervals = {"left": remainingIntervals[1:], "right": remainingIntervals[:-1]}[side]
-        nextNote = currentNote + nextInterval
-        # debug("With note %s and interval %s we obtain note %s",(currentNote,interval,nextNote))
-        localPenalty = Penalty()
-        if currentFinger == 1:
-            if not baseNote.equals_modulo_octave(currentNote):
-                localPenalty = localPenalty.addPassingFinger()
-            if not currentNote.adjacent(nextNote):
-                localPenalty = localPenalty.addThumbNonAdjacent()
-            if not nextNote.is_black():
-                localPenalty = localPenalty.addWhiteAfterThumb()
-            nextFingers = [3, 4, 2]
-        elif currentFinger == 2:
-            nextFingers = [1]
-        elif currentNote.adjacent(nextNote):
-            nextFingers = [currentFinger - 1]
+        # on the right hand, we go from high to low. So we take the last interval and reverse it to decrease the
+        # current note.
+        # On the left hand, we go from low to high, so we take the first interval and use it to increase the
+        # current note.
+        next_interval = remaining_intervals[-1 if is_right else 0]
+        if is_right:
+            next_interval = -next_interval
+            next_remaining_intervals = remaining_intervals[:-1]
         else:
-            nextFingers = [currentFinger - 1, currentFinger - 2]
+            next_remaining_intervals = remaining_intervals[1:]
 
-        bestPenalty = None
-        for nextFinger in nextFingers:
-            res = aux(nextNote, nextRemainingIntervals, nextFinger, nextFingeringDic, isInitial=False)
-            if res:
-                fingeringDicRec, penaltyRec = res
-                sumPenalty = penaltyRec + localPenalty
-                sumPenalty.data = fingeringDicRec
-                if bestPenalty is None or sumPenalty < bestPenalty:
-                    util.debug("Found new best penalty")
-                    bestPenalty = sumPenalty
-                # break#todo, remove the break. Its only use is debugging.
-        if bestPenalty is not None:
-            util.debug("Return from note %s", currentNote.get_interval_name())
-            return (bestPenalty.data, bestPenalty)
-        util.debug("No correct next finger. Reject\n\n")
-        return False
+        next_note = current_note + next_interval
+        local_penalty = Penalty()
+        if current_finger == 1:
+            if not base_note.equals_modulo_octave(current_note):
+                local_penalty = local_penalty.add_passing_finger()
+            if not current_note.adjacent(next_note):
+                local_penalty = local_penalty.add_thumb_non_adjacent()
+            if not next_note.is_black():
+                local_penalty = local_penalty.add_white_after_thumb()
+            next_possible_fingers = [3, 4, 2]
+        elif current_finger == 2:
+            next_possible_fingers = [1]
+        elif current_note.adjacent(next_note):
+            next_possible_fingers = [current_finger - 1]
+        else:
+            next_possible_fingers = [current_finger - 1, current_finger - 2]
+
+        best_penalty: Optional[Penalty] = None
+        for next_possible_finger in next_possible_fingers:
+            best_penalty_for_next_possible_finger = aux(current_note=next_note,
+                                                        remaining_intervals=next_remaining_intervals,
+                                                        current_finger=next_possible_finger, fingering=next_fingering)
+            if best_penalty_for_next_possible_finger is None:
+                continue
+            best_fingering_for_next_possible_finger = best_penalty_for_next_possible_finger.fingering
+            sum_penalty = best_penalty_for_next_possible_finger + local_penalty
+            sum_penalty.fingering = best_fingering_for_next_possible_finger
+            if best_penalty is None or sum_penalty < best_penalty:
+                best_penalty = sum_penalty
+        return best_penalty
 
     ##End aux
-    fingeringDic = fingeringDic if fingeringDic else Fingering()
-    bestPenalty = None
-    for extremalFinger in reversed(range(1, 6)):
-        util.debug("Trying extremalFinger %d", extremalFinger)
-        res = aux(baseNote, intervals, extremalFinger, fingeringDic, isInitial=True)
-        if res:
-            (finalFingeringDic, recPenalty) = res
-            penalty = recPenalty.addStartingFinger(extremalFinger, data=(extremalFinger, finalFingeringDic))
-            if bestPenalty is None or penalty < bestPenalty:
-                util.debug("The best it is !")
-                bestPenalty = penalty
-                # break#todo, remove the break. Its only use is debugging.
-            else:
-                util.debug("The best it is not")
-    if bestPenalty is not None:
-        return (bestPenalty.data, bestPenalty)
-    util.debug("No correct first finger. Reject\n\n")
-    return False
+    best_penalty = None
+    for starting_finger in reversed(range(1, 6)):
+        best_penalty_for_starting_finger = aux(current_note=base_note, remaining_intervals=intervals,
+                                               current_finger=starting_finger, fingering=fingering)
+        if best_penalty_for_starting_finger is None:
+            continue
+        best_fingering_for_starting_finger = best_penalty_for_starting_finger.fingering
+        penalty = best_penalty_for_starting_finger.add_starting_finger(starting_finger,
+                                                                       fingering=best_fingering_for_starting_finger)
+        if best_penalty is None or penalty < best_penalty:
+            best_penalty = penalty
+    return best_penalty
 
 
-def generateLeftFingering(extremalFinger, fingeringDic, baseNote, intervals, nbOctave=1):
-    util.debug("Generate left fingering, starting on note note %s", baseNote)
+def generate_left_fingering(starting_finger: int, fingering: Fingering, base_note: PianoNote, intervals: List[Interval],
+                            nbOctave: int = 1):
     intervals = intervals * nbOctave
-    nextInterval = intervals[0]
-    nextIntervals = intervals[1:]
-    baseNote = baseNote.add_octave(-1 if nbOctave == 1 else -2)
-    nextNote = baseNote + nextInterval
-    util.debug("When adding %s, we obtain %s", (nextInterval, nextNote))
-    return [(baseNote, extremalFinger)] + generateFingering(nextNote, nextIntervals, fingeringDic)
+    first_interval = intervals[0]
+    next_intervals = intervals[1:]
+    # Lowering the scale by an octave or two so that it's easier to play on left hand on piano
+    base_note = base_note.add_octave(-1 if nbOctave == 1 else -2)
+    next_note = base_note + first_interval
+    return [(base_note, starting_finger)] + generate_fingering(next_note, next_intervals, fingering)
 
 
-def generateRightFingering(extremalFinger, fingeringDic, baseNote, intervals, nbOctave=1):
-    endNote = baseNote.add_octave(nbOctave)
+def generate_right_fingering(starting_finger: int, fingering: Fingering, base_note: PianoNote, intervals: List[Interval],
+                             nbOctave: int = 1):
+    end_note = base_note.add_octave(nbOctave)
     intervals = intervals * nbOctave
     intervals = intervals[:-1]
-    return generateFingering(baseNote, intervals, fingeringDic) + [(endNote, extremalFinger)]
+    return generate_fingering(base_note, intervals, fingering) + [(end_note, starting_finger)]
 
 
-def generateFingering(currentNote, remainingInterval, fingeringDic):
-    util.debug("Starting generate fingering. Current note is %s", currentNote)
+def generate_fingering(currentNote: PianoNote, remainingInterval: List[Interval], fingering: Fingering):
     l = []
     for nextInterval in remainingInterval + [None]:  # adding a last element so the loop is processed once more
-        finger = fingeringDic.get(currentNote)
+        finger = fingering.get_finger(currentNote)
         l.append((currentNote, finger))
         if nextInterval:
             currentNote += nextInterval
-            util.debug("Next note is %s", currentNote)
     return l

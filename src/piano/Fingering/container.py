@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 import unittest
 from typing import Dict, Optional
 
+from piano.pianonote import PianoNote
 from solfege.note import Note
 from solfege.note.with_tonic import NoteWithTonic
+from solfege.Scale.pattern import ScalePattern
 
 
 class Fingering:
     """
-    A non mutable class representing an association from note on the scale to one of the five finger of the hand.
+    A non-mutable class representing an association from note on the scale to one of the five finger of the hand.
     1 being the thumb
 
     """
@@ -23,7 +27,8 @@ class Fingering:
     """ Whether it's a fingering for right hand"""
     right_hand: bool
 
-    """The finger used to play the tonic"""
+    """The finger used to play the tonic once at an extremety. Usually the fifth, or sometime fourth, to start the 
+    increasing scale on the left hand and to end the increasing scale on the right end."""
     finger_for_the_tonic_at_start: bool
 
     def __init__(self, right_hand: bool = True):
@@ -32,7 +37,7 @@ class Fingering:
         self.right_hand = right_hand
         self.finger_for_the_tonic_at_start = None
 
-    def _copy(self):
+    def _copy(self) -> Fingering:
         nex = Fingering()
         nex.tonic = self.tonic
         nex.finger_for_the_tonic_at_start = self.finger_for_the_tonic_at_start
@@ -44,7 +49,7 @@ class Fingering:
         note = note.get_in_base_octave()
         return note in self._dic
 
-    def add(self, note, finger):
+    def add(self, note, finger) -> Fingering:
         """
         Returns:
             * False if the note was already here in the fingering with a different finger
@@ -63,27 +68,27 @@ class Fingering:
             nex._dic[note] = finger
         return nex
 
-    def ends_and_start_on_same_finger(self):
+    def ends_and_start_on_same_finger(self) -> bool:
         """Whether the first and last finger of the scale's fingering are the same"""
         return self.get_last_finger() == self.get_first_finger()
 
-    def ends_with_a_thumb(self):
+    def ends_with_a_thumb(self) -> bool:
         """Whether the last finger of the scale's fingering is a thumb"""
         return self.get_last_finger() == 1
 
-    def is_end_nice(self):
+    def is_end_nice(self) -> bool:
         """Whether the first and last finger is the thumb"""
         return self.ends_with_a_thumb() or self.ends_and_start_on_same_finger()
 
-    def get_last_finger(self):
+    def get_last_finger(self) -> Optional[int]:
         """The finger used to end the scale. Usually a 5"""
         return self.get_finger(self.tonic)
 
-    def get_first_finger(self):
+    def get_first_finger(self) -> Optional[int]:
         """The finger used to start the scale. Usually a thumb"""
         return self.finger_for_the_tonic_at_start
 
-    def get_finger(self, note, starting_finger=False):
+    def get_finger(self, note, starting_finger=False) -> Optional[int]:
         """Get the finger for `note`.
         If `note` is the tonic and `starting_finger` holds, get the starting finger"""
         note = note.get_in_base_octave()
@@ -98,6 +103,14 @@ class Fingering:
             text += f", ({key},{self._dic[key]})"
         text += "}"
         return text
+
+    def concrete(self, starting_note: Note, scale: ScalePattern, number_of_octaves: int = 1):
+        first_note =
+        if self.is_right:
+
+        lastNote = PianoNote(chromatic=starting_note.get_chromatic().get_number(), diatonic=starting_note.get_diatonic().get_number(), finger=self.get_finger(starting_note, starting_finger=True)).
+        l = []
+
 
 
 class TestFingering(unittest.TestCase):

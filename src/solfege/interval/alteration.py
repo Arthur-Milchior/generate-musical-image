@@ -1,13 +1,13 @@
 import solfege.interval.chromatic
 
+
 class TooBigAlteration(Exception):
     def __init__(self, value):
         self.value = value
         super().__init__()
 
     def __str__(self):
-        text = "number %d corresponds to no Alteration.\n%s" % (self.value, super().__str__())
-        return text
+        return "number %d corresponds to no Alteration.\n%s" % (self.value, super().__str__())
 
 
 class Alteration(solfege.interval.chromatic.ChromaticInterval):

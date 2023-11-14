@@ -1,10 +1,10 @@
 import unittest
 from typing import Optional
 
-from solfege.interval.base import _Interval
+from solfege.interval.base import AbstractInterval
 
 
-class ChromaticInterval(_Interval):
+class ChromaticInterval(AbstractInterval):
     """A chromatic interval. Counting the number of half tone between two notes"""
     number_of_interval_in_an_octave = 12
 

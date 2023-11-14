@@ -1,9 +1,7 @@
-from guitar.util import *
-import os
 from .utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
 from util import *
 from guitar.pos import Pos, SetOfPos
-from solfege.scales import ScalePattern
+from solfege.Scale.pattern import ScalePattern
 import guitar.util
 
 leafFolder = "scale/"

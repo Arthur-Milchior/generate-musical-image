@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Union
 
-from solfege.interval.base import _Interval, TestBaseInterval
+from solfege.interval.base import AbstractInterval, TestBaseInterval
 
 
-class _Note(_Interval):
-    IntervalClass = _Interval
+class AbstractNote(AbstractInterval):
+    IntervalClass = AbstractInterval
     """A note. Similar to an interval.
 
     -To a note may be added or subtracted an interval, but not to a note
@@ -20,20 +20,20 @@ class _Note(_Interval):
     def __neg__(self):
         raise Exception("Trying to negate a note makes no sens.")
 
-    def __sub__(self, other: Union[_Interval, _Note]):
-        if isinstance(other, _Note):
+    def __sub__(self, other: Union[AbstractInterval, AbstractNote]):
+        if isinstance(other, AbstractNote):
             return self.sub_note(other)
         else:
             return self.sub_interval(other)
 
-    def sub_interval(self, other: _Interval):
+    def sub_interval(self, other: AbstractInterval):
         return self + (-other)
 
-    def sub_note(self, other: _Note):
+    def sub_note(self, other: AbstractNote):
         return self.IntervalClass(self.get_number() - other.get_number())
 
-    def __add__(self, other: _Interval):
-        if isinstance(other, _Note):
+    def __add__(self, other: AbstractInterval):
+        if isinstance(other, AbstractNote):
             raise Exception("Adding two notes")
         sum_ = super().__add__(
             other)  # Super still makes sens because a class inheriting _Note also inherits some other class.
@@ -50,11 +50,11 @@ class _Note(_Interval):
 
 
 class TestBaseNote(TestBaseInterval):
-    C4 = _Note(0)
-    D4 = _Note(1)
-    B3 = _Note(-1)
-    E4 = _Note(2)
-    F4 = _Note(3)
+    C4 = AbstractNote(0)
+    D4 = AbstractNote(1)
+    B3 = AbstractNote(-1)
+    E4 = AbstractNote(2)
+    F4 = AbstractNote(3)
 
     def test_is_note(self):
         self.assertTrue(self.C4.is_note())

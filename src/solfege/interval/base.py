@@ -5,7 +5,7 @@ from typing import Optional
 import unittest
 
 
-class _Interval:
+class AbstractInterval:
     """This class is the basis for each kind of interval. It should never be used directly.
     It allows to represent a number, access it.
     It also allows to add it to another such element, negate it, while generating an object of its subclass.
@@ -21,9 +21,9 @@ class _Interval:
 """
     ClassToTransposeTo = None
     number_of_interval_in_an_octave: int
-    IntervalClass: type(_Interval)
+    IntervalClass: type(AbstractInterval)
 
-    def __init__(self, value=None, toCopy: Optional[_Interval] = None, callerClass=None, none=None, **kwargs):
+    def __init__(self, value=None, toCopy: Optional[AbstractInterval] = None, callerClass=None, none=None, **kwargs):
         """If the interval is passed as argument, it is copied. Otherwise, the value is used. none, if true,
         means that there is no value and it is acceptable"""
         super().__init__(**kwargs)
@@ -68,8 +68,8 @@ class _Interval:
 
     def __add__(self, other):
         """Sum of both intervals. Class of `self`"""
-        from solfege.note.base import _Note
-        if isinstance(other, _Note):
+        from solfege.note.base import AbstractNote
+        if isinstance(other, AbstractNote):
             clazz = other.__class__
         else:
             clazz = self.__class__
@@ -87,8 +87,8 @@ class _Interval:
 
     def __mul__(self, other):
         assert (isinstance(other, int))
-        from solfege.note.base import _Note
-        assert (not isinstance(self, _Note))
+        from solfege.note.base import AbstractNote
+        assert (not isinstance(self, AbstractNote))
         clazz = self.ClassToTransposeTo or self.__class__
         return clazz(value = self.get_number() * other)
 
@@ -108,12 +108,12 @@ class _Interval:
         return self.get_number()
 
     def __le__(self, other):
-        if isinstance(other, _Interval):
+        if isinstance(other, AbstractInterval):
             other = other.get_number()
         return self.get_number() <= other
 
     def __lt__(self, other):
-        if isinstance(other, _Interval):
+        if isinstance(other, AbstractInterval):
             other = other.get_number()
         return self.get_number() < other
 
@@ -146,11 +146,11 @@ class _Interval:
 
 
 class TestBaseInterval(unittest.TestCase):
-    zero = _Interval(0)
-    un = _Interval(1)
-    moins_un = _Interval(-1)
-    deux = _Interval(2)
-    trois = _Interval(3)
+    zero = AbstractInterval(0)
+    un = AbstractInterval(1)
+    moins_un = AbstractInterval(-1)
+    deux = AbstractInterval(2)
+    trois = AbstractInterval(3)
 
     def test_is_note(self):
         self.assertFalse(self.zero.is_note())

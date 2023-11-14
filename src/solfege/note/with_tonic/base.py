@@ -3,11 +3,11 @@ from __future__ import annotations
 import unittest
 from typing import Dict, Optional, Union
 
-from solfege.interval.base import _Interval
-from solfege.note.base import _Note
+from solfege.interval.base import AbstractInterval
+from solfege.note.base import AbstractNote
 
 
-class _NoteWithTonic(_Note):
+class _NoteWithTonic(AbstractNote):
     """
     Classes for notes with base. They are a note, with an additional property representing the tonic.
     If `tonic` is `True`, then `self` is the tonic.
@@ -35,7 +35,7 @@ class _NoteWithTonic(_Note):
             assert (tonic is False)
             self._tonic = None
 
-    def __add__(self, other: _Interval) -> _NoteWithTonic:
+    def __add__(self, other: AbstractInterval) -> _NoteWithTonic:
         sum_ = super().__add__(other)
         tonic = self.get_tonic()
         if tonic is not None:
@@ -57,7 +57,7 @@ class _NoteWithTonic(_Note):
             return False
         return self_tonic.get_number() == other_tonic.get_number()
 
-    def __sub__(self, other: Union[_NoteWithTonic, _Interval]):
+    def __sub__(self, other: Union[_NoteWithTonic, AbstractInterval]):
         if isinstance(other, _NoteWithTonic):
             assert (self.get_tonic() == other.get_tonic())
         return super().__sub__(other)
@@ -137,7 +137,7 @@ class TestNoteWithTonic(unittest.TestCase):
 
     def test_add(self):
         n1 = _NoteWithTonic(value=1, tonic=True)
-        n2 = n1 + _Interval(value=2)
+        n2 = n1 + AbstractInterval(value=2)
         self.assertEquals(n2.get_tonic(), n1)
         self.assertEquals(n2.get_number(), 3)
         self.assertEquals(n2, _NoteWithTonic(value=3, tonic=n1))
@@ -148,12 +148,12 @@ class TestNoteWithTonic(unittest.TestCase):
         n1 = _NoteWithTonic(value=1, tonic=True)
         n2 = _NoteWithTonic(value=2, tonic=n1)
         diff = n2 - n1
-        self.assertEquals(diff, _Interval(1))
+        self.assertEquals(diff, AbstractInterval(1))
         with self.assertRaises(Exception):
             _ = n1 - _NoteWithTonic(value=1, tonic=n2)
 
     def test_sub_interval(self):
         n1 = _NoteWithTonic(value=1, tonic=True)
         n2 = _NoteWithTonic(value=2, tonic=n1)
-        self.assertEquals(n1 - _Interval(1), _NoteWithTonic(value=0, tonic=n1))
-        self.assertEquals(n2 - _Interval(1), _NoteWithTonic(value=1, tonic=n1))
+        self.assertEquals(n1 - AbstractInterval(1), _NoteWithTonic(value=0, tonic=n1))
+        self.assertEquals(n2 - AbstractInterval(1), _NoteWithTonic(value=1, tonic=n1))

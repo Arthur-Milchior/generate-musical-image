@@ -1,9 +1,9 @@
 import unittest
 
-from solfege.interval.base import _Interval
+from solfege.interval.base import AbstractInterval
 
 
-class DiatonicInterval(_Interval):
+class DiatonicInterval(AbstractInterval):
     """An interval, where we count the number of notes in the major scale,
     and ignore the notes which are absent. B and B# can't be
     distinguished, since A# does not really exist. However, this would
