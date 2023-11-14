@@ -6,36 +6,20 @@
 # 3 hands
 # =18144 images
 # Taking 4 seconds each, it takes 20 hours
+import unittest
 from typing import Optional, List
 
-import util
-from piano.Fingering.container import Fingering
+from piano.Fingering.fingering import Fingering, TestFingering
 from piano.Fingering.penalty import Penalty
 from piano.pianonote import PianoNote
+from solfege.Scale.pattern import ScalePattern, minor_melodic, blues
 from solfege.interval.interval import Interval
 
 lilyProgram = "lilypond "
 
 
-def generate_left_fingering_dic(currentNote: PianoNote, intervals: List[Interval],
-                                fingering_dic: Optional[Fingering] = None):
-    util.debug("Generating left fingering for %s", currentNote.get_interval_name())
-    # repeating last interval so that we ensure we can go on second octave of the scale even if first and last finger
-    # are different.
-    intervals = intervals + [intervals[0]]
-    return generate_fingering_dic(currentNote, intervals, False, fingering=fingering_dic)
-
-
-def generate_right_fingering_dic(currentNote: PianoNote, intervals: List[Interval],
-                                 fingering_dic: Optional[Fingering] = None):
-    # repeating last interval so that we ensure we can go on second octave of the scale even if first and last finger
-    # are different.
-    intervals = [intervals[-1]] + intervals
-    return generate_fingering_dic(currentNote, intervals, True, fingering=fingering_dic)
-
-
-def generate_fingering_dic(base_note: PianoNote, intervals: List[Interval], is_right: bool,
-                           fingering: Optional[Fingering] = None) -> Optional[Penalty]:
+def generate_fingering(tonic: PianoNote, scale: ScalePattern, for_right_hand: bool,
+                       fingering: Optional[Fingering] = None) -> Optional[Penalty]:
     """
     Returns the best penalty extending `fingering` to add `base_note`, and then one note per interval starting at
     `base_note`.
@@ -56,7 +40,16 @@ def generate_fingering_dic(base_note: PianoNote, intervals: List[Interval], is_r
     """
 
     if fingering is None:
-        fingering = Fingering()
+        fingering = Fingering(for_right_hand=for_right_hand)
+    intervals = scale.get_intervals()
+    if for_right_hand:
+        # We want the scale to be able to continue after the lowest note, after the thumb_over, so adding a last
+        # interval
+        intervals = [intervals[-1]] + intervals
+    else:
+        # We want the scale to be able to continue after the highest note, after the thumb_over, so adding a last
+        # interval
+        intervals = intervals + [intervals[0]]
 
     def aux(current_note: PianoNote, remaining_intervals: List[Interval], current_finger: int, fingering: Fingering) -> \
             Optional[Penalty]:
@@ -83,16 +76,17 @@ def generate_fingering_dic(base_note: PianoNote, intervals: List[Interval], is_r
             # This association is already in the Fingering.
             next_fingering = fingering
         if not remaining_intervals:
-            ending_finger = next_fingering.get_last_finger()
+            thumb_side_tonic_finger = next_fingering.get_thumb_side_tonic_finger()
             nice_extremity = next_fingering.is_end_nice()
-            return Penalty(ending_finger=ending_finger, nice_extremity=nice_extremity, fingering=next_fingering)
+            return Penalty(thumb_side_tonic_finger=thumb_side_tonic_finger, nice_extremity=nice_extremity,
+                           fingering=next_fingering)
 
         # on the right hand, we go from high to low. So we take the last interval and reverse it to decrease the
         # current note.
         # On the left hand, we go from low to high, so we take the first interval and use it to increase the
         # current note.
-        next_interval = remaining_intervals[-1 if is_right else 0]
-        if is_right:
+        next_interval = remaining_intervals[-1 if for_right_hand else 0]
+        if for_right_hand:
             next_interval = -next_interval
             next_remaining_intervals = remaining_intervals[:-1]
         else:
@@ -101,7 +95,7 @@ def generate_fingering_dic(base_note: PianoNote, intervals: List[Interval], is_r
         next_note = current_note + next_interval
         local_penalty = Penalty()
         if current_finger == 1:
-            if not base_note.equals_modulo_octave(current_note):
+            if not tonic.equals_modulo_octave(current_note):
                 local_penalty = local_penalty.add_passing_finger()
             if not current_note.adjacent(next_note):
                 local_penalty = local_penalty.add_thumb_non_adjacent()
@@ -131,43 +125,44 @@ def generate_fingering_dic(base_note: PianoNote, intervals: List[Interval], is_r
 
     ##End aux
     best_penalty = None
-    for starting_finger in reversed(range(1, 6)):
-        best_penalty_for_starting_finger = aux(current_note=base_note, remaining_intervals=intervals,
-                                               current_finger=starting_finger, fingering=fingering)
-        if best_penalty_for_starting_finger is None:
+    for pinky_side_first_finger in (2, 3, 4, 5):
+        best_penalty_for_this_first_finger = aux(current_note=tonic, remaining_intervals=intervals,
+                                                 current_finger=pinky_side_first_finger, fingering=fingering)
+        if best_penalty_for_this_first_finger is None:
             continue
-        best_fingering_for_starting_finger = best_penalty_for_starting_finger.fingering
-        penalty = best_penalty_for_starting_finger.add_starting_finger(starting_finger,
-                                                                       fingering=best_fingering_for_starting_finger)
+        best_fingering_for_this_first_finger = best_penalty_for_this_first_finger.fingering
+        penalty = best_penalty_for_this_first_finger.add_starting_finger(pinky_side_first_finger,
+                                                                         fingering=best_fingering_for_this_first_finger)
         if best_penalty is None or penalty < best_penalty:
             best_penalty = penalty
     return best_penalty
 
 
-def generate_left_fingering(starting_finger: int, fingering: Fingering, base_note: PianoNote, intervals: List[Interval],
-                            nbOctave: int = 1):
-    intervals = intervals * nbOctave
-    first_interval = intervals[0]
-    next_intervals = intervals[1:]
-    # Lowering the scale by an octave or two so that it's easier to play on left hand on piano
-    base_note = base_note.add_octave(-1 if nbOctave == 1 else -2)
-    next_note = base_note + first_interval
-    return [(base_note, starting_finger)] + generate_fingering(next_note, next_intervals, fingering)
+class TestGenerate(unittest.TestCase):
+    def test_blues_D_right(self):
+        penalty = generate_fingering(tonic=PianoNote(diatonic=1, chromatic=2), scale=blues,
+                                     for_right_hand=True)
+        fingering = penalty.fingering
+        expected = (Fingering(for_right_hand=True).
+                    add(note=PianoNote(chromatic=2, diatonic=1), finger=5).
+                    add(note=PianoNote(chromatic=0, diatonic=0), finger=4).
+                    add(note=PianoNote(chromatic=9, diatonic=5), finger=3).
+                    add(note=PianoNote(chromatic=8, diatonic=4), finger=2).
+                    add(note=PianoNote(chromatic=7, diatonic=4), finger=1).
+                    add(note=PianoNote(chromatic=5, diatonic=3), finger=3).
+                    add(note=PianoNote(chromatic=2, diatonic=1), finger=1))
+        self.assertEquals(fingering, expected)
 
+    def test_minor_melodic_right(self):
+        penalty = generate_fingering(tonic=PianoNote(diatonic=0, chromatic=0), scale=minor_melodic,
+                                     for_right_hand=True)
+        fingering = penalty.fingering
+        self.assertEquals(TestFingering.right_minor_melodic_fingering,
+                          fingering)
 
-def generate_right_fingering(starting_finger: int, fingering: Fingering, base_note: PianoNote, intervals: List[Interval],
-                             nbOctave: int = 1):
-    end_note = base_note.add_octave(nbOctave)
-    intervals = intervals * nbOctave
-    intervals = intervals[:-1]
-    return generate_fingering(base_note, intervals, fingering) + [(end_note, starting_finger)]
-
-
-def generate_fingering(currentNote: PianoNote, remainingInterval: List[Interval], fingering: Fingering):
-    l = []
-    for nextInterval in remainingInterval + [None]:  # adding a last element so the loop is processed once more
-        finger = fingering.get_finger(currentNote)
-        l.append((currentNote, finger))
-        if nextInterval:
-            currentNote += nextInterval
-    return l
+    def test_minor_melodic_left(self):
+        penalty = generate_fingering(tonic=PianoNote(diatonic=0, chromatic=0), scale=minor_melodic,
+                                     for_right_hand=False)
+        fingering = penalty.fingering
+        self.assertEquals(TestFingering.left_minor_melodic_fingering,
+                          fingering)

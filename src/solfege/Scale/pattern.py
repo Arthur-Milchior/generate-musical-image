@@ -111,7 +111,7 @@ ScalePattern[Interval](["Greek Dorian tonos (chromatic genus)"], [1, 1, 3, 2, 1,
 ScalePattern[Interval](["Major"], [2, 2, 1, 2, 2, 2, 1], 0, 0)
 ScalePattern[Interval](["Dominant seventh arpeggio"], [(4, 2), (3, 2), (3, 2), 2], 0, 0)
 ScalePattern[Interval](["Minor harmonic"], [2, 1, 2, 2, 1, 3, 1], 3, 0)
-ScalePattern[Interval](["Blues"], [(3, 2), 2, (1, 0), 1, (3, 2), 2], 3, 0)
+blues = ScalePattern[Interval](["Blues"], [(3, 2), 2, (1, 0), 1, (3, 2), 2], 3, 0)
 ScalePattern[Interval](["Pentatonic minor"], [(3, 2), 2, 2, (3, 2), 2], 3, 0)
 ScalePattern[Interval](["Pentatonic major"], [2, 2, (3, 2), 2, (3, 2)], 0, 0)
 ScalePattern[Interval](["Whole tone"], [(2, 1), (2, 1), (2, 1), (2, 1), (2, 1), (2, 2)], 0, 1)

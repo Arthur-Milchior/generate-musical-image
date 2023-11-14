@@ -26,11 +26,12 @@ class Penalty:
     """Todo: What is it?"""
     fingering: Any
 
-    """The finger on which the scale starts. 1 is thumb."""
-    starting_finger: Optional[FingerNumbers]
 
-    """The finger on which the scale ends. 1 is thumb."""
-    ending_finger: Optional[FingerNumbers]
+    """The finger on the tonic when starting/ending on the pinky side"""
+    pinky_side_tonic_finger: Optional[FingerNumbers]
+
+    """The finger on the tonic when starting/ending on the thumb side"""
+    thumb_side_tonic_finger: Optional[FingerNumbers]
 
     """The number of time a thumb have to pass over more than two half-tone"""
     thumb_non_adjacent: int
@@ -44,14 +45,14 @@ class Penalty:
     """Whether starts and end allow to nicely play a second octave"""
     nice_extremity: Optional[bool]
 
-    def __init__(self, fingering=None, starting_finger: Optional[FingerNumbers] = None,
+    def __init__(self, fingering=None, pinky_side_tonic_finger: Optional[FingerNumbers] = None,
                  thumb_non_adjacent: int = 0,
-                 ending_finger: Optional[FingerNumbers] = None, nb_thumb_over: int = 0,
+                 thumb_side_tonic_finger: Optional[FingerNumbers] = None, nb_thumb_over: int = 0,
                  nb_white_after_thumb: int = 0, nice_extremity: Optional[bool] = None):
         self.fingering = fingering
-        self.starting_finger = starting_finger
+        self.pinky_side_tonic_finger = pinky_side_tonic_finger
         self.thumb_non_adjacent = thumb_non_adjacent
-        self.ending_finger = ending_finger
+        self.thumb_side_tonic_finger = thumb_side_tonic_finger
         self.nb_thumb_over = nb_thumb_over
         self.nb_white_after_thumb = nb_white_after_thumb
         self.nice_extremity = nice_extremity
@@ -82,35 +83,35 @@ class Penalty:
     def __add__(self, other: Penalty):
         """Merge the penalty of self and other."""
         return Penalty(fingering=None,
-                       starting_finger=self._at_most_one_non_optional(self.starting_finger, other.starting_finger),
+                       pinky_side_tonic_finger=self._at_most_one_non_optional(self.pinky_side_tonic_finger, other.pinky_side_tonic_finger),
                        thumb_non_adjacent=+self.thumb_non_adjacent + other.thumb_non_adjacent,
-                       ending_finger=self._at_most_one_non_optional(self.ending_finger, other.ending_finger),
+                       thumb_side_tonic_finger=self._at_most_one_non_optional(self.thumb_side_tonic_finger, other.thumb_side_tonic_finger),
                        nb_thumb_over=+self.nb_thumb_over + other.nb_thumb_over,
                        nb_white_after_thumb=+self.nb_white_after_thumb + other.nb_white_after_thumb,
                        nice_extremity=self._and_optional(self.nice_extremity, other.nice_extremity))
 
     def add_starting_finger(self, finger, fingering=None):
-        assert self.starting_finger is None
+        assert self.pinky_side_tonic_finger is None
         c = self._copy(fingering=fingering)
-        c.starting_finger = finger
+        c.pinky_side_tonic_finger = finger
         return c
 
     def add_ending_finger(self, finger, fingering=None):
-        assert self.ending_finger is None
+        assert self.thumb_side_tonic_finger is None
         c = self._copy(fingering=fingering)
-        c.ending_finger = finger
+        c.thumb_side_tonic_finger = finger
         return c
 
     def add_thumb_non_adjacent(self, fingering=None):
-        return Penalty(fingering or self.fingering, self.starting_finger, self.thumb_non_adjacent + 1, self.ending_finger,
+        return Penalty(fingering or self.fingering, self.pinky_side_tonic_finger, self.thumb_non_adjacent + 1, self.thumb_side_tonic_finger,
                        self.nb_thumb_over, self.nb_white_after_thumb, self.nice_extremity)
 
     def add_white_after_thumb(self, fingering=None):
-        return Penalty(fingering or self.fingering, self.starting_finger, self.thumb_non_adjacent, self.ending_finger,
+        return Penalty(fingering or self.fingering, self.pinky_side_tonic_finger, self.thumb_non_adjacent, self.thumb_side_tonic_finger,
                        self.nb_thumb_over, self.nb_white_after_thumb + 1, self.nice_extremity)
 
     def add_passing_finger(self, fingering=None):
-        return Penalty(fingering or self.fingering, self.starting_finger, self.thumb_non_adjacent, self.ending_finger,
+        return Penalty(fingering or self.fingering, self.pinky_side_tonic_finger, self.thumb_non_adjacent, self.thumb_side_tonic_finger,
                        self.nb_thumb_over + 1, self.nb_white_after_thumb, self.nice_extremity)
 
     def set_bad_extremity(self, fingering=None):
@@ -148,14 +149,16 @@ class Penalty:
         if other.is_bad_extremity() and self.is_bad_extremity():
             return False
 
-        if self.starting_finger > other.starting_finger:
-            return False
-        if self.starting_finger < other.starting_finger:
-            return True
+        assert (self.pinky_side_tonic_finger is not None) == (other.pinky_side_tonic_finger is not None)
+        if self.pinky_side_tonic_finger is not None:
+            if self.pinky_side_tonic_finger > other.pinky_side_tonic_finger:
+                return False
+            if self.pinky_side_tonic_finger < other.pinky_side_tonic_finger:
+                return True
 
-        if self.ending_finger > other.ending_finger:
+        if self.thumb_side_tonic_finger > other.thumb_side_tonic_finger:
             return True
-        if self.ending_finger < other.ending_finger:
+        if self.thumb_side_tonic_finger < other.thumb_side_tonic_finger:
             return False
 
         if self.nb_white_after_thumb > other.nb_white_after_thumb:
@@ -166,11 +169,11 @@ class Penalty:
 
     def warning(self):
         text = ""
-        if self.ending_finger != self.starting_finger:
-            if self.starting_finger < 4:
-                text += "Starting finger is %s.\n" % self.starting_finger
-            if self.ending_finger > 1:
-                text += "Ending finger is %s.\n" % self.ending_finger
+        if self.thumb_side_tonic_finger != self.pinky_side_tonic_finger:
+            if self.pinky_side_tonic_finger < 4:
+                text += "Starting finger is %s.\n" % self.pinky_side_tonic_finger
+            if self.thumb_side_tonic_finger > 1:
+                text += "Ending finger is %s.\n" % self.thumb_side_tonic_finger
         if self.thumb_non_adjacent:
             text += "Number of thumb passing followed by an interval which is not adjacent: %s.\n" % self.thumb_non_adjacent
         return text
@@ -178,10 +181,10 @@ class Penalty:
     def acceptable(self):
         if self.thumb_non_adjacent:
             return False
-        if self.ending_finger != self.starting_finger:
-            if self.ending_finger not in [0, 1]:
+        if self.thumb_side_tonic_finger != self.pinky_side_tonic_finger:
+            if self.thumb_side_tonic_finger not in [0, 1]:
                 return False
-            if self.starting_finger not in [0, 4, 5]:
+            if self.pinky_side_tonic_finger not in [0, 4, 5]:
                 return False
         return True
 

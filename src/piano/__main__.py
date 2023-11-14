@@ -1,7 +1,7 @@
 print("Running piano")
 
 import sys
-from .fingering import *
+from .generate import *
 from solfege.Scale.pattern import ScalePattern
 import lily.lily
 import util
@@ -59,14 +59,14 @@ for scale in ScalePattern.class_to_patterns[ScalePattern]:
             anki_scale_file.write("\n%s,%s" % (scaleName, baseNameFile))
             if doCompile:
                 try:
-                    leftFingeringDic = generate_left_fingering_dic(baseNote, intervals)
+                    leftFingeringDic = generate_left_fingering(baseNote, intervals)
                 except TooBigAlteration as tba:
                     tba.addInformation("hand", "left")
                     tba.addInformation("base note", baseNote)
                     tba.addInformation("scale", scaleName)
                     raise
                 try:
-                    rightFingeringDic = generate_right_fingering_dic(baseNote, intervals)
+                    rightFingeringDic = generate_right_fingering(baseNote, intervals)
                 except TooBigAlteration as tba:
                     tba.addInformation("hand", "right")
                     tba.addInformation("base note", baseNote)
