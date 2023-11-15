@@ -68,7 +68,7 @@ for set_ in allChords:
                 chord.draw(f, color=color)
             try:
                 chordFile = "%s%s_chord_%s" % (localImage, fileName, color_name)
-                code = chord.lily(color=color)
+                code = chord.lily(use_color=color)
                 lily.lily.compile_(code, chordFile)
             except TooBigAlteration as tba:
                 raise

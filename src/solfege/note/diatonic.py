@@ -11,8 +11,8 @@ class DiatonicNote(AbstractNote, DiatonicInterval):
     # Saved as the interval from middle C
     IntervalClass = DiatonicInterval
 
-    def get_interval_name(self):
-        return ["C", "D", "E", "F", "G", "A", "B"][self.get_number() % 7]
+    def get_note_name(self):
+        return ["c", "d", "e", "f", "g", "a", "b"][self.get_number() % 7]
 
 
 class TestDiatonicNote(TestDiatonicInterval):
@@ -127,22 +127,22 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(DiatonicNote(-9).get_chromatic(), ChromaticNote(-15))
 
     def test_get_interval_name(self):
-        self.assertEquals(DiatonicNote(0).get_interval_name(), "C")
-        self.assertEquals(DiatonicNote(1).get_interval_name(), "D")
-        self.assertEquals(DiatonicNote(2).get_interval_name(), "E")
-        self.assertEquals(DiatonicNote(3).get_interval_name(), "F")
-        self.assertEquals(DiatonicNote(4).get_interval_name(), "G")
-        self.assertEquals(DiatonicNote(5).get_interval_name(), "A")
-        self.assertEquals(DiatonicNote(6).get_interval_name(), "B")
-        self.assertEquals(DiatonicNote(7).get_interval_name(), "C")
-        self.assertEquals(DiatonicNote(8).get_interval_name(), "D")
-        self.assertEquals(DiatonicNote(9).get_interval_name(), "E")
-        self.assertEquals(DiatonicNote(-1).get_interval_name(), "B")
-        self.assertEquals(DiatonicNote(-2).get_interval_name(), "A")
-        self.assertEquals(DiatonicNote(-3).get_interval_name(), "G")
-        self.assertEquals(DiatonicNote(-4).get_interval_name(), "F")
-        self.assertEquals(DiatonicNote(-5).get_interval_name(), "E")
-        self.assertEquals(DiatonicNote(-6).get_interval_name(), "D")
-        self.assertEquals(DiatonicNote(-7).get_interval_name(), "C")
-        self.assertEquals(DiatonicNote(-8).get_interval_name(), "B")
-        self.assertEquals(DiatonicNote(-9).get_interval_name(), "A")
+        self.assertEquals(DiatonicNote(0).get_note_name(), "c")
+        self.assertEquals(DiatonicNote(1).get_note_name(), "d")
+        self.assertEquals(DiatonicNote(2).get_note_name(), "e")
+        self.assertEquals(DiatonicNote(3).get_note_name(), "f")
+        self.assertEquals(DiatonicNote(4).get_note_name(), "g")
+        self.assertEquals(DiatonicNote(5).get_note_name(), "a")
+        self.assertEquals(DiatonicNote(6).get_note_name(), "b")
+        self.assertEquals(DiatonicNote(7).get_note_name(), "c")
+        self.assertEquals(DiatonicNote(8).get_note_name(), "d")
+        self.assertEquals(DiatonicNote(9).get_note_name(), "e")
+        self.assertEquals(DiatonicNote(-1).get_note_name(), "b")
+        self.assertEquals(DiatonicNote(-2).get_note_name(), "a")
+        self.assertEquals(DiatonicNote(-3).get_note_name(), "g")
+        self.assertEquals(DiatonicNote(-4).get_note_name(), "f")
+        self.assertEquals(DiatonicNote(-5).get_note_name(), "e")
+        self.assertEquals(DiatonicNote(-6).get_note_name(), "d")
+        self.assertEquals(DiatonicNote(-7).get_note_name(), "c")
+        self.assertEquals(DiatonicNote(-8).get_note_name(), "b")
+        self.assertEquals(DiatonicNote(-9).get_note_name(), "a")

@@ -35,11 +35,11 @@ class Alteration(solfege.interval.chromatic.ChromaticInterval):
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.get_number() + 2]
 
-    def get_interval_name(self, forFile=False):
+    def get_interval_name(self, for_file=False):
         """The name of this note.
 
-        Args: `forFile` -- whether we should avoid non ascii symbol"""
-        if forFile:
+        Args: `for_file` -- whether we should avoid non ascii symbol"""
+        if for_file:
             return ["♭♭", "♭", "", "#", "𝄪"][self.get_number() + 2]
         else:
             return ["double bemol", "bemol", "", "sharp", "double sharp"][self.get_number() + 2]

@@ -1,10 +1,10 @@
 print("Running piano")
 
 import sys
-from .generate import *
-from solfege.Scale.pattern import ScalePattern
+
 import lily.lily
 import util
+from solfege.Scale.pattern import ScalePattern
 
 leafFolder = "piano/scales/"
 imageFolder = util.imageFolder + leafFolder
@@ -112,9 +112,9 @@ for scale in ScalePattern.class_to_patterns[ScalePattern]:
                     ("reverse", leftDecreasing[:-1] + leftIncreasing, rightDecreasing[:-1] + rightIncreasing, 2)
                     ]:
                     for hand, lilyCode in [
-                        ("left", lily.lily.side(key, leftFingering, "left")),
-                        ("right", lily.lily.side(key, rightFingering, "right")),
-                        ("both", lily.lily.both(key, leftFingering, rightFingering))
+                        ("left", lily.lily.lilipond_code_for_one_hand(key, leftFingering, "left")),
+                        ("right", lily.lily.lilipond_code_for_one_hand(key, rightFingering, "right")),
+                        ("both", lily.lily.lilypond_code_for_two_hands(key, leftFingering, rightFingering))
                     ]:
                         fileName = "%s-%s-%s-%d-%s" % (scaleName, baseNameFile, hand, nbOctave, kind)
                         anki += (",<img src='%s.svg'>" % fileName)

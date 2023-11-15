@@ -1,4 +1,4 @@
-from solfege.interval.interval import Interval, TestChromaticInterval
+from solfege.interval.interval import Interval, TestInterval
 from solfege.note import ChromaticNote, DiatonicNote
 
 
@@ -23,24 +23,31 @@ class Note(Interval, ChromaticNote):
             chromatic=chromatic.get_number()
         )
 
-    def get_interval_name(self, forFile=None):
+    def get_note_name(self, for_file_name=None):
         """The name of this note.
 
-        Args: `forFile` -- whether we should avoid non ascii symbol"""
+        Args: `for_file_name` -- whether we should avoid non ascii symbol"""
         diatonic = self.get_diatonic()
-        try:
-            alteration = self.get_alteration()
-        except TooBigAlteration as tba:
-            tba.addInformation("Note", self)
-            raise
-        return f"{diatonic.get_interval_name().upper()}{alteration.get_interval_name(forFile=forFile)}"
+        alteration = self.get_alteration()
+        return f"{diatonic.get_interval_name().upper()}{alteration.get_interval_name(for_file_name=for_file_name)}"
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""
         return self.get_alteration().printable()
 
+    def lily(self, use_color=True):
+        """Lilypond representation of this note. Colored according to
+        getColor, unless color is set to False.
+        """
+        diatonic = self.get_diatonic()
+        alteration = self.get_alteration()
+        lily_code_for_black_note = f"{diatonic.get_note_name()}{alteration.lily()}{self.get_diatonic().lily_octave()}"
+        if not use_color:
+            return lily_code_for_black_note
+        return """\\tweak NoteHead.color  #(x11-color '{self.get_color()})\n{lily_code_for_black_note}\n"""
 
-class TestChromaticNote(TestChromaticInterval):
+
+class TestNote(TestInterval):
     C3 = Note(chromatic=-12, diatonic=-7)
     B3 = Note(chromatic=-1, diatonic=-1)
     C4 = Note(chromatic=0, diatonic=0)
@@ -114,3 +121,11 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertTrue(self.C4.equals_modulo_octave(self.C5))
         self.assertTrue(self.C4.equals_modulo_octave(self.C3))
         self.assertTrue(self.C5.equals_modulo_octave(self.C3))
+
+    def test_lily_black(self):
+        self.assertEquals(self.C4.lily(use_color=False), "c'")
+        self.assertEquals(self.C3.lily(use_color=False), "c")
+        self.assertEquals(self.C5.lily(use_color=False), "c''")
+        self.assertEquals(self.B3.lily(use_color=False), "b")
+
+    #todo Test wwith color

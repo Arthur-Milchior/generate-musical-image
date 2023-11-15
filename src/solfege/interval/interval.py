@@ -117,7 +117,7 @@ ChromaticInterval.RelatedSolfegeClass = Interval
 Interval.IntervalClass = Interval
 
 
-class TestChromaticInterval(unittest.TestCase):
+class TestInterval(unittest.TestCase):
     minus_octave = Interval(-12, -7)
     minus_second_minor = Interval(-1, -1)
     unison = Interval(0, 0)

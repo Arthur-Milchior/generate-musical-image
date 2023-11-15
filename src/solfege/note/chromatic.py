@@ -12,9 +12,9 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         return "black"
 
     def get_note_name(self, withOctave=False):
-        noteName = ["C", "C#", "D", "E♭", "E", "F", "F#", "G", "A♭", "A", "B♭", "B"][self.get_number() % 12]
+        note_name = ["C", "C#", "D", "E♭", "E", "F", "F#", "G", "A♭", "A", "B♭", "B"][self.get_number() % 12]
         octave = str(self.get_octave(scientificNotation=True)) if withOctave else ""
-        return noteName + octave
+        return note_name + octave
 
     def get_note(self, clazz=None):
         """A solfège note. Diatonic note is guessed. The default class is
@@ -28,39 +28,6 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         diatonic = diatonic.get_number()
         chromatic = self.get_number()
         return clazz(diatonic=diatonic, chromatic=chromatic)
-
-    def lily(self, color=True):
-        """Lilypond representation of this note. Colored according to
-        getColor, unless color is set to False.
-        """
-        if ("lily", color) not in self.dic:
-            diatonic = self.get_diatonic()
-            try:
-                alteration = self.get_alteration()
-            except TooBigAlteration as tba:
-                tba.addInformation("Note", self)
-                tba.addInformation("Base note", self.base.get_note())
-                tba.addInformation("Base pos", self.base)
-                tba.addInformation("interval", self.get_interval())
-                tba.addInformation("Role", self.role)
-                raise
-            lily = f"{diatonic.get_interval_name()}{alteration.lily()}{self.get_diatonic().lily_octave()}"
-            if color:
-                color = self.get_color()
-                if color is None:
-                    exception = MyException()
-                    exception.addInformation("Note", self)
-                    exception.addInformation("Base pos", self.base)
-                    if self.base:
-                        exception.addInformation("Base note", self.base.get_note())
-                    else:
-                        exception.addInformation("Base note", "no base")
-                    exception.addInformation("interval", self.get_interval())
-                    exception.addInformation("Role", self.role)
-                    raise exception
-                lily = """\\tweak NoteHead.color  #(x11-color '%s)\n%s\n""" % (color, lily)
-            self.dic[("lily", color)] = lily
-        return self.dic[("lily", color)]
 
 
 class TestChromaticNote(TestChromaticInterval):
