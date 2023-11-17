@@ -3,7 +3,7 @@ import unittest
 from typing import List
 
 from piano.pianonote import PianoNote
-from solfege.interval.alteration import TooBigAlteration
+from solfege.note import Note
 
 lilyHeader = """"""
 lowLimit = {"left": -14, "right": -3}
@@ -42,11 +42,11 @@ def _staff(key: str, fingering: List[PianoNote], for_right_hand: bool, use_color
 
 
 def comment(fingering: List[PianoNote], for_right_hand):
-    return f"""%%{"right" if for_right_hand else "left"} hand fingering:{[note.finger for note in fingering]}"""
+    return f"""{"right" if for_right_hand else "left"} hand fingering:{[note.finger for note in fingering]}"""
 
 
 # octaveToLength={1:80, 2:135,4:240}
-_lilyHeader = """\\version "2.24.2"
+_lilyHeader = """\\version "2.20.0"
 \\header{
   tagline=""
 }"""
@@ -61,7 +61,7 @@ def lilypond_code_for_one_hand(key: str, fingering: List[PianoNote], for_right_h
 
     The bass/treble key depends on the hand
     """
-    return f"""{comment(fingering, for_right_hand=for_right_hand)}
+    return f"""%%{comment(fingering, for_right_hand=for_right_hand)}
 {_lilyHeader}
 \\score{{
 {_indent(_staff(key, fingering, for_right_hand=for_right_hand, use_color=use_color))}
@@ -74,8 +74,7 @@ def lilypond_code_for_two_hands(key: str, left_fingering: List[PianoNote], right
 
     The notes are decorated with the fingering given in arguments.
     """
-    return f"""{comment(left_fingering, True)}
-{comment(right_fingering, False)}
+    return f"""%%{comment(left_fingering, False)}, {comment(right_fingering, True)}
 {_lilyHeader}
 \\score{{
   \\new PianoStaff<<
@@ -86,7 +85,7 @@ def lilypond_code_for_two_hands(key: str, left_fingering: List[PianoNote], right
 
 
 def chord(notes, use_color=True):
-    return f"""\\version "2.24.2"
+    return f"""\\version "2.20.0"
 \\header{{
   tagline=""
 }}
@@ -99,8 +98,10 @@ def chord(notes, use_color=True):
 }}"""
 
 
-def compile_(code, fileName, extension="svg"):
-    """Write `code` in `filename`, and compile it in a file with the given extension"""
+def compile_(code, fileName, extension="svg", execute_lily: bool = True):
+    """Write `code` in `filename`. If `execute_lily`, compile it in a file with the given extension
+
+    `execute_lily` should be False only for tests, to save time."""
     if os.path.isfile(fileName + ".ly"):
         with open(fileName + ".ly", "r") as file:
             old_code = file.read()
@@ -109,33 +110,36 @@ def compile_(code, fileName, extension="svg"):
                 return
     with open(fileName + ".ly", "w") as file:
         file.write(code)
+    if not execute_lily:
+        return
     if extension == "svg":
-        os.system("""%s -dpreview -dbackend=svg -o "%s"  "%s.ly" """ % (lilyProgram, fileName, fileName))
-    elif extension == "pdf":
-        os.system("""lilypond  -o "%s" "%s.ly" """ % (fileName, fileName))
-    os.system("""mv -f "%s.preview.%s" "%s.%s" """ % (fileName, extension, fileName, extension))
+        command = f"""{lilyProgram} -dpreview -dbackend=svg -o "{fileName}"  "{fileName}.ly" """
+    else:
+        assert extension == "pdf"
+        command = f"""lilypond  -o "{fileName}" "{fileName}.ly" """
+    os.system(command)
+    os.system(f"""mv -f "{fileName}.preview.{extension}" "{fileName}.{extension}" """)
     # os.system("""inkscape --verb=FitCanvasToDrawing --verb=FileSave --verb=FileClose "%s.svg"&"""%(folder_fileName))
     # os.system("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
 
 
 class TestLily(unittest.TestCase):
     c_pentatonic_minor_5th_right = [
-        PianoNote(chromatic=0, diatonic=0, finger=1),
-        PianoNote(chromatic=3, diatonic=2, finger=2),
-        PianoNote(chromatic=7, diatonic=4, finger=3),
-        PianoNote(chromatic=12, diatonic=7, finger=5),
+        PianoNote(Note(chromatic=0, diatonic=0), finger=1),
+        PianoNote(Note(chromatic=3, diatonic=2), finger=2),
+        PianoNote(Note(chromatic=7, diatonic=4), finger=3),
+        PianoNote(Note(chromatic=12, diatonic=7), finger=5),
     ]
 
     c_pentatonic_minor_5th_left = [
-        PianoNote(chromatic=-12, diatonic=-7, finger=5),
-        PianoNote(chromatic=-9, diatonic=-5, finger=3),
-        PianoNote(chromatic=-5, diatonic=-3, finger=2),
-        PianoNote(chromatic=0, diatonic=0, finger=1),
+        PianoNote(Note(chromatic=-12, diatonic=-7), finger=5),
+        PianoNote(Note(chromatic=-9, diatonic=-5), finger=3),
+        PianoNote(Note(chromatic=-5, diatonic=-3), finger=2),
+        PianoNote(Note(chromatic=0, diatonic=0), finger=1),
     ]
 
-    both_hand_lily = """%%right hand fingering:[5, 3, 2, 1]
-%%left hand fingering:[1, 2, 3, 5]
-\\version "2.24.2"
+    both_hand_lily = """%%left hand fingering:[5, 3, 2, 1], right hand fingering:[1, 2, 3, 5]
+\\version "2.20.0"
 \\header{
   tagline=""
 }
@@ -160,7 +164,8 @@ class TestLily(unittest.TestCase):
     bar""")
 
     def test_for_list_of_notes(self):
-        self.assertEquals(_for_list_of_notes([PianoNote(chromatic=0, diatonic=0, finger=1)], use_color=False), "c'-1")
+        self.assertEquals(_for_list_of_notes([PianoNote(Note(chromatic=0, diatonic=0), finger=1)], use_color=False),
+                          "c'-1")
         self.assertEquals(_for_list_of_notes(self.c_pentatonic_minor_5th_right, use_color=False),
                           "c'-1 ees'-2 g'-3 c''-5")
 
@@ -181,7 +186,7 @@ class TestLily(unittest.TestCase):
             self.assertEquals(
                 generated,
                 """%%right hand fingering:[1, 2, 3, 5]
-    \\version "2.24.2"
+    \\version "2.20.0"
     \\header{
       tagline=""
     }
@@ -201,7 +206,7 @@ class TestLily(unittest.TestCase):
         self.assertEquals(
             generated,
             """%%left hand fingering:[5, 3, 2, 1]
-\\version "2.24.2"
+\\version "2.20.0"
 \\header{
   tagline=""
 }
@@ -218,15 +223,14 @@ class TestLily(unittest.TestCase):
         generated = lilypond_code_for_two_hands(key="g", left_fingering=self.c_pentatonic_minor_5th_left,
                                                 right_fingering=self.c_pentatonic_minor_5th_right,
                                                 use_color=False)
-        print(generated)
         self.assertEquals(
             generated, self.both_hand_lily
-            )
+        )
 
     def test_chord(self):
         generated = chord(self.c_pentatonic_minor_5th_right, use_color=False)
         self.assertEquals(generated,
-                          """\\version "2.24.2"
+                          """\\version "2.20.0"
 \\header{
   tagline=""
 }
@@ -241,7 +245,7 @@ class TestLily(unittest.TestCase):
     def test_compile(self):
         lily_path = "test.ly"
         if os.path.isfile(lily_path):
-            os.remove(lily_path) # in case it remains from failed test
+            os.remove(lily_path)  # in case it remains from failed test
         compile_(self.both_hand_lily, "test")
         self.assertTrue(os.path.isfile(lily_path))
         with open(lily_path, "r") as file:

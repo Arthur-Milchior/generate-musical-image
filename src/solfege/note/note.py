@@ -1,5 +1,6 @@
 from solfege.interval.interval import Interval, TestInterval
 from solfege.note import ChromaticNote, DiatonicNote
+from solfege.note.alteration import TEXT, LILY
 
 
 class Note(Interval, ChromaticNote):
@@ -23,13 +24,13 @@ class Note(Interval, ChromaticNote):
             chromatic=chromatic.get_number()
         )
 
-    def get_note_name(self, for_file_name=None):
+    def get_note_name(self, usage: str):
         """The name of this note.
 
-        Args: `for_file_name` -- whether we should avoid non ascii symbol"""
+        Args: usage -- see Alteration file."""
         diatonic = self.get_diatonic()
         alteration = self.get_alteration()
-        return f"{diatonic.get_interval_name().upper()}{alteration.get_interval_name(for_file_name=for_file_name)}"
+        return f"{diatonic.get_note_name(usage=usage)}{alteration.get_note_name(usage=usage)}"
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""
@@ -41,18 +42,30 @@ class Note(Interval, ChromaticNote):
         """
         diatonic = self.get_diatonic()
         alteration = self.get_alteration()
-        lily_code_for_black_note = f"{diatonic.get_note_name()}{alteration.lily()}{self.get_diatonic().lily_octave()}"
+        lily_code_for_black_note = f"{diatonic.get_note_name(usage=LILY)}{alteration.lily()}{self.get_diatonic().lily_octave()}"
         if not use_color:
             return lily_code_for_black_note
         return """\\tweak NoteHead.color  #(x11-color '{self.get_color()})\n{lily_code_for_black_note}\n"""
+
+    def adjacent(self, other):
+        """Whether `other` is at most two half-tone away"""
+        return abs(other.get_number() - self.get_number()) <= 2
+
+    def is_black_key_on_piano(self):
+        """Whether this note corresponds to a black note of the keyboard"""
+        blacks = {1, 3, 6, 8, 10}
+        return (self.get_chromatic().get_number() % 12) in blacks
 
 
 class TestNote(TestInterval):
     C3 = Note(chromatic=-12, diatonic=-7)
     B3 = Note(chromatic=-1, diatonic=-1)
+    A3 = Note(chromatic=-3, diatonic=-2)
+    B3_flat = Note(chromatic=-2, diatonic=-1)
     C4 = Note(chromatic=0, diatonic=0)
     C4_sharp = Note(chromatic=1, diatonic=1)
     D4 = Note(chromatic=2, diatonic=1)
+    D4_sharp = Note(chromatic=3, diatonic=1)
     E4b = Note(chromatic=3, diatonic=2)
     F4 = Note(chromatic=5, diatonic=3)
     C5 = Note(chromatic=12, diatonic=7)
@@ -128,4 +141,17 @@ class TestNote(TestInterval):
         self.assertEquals(self.C5.lily(use_color=False), "c''")
         self.assertEquals(self.B3.lily(use_color=False), "b")
 
-    #todo Test wwith color
+    def test_is_black_key(self):
+        self.assertFalse(self.C4.is_black_key_on_piano())
+        self.assertTrue(self.C4_sharp.is_black_key_on_piano())
+
+    def test_adjacent(self):
+        self.assertTrue(self.C4.adjacent(self.C4))
+        self.assertTrue(self.C4.adjacent(self.B3))
+        self.assertTrue(self.C4.adjacent(self.C4_sharp))
+        self.assertTrue(self.C4.adjacent(self.D4))
+        self.assertFalse(self.C4.adjacent(self.D4_sharp))
+        self.assertFalse(self.C4.adjacent(self.A3))
+        self.assertTrue(self.C4.adjacent(self.B3_flat))
+
+    # todo Test wwith color

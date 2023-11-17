@@ -14,28 +14,17 @@ class Interval(ChromaticInterval):
 
     def __init__(self, chromatic: Optional[int] = None, diatonic: Optional[int] = None,
                  alteration: Optional[int] = None,
-                 toCopy: Optional[Interval] = None,
                  none=None, **kwargs):
-        """If toCopy is present, it is copied
-
-        Otherwise, chromatic and diatonic are used.
+        """chromatic and diatonic are used.
         Otherwise, if chromatic is present, it supposed to be the exact value.
         otherwise, alteration should be present, and chromatic is the sum of diatonic and alteration
         """
-        assert (alteration is not None or chromatic is not None or toCopy is not None or none is not None)
+        assert (alteration is not None or chromatic is not None or none is not None)
         if none:
             super().__init__(none=none)
             assert (chromatic is None)
             assert (diatonic is None)
             assert (alteration is None)
-            assert (toCopy is None)
-        elif toCopy:
-            assert (chromatic is None)
-            assert (diatonic is None)
-            assert (alteration is None)
-            assert (isinstance(toCopy, Interval))
-            super().__init__(chromatic=toCopy.get_number())
-            self._diatonic = toCopy.getDiatonic()
         else:
             self._diatonic = self.__class__.DiatonicClass(diatonic=diatonic)
             if chromatic is not None:

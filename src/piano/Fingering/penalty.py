@@ -4,6 +4,8 @@ import copy
 import unittest
 from typing import Union, Optional, Any
 
+from piano.Fingering.fingering import Fingering
+
 FingerNumbers = int # 1 to 5
 
 
@@ -23,9 +25,7 @@ class Penalty:
     * the number of white after a thumb is higher
     """
 
-    """Todo: What is it?"""
-    fingering: Any
-
+    fingering: Optional[Fingering]
 
     """The finger on the tonic when starting/ending on the pinky side"""
     pinky_side_tonic_finger: Optional[FingerNumbers]
@@ -45,10 +45,13 @@ class Penalty:
     """Whether starts and end allow to nicely play a second octave"""
     nice_extremity: Optional[bool]
 
-    def __init__(self, fingering=None, pinky_side_tonic_finger: Optional[FingerNumbers] = None,
+    """The number of times two far away consecutive notes are played by 3rd and 4rth finger"""
+    number_of_3_and_4_non_adjacent: int
+
+    def __init__(self, fingering:Optional[Fingering]=None, pinky_side_tonic_finger: Optional[FingerNumbers] = None,
                  thumb_non_adjacent: int = 0,
                  thumb_side_tonic_finger: Optional[FingerNumbers] = None, nb_thumb_over: int = 0,
-                 nb_white_after_thumb: int = 0, nice_extremity: Optional[bool] = None):
+                 nb_white_after_thumb: int = 0, nice_extremity: Optional[bool] = None, number_of_spaced_3_and_four:int =0):
         self.fingering = fingering
         self.pinky_side_tonic_finger = pinky_side_tonic_finger
         self.thumb_non_adjacent = thumb_non_adjacent
@@ -56,6 +59,7 @@ class Penalty:
         self.nb_thumb_over = nb_thumb_over
         self.nb_white_after_thumb = nb_white_after_thumb
         self.nice_extremity = nice_extremity
+        self.number_of_3_and_4_non_adjacent = number_of_spaced_3_and_four
 
     @staticmethod
     def _and_optional(left: Optional[int], right: Optional[int]):
@@ -102,28 +106,32 @@ class Penalty:
         c.thumb_side_tonic_finger = finger
         return c
 
+    def add_3_and_four_non_adjacent(self, fingering=None):
+        return Penalty(fingering or self.fingering, self.pinky_side_tonic_finger, self.thumb_non_adjacent + 1, self.thumb_side_tonic_finger,
+                       self.nb_thumb_over, self.nb_white_after_thumb, self.nice_extremity, self.number_of_3_and_4_non_adjacent + 1)
+
     def add_thumb_non_adjacent(self, fingering=None):
         return Penalty(fingering or self.fingering, self.pinky_side_tonic_finger, self.thumb_non_adjacent + 1, self.thumb_side_tonic_finger,
-                       self.nb_thumb_over, self.nb_white_after_thumb, self.nice_extremity)
+                       self.nb_thumb_over, self.nb_white_after_thumb, self.nice_extremity, self.number_of_3_and_4_non_adjacent)
 
     def add_white_after_thumb(self, fingering=None):
         return Penalty(fingering or self.fingering, self.pinky_side_tonic_finger, self.thumb_non_adjacent, self.thumb_side_tonic_finger,
-                       self.nb_thumb_over, self.nb_white_after_thumb + 1, self.nice_extremity)
+                       self.nb_thumb_over, self.nb_white_after_thumb + 1, self.nice_extremity, self.number_of_3_and_4_non_adjacent)
 
     def add_passing_finger(self, fingering=None):
         return Penalty(fingering or self.fingering, self.pinky_side_tonic_finger, self.thumb_non_adjacent, self.thumb_side_tonic_finger,
-                       self.nb_thumb_over + 1, self.nb_white_after_thumb, self.nice_extremity)
+                       self.nb_thumb_over + 1, self.nb_white_after_thumb, self.nice_extremity, self.number_of_3_and_4_non_adjacent)
 
     def set_bad_extremity(self, fingering=None):
-        assert self.nice_extremity is None
-        c = self._copy(fingering=fingering)
-        c.nice_extremity = False
-        return c
+        return self.set_extremity(False, fingering=fingering)
 
     def set_good_extremity(self, fingering=None):
+        return self.set_extremity(True, fingering=fingering)
+
+    def set_extremity(self, niceness:bool, fingering=None):
         assert self.nice_extremity is None
         c = self._copy(fingering=fingering)
-        c.nice_extremity = True
+        c.nice_extremity = niceness
         return c
 
     def is_bad_extremity(self):
@@ -149,6 +157,9 @@ class Penalty:
         if other.is_bad_extremity() and self.is_bad_extremity():
             return False
 
+        if self.number_of_3_and_4_non_adjacent != other.number_of_3_and_4_non_adjacent:
+            return self.number_of_3_and_4_non_adjacent > other.number_of_3_and_4_non_adjacent
+
         assert (self.pinky_side_tonic_finger is not None) == (other.pinky_side_tonic_finger is not None)
         if self.pinky_side_tonic_finger is not None:
             if self.pinky_side_tonic_finger > other.pinky_side_tonic_finger:
@@ -156,15 +167,12 @@ class Penalty:
             if self.pinky_side_tonic_finger < other.pinky_side_tonic_finger:
                 return True
 
-        if self.thumb_side_tonic_finger > other.thumb_side_tonic_finger:
-            return True
-        if self.thumb_side_tonic_finger < other.thumb_side_tonic_finger:
-            return False
+        if self.thumb_side_tonic_finger != other.thumb_side_tonic_finger:
+            return self.thumb_side_tonic_finger > other.thumb_side_tonic_finger
 
-        if self.nb_white_after_thumb > other.nb_white_after_thumb:
-            return True
-        if self.nb_white_after_thumb < other.nb_white_after_thumb:
-            return False
+        if self.nb_white_after_thumb != other.nb_white_after_thumb:
+            return self.nb_white_after_thumb > other.nb_white_after_thumb
+
         return False
 
     def warning(self):

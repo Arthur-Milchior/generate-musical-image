@@ -16,17 +16,13 @@ class _NoteWithTonic(AbstractNote):
     role: Dict[Optional[str]]
     _tonic: Optional[_NoteWithTonic]
 
-    def __init__(self, toCopy: Optional[_NoteWithTonic] = None, tonic: Union[bool, _NoteWithTonic] = False,
+    def __init__(self, tonic: Union[bool, _NoteWithTonic] = False,
                  **kwargs):
         """
         Same as the note type we inherit.
         Plus the tonic of the scale we are considering here."""
         self._tonic = None
-        super().__init__(toCopy=toCopy, **kwargs)
-        if isinstance(toCopy, _NoteWithTonic):
-            tonic = toCopy.get_tonic()
-            assert (tonic is False)
-            return
+        super().__init__(**kwargs)
         if isinstance(tonic, _NoteWithTonic):
             self.set_tonic(tonic)
         elif tonic is True:
@@ -49,13 +45,11 @@ class _NoteWithTonic(AbstractNote):
         # Testing with get_number because the tonic of the tonic is itself, so no need to recurse
         if not super().__eq__(other):
             return False
-        self_tonic = self.get_tonic()
-        other_tonic = other.get_tonic()
-        if self_tonic is None:
-            return other_tonic is None
-        if other_tonic is None:
+        if self.get_tonic() is None:
+            return other.get_tonic() is None
+        if other.get_tonic() is None:
             return False
-        return self_tonic.get_number() == other_tonic.get_number()
+        return self.get_tonic().get_number() == other.get_tonic().get_number()
 
     def __sub__(self, other: Union[_NoteWithTonic, AbstractInterval]):
         if isinstance(other, _NoteWithTonic):

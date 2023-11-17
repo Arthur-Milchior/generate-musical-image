@@ -25,7 +25,7 @@ for scale in ScalePattern.class_to_patterns[ScalePattern]:
     name = scale.get_the_first_of_the_name()
     intervals = scale.get_intervals()
     folder_scale = imageFolder + name
-    ensureFolder(folder_scale)
+    ensure_folder(folder_scale)
     web = """<html><head><title>All transposable %s on a standard guitar</title></head><body>Each transposable version of the scale %s.<br/> Successive notes are separated by %s half-notes
 <hr/>""" % (name, name, str(intervals))
     for string in range(1, 7):

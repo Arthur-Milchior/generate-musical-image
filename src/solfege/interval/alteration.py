@@ -1,4 +1,7 @@
-import solfege.interval.chromatic
+from solfege.interval.chromatic import ChromaticInterval
+
+# The usage of name of the alternations
+
 
 
 class TooBigAlteration(Exception):
@@ -10,7 +13,7 @@ class TooBigAlteration(Exception):
         return "number %d corresponds to no Alteration.\n%s" % (self.value, super().__str__())
 
 
-class Alteration(solfege.interval.chromatic.ChromaticInterval):
+class Alteration(ChromaticInterval):
     """Represents either bb, b, flat, #, or 𝄪.
 
     Raise in init for any other value."""
@@ -30,16 +33,3 @@ class Alteration(solfege.interval.chromatic.ChromaticInterval):
 
     def get_in_base_octave(self):
         raise Exception("Alteration has no base octave")
-
-    def lily(self):
-        """Text to obtain this alteration in Lilypond"""
-        return ["eses", "es", "", "is", "isis"][self.get_number() + 2]
-
-    def get_interval_name(self, for_file=False):
-        """The name of this note.
-
-        Args: `for_file` -- whether we should avoid non ascii symbol"""
-        if for_file:
-            return ["♭♭", "♭", "", "#", "𝄪"][self.get_number() + 2]
-        else:
-            return ["double bemol", "bemol", "", "sharp", "double sharp"][self.get_number() + 2]

@@ -45,7 +45,7 @@ greatestSet = allChords.getGreatests()
 longest = len(greatestSet)
 for set_ in allChords:
     chord = set_.getOneElement()
-    kind = chord.kind()
+    kind = chord.direction()
     minPos = chord.getMinPos()
     pattern_name = chord.getPatternName()
     if pattern_name is None or kind is None:
@@ -56,12 +56,12 @@ for set_ in allChords:
 
     localImage = "%s%s" % (imageFolder, subfolder)
     localAnki = "%s%s" % (ankiFolder, subfolder)
-    ensureFolder(localAnki)
-    ensureFolder(localImage)
+    ensure_folder(localAnki)
+    ensure_folder(localImage)
     ankiLine = "\n%s,%s,%s,%s,%s," % (kind, minPos.get_note_name(withOctave=True), set_.third, set_.fifth, set_.quality)
     for chord in set_:
         for (color_name, color) in [("color", True), ("black", False)]:
-            fileName = chord.fileName()
+            fileName = chord.file_name()
             fileName_color = "%s_%s.svg" % (fileName, color_name)
             ankiLine += """",<img src="%s"/>""" % (fileName_color)
             with open(localImage + fileName_color, "w") as f:
@@ -73,14 +73,14 @@ for set_ in allChords:
             except TooBigAlteration as tba:
                 raise
 
-        ankiLine += """,%s,<img src="%s"/>""" % (chord.anki(), chordFile)
+        ankiLine += """,%s,<img src="%s"/>""" % (chord.content_of_anki_csv(), chordFile)
         # index[kind] += """<li><a href='%s'>%s</li>"""%(fileName, patternName)
     ankiLine += ",,,,,,," * (len(set_) - longest)
     anki[kind].add(ankiLine)
 
-ensureFolder(ankiFolder)
-ensureFolder(imageFolder + "transposable/")
-ensureFolder(imageFolder + "open/")
+ensure_folder(ankiFolder)
+ensure_folder(imageFolder + "transposable/")
+ensure_folder(imageFolder + "open/")
 for kind in anki:
     # index[kind] += "</ul></body></hmtl>"
     with open(ankiFolder + "anki_" + kind + ".csv", "w") as f:

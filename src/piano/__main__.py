@@ -1,213 +1,404 @@
-print("Running piano")
-
+import os
+import pathlib
 import sys
+from dataclasses import dataclass
+from typing import List, Union
 
-import lily.lily
 import util
+from lily.lily import lilypond_code_for_two_hands, lilypond_code_for_one_hand, compile_
+from piano.Fingering.fingering import Fingering
+from piano.generate import generate_fingering
+from piano.pianonote import PianoNote
 from solfege.Scale.pattern import ScalePattern
+from solfege.clef import clefs
+from solfege.note import Note
+from solfege.note.alteration import TEXT, FILE_NAME, LILY, MONOSPACE
 
 leafFolder = "piano/scales/"
 imageFolder = util.imageFolder + leafFolder
 ankiFolder = util.ankiFolder + leafFolder
 
+INCREASING = "increasing"
+DECREASING = "decreasing"
+TOTAL = "total"
+REVERSE = "reverse"
+
 doCompile = True
-root_html = """
-<html><head><title>Fingerings of every scales</title></head><body>
+
+"""The root of the web page to navigate fingering of scales."""
+lines_of_root_html = ["""<html><head><title>Fingerings of every scales</title></head><body>
 <header><h1>Fingerings of every scales</h1></header>
-<ul>
-"""
+<ul>"""]
 
-anki = ""
-dont_exists = []
-for scale in ScalePattern.class_to_patterns[ScalePattern]:
-    scaleName = scale.get_the_first_of_the_name()
-    number_of_flats = scale.get_number_of_flats()
-    number_of_sharps = scale.get_number_of_sharps()
-    intervals = scale.get_intervals()
-    root_html += """<li><a href='%s'>%s</a></li>""" % (scaleName, scaleName)
-    scale_html = """
-    <html><head><title>Fingerings of %s</title></head><body>
-        <header><h1>Fingerings of %s</h1></header>
-    <ul>
-    """ % (scaleName, scaleName)
-    folder_scale = imageFolder + "%s/" % scaleName
-    util.ensureFolder(folder_scale)
-    with open("""%s/anki.csv""" % folder_scale, "w") as anki_scale_file:
-        for (baseNote, nbBemol_) in twelve_notes:
-            baseNameTitle = baseNote.get_interval_name()
-            baseNameFile = baseNote.get_interval_name("file")
-            scale_html += """<li><a href='%s'>%s</a></li>""" % (baseNameFile, baseNameTitle)
-            scale_note_html = """
-        <html><head><title>Fingerings of %s %s</title></head><body>
-        <header><h1>Fingerings of %s %s</h1></header>
-        <ul>
-        """ % (baseNameTitle, scaleName, baseNameTitle, scaleName)
+content_of_anki_csv = []
 
-            final_number_of_sharps = number_of_sharps - nbBemol_
-            final_number_of_flats = number_of_flats + nbBemol_
-            if final_number_of_sharps > final_number_of_flats:
-                key = ["c", "g", "d", "a", "e", "b", "fis", "cis", "gis", "dis", "ais", "eis", "bis"][final_number_of_sharps]
-            else:
-                key = \
-                ["c", "f", "bes", "ees", "aes", "des", "ges", "ces", "fes", "beses", "eeses", "aeses", "deses", "ceses",
-                 "feses"][final_number_of_flats]
-            debug("%s has %d bemol, %s has %d bemol and %d sharp.\nTotal is %d bemol and %d sharp.\nThe key is %s." % (
-                baseNote.get_interval_name(), nbBemol_, scaleName, number_of_flats, number_of_sharps, final_number_of_sharps, final_number_of_flats, key))
-            folder_scale_note = "%s%s/" % (folder_scale, baseNameFile)
-            ensureFolder(folder_scale_note)
-            anki += ("\n%s,%s" % (scaleName, baseNameFile))
-            anki_scale_file.write("\n%s,%s" % (scaleName, baseNameFile))
-            if doCompile:
-                try:
-                    leftFingeringDic = generate_left_fingering(baseNote, intervals)
-                except TooBigAlteration as tba:
-                    tba.addInformation("hand", "left")
-                    tba.addInformation("base note", baseNote)
-                    tba.addInformation("scale", scaleName)
-                    raise
-                try:
-                    rightFingeringDic = generate_right_fingering(baseNote, intervals)
-                except TooBigAlteration as tba:
-                    tba.addInformation("hand", "right")
-                    tba.addInformation("base note", baseNote)
-                    tba.addInformation("scale", scaleName)
-                    raise
-                if not leftFingeringDic or not rightFingeringDic:
-                    print("""Warning:scale "%s" starting on "%s" can't exist !!!\n\n\n""" % (
-                    scaleName, baseNote.get_interval_name()), file=sys.stderr)
-                    dont_exists.append((scaleName, baseNote))
-                    continue
-                else:
-                    for side, sideFingering in [("left", leftFingeringDic), ("right", rightFingeringDic)]:
-                        debug("%s fingering is %s" % (side, str(sideFingering)))
-                        # print("Best %s fingering found is:" %side)
-                        # for key in sideFingering:
-                        #     print("%s: %d"%(key,sideFingering[key]))
-                ((leftExtremalFinger, leftFingeringDic), penaltyLeft) = leftFingeringDic
-                ((rightExtremalFinger, rightFingeringDic), penaltyRight) = rightFingeringDic
-                if not penaltyRight.acceptable():
-                    print("Warning:Right is not perfect on %s %s.\n%s" % (
-                        baseNote.get_interval_name(), scaleName, penaltyRight.warning()), file=sys.stderr)
-                if not penaltyLeft.acceptable():
-                    print("Warning:Left is not perfect on %s %s.\n\n%s" % (
-                        baseNote.get_interval_name(), scaleName, penaltyLeft.warning()), file=sys.stderr)
-            for nbOctave in [1, 2,
-                             # 3,
-                             # 4,
-                             ]:
-                if doCompile:
-                    leftIncreasing = generate_left_fingering(leftExtremalFinger, leftFingeringDic, baseNote, intervals,
-                                                             nbOctave=nbOctave)
-                    rightIncreasing = generate_right_fingering(rightExtremalFinger, rightFingeringDic, baseNote,
-                                                               intervals, nbOctave=nbOctave)
-                else:
-                    leftIncreasing = [42]
-                    rightIncreasing = [42]
-                leftDecreasing = list(reversed(leftIncreasing))
-                rightDecreasing = list(reversed(rightIncreasing))
-                for kind, leftFingering, rightFingering, nbOctaveKind in [
-                    ("increasing", leftIncreasing, rightIncreasing, 1),
-                    ("decreasing", leftDecreasing, rightDecreasing, 1),
-                    ("total", leftIncreasing[:-1] + leftDecreasing, rightIncreasing[:-1] + rightDecreasing, 2),
-                    ("reverse", leftDecreasing[:-1] + leftIncreasing, rightDecreasing[:-1] + rightIncreasing, 2)
-                    ]:
-                    for hand, lilyCode in [
-                        ("left", lily.lily.lilipond_code_for_one_hand(key, leftFingering, "left")),
-                        ("right", lily.lily.lilipond_code_for_one_hand(key, rightFingering, "right")),
-                        ("both", lily.lily.lilypond_code_for_two_hands(key, leftFingering, rightFingering))
-                    ]:
-                        fileName = "%s-%s-%s-%d-%s" % (scaleName, baseNameFile, hand, nbOctave, kind)
-                        anki += (",<img src='%s.svg'>" % fileName)
-                        anki_scale_file.write(",<img src='%s.svg'>" % fileName)
-                        if nbOctave > 2:
-                            continue
-                        folder_fileName = "%s%s" % (folder_scale_note, fileName)
-                        if not doCompile:
-                            continue
-                        scale_note_html += """<li><a href='%s.ly'/><img src='%s.svg'/></a></li>""" % (
-                        fileName, fileName)
-                        if os.path.isfile(folder_fileName + ".ly"):
-                            debug("%s already exists." % (folder_fileName + ".ly"))
-                            with open(folder_fileName + ".ly") as file:
-                                last_code = file.readline()[:-1]
-                                curnent_fingering = lilyCode.splitlines()[0]
-                                if last_code != curnent_fingering:
-                                    print(
-                                        "Code is distinct, from %s to %s, we rewrite" % (last_code, curnent_fingering))
-                                    compile = True
-                                else:
-                                    debug("same code. We do nothing")
-                                    compile = False
-                        else:
-                            print("File does not exists, need to write it")
-                            compile = True
-                        if compile:
-                            print("%s should be generated." % (folder_fileName))
-                            lily.lily.compile_(lilyCode, folder_fileName)
-            scale_note_html += """</ul>
-        <footer>
-        <a href="../../about.html"/>About</a><br/>
-        <a href='../..'>Other scales</a><br/>
-        <a href='..'>Other note of this scale</a>
-        </footer>
-        </body>
-        </html>
-        """
-            with open("%sindex.html" % folder_scale_note, "w") as scale_note_file:
-                scale_note_file.write(scale_note_html)
+scales_the_algorithm_failed_to_generate = []
 
-    scale_html += """</ul>
-    <footer>
-    <a href="../../about.html"/>About</a><br/>
-    <a href='..'>Other scales</a>
-    </footer>
-    </body>
-    </html>
+
+@dataclass
+class ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth:
+    image_tag: str
+    html_line: str
+
+
+def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both(scale_name: str,
+                                                                                              folder_path: str,
+                                                                                              scale_lowest_note: Note,
+                                                                                              show_left: bool,
+                                                                                              show_right: bool,
+                                                                                              number_of_octaves: int,
+                                                                                              direction: str,
+                                                                                              lily_code: str,
+                                                                                              execute_lily: bool,
+                                                                                              ) -> ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth:
+    """Ensure that folder_path/ contains the score for lilyCode, for scale_name, hands left/right, number_of_octaves and direction.
+    Don't compile if `compile` is false. Mostly used for testing"""
+    assert show_right or show_left
+    file_name = f"""{scale_name}-{scale_lowest_note.get_note_name(FILE_NAME)}-{("two_hands" if show_left else "right_hand") if show_right else "left_hand"}-{number_of_octaves}-{direction}"""
+    image_tag = f"<img src='{file_name}.svg'>"
+    file_path = f"{folder_path}/{file_name}"
+    html_line = f"<li><a href='{file_name}.ly'/>{image_tag}</a></li>"
+    # In case the current file already exists with same content, we avoid rebuilding it
+    if os.path.isfile(file_path + ".ly"):
+        with open(file_path + ".ly") as file:
+            last_code = file.readline()[:-1]  # Line containing first fingering
+            current_fingering = lily_code.splitlines()[0]
+            if last_code != current_fingering:
+                compile_(lily_code, file_path, execute_lily=execute_lily)
+    else:
+        compile_(lily_code, file_path, execute_lily=execute_lily)
+    return ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth(image_tag=image_tag, html_line=html_line)
+
+
+@dataclass
+class ScoreFixedPatternFirstNoteNumberOfOctaves:
+    image_tags: List[str]
+    html_lines: List[str]
+
+
+def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str,
+                                                                        scale_lowest_note: Note,
+                                                                        left_scale_fingering: List[PianoNote],
+                                                                        right_scale_fingering: List[PianoNote],
+                                                                        scale_name: str,
+                                                                        folder_path: str,
+                                                                        number_of_octaves: int,
+                                                                        direction: str,
+                                                                        execute_lily: bool,
+                                                                        ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
+    anki_fields_for_this_note_scale_direction = []
+    html_lines = []
+    for show_left, show_right, lily_code in [
+        (True, False, lilypond_code_for_one_hand(key=key,
+                                                 fingering=left_scale_fingering,
+                                                 for_right_hand=False, use_color=False)),
+        (False, True, lilypond_code_for_one_hand(key=key,
+                                                 fingering=right_scale_fingering,
+                                                 for_right_hand=True, use_color=False)),
+        (True, True,
+         lilypond_code_for_two_hands(key=key,
+                                     left_fingering=left_scale_fingering,
+                                     right_fingering=right_scale_fingering, use_color=False))
+    ]:
+        output = generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both(
+            folder_path=folder_path,
+            scale_name=scale_name, scale_lowest_note=scale_lowest_note,
+            show_left=show_left, show_right=show_right,
+            number_of_octaves=number_of_octaves, direction=direction,
+            lily_code=lily_code,
+            execute_lily=execute_lily,
+        )
+        anki_fields_for_this_note_scale_direction.append(output.image_tag)
+        html_lines.append(output.html_line)
+    return ScoreFixedPatternFirstNoteNumberOfOctaves(anki_fields_for_this_note_scale_direction, html_lines)
+
+
+def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
+                                                              right_hand_lowest_note: Note,
+                                                              scale_pattern: ScalePattern,
+                                                              left_fingering: Fingering,
+                                                              right_fingering: Fingering,
+                                                              folder_path: str,
+                                                              number_of_octaves: int,
+                                                              execute_lily: bool,
+                                                              ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
+    anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves = []
+    html_lines = []
+    left_hand_scale_increasing = left_fingering.generate(lowest_or_highest_note=right_hand_lowest_note.add_octave(-1),
+                                                         scale_pattern=scale_pattern,
+                                                         number_of_octaves=number_of_octaves)
+    right_hand_scale_increasing = right_fingering.generate(lowest_or_highest_note=right_hand_lowest_note,
+                                                           scale_pattern=scale_pattern,
+                                                           number_of_octaves=number_of_octaves)
+    left_hand_scale_decreasing = list(reversed(left_hand_scale_increasing))
+    right_hand_scale_decreasing = list(reversed(right_hand_scale_increasing))
+    for direction, left_scale_fingering, right_scale_fingering in [
+        (INCREASING, left_hand_scale_increasing, right_hand_scale_increasing),
+        (DECREASING, left_hand_scale_decreasing, right_hand_scale_decreasing),
+        (TOTAL, left_hand_scale_increasing[:-1] + left_hand_scale_decreasing,
+         right_hand_scale_increasing[:-1] + right_hand_scale_decreasing),
+        (REVERSE, left_hand_scale_decreasing[:-1] + left_hand_scale_increasing,
+         right_hand_scale_decreasing[:-1] + right_hand_scale_increasing)
+    ]:
+        output = generate_score_fixed_pattern_first_note_direction_number_of_octaves(
+            key=key,
+            scale_lowest_note=right_hand_lowest_note,
+            left_scale_fingering=left_scale_fingering,
+            right_scale_fingering=right_scale_fingering,
+            scale_name=scale_pattern.get_the_first_of_the_name().replace(" ", "_"),
+            # this replace is uselessly costly, as iterated many time. But this is not a bottleneck compared to lily, so never mind
+            folder_path=folder_path,
+            number_of_octaves=number_of_octaves,
+            direction=direction,
+            execute_lily=execute_lily,
+        )
+        anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves += output.image_tags
+        html_lines += output.html_lines
+    return ScoreFixedPatternFirstNoteNumberOfOctaves(
+        anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves, html_lines)
+
+
+@dataclass
+class ScoreFixedPatternFirstNote:
+    anki_note_as_csv: str
+    html_link_for_this_starting_note: str
+
+
+@dataclass
+class MissingFingering:
+    scale_pattern: ScalePattern
+    note: Note
+    for_right_hand: bool
+
+    def __str__(self):
+        return f"""Missing {"right" if self.for_right_hand else "left"} {self.note} {self.scale_pattern.get_the_first_of_the_name()}"""
+
+
+def generate_score_fixed_pattern_first_note(key: str,
+                                            right_hand_lowest_note: Note,
+                                            scale_pattern: ScalePattern,
+                                            folder_path: str,
+                                            execute_lily: bool,
+                                            ) -> Union[ScoreFixedPatternFirstNote, List[MissingFingering]]:
     """
-    with open("%sindex.html" % folder_scale, "w") as scale_file:
-        scale_file.write(scale_html)
 
-root_html += """
-</ul>
-<footer><a href="about.html"/>About</a></footer>
-</body>
-</html>
-"""
-with open(imageFolder + "/index.html", "w") as html_file:
-    html_file.write(root_html)
-with open(imageFolder + "piano/scales/about.html", "w") as html_file:
-    html_file.write("""
-<html><head><title>About fingerings of every scales</title></head><body>
+    Key: indication for lily about flats and sharps
+    Right_hand_lowest_note: where to start the scale.
+
+    Bot are usually similar.
+    """
+    left_penalty = generate_fingering(right_hand_lowest_note, scale=scale_pattern, for_right_hand=False)
+    right_penalty = generate_fingering(right_hand_lowest_note, scale=scale_pattern, for_right_hand=True)
+    missings = []
+    if not left_penalty:
+        missings.append(
+            MissingFingering(scale_pattern=scale_pattern, note=right_hand_lowest_note, for_right_hand=False))
+    if not right_penalty:
+        missings.append(MissingFingering(scale_pattern=scale_pattern, note=right_hand_lowest_note, for_right_hand=True))
+    if missings:
+        return missings
+    left_fingering = left_penalty.fingering
+    right_fingering = right_penalty.fingering
+    anki_fields_for_this_scale_pattern_and_lowest_note = [scale_pattern.get_the_first_of_the_name(),
+                                                          right_hand_lowest_note.get_note_name(MONOSPACE)]
+    html_lines = []
+    if not right_penalty.acceptable():
+        print(
+            f"Warning:Right is not perfect on {right_hand_lowest_note.get_note_name(usage=TEXT)} {scale_pattern.get_the_first_of_the_name()}.\n{right_penalty.warning()}",
+            file=sys.stderr)
+    if not left_penalty.acceptable():
+        print(
+            f"Warning:Left is not perfect on {right_hand_lowest_note.get_note_name(usage=TEXT)} {scale_pattern.get_the_first_of_the_name()}.\n{left_penalty.warning()}",
+            file=sys.stderr)
+    for number_of_octaves in [1, 2]:
+        output = generate_score_fixed_pattern_first_note_number_of_octaves(
+            key=key,
+            right_hand_lowest_note=right_hand_lowest_note,
+            left_fingering=left_fingering,
+            right_fingering=right_fingering,
+            scale_pattern=scale_pattern,
+            folder_path=folder_path,
+            number_of_octaves=number_of_octaves,
+            execute_lily=execute_lily,
+        )
+        anki_fields_for_this_scale_pattern_and_lowest_note += output.image_tags
+        html_lines += output.html_lines
+
+    with open(f"{folder_path}/index.html", "w") as scale_note_file:
+        scale_note_file.write(f"""\
+<html>
+  <head>
+    <title>
+      Fingerings of {right_hand_lowest_note.get_note_name(TEXT)} {scale_pattern.get_the_first_of_the_name()}
+    </title>
+  </head>
+  <body>
+    <header>
+      <h1>
+        Fingerings of {right_hand_lowest_note.get_note_name(TEXT)} {scale_pattern.get_the_first_of_the_name()}
+      </h1>
+    </header>
+    <ul>
+      """ + """
+      """.join(html_lines) + """\
+    </ul>
+    <footer>
+      <a href="../../about.html"/>About</a><br/>
+      <a href='..'>Same scale with other first note</a>
+      <a href='../..'>Other scales</a>
+    </footer>
+  </body>
+</html>""")
+    return ScoreFixedPatternFirstNote(",".join(anki_fields_for_this_scale_pattern_and_lowest_note),
+                                      f"""<li><a href='{right_hand_lowest_note.get_note_name(usage=TEXT)}'>{right_hand_lowest_note.get_note_name(usage=TEXT)}</a></li>""")
+
+
+@dataclass
+class ScoreFixedPattern:
+    # State that scale_pattern on note is missing for
+    missing: List[MissingFingering]
+    html_link_for_this_scale_pattern: str
+    anki_notes_as_csv: List[str]
+
+
+def generate_score_fixed_pattern(scale_pattern: ScalePattern,
+                                 folder_path: str,
+                                 execute_lily: bool,
+                                 ) -> ScoreFixedPattern:
+    anki_notes_as_csv: List[str] = []
+    missing: List[MissingFingering] = []
+    html_lines_for_pattern: List[str] = []
+    for clef in clefs:
+        starting_note = clef.note - scale_pattern.interval_for_signature
+        note_folder = f"{folder_path}/{starting_note.get_note_name(FILE_NAME)}"
+        pathlib.Path(note_folder).mkdir(exist_ok=True)
+        output = generate_score_fixed_pattern_first_note(key=clef.note.get_note_name(LILY),
+                                                         right_hand_lowest_note=starting_note,
+                                                         scale_pattern=scale_pattern,
+                                                         folder_path=note_folder, execute_lily=execute_lily)
+        if isinstance(output, ScoreFixedPatternFirstNote):
+            anki_notes_as_csv.append(output.anki_note_as_csv)
+            html_lines_for_pattern.append(output.html_link_for_this_starting_note)
+        else:
+            missing += output
+            continue
+    with open(f"{folder_path}/anki.csv", "w") as anki_scale_file:
+        anki_scale_file.write("\n".join(anki_notes_as_csv))
+    with open(f"{folder_path}/index.html", "w") as html_scale_file:
+        html_scale_file.write(f"""\
+<html>
+  <head>
+    <title>
+      Fingerings of {scale_pattern.get_the_first_of_the_name()}
+    </title>
+  </head>
+  <body>
+    <header>
+      <h1>
+        Fingerings of {scale_pattern.get_the_first_of_the_name()}
+      </h1>
+    </header>
+    <ul>
+      """ + """
+      """.join(html_lines_for_pattern) + """\
+    </ul>
+    <footer>
+      <a href="../about.html"/>About</a><br/>
+      <a href='..'>Other scales</a>
+    </footer>
+  </body>
+</html>""")
+        return ScoreFixedPattern(
+            missing=missing,
+            html_link_for_this_scale_pattern=f"""<li><a href='{scale_pattern.get_the_first_of_the_name().replace(" ", "_")}'>{scale_pattern.get_the_first_of_the_name()}</a></li>""",
+            anki_notes_as_csv=anki_notes_as_csv
+        )
+
+
+about_page_content = """
+<html>
+  <head>
+    <title>
+      About fingerings of every scales
+    </title>
+  </head>
+  <body>
 Author: <a href="mailto:arthur@milchior.fr"/>Arthur Milchior</a>. Don't hesitate to contact me with idea about improving this set of fingerings. Or edit it yourself in <a href='https://github.com/Arthur-Milchior/generate-musical-image'/>git-hub</a>.
 
 <p>
     The list of scales is mostly taken from the <a href='https://en.wikipedia.org/wiki/List_of_musical_scales_and_modes'/>wikipedia's list of scale</a> and from the pages linked by it. Only scales which can be played on a keyboard (12 fingers by octave) have been considered. </p>
 
-    <p>When multiple fingerings are possible, the "best" one is generated as follows:<ol>
-    <li>
-    No thumb ever play a black key.
-    </li>
-    <li>
-    As far as possible, after a thumb over, the next note played is the one following in the diatonic scale.  </li>
-    <li>The number of thumb over is minimal, with respect to previous condition </li>
-    <li>
-    The lowest finger on left hand (highest on right hand) is as high as possible (i.e. 5 if possible, otherwise, 4, etc..).
-    </li>
-    <li>
-    The highest finger on left hand (lowest on right hand) is as low as possible. (i.e. thumb if possible)
-    </li>
-    <li>
-    As far as possible, a thumb passing goes to a black key and not a white one.
-    </li>
-    <li>
-    As far as possible, a thumb passing goes to a key whose chromatic distance is one.
-    </li>
-<ol>
+    <p>When multiple fingerings are possible, the "best" one is generated as follows:
+    <ol>
+      <li>
+        No thumb ever play a black key.
+      </li>
+      <li>
+        As far as possible, after a thumb over, the next note played is the one following in the diatonic scale.  </li>
+      <li>
+        The number of thumb over is minimal, with respect to previous condition.
+      </li>
+      <li>
+        The lowest finger on left hand (highest on right hand) is as high as possible (i.e. 5 if possible, otherwise, 4, etc..).
+      </li>
+      <li>
+        The highest finger on left hand (lowest on right hand) is as low as possible. (i.e. thumb if possible)
+      </li>
+      <li>
+        As far as possible, a thumb passing goes to a black key and not a white one.
+      </li>
+      <li>
+        As far as possible, a thumb passing goes to a key whose chromatic distance is one.
+      </li>
+    </ol>
+  </body>
+</html>
+        """
 
-</body></html>
-    """)
-with open("""piano/anki.csv""", "w") as anki_file:
-    anki_file.write(anki)
-with open("""piano/cant_exists.txt""", "w") as cant:
-    cant.write("%s, %s" % (scaleName, baseNote.get_interval_name()))
-print("piano ended")
+
+def generate_scores(folder_path: str, execute_lily: bool) -> List[MissingFingering]:
+    missing_fingerings: List[MissingFingering] = []
+    html_main_index_lines = []
+    anki_every_notes_as_csv: List[str] = []
+    for scale_pattern in ScalePattern.class_to_patterns[ScalePattern]:
+        output = generate_score_fixed_pattern(
+            scale_pattern=scale_pattern,
+            folder_path=f"folder_path/{scale_pattern.get_the_first_of_the_name}",
+            execute_lily=execute_lily,
+        )
+        missing_fingerings += output.missing
+        html_main_index_lines.append(output.html_link_for_this_scale_pattern)
+        anki_every_notes_as_csv += output.anki_notes_as_csv
+    with open(f"{folder_path}/index.html", "w") as html_file:
+        html_file.write(f"""
+<html>
+  <head>
+    <title>
+      Piano fingerings
+    </title>
+  </head>
+  <body>
+    <header>
+      <h1>
+        Piano fingerings
+      </h1>
+    </header>
+    <ul>
+      {{"\n".join(lines_of_root_html)}}
+    </ul>
+    <footer><a href="about.html"/>About</a></footer>
+  </body>
+</html>""")
+        with open(imageFolder + "piano/scales/about.html", "w") as html_file:
+            html_file.write(about_page_content)
+    with open(f"""{folder_path}/anki.csv""", "w") as anki_file:
+        anki_file.write("\n".join(anki_every_notes_as_csv))
+    with open(f"""{folder_path}/scales_the_algo_failed_to_compute.txt""", "w") as cant:
+        cant.write("\n".join(str(missing_fingering) for missing_fingering in missing_fingerings))
+    return missing_fingerings
+
+
+if __name__ == '__main__':
+    folder_path = "piano"
+    util.ensure_folder(folder_path)
+    generate_scores(folder_path=folder_path, execute_lily=True)

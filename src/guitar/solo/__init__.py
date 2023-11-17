@@ -9,7 +9,7 @@ leafFolder = "solo/"
 imageFolder = guitar.util.imageFolder + leafFolder
 ankiFolder = guitar.util.ankiFolder + leafFolder
 
-ensureFolder(imageFolder)
+ensure_folder(imageFolder)
 for string in range(1, 7):
     for pos in range(0, 6):
         with open("%s/%d%d.svg" % (imageFolder, string, pos), "w") as f:

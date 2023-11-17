@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Union, TypeVar
 
 from solfege.interval.abstract import AbstractInterval, TestBaseInterval
+from solfege.note.alteration import TEXT, MONOSPACE
 
 
 class AbstractNote(AbstractInterval):
@@ -39,16 +40,23 @@ class AbstractNote(AbstractInterval):
             other)  # Super still makes sens because a class inheriting _Note also inherits some other class.
         return sum_
 
-    def __hash__(self):
-        return super().__hash__()
-
     def get_octave(self, scientificNotation=False):
         """The octave.  By default, starting at middle c. If scientificNotation, starting at C0"""
         octave = super().get_octave()
         return octave + 4 if scientificNotation else octave
 
+    def get_note_name(self, usage: str):
+        """The name of this note.
+
+        Args: usage -- see Alteration file."""
+        return NotImplemented
+
+    def __str__(self):
+        return self.get_note_name(usage=MONOSPACE)
+
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)
+
 
 class TestBaseNote(TestBaseInterval):
     C4 = AbstractNote(0)
@@ -79,7 +87,7 @@ class TestBaseNote(TestBaseInterval):
 
     def test_neg(self):
         with self.assertRaises(Exception):
-             _ =-self.D4
+            _ = -self.D4
 
     def test_sub(self):
         self.assertEquals(self.F4 - self.deux, self.D4)

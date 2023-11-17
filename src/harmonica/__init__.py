@@ -31,6 +31,6 @@ def drawHarmonica(f, pos, draw):
 
 for draw in [True, False]:
     for pos in range(1, 11):
-        ensureFolder("harmonica/images/")
+        ensure_folder("harmonica/images/")
         with open("harmonica/images/%s%d.svg" % ("draw" if draw else "blow", pos), "w") as f:
             drawHarmonica(f, pos, draw)

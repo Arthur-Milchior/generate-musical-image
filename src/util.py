@@ -14,7 +14,11 @@ def debug(string, params=None):
         print(string)
 
 
-def ensureFolder(folder):
+def delete_file_if_exists(file_path):
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+def ensure_folder(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
 

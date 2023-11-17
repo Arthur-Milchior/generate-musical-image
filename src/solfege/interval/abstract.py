@@ -23,26 +23,18 @@ class AbstractInterval:
     number_of_interval_in_an_octave: int
     IntervalClass: type(AbstractInterval)
 
-    def __init__(self, value=None, toCopy: Optional[AbstractInterval] = None, callerClass=None, none=None, **kwargs):
+    def __init__(self, value=None, callerClass=None, none=None, **kwargs):
         """If the interval is passed as argument, it is copied. Otherwise, the value is used. none, if true,
         means that there is no value and it is acceptable"""
         super().__init__(**kwargs)
         self.dic = dict()
         if none:
             assert (value is None)
-            assert (toCopy is None)
             assert (callerClass is None)
             self.value = None
             return
-        if toCopy is not None:
-            if not isinstance(toCopy, callerClass):
-                raise Exception("An interval: %s is not of the class %s" % (toCopy, callerClass))
-            number = toCopy.get_number() if toCopy.has_number() else None
-        else:
-            number = value
-        if not isinstance(number, int):
-            raise (Exception("A result which is not a number but %s.\n value:%s, toCopy:%s, callerClass:%s,none:%s" % (
-                number, value, toCopy, callerClass, none)))
+        number = value
+        assert isinstance(number, int)
         self.value = number
 
     def is_note(self):
@@ -59,7 +51,7 @@ class AbstractInterval:
 
     @classmethod
     def get_one_octave(cls):
-        return cls.IntervalClass(value= cls.number_of_interval_in_an_octave)
+        return cls.IntervalClass(value=cls.number_of_interval_in_an_octave)
 
     def __eq__(self, other):
         if self.__class__ != other.__class__:
@@ -90,7 +82,7 @@ class AbstractInterval:
         from solfege.note.abstract import AbstractNote
         assert (not isinstance(self, AbstractNote))
         clazz = self.ClassToTransposeTo or self.__class__
-        return clazz(value = self.get_number() * other)
+        return clazz(value=self.get_number() * other)
 
     def __neg__(self):
         """Inverse interval"""
@@ -131,7 +123,7 @@ class AbstractInterval:
     def get_in_base_octave(self):
         """Same note in the base octave"""
         octave = self.get_octave()
-        if octave is 0:
+        if octave == 0:
             return self
         return self.add_octave(-self.get_octave())
 
@@ -146,6 +138,7 @@ class AbstractInterval:
 
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)
+
 
 class TestBaseInterval(unittest.TestCase):
     zero = AbstractInterval(0)
@@ -189,4 +182,4 @@ class TestBaseInterval(unittest.TestCase):
         self.assertEquals(self.zero * 4, self.zero)
         self.assertEquals(self.un * 2, self.deux)
         self.assertEquals(2 * self.un, self.deux)
-        self.assertEquals(4 * self.zero , self.zero)
+        self.assertEquals(4 * self.zero, self.zero)

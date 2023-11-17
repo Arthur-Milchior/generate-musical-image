@@ -114,3 +114,5 @@ guitar/scale/images
 guitar/solo/images
 *csv
 image/
+src/lily/test.ly
+src/piano/test_files/

@@ -4,6 +4,8 @@ Generate an anki note, with this image, and the distance between both strings, a
 """
 from guitar.pos import Pos, SetOfPos
 import os
+
+from solfege.interval.alteration import TEXT
 from util import *
 import guitar.util
 
@@ -15,8 +17,8 @@ max_fret_distante = 4
 first_fret = 0
 last_fret = 6
 
-ensureFolder(imageFolder)
-ensureFolder(ankiFolder)
+ensure_folder(imageFolder)
+ensure_folder(ankiFolder)
 anki = ""
 anki0 = ""
 for string in range(1, 6):
@@ -32,14 +34,14 @@ for string in range(1, 6):
                 with open("%s%s" % (imageFolder, fileName), "w") as f:
                     sop.draw(f, nbFretMin=6)
                 if (pos <= 1 or pos_ <= 1):
-                    name = (pos2 - pos1).get_interval_name()
+                    name = (pos2 - pos1).get_interval_name(usage=TEXT)
                     if pos and pos_:
                         anki += """strings %d and %d,%s,%s,%s\n""" % (string, string_, fileName, name, difString)
                     else:
                         string_name = str(string) if pos else "%d open" % string
                         string_name_ = str(string_) if pos_ else "%d open" % string_
                         anki0 += """strings %s and %s,%s,%s,%s\n""" % (
-                        string_name, string_name_, fileName, name, difString)
+                            string_name, string_name_, fileName, name, difString)
 with open(ankiFolder + "/anki.csv", "w") as f:
     f.write(anki)
     f.write(anki0)
