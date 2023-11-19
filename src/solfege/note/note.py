@@ -1,3 +1,4 @@
+from solfege.interval.TooBigAlterationException import TooBigAlterationException
 from solfege.interval.interval import Interval, TestInterval
 from solfege.note import ChromaticNote, DiatonicNote
 from solfege.note.alteration import TEXT, LILY
@@ -41,7 +42,11 @@ class Note(Interval, ChromaticNote):
         getColor, unless color is set to False.
         """
         diatonic = self.get_diatonic()
-        alteration = self.get_alteration()
+        try:
+            alteration = self.get_alteration()
+        except TooBigAlterationException as tba:
+            tba["from note"] = self
+            raise
         lily_code_for_black_note = f"{diatonic.get_note_name(usage=LILY)}{alteration.lily()}{self.get_diatonic().lily_octave()}"
         if not use_color:
             return lily_code_for_black_note

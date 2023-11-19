@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 from typing import Optional
 from solfege.interval.abstract import AbstractInterval
+from solfege.interval.TooBigAlterationException import TooBigAlterationException
 
 
 class ChromaticInterval(AbstractInterval):
@@ -40,7 +41,11 @@ class ChromaticInterval(AbstractInterval):
         import solfege.interval.alteration
         diatonic = self.get_diatonic()
         chromatic_from_diatonic = diatonic.get_chromatic()
-        return self.AlterationClass(chromatic=self.get_number() - chromatic_from_diatonic.get_number())
+        try:
+            return self.AlterationClass(chromatic=self.get_number() - chromatic_from_diatonic.get_number())
+        except TooBigAlterationException as tba:
+            tba["from note"] = self
+            raise
 
     def get_solfege(self, diatonicNumber: Optional[int] = None):
         """A note. Same chromatic. Diatonic is as close as possible (see getDiatonicNote) or is the note given."""

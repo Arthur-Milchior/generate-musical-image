@@ -6,6 +6,7 @@ class SolfegePattern:
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
+    names: List[str]
     """Associate the class, then the name to the pattern"""
     class_to_name_to_pattern = dict()
     """associate to each class the list of all instances of this class"""
@@ -27,7 +28,7 @@ class SolfegePattern:
         if record:
             self.class_to_patterns[clazz].append(self)
 
-    def get_the_first_of_the_name(self):
+    def get_the_first_of_the_name(self) -> str:
         """The first of all the names associated to this pattern. Hopefully the most canonical one"""
         return self.names[0]
 

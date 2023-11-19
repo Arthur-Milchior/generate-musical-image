@@ -1,4 +1,4 @@
-from solfege.interval.alteration import TooBigAlteration
+from solfege.interval.TooBigAlterationException import TooBigAlterationException
 from solfege.note.abstract import AbstractNote
 from solfege.interval.chromatic import ChromaticInterval, TestChromaticInterval
 from util import MyException

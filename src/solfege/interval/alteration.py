@@ -1,16 +1,8 @@
+from solfege.interval.TooBigAlterationException import TooBigAlterationException
 from solfege.interval.chromatic import ChromaticInterval
 
+
 # The usage of name of the alternations
-
-
-
-class TooBigAlteration(Exception):
-    def __init__(self, value):
-        self.value = value
-        super().__init__()
-
-    def __str__(self):
-        return "number %d corresponds to no Alteration.\n%s" % (self.value, super().__str__())
 
 
 class Alteration(ChromaticInterval):
@@ -26,7 +18,7 @@ class Alteration(ChromaticInterval):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.printable():
-            raise TooBigAlteration(self.get_number())
+            raise TooBigAlterationException(self.get_number())
 
     def __add__(self, other):
         raise Exception("Adding alteration ?")

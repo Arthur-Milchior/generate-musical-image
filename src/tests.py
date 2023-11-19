@@ -8,7 +8,7 @@ from piano.Fingering.fingering import Fingering
 from piano.__main__ import generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both, \
     INCREASING, generate_score_fixed_pattern_first_note_direction_number_of_octaves, \
     generate_score_fixed_pattern_first_note_number_of_octaves, generate_score_fixed_pattern_first_note, \
-    ScoreFixedPatternFirstNote, MissingFingering, generate_score_fixed_pattern
+    ScoreFixedPatternFirstNote, MissingFingering, generate_score_fixed_pattern, generate_scores
 from piano.pianonote import PianoNote
 from solfege.Scale.pattern import minor_arpeggio
 from solfege.note import Note
@@ -86,6 +86,7 @@ class TestGeneration(unittest.TestCase):
 
     scale_note_index_path = f"{folder_note_scale}/index.html"
     scale_index_path = f"{folder_scale}/index.html"
+    index_path = f"{test_folder}/index.html"
     anki_path = f"{folder_scale}/anki.csv"
     anki_csv = """Minor arpeggio,A♭ ,<img src='Minor_arpeggio-Aflat_-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Aflat_-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Aflat_-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-Aflat_-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Aflat_-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Aflat_-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-Aflat_-left_hand-1-total.svg'>,<img src='Minor_arpeggio-Aflat_-right_hand-1-total.svg'>,<img src='Minor_arpeggio-Aflat_-two_hands-1-total.svg'>,<img src='Minor_arpeggio-Aflat_-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Aflat_-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Aflat_-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-Aflat_-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Aflat_-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Aflat_-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-Aflat_-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Aflat_-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Aflat_-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-Aflat_-left_hand-2-total.svg'>,<img src='Minor_arpeggio-Aflat_-right_hand-2-total.svg'>,<img src='Minor_arpeggio-Aflat_-two_hands-2-total.svg'>,<img src='Minor_arpeggio-Aflat_-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Aflat_-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Aflat_-two_hands-2-reverse.svg'>
 Minor arpeggio,B♭ ,<img src='Minor_arpeggio-Bflat_-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-1-total.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-1-total.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-1-total.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-2-total.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-2-total.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-2-total.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-2-reverse.svg'>
@@ -132,6 +133,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
     </footer>
   </body>
 </html>"""
+    index_code = """"""
     scale_note_index_code = """\
 <html>
   <head>
@@ -189,10 +191,16 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
         os.system(f"chromium {self.scale_note_index_path}")
 
     def check_scale_index_exists(self):
+        self.assertTrue(os.path.exists(self.scale_index_path))
         with open(self.scale_index_path) as file:
             self.assertEquals(self.scale_index_code, file.read())
-        self.assertTrue(os.path.exists(self.scale_index_path))
         os.system(f"chromium {self.scale_index_path}")
+
+    def check_index_exists(self):
+        self.assertTrue(os.path.exists(self.index_path))
+        with open(self.index_path) as file:
+            self.assertEquals(self.index_code, file.read())
+        os.system(f"chromium {self.index_path}")
 
     def check_pentatonic_major_two_hands_increasing_F_exists(self, expect_compiled: bool):
         with open(self.lilypond_path_both_hands) as file:
@@ -363,7 +371,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
                                                execute_lily=self.execute_lily))
         self.assertEquals(output.html_link_for_this_scale_pattern,
                           "<li><a href='Minor_arpeggio'>Minor arpeggio</a></li>")
-        self.assertEquals(output.missing,
+        self.assertEquals(output.missing_scores,
                           [
                               MissingFingering(scale_pattern=minor_arpeggio,
                                                note=Note(chromatic=3, diatonic=2), for_right_hand=False),
@@ -376,6 +384,16 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
                           ]
                           )
         self.check_anki_exists()
+        self.check_scale_index_exists()
+        self.check_scale_note_index_exists()
+        self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
+        self.check_pentatonic_major_left_hand_increasing_F_exists(expect_compiled=self.execute_lily)
+
+    def test_generate_score(self):
+        self.clean_example()
+        generate_scores(self.test_folder, execute_lily=self.execute_lily)
+        self.check_anki_exists()
+        self.check_index_exists()
         self.check_scale_index_exists()
         self.check_scale_note_index_exists()
         self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
