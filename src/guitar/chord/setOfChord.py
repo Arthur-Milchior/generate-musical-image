@@ -1,11 +1,12 @@
 from .util import *
-from .chord import GuitarChord
+from guitar.chord.Chord.chord import GuitarChord
 from util import debug
 
 
 class IntervalWithNoRole(MyException):
     """Raised when the difference between base note and an interval has no role. I.e. is 1 or 2."""
     pass
+
 
 class SetOfSameChord:
     def __init__(self, kind,
@@ -134,17 +135,10 @@ def genFret(minFret=None, maxFret=None, listFret=[], nbPlayed=0):
     if nbPlayed + (6 - length) < minNumberString:
         return
     if length == 6:
-        debug("--------------------------")
-        debug(listFret)
-        debug("Number of note played is %d" % nbPlayed)
         try:
             chord = GuitarChord(listFret)
         except IntervalWithNoRole:
             return
-        debug("Yielding tab:")
-        debug(chord.fileName())
-        debug(chord.tab())
-        debug(chord.getPatternName())
         yield chord
         return
     lowRange = max({1, maxFret - fretDifMax}) if minFret else 1
@@ -153,11 +147,6 @@ def genFret(minFret=None, maxFret=None, listFret=[], nbPlayed=0):
         played = 0 if fret is None else 1
         if not listFret:
             print("first_fret is %s" % str(fret))
-            debug(f"low range is {lowRange}")
-            debug(f"high range is {highRange}")
-            debug(f"min fret is {minFret}")
-            debug(f"max fret is {maxFret}")
-            debug(f"fretDifMax is {fretDifMax}")
         newListFret = listFret + [fret]
         if fret:
             newMinFret = min(minFret, fret) if minFret else fret
@@ -170,7 +159,7 @@ def genFret(minFret=None, maxFret=None, listFret=[], nbPlayed=0):
 
 for chord in genFret():
     kind = chord.kind()
-    patternName = chord.getPatternName()
+    patternName = chord.get_pattern_name()
     if not (kind and patternName and chord.playable()):
         continue
     if kind == "open":

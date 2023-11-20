@@ -47,7 +47,7 @@ for set_ in allChords:
     chord = set_.getOneElement()
     kind = chord.direction()
     minPos = chord.getMinPos()
-    pattern_name = chord.getPatternName()
+    pattern_name = chord.get_pattern_name()
     if pattern_name is None or kind is None:
         raise
     subfolder = "%s/%s/" % (kind, pattern_name)

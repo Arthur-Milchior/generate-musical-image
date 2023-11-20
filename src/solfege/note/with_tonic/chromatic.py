@@ -1,10 +1,10 @@
 import unittest
 
 from solfege.note import ChromaticNote
-from solfege.note.with_tonic.base import _NoteWithTonic
+from solfege.note.with_tonic.base import _NoteWithFundamental
 
 
-class ChromaticNoteWithTonic(_NoteWithTonic, ChromaticNote):
+class ChromaticNoteWithFundamental(_NoteWithFundamental, ChromaticNote):
     # The role this note is most likely to play in the standard chords
     # Especially used for guitar cards
     role = ["unison", None, None, "third", "third", "third", "fifth", "fifth", "fifth", "interval", "interval",
@@ -19,19 +19,19 @@ class ChromaticNoteWithTonic(_NoteWithTonic, ChromaticNote):
 
 
 class TestChromaticNoteWithTonic(unittest.TestCase):
-    C4 = ChromaticNoteWithTonic(chromatic=0, tonic=True)
-    D4 = ChromaticNoteWithTonic(chromatic=2, tonic=C4)
-    B3 = ChromaticNoteWithTonic(chromatic=-1, tonic=C4)
-    E4 = ChromaticNoteWithTonic(chromatic=4, tonic=C4)
-    F4 = ChromaticNoteWithTonic(chromatic=5, tonic=C4)
-    C5 = ChromaticNoteWithTonic(chromatic=12, tonic=C4)
-    B4 = ChromaticNoteWithTonic(chromatic=11, tonic=C4)
-    D3 = ChromaticNoteWithTonic(chromatic=-10, tonic=C4)
-    C3 = ChromaticNoteWithTonic(chromatic=-12, tonic=C4)
-    B2 = ChromaticNoteWithTonic(chromatic=-13, tonic=C4)
+    C4 = ChromaticNoteWithFundamental(chromatic=0, fundamental=True)
+    D4 = ChromaticNoteWithFundamental(chromatic=2, fundamental=C4)
+    B3 = ChromaticNoteWithFundamental(chromatic=-1, fundamental=C4)
+    E4 = ChromaticNoteWithFundamental(chromatic=4, fundamental=C4)
+    F4 = ChromaticNoteWithFundamental(chromatic=5, fundamental=C4)
+    C5 = ChromaticNoteWithFundamental(chromatic=12, fundamental=C4)
+    B4 = ChromaticNoteWithFundamental(chromatic=11, fundamental=C4)
+    D3 = ChromaticNoteWithFundamental(chromatic=-10, fundamental=C4)
+    C3 = ChromaticNoteWithFundamental(chromatic=-12, fundamental=C4)
+    B2 = ChromaticNoteWithFundamental(chromatic=-13, fundamental=C4)
 
     def test_eq(self):
-        zero = ChromaticNoteWithTonic(chromatic=0, tonic=True)
+        zero = ChromaticNoteWithFundamental(chromatic=0, fundamental=True)
         self.assertEquals(zero.get_number(), 0)
         self.assertEquals(zero.get_tonic(), zero)
 

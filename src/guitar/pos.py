@@ -1,45 +1,10 @@
-from solfege.interval import ChromaticInterval
-from solfege.note import ChromaticNote
-from util import debug
-from .util import *
 from io import StringIO
 
-# Constants used in SVG
-fret_distance = 50
-string_distance = 30
-circle_radius = 11
-
-# Distance of the empty string from C
-distance_string = {
-    1: ChromaticNote(chromatic=-8),
-    2: ChromaticNote(chromatic=-3),
-    3: ChromaticNote(chromatic=2),
-    4: ChromaticNote(chromatic=7),
-    5: ChromaticNote(chromatic=11),
-    6: ChromaticNote(chromatic=16),
-}
+from solfege.note import ChromaticNote
 
 
 class Pos(ChromaticNote):
-    """A position on the guitar, that is, a string and a fret. Fret 0 is open. Fret None is not played"""
-    ClassToTransposeTo = ChromaticNote
 
-    def __init__(self, string, fret, **kwargs):
-        assert (isinstance(string, int))
-        assert (isinstance(fret, int) or fret is None)
-        self.string = string
-        self.fret = fret
-        if fret is not None:
-            super().__init__(toCopy=distance_string[self.string] + ChromaticInterval(self.fret), **kwargs)
-        else:
-            super().__init__(none=True, **kwargs)
-
-    def getChromatic(self):
-        """The chromatic note obtained by playing this position. None if this chord is not played"""
-        return ChromaticNote(toCopy=self)
-
-    def __neg__(self):
-        raise Exception("Negation of a position makes no sens")
 
     def __str__(self):
         if isinstance(self.fret, int):
@@ -69,21 +34,6 @@ class Pos(ChromaticNote):
     def _draw(self, f, color=True):
         f.write(self.svg(color))
 
-    def svg(self, color=True):
-        """Draw this position, assuming that f already contains the svg for the fret"""
-        cx = string_distance * (self.string - 0.5)
-        if self.fret is None:
-            return """
-  <text x="%d" y="%d" font-size="30">x</text>""" % (cx, fret_distance / 3)
-        else:
-            if self.fret == 0:
-                cy = fret_distance / 2
-            else:
-                cy = self.fret * fret_distance
-            return """
-  <circle cx="%d" cy="%d" r="%d" fill="%s" stroke="%s" stroke-width="3"/>""" % (
-            cx, cy, circle_radius, self.getFillColor(), self.get_color(color=color))
-
     def getFillColor(self):
         if self.fret == 0:
             return "white"
@@ -112,12 +62,12 @@ class Pos(ChromaticNote):
         chromaticResult = self.getChromatic() + interval
         assert isinstance(chromaticResult, ChromaticNote)
         max_string = None
-        for string in distance_string:
-            if min <= (chromaticResult - distance_string[string]).get_number() <= max:
+        for string in string_number_to_distance_from_C4:
+            if min <= (chromaticResult - string_number_to_distance_from_C4[string]).get_number() <= max:
                 if (max_string is None) or (string > max_string):
                     max_string = string
         if max_string:
-            return Pos(max_string, (chromaticResult - distance_string[max_string]).get_number())
+            return Pos(max_string, (chromaticResult - string_number_to_distance_from_C4[max_string]).get_number())
         else:
             return None
 
@@ -186,7 +136,6 @@ class SetOfPos:
         if "isOneMin" not in self.dic:
             r = self.containsFirstFret and not self.isOpen()
             self.dic["isOneMin"] = r
-            debug("is its first fret is 1:%s" % r)
         return self.dic["isOneMin"]
 
     def isOpen(self):
@@ -194,7 +143,6 @@ class SetOfPos:
         if "isOpen" not in self.dic:
             r = self.minFret == 0
             self.dic["isOpen"] = r
-            debug("is it open:%s" % r)
         return self.dic["isOpen"]
 
     def getMaxFret(self):
@@ -214,9 +162,7 @@ class SetOfPos:
         nbFretMin -- at least this number of fret are shown. Maybe more if necessary"""
         f = StringIO()
         nbFretToDraw = max(self.maxFret, nbFretMin)
-        height = ((nbFretToDraw + 1) * fret_distance)
-        width = string_distance * 6
-        f.write("""<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" version="1.1">""" % (width, height))
+        f.write(f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width:d}" height="{height:d}" version="1.1">""")
         for i in range(1, 7):
             # columns
             x = string_distance * (i - .5)

@@ -1,7 +1,7 @@
-from solfege.interval.TooBigAlterationException import TooBigAlterationException
+from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.interval.interval import Interval, TestInterval
-from solfege.note import ChromaticNote, DiatonicNote
-from solfege.note.alteration import TEXT, LILY
+from solfege.note import ChromaticNote, DiatonicNote, IntervalMode
+from solfege.note.alteration import TEXT, LILY, Alteration
 
 
 class Note(Interval, ChromaticNote):
@@ -45,7 +45,7 @@ class Note(Interval, ChromaticNote):
         try:
             alteration = self.get_alteration()
         except TooBigAlterationException as tba:
-            tba["from note"] = self
+            tba["The note which is too big"] = self
             raise
         lily_code_for_black_note = f"{diatonic.get_note_name(usage=LILY)}{alteration.lily()}{self.get_diatonic().lily_octave()}"
         if not use_color:
@@ -60,6 +60,17 @@ class Note(Interval, ChromaticNote):
         """Whether this note corresponds to a black note of the keyboard"""
         blacks = {1, 3, 6, 8, 10}
         return (self.get_chromatic().get_number() % 12) in blacks
+
+    @staticmethod
+    def from_name(name: str):
+        name = name.strip()
+        diatonic_name = "".join(letter for letter in name if letter not in {"#", "♭"})
+        alteration_name = "".join(letter for letter in name if letter in {"#", "♭"})
+        diatonic = DiatonicNote.from_name(diatonic_name)
+        chromatic_from_diatonic = diatonic.get_chromatic()
+        alteration = Alteration.from_name(alteration_name)
+        return Note(diatonic=diatonic.get_number(),
+                    chromatic=(chromatic_from_diatonic + alteration).get_number())
 
 
 class TestNote(TestInterval):
@@ -158,5 +169,16 @@ class TestNote(TestInterval):
         self.assertFalse(self.C4.adjacent(self.D4_sharp))
         self.assertFalse(self.C4.adjacent(self.A3))
         self.assertTrue(self.C4.adjacent(self.B3_flat))
+
+    def test_from_name(self):
+        self.assertEquals(Note.from_name("C"), Note(chromatic=0, diatonic=0))
+        self.assertEquals(Note.from_name("C4"), Note(chromatic=0, diatonic=0))
+        self.assertEquals(Note.from_name("B3#"), Note(chromatic=0, diatonic=-1))
+        self.assertEquals(Note.from_name("B#3"), Note(chromatic=0, diatonic=-1))
+
+        self.assertEquals(Note.from_name("C♭"), Note(chromatic=-1, diatonic=0))
+        self.assertEquals(Note.from_name("C4♭"), Note(chromatic=-1, diatonic=0))
+        self.assertEquals(Note.from_name("C♭4"), Note(chromatic=-1, diatonic=0))
+        self.assertEquals(Note.from_name("B3"), Note(chromatic=-1, diatonic=-1))
 
     # todo Test wwith color

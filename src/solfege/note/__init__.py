@@ -1,4 +1,4 @@
-from solfege.note.alteration import Alteration
+from solfege.note.alteration import IntervalMode, Alteration
 from solfege.note.chromatic import ChromaticNote
 from solfege.note.diatonic import DiatonicNote
 from solfege.note.note import Note

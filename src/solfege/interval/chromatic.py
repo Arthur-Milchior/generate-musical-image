@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from typing import Optional
 from solfege.interval.abstract import AbstractInterval
-from solfege.interval.TooBigAlterationException import TooBigAlterationException
+from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 
 
 class ChromaticInterval(AbstractInterval):
@@ -38,13 +38,13 @@ class ChromaticInterval(AbstractInterval):
 
     def get_alteration(self):
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
-        import solfege.interval.alteration
+        import solfege.interval.intervalmode
         diatonic = self.get_diatonic()
         chromatic_from_diatonic = diatonic.get_chromatic()
         try:
             return self.AlterationClass(chromatic=self.get_number() - chromatic_from_diatonic.get_number())
         except TooBigAlterationException as tba:
-            tba["from note"] = self
+            tba["The note which is too big"] = self
             raise
 
     def get_solfege(self, diatonicNumber: Optional[int] = None):
@@ -238,36 +238,36 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEquals(ChromaticInterval(-14).get_solfege(), Interval(-14, -8))
 
     def test_get_alteration(self):
-        from solfege.interval.alteration import Alteration
-        self.assertEquals(ChromaticInterval(0).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(1).get_alteration(), Alteration(1))
-        self.assertEquals(ChromaticInterval(2).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(3).get_alteration(), Alteration(-1))
-        self.assertEquals(ChromaticInterval(4).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(5).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(6).get_alteration(), Alteration(1))
-        self.assertEquals(ChromaticInterval(7).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(8).get_alteration(), Alteration(-1))
-        self.assertEquals(ChromaticInterval(9).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(10).get_alteration(), Alteration(-1))
-        self.assertEquals(ChromaticInterval(11).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(12).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(13).get_alteration(), Alteration(1))
-        self.assertEquals(ChromaticInterval(14).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-1).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-2).get_alteration(), Alteration(-1))
-        self.assertEquals(ChromaticInterval(-3).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-4).get_alteration(), Alteration(-1))
-        self.assertEquals(ChromaticInterval(-5).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-6).get_alteration(), Alteration(1))
-        self.assertEquals(ChromaticInterval(-7).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-8).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-9).get_alteration(), Alteration(-1))
-        self.assertEquals(ChromaticInterval(-10).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-11).get_alteration(), Alteration(1))
-        self.assertEquals(ChromaticInterval(-12).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-13).get_alteration(), Alteration(0))
-        self.assertEquals(ChromaticInterval(-14).get_alteration(), Alteration(-1))
+        from solfege.interval.intervalmode import IntervalMode
+        self.assertEquals(ChromaticInterval(0).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(1).get_alteration(), IntervalMode(1))
+        self.assertEquals(ChromaticInterval(2).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(3).get_alteration(), IntervalMode(-1))
+        self.assertEquals(ChromaticInterval(4).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(5).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(6).get_alteration(), IntervalMode(1))
+        self.assertEquals(ChromaticInterval(7).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(8).get_alteration(), IntervalMode(-1))
+        self.assertEquals(ChromaticInterval(9).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(10).get_alteration(), IntervalMode(-1))
+        self.assertEquals(ChromaticInterval(11).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(12).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(13).get_alteration(), IntervalMode(1))
+        self.assertEquals(ChromaticInterval(14).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-1).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-2).get_alteration(), IntervalMode(-1))
+        self.assertEquals(ChromaticInterval(-3).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-4).get_alteration(), IntervalMode(-1))
+        self.assertEquals(ChromaticInterval(-5).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-6).get_alteration(), IntervalMode(1))
+        self.assertEquals(ChromaticInterval(-7).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-8).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-9).get_alteration(), IntervalMode(-1))
+        self.assertEquals(ChromaticInterval(-10).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-11).get_alteration(), IntervalMode(1))
+        self.assertEquals(ChromaticInterval(-12).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-13).get_alteration(), IntervalMode(0))
+        self.assertEquals(ChromaticInterval(-14).get_alteration(), IntervalMode(-1))
 
     def test_mul(self):
         self.assertEquals(self.unison * 4, self.unison)

@@ -3,7 +3,7 @@ import unittest
 from typing import List
 
 from piano.pianonote import PianoNote
-from solfege.interval.TooBigAlterationException import TooBigAlterationException
+from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import Note
 
 lilyHeader = """"""
@@ -35,15 +35,11 @@ def _staff(key: str, fingering: List[PianoNote], for_right_hand: bool, use_color
  
     Add a comment with the complete fingering, to know whether recompilation is required. Or whether a change is due only to some meta information.
     """
-    try:
-        return f"""\\new Staff{{
+    return f"""\\new Staff{{
       \\clef {"treble" if for_right_hand else "bass"}
       \\key {key} \\major
     {_indent(_for_list_of_notes(fingering, use_color=use_color))}
     }}"""
-    except TooBigAlterationException as tba:
-        tba["for right and"] = for_right_hand
-        raise
 
 
 def comment(fingering: List[PianoNote], for_right_hand):

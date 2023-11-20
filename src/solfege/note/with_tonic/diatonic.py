@@ -2,93 +2,93 @@ import unittest
 
 from solfege.interval import DiatonicInterval
 from solfege.note import DiatonicNote
-from solfege.note.with_tonic.base import _NoteWithTonic
+from solfege.note.with_tonic.base import _NoteWithFundamental
 
 
-class DiatonicNoteWithTonic(_NoteWithTonic, DiatonicNote):
+class DiatonicNoteWithFundamental(_NoteWithFundamental, DiatonicNote):
     # Saved as the interval from middle C
     role = ["tonic", "supertonic", "mediant", "subdominant", "dominant", "submediant", "leading"]
 
 
 class TestDiatonicNoteWithTonic(unittest.TestCase):
-    C4 = DiatonicNoteWithTonic(value=0, tonic=True)
-    D4 = DiatonicNoteWithTonic(value=1, tonic=C4)
-    B3 = DiatonicNoteWithTonic(value=-1, tonic=C4)
-    E4 = DiatonicNoteWithTonic(value=2, tonic=C4)
-    F4 = DiatonicNoteWithTonic(value=3, tonic=C4)
-    C5 = DiatonicNoteWithTonic(value=7, tonic=C4)
-    B4 = DiatonicNoteWithTonic(value=6, tonic=C4)
-    D3 = DiatonicNoteWithTonic(value=-6, tonic=C4)
-    C3 = DiatonicNoteWithTonic(value=-7, tonic=C4)
-    B2 = DiatonicNoteWithTonic(value=-8, tonic=C4)
+    C4 = DiatonicNoteWithFundamental(value=0, fundamental=True)
+    D4 = DiatonicNoteWithFundamental(value=1, fundamental=C4)
+    B3 = DiatonicNoteWithFundamental(value=-1, fundamental=C4)
+    E4 = DiatonicNoteWithFundamental(value=2, fundamental=C4)
+    F4 = DiatonicNoteWithFundamental(value=3, fundamental=C4)
+    C5 = DiatonicNoteWithFundamental(value=7, fundamental=C4)
+    B4 = DiatonicNoteWithFundamental(value=6, fundamental=C4)
+    D3 = DiatonicNoteWithFundamental(value=-6, fundamental=C4)
+    C3 = DiatonicNoteWithFundamental(value=-7, fundamental=C4)
+    B2 = DiatonicNoteWithFundamental(value=-8, fundamental=C4)
 
     def test_eq(self):
-        n1_1 = DiatonicNoteWithTonic(value=1, tonic=True)
-        n1_1_ = DiatonicNoteWithTonic(value=1, tonic=True)
+        n1_1 = DiatonicNoteWithFundamental(value=1, fundamental=True)
+        n1_1_ = DiatonicNoteWithFundamental(value=1, fundamental=True)
         self.assertEquals(n1_1, n1_1_)
 
     def test_ne(self):
-        n1_1 = DiatonicNoteWithTonic(value=1, tonic=True)
-        n2_1 = DiatonicNoteWithTonic(value=2, tonic=n1_1)
-        n2_2 = DiatonicNoteWithTonic(value=2, tonic=True)
-        n3_1 = DiatonicNoteWithTonic(value=3, tonic=n1_1)
+        n1_1 = DiatonicNoteWithFundamental(value=1, fundamental=True)
+        n2_1 = DiatonicNoteWithFundamental(value=2, fundamental=n1_1)
+        n2_2 = DiatonicNoteWithFundamental(value=2, fundamental=True)
+        n3_1 = DiatonicNoteWithFundamental(value=3, fundamental=n1_1)
         self.assertNotEquals(n2_1, n2_2)
         self.assertNotEquals(n3_1, n2_1)
 
     def test_self_tonic(self):
-        n = DiatonicNoteWithTonic(value=1, tonic=True)
+        n = DiatonicNoteWithFundamental(value=1, fundamental=True)
         self.assertIs(n, n.get_tonic())
 
     def test_self_no_tonic(self):
-        n = DiatonicNoteWithTonic(value=1, tonic=False)
+        n = DiatonicNoteWithFundamental(value=1, fundamental=False)
         self.assertIsNone(n.get_tonic())
 
     def test_self_set_tonic(self):
-        n1 = DiatonicNoteWithTonic(value=1, tonic=True)
-        n2 = DiatonicNoteWithTonic(value=2, tonic=False)
+        n1 = DiatonicNoteWithFundamental(value=1, fundamental=True)
+        n2 = DiatonicNoteWithFundamental(value=2, fundamental=False)
         n2.set_tonic(n1)
         self.assertEquals(n2.get_tonic(), n1)
 
     def test_self_init_tonic(self):
-        n1 = DiatonicNoteWithTonic(value=1, tonic=True)
-        n2 = DiatonicNoteWithTonic(value=2, tonic=n1)
+        n1 = DiatonicNoteWithFundamental(value=1, fundamental=True)
+        n2 = DiatonicNoteWithFundamental(value=2, fundamental=n1)
         self.assertEquals(n2.get_tonic(), n1)
 
     def test_single_set(self):
-        n1 = DiatonicNoteWithTonic(value=1, tonic=True)
-        n2 = DiatonicNoteWithTonic(value=2, tonic=n1)
+        n1 = DiatonicNoteWithFundamental(value=1, fundamental=True)
+        n2 = DiatonicNoteWithFundamental(value=2, fundamental=n1)
         with self.assertRaises(Exception):
             n2.set_tonic(n1)
         with self.assertRaises(Exception):
             n1.set_tonic(n1)
 
     def test_add(self):
-        n1 = DiatonicNoteWithTonic(value=1, tonic=True)
+        n1 = DiatonicNoteWithFundamental(value=1, fundamental=True)
         n2 = n1 + DiatonicInterval(value=2)
         self.assertEquals(n2.get_tonic(), n1)
         self.assertEquals(n2.get_number(), 3)
 
     def test_sub_note(self):
-        n1 = DiatonicNoteWithTonic(value=1, tonic=True)
-        n2 = DiatonicNoteWithTonic(value=2, tonic=n1)
+        n1 = DiatonicNoteWithFundamental(value=1, fundamental=True)
+        n2 = DiatonicNoteWithFundamental(value=2, fundamental=n1)
         diff = n2 - n1
         self.assertEquals(diff, DiatonicInterval(1))
         with self.assertRaises(Exception):
-            _ = n1 - DiatonicNoteWithTonic(value=1, tonic=n2)
+            _ = n1 - DiatonicNoteWithFundamental(value=1, fundamental=n2)
 
     def test_subDiatonicInterval(self):
-        n = DiatonicNoteWithTonic(value=1, tonic=True)
-        self.assertEquals(n - DiatonicInterval(1), DiatonicNoteWithTonic(value=0, tonic=n))
+        n = DiatonicNoteWithFundamental(value=1, fundamental=True)
+        self.assertEquals(n - DiatonicInterval(1), DiatonicNoteWithFundamental(value=0, fundamental=n))
 
     def test_get_role(self):
-        C4 = DiatonicNoteWithTonic(value=0, tonic=True)
+        C4 = DiatonicNoteWithFundamental(value=0, fundamental=True)
         self.assertEquals(C4.get_role(), "tonic")
-        D4 = DiatonicNoteWithTonic(value=1, tonic=True)
+        D4 = DiatonicNoteWithFundamental(value=1, fundamental=True)
         self.assertEquals(D4.get_role(), "tonic")
-        self.assertEquals(DiatonicNoteWithTonic(value=2, tonic=D4).get_role(), "supertonic")
-        self.assertEquals(DiatonicNoteWithTonic(value=8, tonic=D4).get_role(), "tonic")
-        self.assertEquals(DiatonicNoteWithTonic(value=-6, tonic=D4).get_role(), "tonic")
-        self.assertEquals(DiatonicNoteWithTonic(value=-7, tonic=D4).get_role(), "leading")
+        self.assertEquals(DiatonicNoteWithFundamental(value=2, fundamental=D4).get_role(), "supertonic")
+        self.assertEquals(DiatonicNoteWithFundamental(value=8, fundamental=D4).get_role(), "tonic")
+        self.assertEquals(DiatonicNoteWithFundamental(value=-6, fundamental=D4).get_role(), "tonic")
+        self.assertEquals(DiatonicNoteWithFundamental(value=-7, fundamental=D4).get_role(), "leading")
 
     def test_get_octave(self):
         self.assertEquals(self.C4.get_octave(), 0)

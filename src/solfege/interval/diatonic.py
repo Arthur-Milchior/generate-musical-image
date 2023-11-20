@@ -1,5 +1,6 @@
 import unittest
 
+from solfege.interval import ChromaticInterval
 from solfege.interval.abstract import AbstractInterval
 
 
@@ -26,7 +27,7 @@ class DiatonicInterval(AbstractInterval):
                 "Adding a DiatonicInterval interval to something which is not a DiatonicInterval but %s" % other)
         return super().__add__(other)
 
-    def get_chromatic(self, scale="Major"):
+    def get_chromatic(self, scale="Major") -> ChromaticInterval:
         """
         Give the chromatic interval associated to the current diatonic interval in some scale.
           By default, the scale is the major one."""

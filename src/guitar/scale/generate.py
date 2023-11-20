@@ -39,11 +39,9 @@ for scale in ScalePattern.class_to_patterns[ScalePattern]:
             file = "%d-%d-%s.svg" % (string, fret, name)
             path = "%s/%s" % (folder_scale, file)
             sop = SetOfPos(poss)
-            debug(sop)
             if not sop.isOneMin():
                 print("no fret one:continue")
                 continue
-            debug("drawing")
             with open(path, "w") as f:
                 sop.draw(f)
             web += """<img src="%s"/>\n""" % file

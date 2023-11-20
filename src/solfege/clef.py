@@ -1,7 +1,7 @@
 import unittest
 from dataclasses import dataclass
 
-from solfege.note import Note, Alteration
+from solfege.note import Note, IntervalMode
 
 
 @dataclass
@@ -35,18 +35,18 @@ clefs = [
 
 class TestClef(unittest.TestCase):
     def test_alteration(self):
-        self.assertEquals(clefs[0].note.get_alteration(), Alteration(-1))
-        self.assertEquals(clefs[1].note.get_alteration(), Alteration(-1))
-        self.assertEquals(clefs[2].note.get_alteration(), Alteration(-1))
-        self.assertEquals(clefs[3].note.get_alteration(), Alteration(-1))
-        self.assertEquals(clefs[4].note.get_alteration(), Alteration(-1))
-        self.assertEquals(clefs[5].note.get_alteration(), Alteration(-1))
-        self.assertEquals(clefs[6].note.get_alteration(), Alteration(0))
-        self.assertEquals(clefs[7].note.get_alteration(), Alteration(0))
-        self.assertEquals(clefs[8].note.get_alteration(), Alteration(0))
-        self.assertEquals(clefs[9].note.get_alteration(), Alteration(0))
-        self.assertEquals(clefs[10].note.get_alteration(), Alteration(0))
-        self.assertEquals(clefs[11].note.get_alteration(), Alteration(0))
-        self.assertEquals(clefs[12].note.get_alteration(), Alteration(0))
-        self.assertEquals(clefs[13].note.get_alteration(), Alteration(1))
-        self.assertEquals(clefs[14].note.get_alteration(), Alteration(1))
+        self.assertEquals(clefs[0].note.get_alteration(), IntervalMode(-1))
+        self.assertEquals(clefs[1].note.get_alteration(), IntervalMode(-1))
+        self.assertEquals(clefs[2].note.get_alteration(), IntervalMode(-1))
+        self.assertEquals(clefs[3].note.get_alteration(), IntervalMode(-1))
+        self.assertEquals(clefs[4].note.get_alteration(), IntervalMode(-1))
+        self.assertEquals(clefs[5].note.get_alteration(), IntervalMode(-1))
+        self.assertEquals(clefs[6].note.get_alteration(), IntervalMode(0))
+        self.assertEquals(clefs[7].note.get_alteration(), IntervalMode(0))
+        self.assertEquals(clefs[8].note.get_alteration(), IntervalMode(0))
+        self.assertEquals(clefs[9].note.get_alteration(), IntervalMode(0))
+        self.assertEquals(clefs[10].note.get_alteration(), IntervalMode(0))
+        self.assertEquals(clefs[11].note.get_alteration(), IntervalMode(0))
+        self.assertEquals(clefs[12].note.get_alteration(), IntervalMode(0))
+        self.assertEquals(clefs[13].note.get_alteration(), IntervalMode(1))
+        self.assertEquals(clefs[14].note.get_alteration(), IntervalMode(1))

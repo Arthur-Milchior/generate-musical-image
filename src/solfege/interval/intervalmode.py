@@ -1,11 +1,11 @@
-from solfege.interval.TooBigAlterationException import TooBigAlterationException
+from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.interval.chromatic import ChromaticInterval
 
 
 # The usage of name of the alternations
 
 
-class Alteration(ChromaticInterval):
+class IntervalMode(ChromaticInterval):
     """Represents either bb, b, flat, #, or 𝄪.
 
     Raise in init for any other value."""

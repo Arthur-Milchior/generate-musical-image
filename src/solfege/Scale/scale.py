@@ -11,6 +11,9 @@ class Scale(Generic[NoteType]):
     def __init__(self, notes: List[NoteType]):
         self.notes = notes
 
+    def all_blacks(self):
+        return all(note.is_black_key_on_piano() for note in self.notes)
+
     def __eq__(self, other):
         return self.notes == other.notes
 

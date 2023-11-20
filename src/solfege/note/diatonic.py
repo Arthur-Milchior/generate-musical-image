@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from solfege.interval.diatonic import DiatonicInterval, TestDiatonicInterval
 from solfege.note.abstract import AbstractNote
 from solfege.note.alteration import LILY, FILE_NAME, TEXT, MONOSPACE
@@ -18,6 +16,16 @@ class DiatonicNote(AbstractNote, DiatonicInterval):
             return lower_cap
         assert usage == FILE_NAME or usage == TEXT or usage == MONOSPACE
         return lower_cap.upper()
+
+    @staticmethod
+    def from_name(name: str):
+        assert 1 <= len(name) <= 2
+        letter = name[0].lower()
+        note = DiatonicNote({"c": 0, "d": 1, "e": 2, "f": 3, "g": 4, "a": 5, "b": 6}[letter])
+        if len(name) == 2:
+            octave = int(name[1])
+            note = note.add_octave(octave - 4)
+        return note
 
 
 class TestDiatonicNote(TestDiatonicInterval):
@@ -152,7 +160,6 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(DiatonicNote(-8).get_note_name(usage=LILY), "b")
         self.assertEquals(DiatonicNote(-9).get_note_name(usage=LILY), "a")
 
-
     def test_get_note_name(self):
         self.assertEquals(DiatonicNote(0).get_note_name(usage=FILE_NAME), "c")
         self.assertEquals(DiatonicNote(1).get_note_name(usage=FILE_NAME), "d")
@@ -173,3 +180,13 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(DiatonicNote(-7).get_note_name(usage=FILE_NAME), "c")
         self.assertEquals(DiatonicNote(-8).get_note_name(usage=FILE_NAME), "b")
         self.assertEquals(DiatonicNote(-9).get_note_name(usage=FILE_NAME), "a")
+
+    def test_from_name(self):
+        self.assertEquals(DiatonicNote(0), DiatonicNote.from_name("C"))
+        self.assertEquals(DiatonicNote(0), DiatonicNote.from_name("c"))
+        self.assertEquals(DiatonicNote(0), DiatonicNote.from_name("c4"))
+        self.assertEquals(DiatonicNote(-7), DiatonicNote.from_name("c3"))
+        self.assertEquals(DiatonicNote(7), DiatonicNote.from_name("c5"))
+        self.assertEquals(DiatonicNote(6), DiatonicNote.from_name("b4"))
+        self.assertEquals(DiatonicNote(-1), DiatonicNote.from_name("b3"))
+        self.assertEquals(DiatonicNote(13), DiatonicNote.from_name("b5"))

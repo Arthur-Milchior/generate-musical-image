@@ -1,10 +1,9 @@
-"""Generates an image for every note which can be played on the guitar on a string, either open, or with fret between 1 and 5"""
-import os
-from util import *
+"""Generates an image for every note which can be played on the guitar on a string, either open, or with fret between
+1 and 5"""
 import guitar.util
 from guitar.pos import Pos
+from util import ensure_folder
 
-# from .chord import *
 leafFolder = "solo/"
 imageFolder = guitar.util.imageFolder + leafFolder
 ankiFolder = guitar.util.ankiFolder + leafFolder

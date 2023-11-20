@@ -2,10 +2,10 @@ import unittest
 
 from solfege.interval.interval import Interval
 from solfege.note import Note, DiatonicNote, ChromaticNote
-from solfege.note.with_tonic import ChromaticNoteWithTonic
+from solfege.note.with_tonic import ChromaticNoteWithFundamental
 
 
-class NoteWithTonic(ChromaticNoteWithTonic, Note):
+class NoteWithTonic(ChromaticNoteWithFundamental, Note):
     """A note of the scale, as an interval from middle C."""
 
     IntervalClass = Interval
@@ -31,18 +31,18 @@ class NoteWithTonic(ChromaticNoteWithTonic, Note):
 
 
 class TestNoteWithTonic(unittest.TestCase):
-    C4 = NoteWithTonic(chromatic=0, diatonic = 0, tonic=True)
-    D4 = NoteWithTonic(chromatic=2, diatonic = 1, tonic=C4)
-    B3 = NoteWithTonic(chromatic=-1, diatonic = -1, tonic=C4)
-    E4 = NoteWithTonic(chromatic=4, diatonic = 2, tonic=C4)
-    F4 = NoteWithTonic(chromatic=5, diatonic = 3, tonic=C4)
-    C5 = NoteWithTonic(chromatic=12, diatonic = 7, tonic=C4)
-    B4 = NoteWithTonic(chromatic=11, diatonic = 6, tonic=C4)
-    D3 = NoteWithTonic(chromatic=-10, diatonic = 6, tonic=C4)
-    C3 = NoteWithTonic(chromatic=-12, diatonic = -7, tonic=C4)
-    B2 = NoteWithTonic(chromatic=-13, diatonic = -8, tonic=C4)
+    C4 = NoteWithTonic(chromatic=0, diatonic = 0, fundamental=True)
+    D4 = NoteWithTonic(chromatic=2, diatonic = 1, fundamental=C4)
+    B3 = NoteWithTonic(chromatic=-1, diatonic = -1, fundamental=C4)
+    E4 = NoteWithTonic(chromatic=4, diatonic = 2, fundamental=C4)
+    F4 = NoteWithTonic(chromatic=5, diatonic = 3, fundamental=C4)
+    C5 = NoteWithTonic(chromatic=12, diatonic = 7, fundamental=C4)
+    B4 = NoteWithTonic(chromatic=11, diatonic = 6, fundamental=C4)
+    D3 = NoteWithTonic(chromatic=-10, diatonic = 6, fundamental=C4)
+    C3 = NoteWithTonic(chromatic=-12, diatonic = -7, fundamental=C4)
+    B2 = NoteWithTonic(chromatic=-13, diatonic = -8, fundamental=C4)
     def test_eq(self):
-        zero = NoteWithTonic(chromatic=0, diatonic=0, tonic=True)
+        zero = NoteWithTonic(chromatic=0, diatonic=0, fundamental=True)
         self.assertEquals(zero.get_chromatic().get_number(), 0)
         self.assertEquals(zero.get_diatonic().get_number(), 0)
         self.assertEquals(zero.get_tonic(), zero)

@@ -11,7 +11,7 @@ from piano.generate import generate_fingering
 from piano.pianonote import PianoNote
 from solfege.Scale.pattern import ScalePattern
 from solfege.clef import clefs
-from solfege.interval.TooBigAlterationException import TooBigAlterationException
+from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import Note
 from solfege.note.alteration import TEXT, FILE_NAME, LILY, MONOSPACE
 
@@ -135,10 +135,10 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
                                                               ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
     anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves = []
     html_lines = []
-    left_hand_scale_increasing = left_fingering.generate(lowest_or_highest_note=right_hand_lowest_note.add_octave(-1),
+    left_hand_scale_increasing = left_fingering.generate(first_played_note=right_hand_lowest_note.add_octave(-1),
                                                          scale_pattern=scale_pattern,
                                                          number_of_octaves=number_of_octaves)
-    right_hand_scale_increasing = right_fingering.generate(lowest_or_highest_note=right_hand_lowest_note,
+    right_hand_scale_increasing = right_fingering.generate(first_played_note=right_hand_lowest_note,
                                                            scale_pattern=scale_pattern,
                                                            number_of_octaves=number_of_octaves)
     left_hand_scale_decreasing = list(reversed(left_hand_scale_increasing))
@@ -166,6 +166,7 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
             )
         except TooBigAlterationException as tba:
             tba["scale pattern"] = scale_pattern
+            tba["right hand lowest note"] = str(right_hand_lowest_note)
             raise
         anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves += output.image_tags
         html_lines += output.html_lines
@@ -202,8 +203,8 @@ def generate_score_fixed_pattern_first_note(key: str,
 
     Bot are usually similar.
     """
-    left_penalty = generate_fingering(right_hand_lowest_note, scale=scale_pattern, for_right_hand=False)
-    right_penalty = generate_fingering(right_hand_lowest_note, scale=scale_pattern, for_right_hand=True)
+    left_penalty = generate_fingering(right_hand_lowest_note, scale_pattern=scale_pattern, for_right_hand=False)
+    right_penalty = generate_fingering(right_hand_lowest_note, scale_pattern=scale_pattern, for_right_hand=True)
     missing_scales = []
     if not left_penalty:
         missing_scales.append(
@@ -286,12 +287,12 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
     missing: List[MissingFingering] = []
     html_lines_for_pattern: List[str] = []
     too_big_alterations: List[TooBigAlterationException] = []
-    for clef in clefs:
-        starting_note = clef.note - scale_pattern.interval_for_signature
+    for fundamental in clefs:
+        starting_note = fundamental.note - scale_pattern.interval_for_signature
         note_folder = f"{folder_path}/{starting_note.get_note_name(FILE_NAME)}"
         pathlib.Path(note_folder).mkdir(exist_ok=True)
         try:
-            output = generate_score_fixed_pattern_first_note(key=clef.note.get_note_name(LILY),
+            output = generate_score_fixed_pattern_first_note(key=fundamental.note.get_note_name(LILY),
                                                              right_hand_lowest_note=starting_note,
                                                              scale_pattern=scale_pattern,
                                                              folder_path=note_folder, execute_lily=execute_lily)
@@ -391,7 +392,7 @@ def generate_scores(folder_path: str, execute_lily: bool) -> GenerateScoreOutput
     html_main_index_lines = []
     anki_every_notes_as_csv: List[str] = []
     for scale_pattern in ScalePattern.class_to_patterns[ScalePattern]:
-        scale_pattern_folder_path = f"""folder_path/{scale_pattern.get_the_first_of_the_name().replace(" ", "_")}"""
+        scale_pattern_folder_path = f"""{folder_path}/{scale_pattern.get_the_first_of_the_name().replace(" ", "_")}"""
         util.ensure_folder(scale_pattern_folder_path)
         output = generate_score_fixed_pattern(
             scale_pattern=scale_pattern,
@@ -422,14 +423,14 @@ def generate_scores(folder_path: str, execute_lily: bool) -> GenerateScoreOutput
     <footer><a href="about.html"/>About</a></footer>
   </body>
 </html>""")
-    with open(imageFolder + "piano/scales/about.html", "w") as html_file:
+    with open(f"{folder_path}/about.html", "w") as html_file:
         html_file.write(about_page_content)
     with open(f"""{folder_path}/anki.csv""", "w") as anki_file:
         anki_file.write("\n".join(anki_every_notes_as_csv))
     with open(f"""{folder_path}/scales_the_algo_failed_to_compute.txt""", "w") as cant:
         cant.write("\n".join(str(missing_fingering) for missing_fingering in missing_fingerings))
     with open(f"""{folder_path}/too_big_alterations.txt""", "w") as tba_file:
-        tba_file.write("\n".join(str(tba) for tba in too_big_alterations))
+        tba_file.write("\n".join(repr(tba) for tba in too_big_alterations))
     return GenerateScoreOutput(missing_scores=missing_fingerings, too_big_alterations=too_big_alterations)
 
 

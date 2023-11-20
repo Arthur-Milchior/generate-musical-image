@@ -71,7 +71,6 @@ class AbstractInterval:
             otherNumber = other
         sum_ = self.get_number() + otherNumber
         ret = clazz(value=sum_)
-        # debug("Adding %s and %s we obtain %s",(self,other,ret))
         return ret
 
     def __rmul__(self, other):

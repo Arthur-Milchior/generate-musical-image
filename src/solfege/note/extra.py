@@ -46,4 +46,3 @@ for (diatonic, alteration, nbBemol) in [(0, 0, 0),  # C
 # B#
 # ]
 
-# debug("The twelve notes are %s",repr(twelve_notes))

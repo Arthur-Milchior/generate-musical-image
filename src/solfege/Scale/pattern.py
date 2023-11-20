@@ -88,45 +88,48 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
                             interval_for_signature=self.interval_for_signature, increasing=not self.increasing,
                             record=False)
 
-    def generate(self, tonic: NoteType, number_of_octaves=1) -> Scale[NoteType]:
+    def generate(self, fundamental: NoteType, number_of_octaves=1,
+                 add_an_extra_note: bool = False) -> Scale[NoteType]:
         """The notes, starting at tonic, following this pattern for nb_octave.
         If nb_octave is negative, the generated scale is decreasing."""
         assert number_of_octaves != 0
         if number_of_octaves < 0:
-            return (-self).generate(tonic, -number_of_octaves)
-        current_note = tonic
-        notes = [tonic]
+            return (-self).generate(fundamental, -number_of_octaves, add_an_extra_note=add_an_extra_note)
+        current_note = fundamental
+        notes = [fundamental]
         for _ in range(number_of_octaves):
             for interval in self._intervals:
                 current_note += interval
                 notes.append(current_note)
+        if add_an_extra_note:
+            notes.append(notes[-1] + self._intervals[0])
         return Scale[NoteType](notes=notes)
 
 
-seven_sharps = Interval(diatonic=0, chromatic=1) # when playng a C, have C# signature, 3 sharps
-three_sharps = Interval(diatonic=5, chromatic=9) # when playng a C, have A signature, 3 sharps
-two_sharps = Interval(diatonic=1, chromatic=2) # when playng a C, have D signature, 2 sharps
-one_sharp = Interval(diatonic=4, chromatic=7) # when playng a C, have G signature, 1 sharp
-unison = Interval(diatonic=0, chromatic=0) # when playng a C, have C signature
-one_flat = Interval(diatonic=3, chromatic=5) # when playng a C, have F signature, 1 flat
-two_flats = Interval(diatonic=6, chromatic=10) # when playng a C, have Bb signature, 2 flats
-three_flats = Interval(diatonic=2, chromatic=3) # when playng a C, have Eb signature, 3 flats
-four_flats = Interval(diatonic=5, chromatic=8) # when playng a C, have Ab signature, 4 flats
-five_flats = Interval(diatonic=1, chromatic=1) # when playng a C, have Bb signature, 5 flats
-
+seven_sharps = Interval(diatonic=0, chromatic=1)  # when playing a C, have C# signature, 3 sharps
+three_sharps = Interval(diatonic=5, chromatic=9)  # when playing a C, have A signature, 3 sharps
+two_sharps = Interval(diatonic=1, chromatic=2)  # when playing a C, have D signature, 2 sharps
+one_sharp = Interval(diatonic=4, chromatic=7)  # when playing a C, have G signature, 1 sharp
+unison = Interval(diatonic=0, chromatic=0)  # when playing a C, have C signature
+one_flat = Interval(diatonic=3, chromatic=5)  # when playing a C, have F signature, 1 flat
+two_flats = Interval(diatonic=6, chromatic=10)  # when playing a C, have Bb signature, 2 flats
+three_flats = Interval(diatonic=2, chromatic=3)  # when playing a C, have Eb signature, 3 flats
+four_flats = Interval(diatonic=5, chromatic=8)  # when playing a C, have Ab signature, 4 flats
+five_flats = Interval(diatonic=1, chromatic=1)  # when playing a C, have Bb signature, 5 flats
 
 ScalePattern[Interval](["Major arpeggio"], [(4, 2), (3, 2), (5, 3)], unison)
 minor_arpeggio = ScalePattern[Interval](["Minor arpeggio"], [(3, 2), (4, 2), (5, 3)],
                                         three_flats)
 ScalePattern[Interval](["Greek Dorian tonos (chromatic genus)"], [1, 1, 3, 2, 1, 1, 3],
                        unison)
+# ré b, mi bb, f, g, a b, b bb, c
 ScalePattern[Interval](["Major"], [2, 2, 1, 2, 2, 2, 1], unison)
 ScalePattern[Interval](["Dominant seventh arpeggio"], [(4, 2), (3, 2), (3, 2), 2], unison)
 ScalePattern[Interval](["Minor harmonic"], [2, 1, 2, 2, 1, 3, 1], three_flats)
 blues = ScalePattern[Interval](["Blues"], [(3, 2), 2, (1, 0), 1, (3, 2), 2], three_flats)
 pentatonic_minor = ScalePattern[Interval](["Pentatonic minor"], [(3, 2), 2, 2, (3, 2), 2],
                                           three_flats)
-ScalePattern[Interval](["Pentatonic major"], [2, 2, (3, 2), 2, (3, 2)], unison)
+pentatonic_major = ScalePattern[Interval](["Pentatonic major"], [2, 2, (3, 2), 2, (3, 2)], unison)
 ScalePattern[Interval](["Whole tone"], [(2, 1), (2, 1), (2, 1), (2, 1), (2, 1), (2, 2)], one_sharp)
 ScalePattern[Interval](["Chromatic"],
                        [(1, 0), (1, 1), (1, 0), (1, 1), (1, 1), (1, 0), (1, 1), (1, 0), (1, 1), (1, 0), (1, 1),
@@ -138,7 +141,8 @@ ScalePattern[Interval](
     ["Altered", "Altered", "Super-Locrian", "Locrian flat four", "Pomeroy", "Ravel", "diminished whole tone"],
     [1, 2, 1, 2, 2, 2, 2], seven_sharps)
 ScalePattern[Interval](["Augmented", ], [(3, 2), (1, 0), (3, 2), (1, 0), (3, 2), 1], unison)
-ScalePattern[Interval](["Prometheus", "Mystic chord"], [2, 2, 2, (3, 2), 1, 2], unison) #one flat one sharp, can't decide
+ScalePattern[Interval](["Prometheus", "Mystic chord"], [2, 2, 2, (3, 2), 1, 2],
+                       unison)  # one flat one sharp, can't decide
 ScalePattern[Interval](["Tritone", ], [1, 3, (2, 2), (1, 0), (3, 2), 2], one_flat)
 ScalePattern[Interval](["Bebop dominant", ], [2, 2, 1, 2, 2, 1, (1, 0), 1], unison)
 ScalePattern[Interval](["Bebop dorian", "Bebop minor"], [2, 1, (1, 0), 1, 2, 2, 1, 2, ], unison)
@@ -159,7 +163,7 @@ ScalePattern[Interval](["Hirajōshi Burrows"], [(4, 2), 2, 1, (4, 2), 1], one_sh
 ScalePattern[Interval](["Hirajōshi Sachs-Slonimsky"], [1, (4, 2), 1, (4, 2), 2], unison)
 ScalePattern[Interval](["Hirajōshi Kostka and Payne-Speed"], [2, 1, (4, 2), 1, (4, 2)],
                        unison)
-ScalePattern[Interval](["Hungarian minor"], [2, 1, 3, 1, 1, 3, 1], three_flats)#should also have one sharp
+ScalePattern[Interval](["Hungarian minor"], [2, 1, 3, 1, 1, 3, 1], three_flats)  # should also have one sharp
 ScalePattern[Interval](["Greek Dorian tonos (diatonic genus)", "Phrygian mode"], [1, 2, 2, 2, 1, 2, 2],
                        three_flats)
 ScalePattern[Interval](["Miyako-bushi"], [1, (4, 2), 2, 1, (4, 2)], two_flats)
@@ -181,7 +185,7 @@ ScalePattern[Interval](["Greek Phrygian tonos (chromatic genus)"], [3, 1, 1, 2, 
                        unison)
 ScalePattern[Interval](["Slendro"], [2, (3, 2), 2, 2, (3, 2)], unison)
 ScalePattern[Interval](["Two-semitone tritone"], [1, (1, 0), (4, 2), 1, 1, (4, 2)], unison)
-ScalePattern[Interval](["Ukrainian Dorian"], [2, 1, 3, 1, 2, 1, 2], two_flats) #shold also have one sharp
+ScalePattern[Interval](["Ukrainian Dorian"], [2, 1, 3, 1, 2, 1, 2], two_flats)  # shold also have one sharp
 ScalePattern[Interval](["Misheberak"], [2, 1, 3, 1, 2, 1, 2], unison)
 ScalePattern[Interval](["Yo ascending"], [2, (3, 2), 2, (3, 2), 2], two_flats)
 ScalePattern[Interval](["Yo descending"], [2, (3, 2), 2, 2, (3, 2)], two_flats)
@@ -227,16 +231,15 @@ ScalePattern[Interval](["Octave"], [(12, 7)], unison)
 class TestScalePattern(unittest.TestCase):
 
     def test_ne(self):
-        self.assertNotEquals(minor_melodic, ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], three_flats))
-        self.assertNotEquals(minor_melodic, ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], four_flats))
+        self.assertNotEquals(minor_melodic,
+                             ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], four_flats))
         self.assertNotEquals(minor_melodic, ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2],
                                                                    three_flats))
         self.assertNotEquals(minor_melodic, ScalePattern[Interval](["Minor"], [2, 1, 2, 2, 2, 2, 1],
                                                                    three_flats))
 
     def test_eq(self):
-        self.assertEquals(minor_melodic._flats, 3)
-        self.assertEquals(minor_melodic._sharps, 0)
+        self.assertEquals(minor_melodic.interval_for_signature, three_flats)
         self.assertEquals(minor_melodic._diatonic_sum, 7)
         self.assertEquals(minor_melodic._chromatic_sum, 12)
         self.assertEquals(minor_melodic._intervals, [
@@ -273,7 +276,7 @@ class TestScalePattern(unittest.TestCase):
                                               Interval(diatonic=-1, chromatic=-2),
                                               Interval(diatonic=-1, chromatic=-2),
                                               Interval(diatonic=-1, chromatic=-1),
-                                              Interval(diatonic=-1, chromatic=-2)], 3, 0, increasing=False,
+                                              Interval(diatonic=-1, chromatic=-2)], three_flats, increasing=False,
                                           record=False)
         self.assertEquals(reversed,
                           expected)
@@ -312,6 +315,26 @@ class TestScalePattern(unittest.TestCase):
         ])
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=2)
         self.assertEquals(expected, generated)
+        expected = Scale(notes=[
+            Note(chromatic=0, diatonic=0),
+            Note(chromatic=2, diatonic=1),
+            Note(chromatic=3, diatonic=2),
+            Note(chromatic=5, diatonic=3),
+            Note(chromatic=7, diatonic=4),
+            Note(chromatic=9, diatonic=5),
+            Note(chromatic=11, diatonic=6),
+            Note(chromatic=12, diatonic=7),
+            Note(chromatic=14, diatonic=8),
+            Note(chromatic=15, diatonic=9),
+            Note(chromatic=17, diatonic=10),
+            Note(chromatic=19, diatonic=11),
+            Note(chromatic=21, diatonic=12),
+            Note(chromatic=23, diatonic=13),
+            Note(chromatic=24, diatonic=14),
+            Note(chromatic=26, diatonic=15),
+        ])
+        generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=2, add_an_extra_note=True)
+        self.assertEquals(expected, generated)
 
     def test_generate_minus_two(self):
         expected = Scale(notes=[
@@ -332,4 +355,24 @@ class TestScalePattern(unittest.TestCase):
             Note(chromatic=-24, diatonic=-14),
         ])
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=-2)
+        self.assertEquals(expected, generated)
+        expected = Scale(notes=[
+            Note(chromatic=0, diatonic=0),
+            Note(chromatic=-1, diatonic=-1),
+            Note(chromatic=-3, diatonic=-2),
+            Note(chromatic=-5, diatonic=-3),
+            Note(chromatic=-7, diatonic=-4),
+            Note(chromatic=-9, diatonic=-5),
+            Note(chromatic=-10, diatonic=-6),
+            Note(chromatic=-12, diatonic=-7),
+            Note(chromatic=-13, diatonic=-8),
+            Note(chromatic=-15, diatonic=-9),
+            Note(chromatic=-17, diatonic=-10),
+            Note(chromatic=-19, diatonic=-11),
+            Note(chromatic=-21, diatonic=-12),
+            Note(chromatic=-22, diatonic=-13),
+            Note(chromatic=-24, diatonic=-14),
+            Note(chromatic=-25, diatonic=-15),
+        ])
+        generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=-2, add_an_extra_note=True)
         self.assertEquals(expected, generated)

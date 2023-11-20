@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 import solfege.note
-from solfege.interval.TooBigAlterationException import TooBigAlterationException
+from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import Note
 
 
@@ -21,7 +21,7 @@ class PianoNote:
         try:
             return f"{self.note.lily(use_color=use_color)}-{self.finger}"
         except TooBigAlterationException as tba:
-            tba["from note"] = self
+            tba["The note which is too big"] = self
             raise
 
 class TestPianoNote(unittest.TestCase):
