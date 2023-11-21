@@ -27,6 +27,7 @@ class TestGeneration(unittest.TestCase):
     lilypond_path_both_hands = f"{file_prefix_both_hands}.ly"
     lilypond_path_left_hand = f"{file_prefix_left_hand}.ly"
     svg_both_hands_path = f"{file_prefix_both_hands}.svg"
+    wav_both_hands_path = f"{file_prefix_both_hands}.wav"
     svg_left_hand_path = f"{file_prefix_left_hand}.svg"
     lily_code_both_hands = """%%left hand fingering:[5, 4, 2, 1], right hand fingering:[1, 2, 4, 5]
 \\version "2.20.0"
@@ -207,6 +208,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
             self.assertEquals(self.lily_code_both_hands, file.read())
         if expect_compiled:
             self.assertTrue(os.path.exists(self.svg_both_hands_path))
+            self.assertTrue(os.path.exists(self.wav_both_hands_path))
             # os.system(f"eog {self.svg_path}")
 
     def check_pentatonic_major_left_hand_increasing_F_exists(self, expect_compiled: bool):
@@ -223,14 +225,16 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
             show_right=True,
             show_left=True,
             number_of_octaves=1, direction=INCREASING, lily_code=self.lily_code_both_hands,
-            execute_lily=self.execute_lily)
+            execute_lily=self.execute_lily,
+            wav=True)
         _ = generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both(
             scale_name="Minor_arpeggio", folder_path=self.folder_note_scale,
             scale_lowest_note=self.scale_lowest_note.add_octave(-1),
             show_right=False,
             show_left=True,
             number_of_octaves=1, direction=INCREASING, lily_code=self.lily_code_left_hand,
-            execute_lily=self.execute_lily)
+            execute_lily=self.execute_lily,
+            wav=True)
         self.assertEquals(output_both_hands.image_tag, f"<img src='Minor_arpeggio-F_____-two_hands-1-increasing.svg'>")
         self.assertEquals(output_both_hands.html_line,
                           f"<li><a href='Minor_arpeggio-F_____-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F_____-two_hands-1-increasing.svg'></a></li>")
@@ -296,6 +300,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
                                                                            left_fingering=self.left_fingering,
                                                                            right_fingering=self.right_fingering,
                                                                            execute_lily=self.execute_lily,
+                                                                           wav=True
                                                                            )
         self.assertEquals(output.image_tags,
                           [
@@ -336,6 +341,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
                                                          scale_pattern=minor_arpeggio,
                                                          folder_path=self.folder_note_scale,
                                                          execute_lily=self.execute_lily,
+                                                         wav=True,
                                                          )
         self.assertIsInstance(output,
                               ScoreFixedPatternFirstNote)
@@ -354,6 +360,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
                                                          scale_pattern=minor_arpeggio,
                                                          folder_path=self.folder_note_scale,
                                                          execute_lily=self.execute_lily,
+                                                         wav=True,
                                                          )
         self.assertIsInstance(output, List)
         self.assertEquals(output,
@@ -368,7 +375,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
     def test_generate_score_fixed_pattern(self):
         self.clean_example()
         output = (generate_score_fixed_pattern(scale_pattern=minor_arpeggio, folder_path=self.folder_scale,
-                                               execute_lily=self.execute_lily))
+                                               execute_lily=self.execute_lily, wav=True))
         self.assertEquals(output.html_link_for_this_scale_pattern,
                           "<li><a href='Minor_arpeggio'>Minor arpeggio</a></li>")
         self.assertEquals(output.missing_scores,
@@ -391,7 +398,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
 
     def test_generate_score(self):
         self.clean_example()
-        generate_scores(self.test_folder, execute_lily=self.execute_lily)
+        generate_scores(self.test_folder, execute_lily=self.execute_lily, wav=True)
         self.check_anki_exists()
         self.check_index_exists()
         self.check_scale_index_exists()

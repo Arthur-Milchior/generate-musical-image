@@ -51,6 +51,7 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_
                                                                                               direction: str,
                                                                                               lily_code: str,
                                                                                               execute_lily: bool,
+                                                                                              wav: bool,
                                                                                               ) -> ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth:
     """Ensure that folder_path/ contains the score for lilyCode, for scale_name, hands left/right, number_of_octaves and direction.
     Don't compile if `compile` is false. Mostly used for testing"""
@@ -65,9 +66,9 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_
             last_code = file.readline()[:-1]  # Line containing first fingering
             current_fingering = lily_code.splitlines()[0]
             if last_code != current_fingering:
-                compile_(lily_code, file_path, execute_lily=execute_lily)
+                compile_(lily_code, file_path, execute_lily=execute_lily, wav=wav)
     else:
-        compile_(lily_code, file_path, execute_lily=execute_lily)
+        compile_(lily_code, file_path, execute_lily=execute_lily, wav=wav)
     return ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth(image_tag=image_tag, html_line=html_line)
 
 
@@ -86,30 +87,31 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str
                                                                         number_of_octaves: int,
                                                                         direction: str,
                                                                         execute_lily: bool,
+                                                                        wav: bool,
                                                                         ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
     anki_fields_for_this_note_scale_direction = []
     html_lines = []
     try:
         left_code = lilypond_code_for_one_hand(key=key,
                                                fingering=left_scale_fingering,
-                                               for_right_hand=False, use_color=False)
+                                               for_right_hand=False, use_color=False, midi=wav)
     except TooBigAlterationException as tba:
         tba["fingering"] = left_scale_fingering
         raise
     try:
         right_code = lilypond_code_for_one_hand(key=key,
                                                 fingering=right_scale_fingering,
-                                                for_right_hand=True, use_color=False)
+                                                for_right_hand=True, use_color=False, midi=wav)
     except TooBigAlterationException as tba:
         tba["fingering"] = right_scale_fingering
         raise
     both_hands_code = lilypond_code_for_two_hands(key=key,
                                                   left_fingering=left_scale_fingering,
-                                                  right_fingering=right_scale_fingering, use_color=False)
+                                                  right_fingering=right_scale_fingering, use_color=False, midi=wav)
     for show_left, show_right, lily_code in [
         (True, False, left_code),
         (False, True, right_code),
-        (True, True, both_hands_code)
+        (True, True, both_hands_code),
     ]:
         output = generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both(
             folder_path=folder_path,
@@ -118,6 +120,7 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str
             number_of_octaves=number_of_octaves, direction=direction,
             lily_code=lily_code,
             execute_lily=execute_lily,
+            wav=wav
         )
         anki_fields_for_this_note_scale_direction.append(output.image_tag)
         html_lines.append(output.html_line)
@@ -132,6 +135,7 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
                                                               folder_path: str,
                                                               number_of_octaves: int,
                                                               execute_lily: bool,
+                                                              wav: bool
                                                               ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
     anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves = []
     html_lines = []
@@ -163,6 +167,7 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
                 number_of_octaves=number_of_octaves,
                 direction=direction,
                 execute_lily=execute_lily,
+                wav=wav,
             )
         except TooBigAlterationException as tba:
             tba["scale pattern"] = scale_pattern
@@ -195,6 +200,7 @@ def generate_score_fixed_pattern_first_note(key: str,
                                             scale_pattern: ScalePattern,
                                             folder_path: str,
                                             execute_lily: bool,
+                                            wav: bool,
                                             ) -> Union[ScoreFixedPatternFirstNote, List[MissingFingering]]:
     """
 
@@ -237,6 +243,7 @@ def generate_score_fixed_pattern_first_note(key: str,
             folder_path=folder_path,
             number_of_octaves=number_of_octaves,
             execute_lily=execute_lily,
+            wav=wav
         )
         anki_fields_for_this_scale_pattern_and_lowest_note += output.image_tags
         html_lines += output.html_lines
@@ -282,6 +289,7 @@ class ScoreFixedPattern:
 def generate_score_fixed_pattern(scale_pattern: ScalePattern,
                                  folder_path: str,
                                  execute_lily: bool,
+                                 wav: bool,
                                  ) -> ScoreFixedPattern:
     anki_notes_as_csv: List[str] = []
     missing: List[MissingFingering] = []
@@ -295,7 +303,8 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
             output = generate_score_fixed_pattern_first_note(key=fundamental.note.get_note_name(LILY),
                                                              right_hand_lowest_note=starting_note,
                                                              scale_pattern=scale_pattern,
-                                                             folder_path=note_folder, execute_lily=execute_lily)
+                                                             folder_path=note_folder, execute_lily=execute_lily,
+                                                             wav=wav)
         except TooBigAlterationException as tba:
             too_big_alterations.append(tba)
             continue
@@ -386,7 +395,7 @@ class GenerateScoreOutput:
     too_big_alterations: List[TooBigAlterationException]
 
 
-def generate_scores(folder_path: str, execute_lily: bool) -> GenerateScoreOutput:
+def generate_scores(folder_path: str, execute_lily: bool, wav: bool) -> GenerateScoreOutput:
     missing_fingerings: List[MissingFingering] = []
     too_big_alterations = []
     html_main_index_lines = []
@@ -398,6 +407,7 @@ def generate_scores(folder_path: str, execute_lily: bool) -> GenerateScoreOutput
             scale_pattern=scale_pattern,
             folder_path=scale_pattern_folder_path,
             execute_lily=execute_lily,
+            wav=wav,
         )
         missing_fingerings += output.missing_scores
         html_main_index_lines.append(output.html_link_for_this_scale_pattern)
@@ -435,6 +445,6 @@ def generate_scores(folder_path: str, execute_lily: bool) -> GenerateScoreOutput
 
 
 if __name__ == '__main__':
-    folder_path = "piano"
+    folder_path = "../generated/piano"
     util.ensure_folder(folder_path)
-    generate_scores(folder_path=folder_path, execute_lily=True)
+    generate_scores(folder_path=folder_path, execute_lily=True, wav=True)
