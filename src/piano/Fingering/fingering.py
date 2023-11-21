@@ -126,11 +126,11 @@ class Fingering:
         assert number_of_octaves != 0
         scale = scale_pattern.generate(first_played_note, number_of_octaves=number_of_octaves)
         fingered_scale = [
-            PianoNote(Note(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number()),
+            PianoNote(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number(),
                       finger=self.get_finger(note)) for note in scale.notes]
         pos_of_pinky_side_extremity = -1 if (self.for_right_hand and number_of_octaves >0) or (not self.for_right_hand and number_of_octaves<0) else 0
         last_note = fingered_scale[pos_of_pinky_side_extremity]
-        last_note.finger = self.get_finger(note=last_note.note, starting_finger=True)
+        last_note.finger = self.get_finger(note=last_note, starting_finger=True)
         return fingered_scale
 
 
@@ -139,31 +139,31 @@ class TestFingering(unittest.TestCase):
     maxDiff = None
     tonic = Note(chromatic=0, diatonic=0)
     right_minor_melodic_fingering = Fingering(for_right_hand=True).add_pinky_side(tonic.add_octave(1), finger=5)
-    right_minor_melodic_1 = [PianoNote(tonic, finger=1),
-                             PianoNote(Note(chromatic=2, diatonic=1), finger=2),
-                             PianoNote(Note(chromatic=3, diatonic=2), finger=3),
-                             PianoNote(Note(chromatic=5, diatonic=3), finger=1),
-                             PianoNote(Note(chromatic=7, diatonic=4), finger=2),
-                             PianoNote(Note(chromatic=9, diatonic=5), finger=3),
-                             PianoNote(Note(chromatic=11, diatonic=6), finger=4),
-                             PianoNote(Note(chromatic=12, diatonic=7), finger=5),
+    right_minor_melodic_1 = [PianoNote(chromatic=0, diatonic=0, finger=1),
+                             PianoNote(chromatic=2, diatonic=1, finger=2),
+                             PianoNote(chromatic=3, diatonic=2, finger=3),
+                             PianoNote(chromatic=5, diatonic=3, finger=1),
+                             PianoNote(chromatic=7, diatonic=4, finger=2),
+                             PianoNote(chromatic=9, diatonic=5, finger=3),
+                             PianoNote(chromatic=11, diatonic=6, finger=4),
+                             PianoNote(chromatic=12, diatonic=7, finger=5),
                              ]
     for note in reversed(right_minor_melodic_1[:-1]):
-        right_minor_melodic_fingering = right_minor_melodic_fingering.add(note.note, finger=note.finger)
+        right_minor_melodic_fingering = right_minor_melodic_fingering.add(note, finger=note.finger)
 
     left_minor_melodic_fingering = Fingering(for_right_hand=False).add_pinky_side(tonic, 5)
-    left_minor_melodic_1 = [PianoNote(tonic, finger=5),
-                            PianoNote(Note(chromatic=2, diatonic=1), finger=4),
-                            PianoNote(Note(chromatic=3, diatonic=2), finger=3),
-                            PianoNote(Note(chromatic=5, diatonic=3), finger=2),
-                            PianoNote(Note(chromatic=7, diatonic=4), finger=1),
-                            PianoNote(Note(chromatic=9, diatonic=5), finger=3),
-                            PianoNote(Note(chromatic=11, diatonic=6), finger=2),
-                            PianoNote(Note(chromatic=12, diatonic=7), finger=1),
+    left_minor_melodic_1 = [PianoNote(chromatic=0, diatonic=0, finger=5),
+                            PianoNote(chromatic=2, diatonic=1, finger=4),
+                            PianoNote(chromatic=3, diatonic=2, finger=3),
+                            PianoNote(chromatic=5, diatonic=3, finger=2),
+                            PianoNote(chromatic=7, diatonic=4, finger=1),
+                            PianoNote(chromatic=9, diatonic=5, finger=3),
+                            PianoNote(chromatic=11, diatonic=6, finger=2),
+                            PianoNote(chromatic=12, diatonic=7, finger=1),
                             ]
 
     for note in left_minor_melodic_1[1:]:
-        left_minor_melodic_fingering = left_minor_melodic_fingering.add(note.note, finger=note.finger)
+        left_minor_melodic_fingering = left_minor_melodic_fingering.add(note, finger=note.finger)
 
     empty = Fingering(for_right_hand=True)
     pinky_alone = empty.add_pinky_side(tonic, 5)
@@ -223,21 +223,21 @@ class TestFingering(unittest.TestCase):
             self.right_minor_melodic_fingering.generate(first_played_note=self.tonic, scale_pattern=minor_melodic),
             self.right_minor_melodic_1)
         two_octaves = [
-            PianoNote(Note(chromatic=0, diatonic=0), finger=1),
-            PianoNote(Note(chromatic=2, diatonic=1), finger=2),
-            PianoNote(Note(chromatic=3, diatonic=2), finger=3),
-            PianoNote(Note(chromatic=5, diatonic=3), finger=1),
-            PianoNote(Note(chromatic=7, diatonic=4), finger=2),
-            PianoNote(Note(chromatic=9, diatonic=5), finger=3),
-            PianoNote(Note(chromatic=11, diatonic=6), finger=4),
-            PianoNote(Note(chromatic=12, diatonic=7), finger=1),
-            PianoNote(Note(chromatic=14, diatonic=8), finger=2),
-            PianoNote(Note(chromatic=15, diatonic=9), finger=3),
-            PianoNote(Note(chromatic=17, diatonic=10), finger=1),
-            PianoNote(Note(chromatic=19, diatonic=11), finger=2),
-            PianoNote(Note(chromatic=21, diatonic=12), finger=3),
-            PianoNote(Note(chromatic=23, diatonic=13), finger=4),
-            PianoNote(Note(chromatic=24, diatonic=14), finger=5),
+            PianoNote(chromatic=0, diatonic=0, finger=1),
+            PianoNote(chromatic=2, diatonic=1, finger=2),
+            PianoNote(chromatic=3, diatonic=2, finger=3),
+            PianoNote(chromatic=5, diatonic=3, finger=1),
+            PianoNote(chromatic=7, diatonic=4, finger=2),
+            PianoNote(chromatic=9, diatonic=5, finger=3),
+            PianoNote(chromatic=11, diatonic=6, finger=4),
+            PianoNote(chromatic=12, diatonic=7, finger=1),
+            PianoNote(chromatic=14, diatonic=8, finger=2),
+            PianoNote(chromatic=15, diatonic=9, finger=3),
+            PianoNote(chromatic=17, diatonic=10, finger=1),
+            PianoNote(chromatic=19, diatonic=11, finger=2),
+            PianoNote(chromatic=21, diatonic=12, finger=3),
+            PianoNote(chromatic=23, diatonic=13, finger=4),
+            PianoNote(chromatic=24, diatonic=14, finger=5),
         ]
         self.assertEquals(
             self.right_minor_melodic_fingering.generate(first_played_note=self.tonic, scale_pattern=minor_melodic,
@@ -257,21 +257,21 @@ class TestFingering(unittest.TestCase):
             generated,
             self.left_minor_melodic_1)
         two_octaves = [
-            PianoNote(Note(chromatic=0, diatonic=0), finger=5),
-            PianoNote(Note(chromatic=2, diatonic=1), finger=4),
-            PianoNote(Note(chromatic=3, diatonic=2), finger=3),
-            PianoNote(Note(chromatic=5, diatonic=3), finger=2),
-            PianoNote(Note(chromatic=7, diatonic=4), finger=1),
-            PianoNote(Note(chromatic=9, diatonic=5), finger=3),
-            PianoNote(Note(chromatic=11, diatonic=6), finger=2),
-            PianoNote(Note(chromatic=12, diatonic=7), finger=1),
-            PianoNote(Note(chromatic=14, diatonic=8), finger=4),
-            PianoNote(Note(chromatic=15, diatonic=9), finger=3),
-            PianoNote(Note(chromatic=17, diatonic=10), finger=2),
-            PianoNote(Note(chromatic=19, diatonic=11), finger=1),
-            PianoNote(Note(chromatic=21, diatonic=12), finger=3),
-            PianoNote(Note(chromatic=23, diatonic=13), finger=2),
-            PianoNote(Note(chromatic=24, diatonic=14), finger=1),
+            PianoNote(chromatic=0, diatonic=0, finger=5),
+            PianoNote(chromatic=2, diatonic=1, finger=4),
+            PianoNote(chromatic=3, diatonic=2, finger=3),
+            PianoNote(chromatic=5, diatonic=3, finger=2),
+            PianoNote(chromatic=7, diatonic=4, finger=1),
+            PianoNote(chromatic=9, diatonic=5, finger=3),
+            PianoNote(chromatic=11, diatonic=6, finger=2),
+            PianoNote(chromatic=12, diatonic=7, finger=1),
+            PianoNote(chromatic=14, diatonic=8, finger=4),
+            PianoNote(chromatic=15, diatonic=9, finger=3),
+            PianoNote(chromatic=17, diatonic=10, finger=2),
+            PianoNote(chromatic=19, diatonic=11, finger=1),
+            PianoNote(chromatic=21, diatonic=12, finger=3),
+            PianoNote(chromatic=23, diatonic=13, finger=2),
+            PianoNote(chromatic=24, diatonic=14, finger=1),
         ]
         self.assertEquals(
             self.left_minor_melodic_fingering.generate(first_played_note=self.tonic, scale_pattern=minor_melodic,

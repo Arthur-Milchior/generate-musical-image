@@ -136,17 +136,17 @@ def compile_(code, fileName, wav: bool, extension="svg", execute_lily: bool = Tr
 
 class TestLily(unittest.TestCase):
     c_pentatonic_minor_5th_right = [
-        PianoNote(Note(chromatic=0, diatonic=0), finger=1),
-        PianoNote(Note(chromatic=3, diatonic=2), finger=2),
-        PianoNote(Note(chromatic=7, diatonic=4), finger=3),
-        PianoNote(Note(chromatic=12, diatonic=7), finger=5),
+        PianoNote(chromatic=0, diatonic=0, finger=1),
+        PianoNote(chromatic=3, diatonic=2, finger=2),
+        PianoNote(chromatic=7, diatonic=4, finger=3),
+        PianoNote(chromatic=12, diatonic=7, finger=5),
     ]
 
     c_pentatonic_minor_5th_left = [
-        PianoNote(Note(chromatic=-12, diatonic=-7), finger=5),
-        PianoNote(Note(chromatic=-9, diatonic=-5), finger=3),
-        PianoNote(Note(chromatic=-5, diatonic=-3), finger=2),
-        PianoNote(Note(chromatic=0, diatonic=0), finger=1),
+        PianoNote(chromatic=-12, diatonic=-7, finger=5),
+        PianoNote(chromatic=-9, diatonic=-5, finger=3),
+        PianoNote(chromatic=-5, diatonic=-3, finger=2),
+        PianoNote(chromatic=0, diatonic=0, finger=1),
     ]
 
     both_hand_lily = """%%left hand fingering:[5, 3, 2, 1], right hand fingering:[1, 2, 3, 5]
@@ -177,7 +177,7 @@ class TestLily(unittest.TestCase):
     bar""")
 
     def test_for_list_of_notes(self):
-        self.assertEquals(_for_list_of_notes([PianoNote(Note(chromatic=0, diatonic=0), finger=1)], use_color=False),
+        self.assertEquals(_for_list_of_notes([PianoNote(chromatic=0, diatonic=0, finger=1)], use_color=False),
                           "c'-1")
         self.assertEquals(_for_list_of_notes(self.c_pentatonic_minor_5th_right, use_color=False),
                           "c'-1 ees'-2 g'-3 c''-5")
