@@ -118,3 +118,7 @@ src/lily/test.ly
 src/piano/test_files/
 src/test_files
 src/piano/piano
+*.ly
+*.svg
+*.wav
+*.midi
