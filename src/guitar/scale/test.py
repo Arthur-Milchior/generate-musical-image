@@ -1,6 +1,6 @@
 from ..pos import Pos
 from solfege.solfege_pattern import SolfegePattern
-from solfege.Scale.pattern import ScalePattern
+from solfege.Scale.scale_pattern import ScalePattern
 from .utils import scale2Pos
 
 majorScale = SolfegePattern.class_to_name_to_pattern[ScalePattern].get("Major")

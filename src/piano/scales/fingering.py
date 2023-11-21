@@ -6,7 +6,7 @@ from typing import Dict, Optional, Union
 from piano.pianonote import PianoNote
 from solfege.interval.interval import Interval
 from solfege.note import Note
-from solfege.Scale.pattern import ScalePattern, minor_melodic
+from solfege.Scale.scale_pattern import ScalePattern, minor_melodic
 
 
 class Fingering:
@@ -70,7 +70,7 @@ class Fingering:
             * A new fingering, similar to self, plus this note associated to this finger.
             In this last case, if `self` is empty, this note is assumed to be the tonic.
             """
-        # assert self.pinky_side_tonic_finger is not None  # Fingering generation starts with pinky side.
+        # assert self.pinky_side_tonic_finger is not None  # scales generation starts with pinky side.
         nex = self._copy()
         note = note.get_in_base_octave()
         if note in nex._dic:
@@ -106,7 +106,7 @@ class Fingering:
         return self._dic.get(note)
 
     def __str__(self):
-        text = f"""Fingering(for_right_hand={self.for_right_hand})"""
+        text = f"""scales(for_right_hand={self.for_right_hand})"""
         if self.fundamental:
             text += f""".\n  add_pinky_side(Note.from_name("{self.fundamental}"), {self.pinky_side_tonic_finger})"""
         for note, finger in self._dic.items():
@@ -114,7 +114,7 @@ class Fingering:
         return text
 
     def __repr__(self):
-        text = f"""Fingering(for_right_hand={self.for_right_hand})"""
+        text = f"""scales(for_right_hand={self.for_right_hand})"""
         if self.fundamental:
             text += f""".\n  add_pinky_side(note={self.fundamental!r}, finger={self.pinky_side_tonic_finger})"""
         for note, finger in self._dic.items():
@@ -182,7 +182,7 @@ class TestFingering(unittest.TestCase):
         self.assertEquals(self.pinky_alone.get_finger(self.second), None)
         with self.assertRaises(Exception):
             self.pinky_alone.get_finger(self.second, starting_finger=True)
-        self.assertEquals(repr(self.pinky_alone), """Fingering(for_right_hand=True).
+        self.assertEquals(repr(self.pinky_alone), """scales(for_right_hand=True).
   add_pinky_side(note=Note(chromatic = 0, diatonic = 0), finger=5)""")
 
     def test_one_note(self):
@@ -195,7 +195,7 @@ class TestFingering(unittest.TestCase):
         self.assertEquals(self.octave_interval.get_finger(self.second), None)
         with self.assertRaises(Exception):
             self.octave_interval.get_finger(self.second, starting_finger=True)
-        self.assertEquals(repr(self.octave_interval), """Fingering(for_right_hand=True).
+        self.assertEquals(repr(self.octave_interval), """scales(for_right_hand=True).
   add_pinky_side(note=Note(chromatic = 0, diatonic = 0), finger=5).
   add(note=Note(chromatic = 0, diatonic = 0), finger=1)""")
 
@@ -209,7 +209,7 @@ class TestFingering(unittest.TestCase):
         self.assertEquals(self.three_notes.get_finger(self.second), 2)
         with self.assertRaises(Exception):
             self.three_notes.get_finger(self.second, starting_finger=True)
-        self.assertEquals(repr(self.three_notes), """Fingering(for_right_hand=True).
+        self.assertEquals(repr(self.three_notes), """scales(for_right_hand=True).
   add_pinky_side(note=Note(chromatic = 0, diatonic = 0), finger=5).
   add(note=Note(chromatic = 0, diatonic = 0), finger=1).
   add(note=Note(chromatic = 2, diatonic = 1), finger=2)""")

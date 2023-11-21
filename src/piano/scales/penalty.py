@@ -4,7 +4,7 @@ import copy
 import unittest
 from typing import Union, Optional, Any
 
-from piano.Fingering.fingering import Fingering
+from piano.scales.fingering import Fingering
 
 FingerNumbers = int  # 1 to 5
 

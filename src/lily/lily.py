@@ -2,9 +2,10 @@ import os
 import unittest
 from typing import List
 
+from lily.Interface import Lilyable
 from piano.pianonote import PianoNote
-from solfege.interval.too_big_alterations_exception import TooBigAlterationException
-from solfege.note import Note
+from solfege.note.set_of_notes import TestSetOfNotes
+from util import _indent
 
 lilyHeader = """"""
 lowLimit = {"left": -14, "right": -3}
@@ -12,11 +13,7 @@ highLimit = {"left": 3, "right": 14}
 lilyProgram = "lilypond"
 
 
-def _indent(str: str, nb_space: int = 2):
-    return "\n".join(f"""{" " * nb_space}{line}""" for line in str.split("\n"))
-
-
-def _for_list_of_notes(fingering: List[PianoNote], use_color=True):
+def _for_list_of_notes(fingering: List[Lilyable], use_color=True):
     """Generate the lilypond code to put in a staff, according to the fingering given in argument.
     
     chooseOctave is the function which, given its argument, decide which ottava is applied (if any)
@@ -24,7 +21,7 @@ def _for_list_of_notes(fingering: List[PianoNote], use_color=True):
     return " ".join(note.lily(use_color=use_color) for note in fingering)
 
 
-def _staff(key: str, fingering: List[PianoNote], for_right_hand: bool, use_color=True):
+def _staff(key: str, fingering: List[Lilyable], for_right_hand: bool, use_color=True):
     """A lilypond staff.  
 
     The key is the given one.
@@ -42,8 +39,8 @@ def _staff(key: str, fingering: List[PianoNote], for_right_hand: bool, use_color
 }}"""
 
 
-def comment(fingering: List[PianoNote], for_right_hand):
-    return f"""{"right" if for_right_hand else "left"} hand fingering:{[note.finger for note in fingering]}"""
+def comment(fingering: List[Lilyable], for_right_hand):
+    return f"""{"right" if for_right_hand else "left"} hand fingering:{[note.lily_comment() for note in fingering]}"""
 
 
 # octaveToLength={1:80, 2:135,4:240}
@@ -53,7 +50,7 @@ _lilyHeader = """\\version "2.20.0"
 }"""
 
 
-def lilypond_code_for_one_hand(key: str, fingering: List[PianoNote], for_right_hand: bool, use_color: bool,
+def lilypond_code_for_one_hand(key: str, notes_or_chords: List[Lilyable], for_right_hand: bool, use_color: bool,
                                midi: bool):
     """A lilypond score, with a single staff.  
 
@@ -65,16 +62,16 @@ def lilypond_code_for_one_hand(key: str, fingering: List[PianoNote], for_right_h
     """
     midi_str = """
   \\midi{}""" if midi else ""
-    return f"""%%{comment(fingering, for_right_hand=for_right_hand)}
+    return f"""%%{comment(notes_or_chords, for_right_hand=for_right_hand)}
 {_lilyHeader}
 \\score{{
   \\layout{{}}{midi_str}
-{_indent(_staff(key, fingering, for_right_hand=for_right_hand, use_color=use_color))}
+{_indent(_staff(key, notes_or_chords, for_right_hand=for_right_hand, use_color=use_color))}
 }}"""
 
 
-def lilypond_code_for_two_hands(key: str, left_fingering: List[PianoNote], right_fingering: List[PianoNote],  midi: bool,
-                                use_color=True,):
+def lilypond_code_for_two_hands(key: str, left_fingering: List[Lilyable], right_fingering: List[Lilyable], midi: bool,
+                                use_color=True, ):
     """A lilypond score for piano.
 
     The notes are decorated with the fingering given in arguments.
@@ -106,30 +103,30 @@ def chord(notes, use_color=True):
 }}"""
 
 
-def compile_(code, fileName, wav: bool, extension="svg", execute_lily: bool = True):
+def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool = True):
     """Write `code` in `filename`. If `execute_lily`, compile it in a file with the given extension
 
     `execute_lily` should be False only for tests, to save time.
     wav: whether to convert midi to wav. Assumes the lilypond file will generate midi."""
-    if os.path.isfile(fileName + ".ly"):
-        with open(fileName + ".ly", "r") as file:
+    if os.path.isfile(file_prefix + ".ly"):
+        with open(file_prefix + ".ly", "r") as file:
             old_code = file.read()
             if old_code == code:
-                print("""%s.ly's old code is equal to current one""" % fileName)
+                print("""%s.ly's old code is equal to current one""" % file_prefix)
                 return
-    with open(fileName + ".ly", "w") as file:
+    with open(file_prefix + ".ly", "w") as file:
         file.write(code)
     if not execute_lily:
         return
     if extension == "svg":
-        command = f"""{lilyProgram} -dpreview -dbackend=svg -o "{fileName}"  "{fileName}.ly" """
+        command = f"""{lilyProgram} -dpreview -dbackend=svg -o "{file_prefix}"  "{file_prefix}.ly" """
     else:
         assert extension == "pdf"
-        command = f"""lilypond  -o "{fileName}" "{fileName}.ly" """
+        command = f"""lilypond  -o "{file_prefix}" "{file_prefix}.ly" """
     os.system(command)
-    os.system(f"""mv -f "{fileName}.preview.{extension}" "{fileName}.{extension}" """)
+    os.system(f"""mv -f "{file_prefix}.preview.{extension}" "{file_prefix}.{extension}" """)
     if wav:
-        os.system(f"""timidity "{fileName}.midi" --output-mode=w -o "{fileName}.wav" """)
+        os.system(f"""timidity "{file_prefix}.midi" --output-mode=w -o "{file_prefix}.wav" """)
     # os.system("""inkscape --verb=FitCanvasToDrawing --verb=FileSave --verb=FileClose "%s.svg"&"""%(folder_fileName))
     # os.system("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
 
@@ -171,6 +168,29 @@ class TestLily(unittest.TestCase):
   >>
 }"""
 
+    chords_lily = """%%left hand fingering:['', '']
+\\version "2.20.0"
+\\header{
+  tagline=""
+}
+\\score{
+  \\layout{}
+  \\midi{}
+  \\new Staff{
+    \\clef bass
+    \\key ees \\major
+    \\clef treble <
+      c'
+      ees'
+      g'
+    > \\clef treble <
+      f'
+      aes'
+      c''
+    >
+  }
+}"""
+
     def test_indent(self):
         self.assertEquals(_indent("""foo
   bar"""), """  foo
@@ -193,7 +213,7 @@ class TestLily(unittest.TestCase):
         )
 
     def test_lilypond_for_right(self):
-        generated = lilypond_code_for_one_hand(key="g", fingering=self.c_pentatonic_minor_5th_right,
+        generated = lilypond_code_for_one_hand(key="g", notes_or_chords=self.c_pentatonic_minor_5th_right,
                                                for_right_hand=True,
                                                use_color=False, midi=False)
         self.assertEquals(
@@ -210,10 +230,10 @@ class TestLily(unittest.TestCase):
         c'-1 ees'-2 g'-3 c''-5
       }
     }"""
-            )
+        )
 
     def test_lilypond_for_left(self):
-        generated = lilypond_code_for_one_hand(key="g", fingering=self.c_pentatonic_minor_5th_left,
+        generated = lilypond_code_for_one_hand(key="g", notes_or_chords=self.c_pentatonic_minor_5th_left,
                                                for_right_hand=False,
                                                use_color=False, midi=False)
         self.assertEquals(
@@ -254,12 +274,22 @@ class TestLily(unittest.TestCase):
         )
 
     def test_lilypond_for_left_and_midi(self):
-        generated = lilypond_code_for_one_hand(key="g", fingering=self.c_pentatonic_minor_5th_left,
+        generated = lilypond_code_for_one_hand(key="g", notes_or_chords=self.c_pentatonic_minor_5th_left,
                                                for_right_hand=False,
                                                use_color=False, midi=True)
         self.assertEquals(
             generated,
             self.both_hand_lily
+        )
+
+    def test_lilypond_chords_generate(self):
+        chords = [TestSetOfNotes.C_minor, TestSetOfNotes.F_minor]
+        generated = lilypond_code_for_one_hand(key="ees", notes_or_chords=chords,
+                                               for_right_hand=False,
+                                               use_color=False, midi=True)
+        self.assertEquals(
+            generated,
+            self.chords_lily
         )
 
     def test_lilypond_both_hands_and_midi(self):
@@ -306,13 +336,29 @@ class TestLily(unittest.TestCase):
 }""")
 
     def test_compile(self):
-        lily_path = "test.ly"
+        prefix_path = "test_arpeggio"
+        lily_path = f"{prefix_path}.ly"
         if os.path.isfile(lily_path):
             os.remove(lily_path)  # in case it remains from failed test
-        compile_(self.both_hand_lily, "test", wav=True)
+        compile_(self.both_hand_lily, prefix_path, wav=True)
         self.assertTrue(os.path.isfile(lily_path))
         with open(lily_path, "r") as file:
             file_content = file.read()
         self.assertEquals(file_content, self.both_hand_lily)
-        os.system("eog test.svg")
-        os.system("vlc test.wav")
+        os.system(f"eog {prefix_path}.svg")
+        os.system(f"vlc {prefix_path}.wav")
+
+
+    def test_chord_compile(self):
+        prefix_path = "test_chords"
+        lily_path = f"{prefix_path}.ly"
+        if os.path.isfile(lily_path):
+            os.remove(lily_path)  # in case it remains from failed test
+        compile_(self.chords_lily, prefix_path, wav=True)
+        self.assertTrue(os.path.isfile(lily_path))
+        with open(lily_path, "r") as file:
+            file_content = file.read()
+        self.assertEquals(file_content, self.chords_lily)
+        os.system(f"eog {prefix_path}.svg")
+        os.system(f"vlc {prefix_path}.wav")
+

@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import List, Generic, Union, Tuple
 
 from solfege.Scale.scale import Scale
-from solfege.interval.abstract import AbstractInterval, IntervalType
+from solfege.interval.abstract import IntervalType
 from solfege.note import Note
-from solfege.note.abstract import AbstractNote, NoteType
+from solfege.note.abstract import NoteType
 
 """Contains a class to represent a scale.
 
@@ -19,7 +19,7 @@ from solfege.solfege_pattern import SolfegePattern
 
 
 class ScalePattern(SolfegePattern, Generic[IntervalType]):
-    intervals: List[IntervalType]
+    _intervals: List[IntervalType]
 
     def __init__(self, names, intervals: Union[List[IntervalType], int, Tuple[int, int]],
                  interval_for_signature: Interval,
@@ -103,7 +103,10 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
                 notes.append(current_note)
         if add_an_extra_note:
             notes.append(notes[-1] + self._intervals[0])
-        return Scale[NoteType](notes=notes)
+        return Scale[NoteType](notes=notes, pattern=self)
+
+    def number_of_intervals(self):
+        return len(self._intervals)
 
 
 seven_sharps = Interval(diatonic=0, chromatic=1)  # when playing a C, have C# signature, 3 sharps
@@ -123,7 +126,7 @@ minor_arpeggio = ScalePattern[Interval](["Minor arpeggio"], [(3, 2), (4, 2), (5,
 ScalePattern[Interval](["Greek Dorian tonos (chromatic genus)"], [1, 1, 3, 2, 1, 1, 3],
                        unison)
 # ré b, mi bb, f, g, a b, b bb, c
-ScalePattern[Interval](["Major"], [2, 2, 1, 2, 2, 2, 1], unison)
+major_scale = ScalePattern[Interval](["Major"], [2, 2, 1, 2, 2, 2, 1], unison)
 ScalePattern[Interval](["Dominant seventh arpeggio"], [(4, 2), (3, 2), (3, 2), 2], unison)
 ScalePattern[Interval](["Minor harmonic"], [2, 1, 2, 2, 1, 3, 1], three_flats)
 blues = ScalePattern[Interval](["Blues"], [(3, 2), 2, (1, 0), 1, (3, 2), 2], three_flats)
@@ -291,7 +294,7 @@ class TestScalePattern(unittest.TestCase):
             Note(chromatic=9, diatonic=5),
             Note(chromatic=11, diatonic=6),
             Note(chromatic=12, diatonic=7),
-        ])
+        ], pattern=minor_melodic)
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0))
         self.assertEquals(expected, generated)
 
@@ -312,7 +315,7 @@ class TestScalePattern(unittest.TestCase):
             Note(chromatic=21, diatonic=12),
             Note(chromatic=23, diatonic=13),
             Note(chromatic=24, diatonic=14),
-        ])
+        ], pattern=minor_melodic)
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=2)
         self.assertEquals(expected, generated)
         expected = Scale(notes=[
@@ -332,7 +335,7 @@ class TestScalePattern(unittest.TestCase):
             Note(chromatic=23, diatonic=13),
             Note(chromatic=24, diatonic=14),
             Note(chromatic=26, diatonic=15),
-        ])
+        ], pattern=minor_melodic)
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=2, add_an_extra_note=True)
         self.assertEquals(expected, generated)
 
@@ -376,3 +379,7 @@ class TestScalePattern(unittest.TestCase):
         ])
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=-2, add_an_extra_note=True)
         self.assertEquals(expected, generated)
+
+    def test_number_of_intervals(self):
+        self.assertEquals(minor_melodic.number_of_intervals(), 7)
+        self.assertEquals(pentatonic_minor.number_of_intervals(), 5)

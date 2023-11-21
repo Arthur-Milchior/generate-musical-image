@@ -4,13 +4,13 @@ import unittest
 from typing import List
 
 import util
-from piano.Fingering.fingering import Fingering
-from piano.__main__ import generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both, \
+from piano.scales.fingering import Fingering
+from piano.scales.__main__ import generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both, \
     INCREASING, generate_score_fixed_pattern_first_note_direction_number_of_octaves, \
     generate_score_fixed_pattern_first_note_number_of_octaves, generate_score_fixed_pattern_first_note, \
     ScoreFixedPatternFirstNote, MissingFingering, generate_score_fixed_pattern, generate_scores
 from piano.pianonote import PianoNote
-from solfege.Scale.pattern import minor_arpeggio
+from solfege.Scale.scale_pattern import minor_arpeggio
 from solfege.note import Note
 
 

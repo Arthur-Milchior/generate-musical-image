@@ -37,3 +37,7 @@ class MyException(Exception):
 
     def __str__(self):
         return str(self.dic)
+
+
+def _indent(str: str, nb_space: int = 2):
+    return "\n".join(f"""{" " * nb_space}{line}""" for line in str.split("\n"))

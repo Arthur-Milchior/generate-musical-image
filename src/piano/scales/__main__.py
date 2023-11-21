@@ -6,10 +6,10 @@ from typing import List, Union
 
 import util
 from lily.lily import lilypond_code_for_two_hands, lilypond_code_for_one_hand, compile_
-from piano.Fingering.fingering import Fingering
-from piano.generate import generate_fingering
+from piano.scales.fingering import Fingering
+from piano.scales.generate import generate_fingering
 from piano.pianonote import PianoNote
-from solfege.Scale.pattern import ScalePattern
+from solfege.Scale.scale_pattern import ScalePattern
 from solfege.clef import clefs
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import Note
@@ -93,14 +93,14 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str
     html_lines = []
     try:
         left_code = lilypond_code_for_one_hand(key=key,
-                                               fingering=left_scale_fingering,
+                                               notes_or_chords=left_scale_fingering,
                                                for_right_hand=False, use_color=False, midi=wav)
     except TooBigAlterationException as tba:
         tba["fingering"] = left_scale_fingering
         raise
     try:
         right_code = lilypond_code_for_one_hand(key=key,
-                                                fingering=right_scale_fingering,
+                                                notes_or_chords=right_scale_fingering,
                                                 for_right_hand=True, use_color=False, midi=wav)
     except TooBigAlterationException as tba:
         tba["fingering"] = right_scale_fingering
@@ -445,6 +445,6 @@ def generate_scores(folder_path: str, execute_lily: bool, wav: bool) -> Generate
 
 
 if __name__ == '__main__':
-    folder_path = "../generated/piano"
+    folder_path = "../../../generated/piano/scales"
     util.ensure_folder(folder_path)
     generate_scores(folder_path=folder_path, execute_lily=True, wav=True)

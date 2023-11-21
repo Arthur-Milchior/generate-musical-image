@@ -28,6 +28,9 @@ class PianoNote(Note):
     def __str__(self):
         return f"{super().__str__()}-{self.finger}"
 
+    def lily_comment(self):
+        return str(self.finger)
+
     def lily(self, use_color=True):
         try:
             return f"{super().lily(use_color=use_color)}-{self.finger}"

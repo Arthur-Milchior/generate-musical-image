@@ -11,7 +11,7 @@ class Clef:
     number_of_sharps: int = 0
 
     def __str__(self):
-        return f"{note}" + (f" with {self.number_of_flats} ♭" if self.number_of_flats else "")+ (f" with {self.number_of_sharps} #" if self.number_of_sharps else "")
+        return f"{self.note}" + (f" with {self.number_of_flats} ♭" if self.number_of_flats else "")+ (f" with {self.number_of_sharps} #" if self.number_of_sharps else "")
 
 
 clefs = [

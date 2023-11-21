@@ -9,9 +9,9 @@
 import unittest
 from typing import Optional, List, Tuple, Union, Callable
 
-from piano.Fingering.fingering import Fingering, TestFingering
-from piano.Fingering.penalty import Penalty
-from solfege.Scale.pattern import ScalePattern, minor_melodic, blues, pentatonic_major
+from piano.scales.fingering import Fingering, TestFingering
+from piano.scales.penalty import Penalty
+from solfege.Scale.scale_pattern import ScalePattern, minor_melodic, blues, pentatonic_major
 from solfege.note import Note
 
 lilyProgram = "lilypond "
@@ -104,7 +104,7 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
                 # Another finger is associated to this note (up to octave, and not including the starting finger)
                 continue
             if next_fingering is True:
-                # This association is already in the Fingering.
+                # This association is already in the scales.
                 # It should only occur in the second time we consider the second note of the scale
                 # when this note is played after the thumb-side instead of the pinky-side finger.
                 next_fingering = fingering

@@ -1,10 +1,11 @@
+from lily.Interface import Lilyable
 from solfege.interval.interval import Interval, TestInterval
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import ChromaticNote, DiatonicNote
 from solfege.note.alteration import LILY, Alteration
 
 
-class Note(Interval, ChromaticNote):
+class Note(Interval, ChromaticNote, Lilyable):
     IntervalClass = Interval
     DiatonicClass = DiatonicNote
     ChromaticClass = ChromaticNote
@@ -31,7 +32,7 @@ class Note(Interval, ChromaticNote):
         Args: usage -- see Alteration file."""
         diatonic = self.get_diatonic()
         alteration = self.get_alteration()
-        return f"{diatonic.get_note_name(usage=usage)}{alteration.get_note_name(usage=usage)}"
+        return f"{diatonic.get_note_name(usage=usage)}{alteration.get_note_name(usage=usage)}{diatonic.get_octave_name(usage=usage)}"
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""
