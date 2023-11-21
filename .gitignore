@@ -122,3 +122,5 @@ src/piano/piano
 *.svg
 *.wav
 *.midi
+
+generated
