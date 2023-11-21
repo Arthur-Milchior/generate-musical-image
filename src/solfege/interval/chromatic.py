@@ -16,14 +16,6 @@ class ChromaticInterval(AbstractInterval):
     # RelatedDiatonicClass = solfege.Interval.diatonic.DiatonicInterval
     # moved to init because cyclic dependencies
 
-    def __init__(self, chromatic=None, value=None, **kwargs):
-        if value is None:
-            assert (chromatic is not None)
-            value = chromatic
-        else:
-            assert (chromatic is None)
-        super().__init__(value=value, callerClass=ChromaticInterval, **kwargs)
-
     def __add__(self, other):
         if not isinstance(other, ChromaticInterval):
             raise Exception(
@@ -33,8 +25,8 @@ class ChromaticInterval(AbstractInterval):
     def get_diatonic(self):
         """If this note belong to the diatonic scale, give it.
         Otherwise, give the adjacent diatonic note."""
-        return self.RelatedDiatonicClass(diatonic=[0, 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6][
-                                                              self.get_in_base_octave().get_number()] + 7 * self.get_octave())
+        return self.RelatedDiatonicClass([0, 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6][
+                                             self.get_in_base_octave().get_number()] + 7 * self.get_octave())
 
     def get_alteration(self):
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
@@ -42,7 +34,7 @@ class ChromaticInterval(AbstractInterval):
         diatonic = self.get_diatonic()
         chromatic_from_diatonic = diatonic.get_chromatic()
         try:
-            return self.AlterationClass(chromatic=self.get_number() - chromatic_from_diatonic.get_number())
+            return self.AlterationClass(self.get_number() - chromatic_from_diatonic.get_number())
         except TooBigAlterationException as tba:
             tba["The note which is too big"] = self
             raise
@@ -110,6 +102,15 @@ class TestChromaticInterval(unittest.TestCase):
     seventh_descending = ChromaticInterval(-11)
     octave_descending = ChromaticInterval(-12)
     eighth_descending = ChromaticInterval(-13)
+
+    def setUp(self):
+        super().setUp()
+        from solfege.interval.diatonic import DiatonicInterval
+        from solfege.interval.interval import Interval
+        from solfege.interval.intervalmode import IntervalMode
+        ChromaticInterval.RelatedDiatonicClass = DiatonicInterval
+        ChromaticInterval.RelatedSolfegeClass = Interval
+        ChromaticInterval.AlterationClass = IntervalMode
 
     def test_is_note(self):
         self.assertFalse(self.unison.is_note())

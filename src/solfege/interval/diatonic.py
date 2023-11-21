@@ -13,14 +13,6 @@ class DiatonicInterval(AbstractInterval):
 
     # RelatedChromaticClass = ChromaticInterval moved to __init__
 
-    def __init__(self, diatonic=None, value=None, **kwargs):
-        if value is None:
-            assert (diatonic is not None)
-            value = diatonic
-        else:
-            assert (diatonic is None)
-        super().__init__(value=value, callerClass=DiatonicInterval, **kwargs)
-
     def __add__(self, other):
         if not isinstance(other, DiatonicInterval):
             raise Exception(
@@ -78,6 +70,11 @@ class TestDiatonicInterval(unittest.TestCase):
     seventh_descending = DiatonicInterval(-6)
     octave_descending = DiatonicInterval(-7)
     second_twice_descending = DiatonicInterval(-8)
+
+    def setUp(self):
+        super().setUp()
+        from solfege.interval.chromatic import ChromaticInterval
+        DiatonicInterval.RelatedChromaticClass = ChromaticInterval
 
     def test_is_note(self):
         self.assertFalse(self.unison.is_note())

@@ -33,6 +33,10 @@ class AbstractNote(AbstractInterval):
     def sub_note(self, other: AbstractNote):
         return self.IntervalClass(self.get_number() - other.get_number())
 
+    def __radd__(self, other: AbstractInterval):
+        # called as other + self
+        return self + other
+
     def __add__(self, other: AbstractInterval):
         if isinstance(other, AbstractNote):
             raise Exception("Adding two notes")
@@ -99,4 +103,4 @@ class TestBaseNote(TestBaseInterval):
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
-        self.assertEquals(repr(self.D4), "_Note(value=1)")
+        self.assertEquals(repr(self.D4), "AbstractNote(value=1)")

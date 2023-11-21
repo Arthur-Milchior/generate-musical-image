@@ -1,7 +1,7 @@
-from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.interval.interval import Interval, TestInterval
-from solfege.note import ChromaticNote, DiatonicNote, IntervalMode
-from solfege.note.alteration import TEXT, LILY, Alteration
+from solfege.interval.too_big_alterations_exception import TooBigAlterationException
+from solfege.note import ChromaticNote, DiatonicNote
+from solfege.note.alteration import LILY, Alteration
 
 
 class Note(Interval, ChromaticNote):

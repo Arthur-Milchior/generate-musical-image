@@ -42,6 +42,15 @@ class TestChromaticNote(TestChromaticInterval):
     C3 = ChromaticNote(-12)
     B2 = ChromaticNote(-13)
 
+    def setUp(self):
+        super().setUp()
+        from solfege.note.diatonic import DiatonicNote
+        from solfege.note.note import Note
+        from solfege.note.alteration import Alteration
+        ChromaticNote.RelatedDiatonicClass = DiatonicNote
+        ChromaticNote.RelatedSolfegeClass = Note
+        ChromaticNote.AlterationClass = Alteration
+
     def test_is_note(self):
         self.assertTrue(self.C4.is_note())
 

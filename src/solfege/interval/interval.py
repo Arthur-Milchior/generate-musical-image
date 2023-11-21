@@ -13,28 +13,20 @@ class Interval(ChromaticInterval):
     ChromaticClass = ChromaticInterval
 
     def __init__(self, chromatic: Optional[int] = None, diatonic: Optional[int] = None,
-                 alteration: Optional[int] = None,
-                 none=None, **kwargs):
+                 alteration: Optional[int] = None, **kwargs):
         """chromatic and diatonic are used.
         Otherwise, if chromatic is present, it supposed to be the exact value.
         otherwise, alteration should be present, and chromatic is the sum of diatonic and alteration
         """
-        assert (alteration is not None or chromatic is not None or none is not None)
-        if none:
-            super().__init__(none=none)
-            assert (chromatic is None)
-            assert (diatonic is None)
-            assert (alteration is None)
+        assert (alteration is not None or chromatic is not None)
+        self._diatonic = self.__class__.DiatonicClass(value=diatonic)
+        if chromatic is not None:
+            assert (isinstance(chromatic, int))
+            super().__init__(value=chromatic)
         else:
-            self._diatonic = self.__class__.DiatonicClass(diatonic=diatonic)
-            if chromatic is not None:
-                assert (isinstance(chromatic, int))
-                super().__init__(chromatic=chromatic)
-            else:
-                assert alteration
-                assert (isinstance(alteration, int))
-                self.initChromaticAbsent(alteration)
-                super().__init__(chromatic=self._diatonic.get_chromatic().get_number() + alteration)
+            assert alteration
+            assert (isinstance(alteration, int))
+            super().__init__(value=self._diatonic.get_chromatic().get_number() + alteration)
 
     @classmethod
     def factory(cls, interval):
@@ -65,7 +57,7 @@ class Interval(ChromaticInterval):
         return Class(chromatic=-self.get_number(), diatonic=-self.get_diatonic().get_number())
 
     def get_chromatic(self):
-        return self.ChromaticClass(chromatic=self.get_number())
+        return self.ChromaticClass(self.get_number())
 
     def get_diatonic(self):
         return self._diatonic

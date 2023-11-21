@@ -40,6 +40,11 @@ class TestDiatonicNote(TestDiatonicInterval):
     C3 = DiatonicNote(-7)
     B2 = DiatonicNote(-8)
 
+    def setUp(self):
+        super().setUp()
+        from solfege.note.chromatic import ChromaticNote
+        DiatonicNote.RelatedChromaticClass = ChromaticNote
+
     def test_is_note(self):
         self.assertTrue(self.C4.is_note())
 
@@ -161,25 +166,25 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(DiatonicNote(-9).get_note_name(usage=LILY), "a")
 
     def test_get_note_name(self):
-        self.assertEquals(DiatonicNote(0).get_note_name(usage=FILE_NAME), "c")
-        self.assertEquals(DiatonicNote(1).get_note_name(usage=FILE_NAME), "d")
-        self.assertEquals(DiatonicNote(2).get_note_name(usage=FILE_NAME), "e")
-        self.assertEquals(DiatonicNote(3).get_note_name(usage=FILE_NAME), "f")
-        self.assertEquals(DiatonicNote(4).get_note_name(usage=FILE_NAME), "g")
-        self.assertEquals(DiatonicNote(5).get_note_name(usage=FILE_NAME), "a")
-        self.assertEquals(DiatonicNote(6).get_note_name(usage=FILE_NAME), "b")
-        self.assertEquals(DiatonicNote(7).get_note_name(usage=FILE_NAME), "c")
-        self.assertEquals(DiatonicNote(8).get_note_name(usage=FILE_NAME), "d")
-        self.assertEquals(DiatonicNote(9).get_note_name(usage=FILE_NAME), "e")
-        self.assertEquals(DiatonicNote(-1).get_note_name(usage=FILE_NAME), "b")
-        self.assertEquals(DiatonicNote(-2).get_note_name(usage=FILE_NAME), "a")
-        self.assertEquals(DiatonicNote(-3).get_note_name(usage=FILE_NAME), "g")
-        self.assertEquals(DiatonicNote(-4).get_note_name(usage=FILE_NAME), "f")
-        self.assertEquals(DiatonicNote(-5).get_note_name(usage=FILE_NAME), "e")
-        self.assertEquals(DiatonicNote(-6).get_note_name(usage=FILE_NAME), "d")
-        self.assertEquals(DiatonicNote(-7).get_note_name(usage=FILE_NAME), "c")
-        self.assertEquals(DiatonicNote(-8).get_note_name(usage=FILE_NAME), "b")
-        self.assertEquals(DiatonicNote(-9).get_note_name(usage=FILE_NAME), "a")
+        self.assertEquals(DiatonicNote(0).get_note_name(usage=FILE_NAME), "C")
+        self.assertEquals(DiatonicNote(1).get_note_name(usage=FILE_NAME), "D")
+        self.assertEquals(DiatonicNote(2).get_note_name(usage=FILE_NAME), "E")
+        self.assertEquals(DiatonicNote(3).get_note_name(usage=FILE_NAME), "F")
+        self.assertEquals(DiatonicNote(4).get_note_name(usage=FILE_NAME), "G")
+        self.assertEquals(DiatonicNote(5).get_note_name(usage=FILE_NAME), "A")
+        self.assertEquals(DiatonicNote(6).get_note_name(usage=FILE_NAME), "B")
+        self.assertEquals(DiatonicNote(7).get_note_name(usage=FILE_NAME), "C")
+        self.assertEquals(DiatonicNote(8).get_note_name(usage=FILE_NAME), "D")
+        self.assertEquals(DiatonicNote(9).get_note_name(usage=FILE_NAME), "E")
+        self.assertEquals(DiatonicNote(-1).get_note_name(usage=FILE_NAME), "B")
+        self.assertEquals(DiatonicNote(-2).get_note_name(usage=FILE_NAME), "A")
+        self.assertEquals(DiatonicNote(-3).get_note_name(usage=FILE_NAME), "G")
+        self.assertEquals(DiatonicNote(-4).get_note_name(usage=FILE_NAME), "F")
+        self.assertEquals(DiatonicNote(-5).get_note_name(usage=FILE_NAME), "E")
+        self.assertEquals(DiatonicNote(-6).get_note_name(usage=FILE_NAME), "D")
+        self.assertEquals(DiatonicNote(-7).get_note_name(usage=FILE_NAME), "C")
+        self.assertEquals(DiatonicNote(-8).get_note_name(usage=FILE_NAME), "B")
+        self.assertEquals(DiatonicNote(-9).get_note_name(usage=FILE_NAME), "A")
 
     def test_from_name(self):
         self.assertEquals(DiatonicNote(0), DiatonicNote.from_name("C"))

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import Optional, TypeVar
+from typing import TypeVar
 import unittest
 
 
@@ -22,20 +22,12 @@ class AbstractInterval:
     ClassToTransposeTo = None
     number_of_interval_in_an_octave: int
     IntervalClass: type(AbstractInterval)
+    value: int
 
-    def __init__(self, value=None, callerClass=None, none=None, **kwargs):
-        """If the interval is passed as argument, it is copied. Otherwise, the value is used. none, if true,
-        means that there is no value and it is acceptable"""
+    def __init__(self, value: int, **kwargs):
+        """If the interval is passed as argument, it is copied. Otherwise, the value is used."""
         super().__init__(**kwargs)
-        self.dic = dict()
-        if none:
-            assert (value is None)
-            assert (callerClass is None)
-            self.value = None
-            return
-        number = value
-        assert isinstance(number, int)
-        self.value = number
+        self.value = value
 
     def is_note(self):
         """True if it's a note. False if it's an interval"""
@@ -66,10 +58,10 @@ class AbstractInterval:
         else:
             clazz = self.__class__
         if not isinstance(other, int):
-            otherNumber = other.get_number()
+            other_number = other.get_number()
         else:
-            otherNumber = other
-        sum_ = self.get_number() + otherNumber
+            other_number = other
+        sum_ = self.get_number() + other_number
         ret = clazz(value=sum_)
         return ret
 
@@ -93,7 +85,7 @@ class AbstractInterval:
         neg = -other
         if neg.is_note():
             raise Exception("Neg is %s, which is a note" % neg)
-        return (self + neg)
+        return self + neg
 
     def __hash__(self):
         return self.get_number()
@@ -132,8 +124,8 @@ class AbstractInterval:
 
     def difference_in_base_octave(self, other):
         """self-other, in octave"""
-        Class = self.ClassToTransposeTo or self.__class__
-        return Class((self.get_number() - other.get_number()) % self.__class__.number_of_interval_in_an_octave)
+        clazz = self.ClassToTransposeTo or self.__class__
+        return clazz((self.get_number() - other.get_number()) % self.__class__.number_of_interval_in_an_octave)
 
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)
@@ -175,7 +167,7 @@ class TestBaseInterval(unittest.TestCase):
         self.assertLessEqual(self.un, self.un)
 
     def test_repr(self):
-        self.assertEquals(repr(self.un), "_Interval(value=1)")
+        self.assertEquals(repr(self.un), "AbstractInterval(value=1)")
 
     def test_mul(self):
         self.assertEquals(self.zero * 4, self.zero)
