@@ -5,15 +5,17 @@ from dataclasses import dataclass
 from typing import List, Union
 
 import util
-from lily.lily import lilypond_code_for_two_hands, lilypond_code_for_one_hand, compile_
+from lily.lily import lilypond_code_for_one_hand, lilypond_code_for_two_hands, compile_
+from piano.pianonote import PianoNote
 from piano.scales.fingering import Fingering
 from piano.scales.generate import generate_fingering
-from piano.pianonote import PianoNote
-from solfege.Scale.scale_pattern import ScalePattern
-from solfege.clef import clefs
+from solfege.chord.chord_pattern import add_arpeggios_to_scales
+from solfege.scale.scale_pattern import ScalePattern
+from solfege.key import sets_of_enharmonic_keys
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import Note
-from solfege.note.alteration import TEXT, FILE_NAME, LILY, MONOSPACE
+
+add_arpeggios_to_scales()
 
 leafFolder = "piano/scales/"
 imageFolder = util.imageFolder + leafFolder
@@ -56,19 +58,12 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_
     """Ensure that folder_path/ contains the score for lilyCode, for scale_name, hands left/right, number_of_octaves and direction.
     Don't compile if `compile` is false. Mostly used for testing"""
     assert show_right or show_left
-    file_name = f"""{scale_name}-{scale_lowest_note.get_note_name(FILE_NAME)}-{("two_hands" if show_left else "right_hand") if show_right else "left_hand"}-{number_of_octaves}-{direction}"""
+    file_name = f"""{scale_name}-{scale_lowest_note.get_ascii_name()}-{("two_hands" if show_left else "right_hand") if show_right else "left_hand"}-{number_of_octaves}-{direction}"""
     image_tag = f"<img src='{file_name}.svg'>"
     file_path = f"{folder_path}/{file_name}"
     html_line = f"<li><a href='{file_name}.ly'/>{image_tag}</a></li>"
     # In case the current file already exists with same content, we avoid rebuilding it
-    if os.path.isfile(file_path + ".ly"):
-        with open(file_path + ".ly") as file:
-            last_code = file.readline()[:-1]  # Line containing first fingering
-            current_fingering = lily_code.splitlines()[0]
-            if last_code != current_fingering:
-                compile_(lily_code, file_path, execute_lily=execute_lily, wav=wav)
-    else:
-        compile_(lily_code, file_path, execute_lily=execute_lily, wav=wav)
+    compile_(lily_code, file_path, execute_lily=execute_lily, wav=wav)
     return ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth(image_tag=image_tag, html_line=html_line)
 
 
@@ -94,20 +89,20 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str
     try:
         left_code = lilypond_code_for_one_hand(key=key,
                                                notes_or_chords=left_scale_fingering,
-                                               for_right_hand=False, use_color=False, midi=wav)
+                                               for_right_hand=False, midi=wav)
     except TooBigAlterationException as tba:
         tba["fingering"] = left_scale_fingering
         raise
     try:
         right_code = lilypond_code_for_one_hand(key=key,
                                                 notes_or_chords=right_scale_fingering,
-                                                for_right_hand=True, use_color=False, midi=wav)
+                                                for_right_hand=True, midi=wav)
     except TooBigAlterationException as tba:
         tba["fingering"] = right_scale_fingering
         raise
     both_hands_code = lilypond_code_for_two_hands(key=key,
                                                   left_fingering=left_scale_fingering,
-                                                  right_fingering=right_scale_fingering, use_color=False, midi=wav)
+                                                  right_fingering=right_scale_fingering, midi=wav)
     for show_left, show_right, lily_code in [
         (True, False, left_code),
         (False, True, right_code),
@@ -124,7 +119,8 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str
         )
         anki_fields_for_this_note_scale_direction.append(output.image_tag)
         html_lines.append(output.html_line)
-    return ScoreFixedPatternFirstNoteNumberOfOctaves(anki_fields_for_this_note_scale_direction, html_lines)
+    return ScoreFixedPatternFirstNoteNumberOfOctaves(image_tags=anki_fields_for_this_note_scale_direction,
+                                                     html_lines=html_lines)
 
 
 def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
@@ -176,7 +172,7 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
         anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves += output.image_tags
         html_lines += output.html_lines
     return ScoreFixedPatternFirstNoteNumberOfOctaves(
-        anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves, html_lines)
+        image_tags=anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves, html_lines=html_lines)
 
 
 @dataclass
@@ -223,16 +219,16 @@ def generate_score_fixed_pattern_first_note(key: str,
     left_fingering = left_penalty.fingering
     right_fingering = right_penalty.fingering
     anki_fields_for_this_scale_pattern_and_lowest_note = [scale_pattern.get_the_first_of_the_name(),
-                                                          right_hand_lowest_note.get_note_name(MONOSPACE)]
+                                                          right_hand_lowest_note.get_symbol_name()]
     html_lines = []
-    if not right_penalty.acceptable():
-        print(
-            f"Warning:Right is not perfect on {right_hand_lowest_note.get_note_name(usage=TEXT)} {scale_pattern.get_the_first_of_the_name()}.\n{right_penalty.warning()}",
-            file=sys.stderr)
-    if not left_penalty.acceptable():
-        print(
-            f"Warning:Left is not perfect on {right_hand_lowest_note.get_note_name(usage=TEXT)} {scale_pattern.get_the_first_of_the_name()}.\n{left_penalty.warning()}",
-            file=sys.stderr)
+    # if not right_penalty.acceptable():
+    #     print(
+    #         f"Warning:Right is not perfect on {right_hand_lowest_note.get_full_name()} {scale_pattern.get_the_first_of_the_name()}.\n{right_penalty.warning()}",
+    #         file=sys.stderr)
+    # if not left_penalty.acceptable():
+    #     print(
+    #         f"Warning:Left is not perfect on {right_hand_lowest_note.get_symbol_name()} {scale_pattern.get_the_first_of_the_name()}.\n{left_penalty.warning()}",
+    #         file=sys.stderr)
     for number_of_octaves in [1, 2]:
         output = generate_score_fixed_pattern_first_note_number_of_octaves(
             key=key,
@@ -253,13 +249,13 @@ def generate_score_fixed_pattern_first_note(key: str,
 <html>
   <head>
     <title>
-      Fingerings of {right_hand_lowest_note.get_note_name(TEXT)} {scale_pattern.get_the_first_of_the_name()}
+      Fingerings of {right_hand_lowest_note.get_symbol_name()} {scale_pattern.get_the_first_of_the_name()}
     </title>
   </head>
   <body>
     <header>
       <h1>
-        Fingerings of {right_hand_lowest_note.get_note_name(TEXT)} {scale_pattern.get_the_first_of_the_name()}
+        Fingerings of {right_hand_lowest_note.get_symbol_name()} {scale_pattern.get_the_first_of_the_name()}
       </h1>
     </header>
     <ul>
@@ -273,8 +269,10 @@ def generate_score_fixed_pattern_first_note(key: str,
     </footer>
   </body>
 </html>""")
-    return ScoreFixedPatternFirstNote(",".join(anki_fields_for_this_scale_pattern_and_lowest_note),
-                                      f"""<li><a href='{right_hand_lowest_note.get_note_name(usage=TEXT)}'>{right_hand_lowest_note.get_note_name(usage=TEXT)}</a></li>""")
+    anki_note_as_csv = ",".join(anki_fields_for_this_scale_pattern_and_lowest_note)
+    html_link_for_this_starting_note = f"""<li><a href='{right_hand_lowest_note.get_ascii_name()}'>{right_hand_lowest_note.get_symbol_name()}</a></li>"""
+    return ScoreFixedPatternFirstNote(anki_note_as_csv=anki_note_as_csv,
+                                      html_link_for_this_starting_note=html_link_for_this_starting_note)
 
 
 @dataclass
@@ -295,12 +293,15 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
     missing: List[MissingFingering] = []
     html_lines_for_pattern: List[str] = []
     too_big_alterations: List[TooBigAlterationException] = []
-    for fundamental in clefs:
+    for set_of_enharmonic_keys in sets_of_enharmonic_keys:
+        fundamental = set_of_enharmonic_keys[0]
         starting_note = fundamental.note - scale_pattern.interval_for_signature
-        note_folder = f"{folder_path}/{starting_note.get_note_name(FILE_NAME)}"
+        while starting_note >= Note.from_name("F4"):
+            starting_note = starting_note.add_octave(-1)
+        note_folder = f"{folder_path}/{starting_note.get_ascii_name()}"
         pathlib.Path(note_folder).mkdir(exist_ok=True)
         try:
-            output = generate_score_fixed_pattern_first_note(key=fundamental.note.get_note_name(LILY),
+            output = generate_score_fixed_pattern_first_note(key=fundamental.note.lily(),
                                                              right_hand_lowest_note=starting_note,
                                                              scale_pattern=scale_pattern,
                                                              folder_path=note_folder, execute_lily=execute_lily,

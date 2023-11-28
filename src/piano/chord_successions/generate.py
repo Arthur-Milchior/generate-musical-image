@@ -3,8 +3,8 @@ import unittest
 from dataclasses import dataclass
 from typing import List
 
-from solfege.Scale.scale_pattern import major_scale, ScalePattern
-from solfege.Scale.scale import Scale
+from solfege.scale.scale_pattern import major_scale, ScalePattern
+from solfege.scale.scale import Scale
 from solfege.note import Note
 from solfege.note.set_of_notes import SetOfNotes
 

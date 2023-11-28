@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Generic, Union, Tuple
 
-from solfege.Scale.scale import Scale
+from solfege.scale.scale import Scale
 from solfege.interval.abstract import IntervalType
 from solfege.note import Note
 from solfege.note.abstract import NoteType
@@ -21,7 +21,7 @@ from solfege.solfege_pattern import SolfegePattern
 class ScalePattern(SolfegePattern, Generic[IntervalType]):
     _intervals: List[IntervalType]
 
-    def __init__(self, names, intervals: Union[List[IntervalType], int, Tuple[int, int]],
+    def __init__(self, names, intervals: List[Union[IntervalType, int, Tuple[int, int]]],
                  interval_for_signature: Interval,
                  increasing=True, **kwargs):
         """
@@ -119,15 +119,12 @@ two_flats = Interval(diatonic=6, chromatic=10)  # when playing a C, have Bb sign
 three_flats = Interval(diatonic=2, chromatic=3)  # when playing a C, have Eb signature, 3 flats
 four_flats = Interval(diatonic=5, chromatic=8)  # when playing a C, have Ab signature, 4 flats
 five_flats = Interval(diatonic=1, chromatic=1)  # when playing a C, have Bb signature, 5 flats
+height_flats = Interval(diatonic=3, chromatic=4)  # when playing a C, have Fb signature, 8 flats including Bbb
 
-ScalePattern[Interval](["Major arpeggio"], [(4, 2), (3, 2), (5, 3)], unison)
-minor_arpeggio = ScalePattern[Interval](["Minor arpeggio"], [(3, 2), (4, 2), (5, 3)],
-                                        three_flats)
 ScalePattern[Interval](["Greek Dorian tonos (chromatic genus)"], [1, 1, 3, 2, 1, 1, 3],
                        unison)
 # ré b, mi bb, f, g, a b, b bb, c
 major_scale = ScalePattern[Interval](["Major"], [2, 2, 1, 2, 2, 2, 1], unison)
-ScalePattern[Interval](["Dominant seventh arpeggio"], [(4, 2), (3, 2), (3, 2), 2], unison)
 ScalePattern[Interval](["Minor harmonic"], [2, 1, 2, 2, 1, 3, 1], three_flats)
 blues = ScalePattern[Interval](["Blues"], [(3, 2), 2, (1, 0), 1, (3, 2), 2], three_flats)
 pentatonic_minor = ScalePattern[Interval](["Pentatonic minor"], [(3, 2), 2, 2, (3, 2), 2],
@@ -158,7 +155,7 @@ ScalePattern[Interval](["Double harmonic major", "Byzantine", "Arabic", "Gypsi m
                        unison)
 ScalePattern[Interval](["Enigmatic"], [1, 3, 2, 2, 2, 1, 1], unison)
 ScalePattern[Interval](["Descending Enigmatic"], [1, 3, 1, 3, 2, 1, 1], unison)
-ScalePattern[Interval](["Flamenco mode"], [1, 3, 1, 2, 1, 3, 1], unison)
+#ScalePattern[Interval](["Flamenco mode"], [1, 3, 1, 2, 1, 3, 1], unison) can't find anymore on wp
 ScalePattern[Interval](["Hungarian", "Hungarian Gypsy"], [2, 1, 3, 1, 1, 2, 2], three_flats)
 ScalePattern[Interval](["Half diminished"], [2, 1, 2, 1, 2, 2, 2], five_flats)
 ScalePattern[Interval](["Harmonic major"], [2, 2, 1, 2, 1, 3, 1], unison)

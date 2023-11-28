@@ -70,12 +70,12 @@ class Interval(ChromaticInterval):
         chromatic = self.get_chromatic() + other.get_chromatic()
         from solfege.note.abstract import AbstractNote
         if self.ClassToTransposeTo:
-            clazz = self.ClassToTransposeTo
+            cls = self.ClassToTransposeTo
         elif isinstance(other, AbstractNote):
-            clazz = other.__class__
+            cls = other.__class__
         else:
-            clazz = self.__class__
-        return clazz(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
+            cls = self.__class__
+        return cls(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
 
     def __mul__(self, other):
         from solfege.note.abstract import AbstractNote
@@ -83,8 +83,8 @@ class Interval(ChromaticInterval):
         assert (isinstance(other, int))
         diatonic = self.get_diatonic() * other
         chromatic = self.get_chromatic() * other
-        clazz = self.ClassToTransposeTo or self.__class__
-        return clazz(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
+        cls = self.ClassToTransposeTo or self.__class__
+        return cls(chromatic=chromatic.get_number(), diatonic=diatonic.get_number())
 
     @classmethod
     def get_one_octave(cls):

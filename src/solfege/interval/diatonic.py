@@ -23,7 +23,7 @@ class DiatonicInterval(AbstractInterval):
         """
         Give the chromatic interval associated to the current diatonic interval in some scale.
           By default, the scale is the major one."""
-        # TODO scale= Scale.dic[scale] currently, only major is used
+        # TODO scale= scale.dic[scale] currently, only major is used
         return self.RelatedChromaticClass(12 * self.get_octave() + [0, 2, 4, 5, 7, 9, 11][self.get_number() % 7])
 
     def get_interval_name(self, showOctave=True):
@@ -43,17 +43,6 @@ class DiatonicInterval(AbstractInterval):
         if self.get_number() < 0:
             text += " decreasing"
         return text
-
-    def lily_octave(self):
-        """The string which allow to obtain correct octave in lilypond."""
-        octave = self.get_octave()
-        octave_shift = octave + 1
-        if octave_shift > 0:
-            return "'" * octave_shift
-        elif octave_shift < 0:
-            return "," * (-octave_shift)
-        else:
-            return ""
 
 
 DiatonicInterval.IntervalClass = DiatonicInterval
@@ -114,14 +103,6 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertEquals(self.octave_descending.get_octave(), -1)
         self.assertEquals(self.second_twice_descending.get_octave(), -2)
         self.assertEquals(self.octave.get_octave(), 1)
-
-    def test_lily_octave(self):
-        self.assertEquals(self.unison.lily_octave(), "'")
-        self.assertEquals(self.seventh.lily_octave(), "'")
-        self.assertEquals(self.seventh_descending.lily_octave(), "")
-        self.assertEquals(self.octave_descending.lily_octave(), "")
-        self.assertEquals(self.second_twice_descending.lily_octave(), ",")
-        self.assertEquals(self.octave.lily_octave(), "''")
 
     def test_add_octave(self):
         self.assertEquals(self.octave.add_octave(-1), self.unison)

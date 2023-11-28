@@ -2,7 +2,7 @@ from lily.Interface import Lilyable
 from solfege.interval.interval import Interval, TestInterval
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import ChromaticNote, DiatonicNote
-from solfege.note.alteration import LILY, Alteration
+from solfege.note.alteration import LILY, Alteration, FILE_NAME, DEBUG, NAME_UP_TO_OCTAVE, alteration_symbols
 
 
 class Note(Interval, ChromaticNote, Lilyable):
@@ -26,32 +26,30 @@ class Note(Interval, ChromaticNote, Lilyable):
             chromatic=chromatic.get_number()
         )
 
-    def get_note_name(self, usage: str):
+    def lily(self):
+        return f"{self.get_diatonic().lily()}{self.get_alteration().lily()}{self.get_diatonic().get_octave_name_lily()}"
+
+    def get_symbol_name(self):
         """The name of this note.
 
         Args: usage -- see Alteration file."""
-        diatonic = self.get_diatonic()
-        alteration = self.get_alteration()
-        return f"{diatonic.get_note_name(usage=usage)}{alteration.get_note_name(usage=usage)}{diatonic.get_octave_name(usage=usage)}"
+        return f"{self.get_diatonic().get_name_up_to_octave()}{self.get_alteration().get_symbol_name()}"
+
+    def get_ascii_name(self):
+        """The name of this note.
+
+        Args: usage -- see Alteration file."""
+        return f"{self.get_diatonic().get_name_up_to_octave()}{self.get_alteration().get_ascii_name()}"
+
+    def get_name_up_to_octave(self):
+        raise NotImplemented
+
+    def get_full_name(self):
+        return f"{self.get_symbol_name()}{self.get_octave()+4}"
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""
         return self.get_alteration().printable()
-
-    def lily(self, use_color=True):
-        """Lilypond representation of this note. Colored according to
-        getColor, unless color is set to False.
-        """
-        diatonic = self.get_diatonic()
-        try:
-            alteration = self.get_alteration()
-        except TooBigAlterationException as tba:
-            tba["The note which is too big"] = self
-            raise
-        lily_code_for_black_note = f"{diatonic.get_note_name(usage=LILY)}{alteration.lily()}{self.get_diatonic().lily_octave()}"
-        if not use_color:
-            return lily_code_for_black_note
-        return """\\tweak NoteHead.color  #(x11-color '{self.get_color()})\n{lily_code_for_black_note}\n"""
 
     def adjacent(self, other):
         """Whether `other` is at most two half-tone away"""
@@ -65,8 +63,8 @@ class Note(Interval, ChromaticNote, Lilyable):
     @staticmethod
     def from_name(name: str):
         name = name.strip()
-        diatonic_name = "".join(letter for letter in name if letter not in {"#", "♭"})
-        alteration_name = "".join(letter for letter in name if letter in {"#", "♭"})
+        diatonic_name = "".join(letter for letter in name if letter not in alteration_symbols)
+        alteration_name = "".join(letter for letter in name if letter in alteration_symbols)
         diatonic = DiatonicNote.from_name(diatonic_name)
         chromatic_from_diatonic = diatonic.get_chromatic()
         alteration = Alteration.from_name(alteration_name)
@@ -153,10 +151,10 @@ class TestNote(TestInterval):
         self.assertTrue(self.C5.equals_modulo_octave(self.C3))
 
     def test_lily_black(self):
-        self.assertEquals(self.C4.lily(use_color=False), "c'")
-        self.assertEquals(self.C3.lily(use_color=False), "c")
-        self.assertEquals(self.C5.lily(use_color=False), "c''")
-        self.assertEquals(self.B3.lily(use_color=False), "b")
+        self.assertEquals(self.C4.lily(), "c'")
+        self.assertEquals(self.C3.lily(), "c")
+        self.assertEquals(self.C5.lily(), "c''")
+        self.assertEquals(self.B3.lily(), "b")
 
     def test_is_black_key(self):
         self.assertFalse(self.C4.is_black_key_on_piano())
@@ -181,5 +179,9 @@ class TestNote(TestInterval):
         self.assertEquals(Note.from_name("C4♭"), Note(chromatic=-1, diatonic=0))
         self.assertEquals(Note.from_name("C♭4"), Note(chromatic=-1, diatonic=0))
         self.assertEquals(Note.from_name("B3"), Note(chromatic=-1, diatonic=-1))
+
+    def test_from_name_to_name(self):
+        self.assertEquals(Note.from_name("C4").get_full_name(), "C  4")
+        self.assertEquals(Note.from_name("C♭4").get_full_name(), "C♭ 4")
 
     # todo Test wwith color

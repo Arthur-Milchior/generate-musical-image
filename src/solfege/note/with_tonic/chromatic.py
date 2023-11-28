@@ -84,7 +84,7 @@ class TestChromaticNoteWithTonic(unittest.TestCase):
     #     return self.dic["diatonic"]
     #
     # def get_note(self):
-    #     note = super().get_note(clazz=NoteWithBase)
+    #     note = super().get_note(cls=NoteWithBase)
     #     tonic = self.get_tonic()
     #     if self is tonic:
     #         note.set_tonic(note)

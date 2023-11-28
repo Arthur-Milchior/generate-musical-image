@@ -30,10 +30,10 @@ class SetOfNotes(Lilyable):
     def __iter__(self):
         return sorted(self.notes)
 
-    def lily(self, use_color: bool = False):
+    def lily(self):
         newline = "\n"
         return f"""\\clef treble <
-{_indent(newline.join(note.lily(use_color=use_color) for note in sorted(self.notes)))}
+{_indent(newline.join(note.lily() for note in sorted(self.notes)))}
 >"""
 
     def __repr__(self):
@@ -64,7 +64,7 @@ class TestSetOfNotes(unittest.TestCase):
         self.assertEquals(self.C_minor + Interval(diatonic=3, chromatic=5), self.F_minor)
 
     def test_lily(self):
-        self.assertEquals(self.C_minor.lily(use_color=False), """\\clef treble <
+        self.assertEquals(self.C_minor.lily(), """\\clef treble <
   c'
   ees'
   g'

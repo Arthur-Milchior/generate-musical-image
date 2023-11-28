@@ -43,7 +43,7 @@ class Penalty:
     _nb_white_after_thumb: int
 
     """Whether starts and end allow to nicely play a second octave"""
-    _nice_extremity: Optional[bool]
+    _extremity_penalty: Optional[bool]
 
     """The number of times two far away consecutive notes are played by 3rd and 4rth finger"""
     _number_of_3_and_4_non_adjacent: int
@@ -52,7 +52,7 @@ class Penalty:
     def __init__(self, fingering: Optional[Fingering] = None, _pinky_side_tonic_finger: Optional[FingerNumbers] = None,
                  thumb_non_adjacent: int = 0,
                  thumb_side_tonic_finger: Optional[FingerNumbers] = None, nb_thumb_over: int = 0,
-                 nb_white_after_thumb: int = 0, nice_extremity: Optional[bool] = None,
+                 nb_white_after_thumb: int = 0, extremity_penalty: Optional[bool] = None,
                  number_of_spaced_3_and_four: int = 0, number_of_thumbs_on_black: int = 0):
         self.fingering = fingering
         self._pinky_side_tonic_finger = _pinky_side_tonic_finger
@@ -60,7 +60,7 @@ class Penalty:
         self._thumb_side_tonic_finger = thumb_side_tonic_finger
         self._nb_thumb_over = nb_thumb_over
         self._nb_white_after_thumb = nb_white_after_thumb
-        self._nice_extremity = nice_extremity
+        self._extremity_penalty = extremity_penalty
         self._number_of_3_and_4_non_adjacent = number_of_spaced_3_and_four
         self._number_of_thumbs_on_black = number_of_thumbs_on_black
 
@@ -91,13 +91,13 @@ class Penalty:
         """Merge the penalty of self and other."""
         return Penalty(fingering=None,
                        _pinky_side_tonic_finger=self._at_most_one_non_optional(self._pinky_side_tonic_finger,
-                                                                              other._pinky_side_tonic_finger),
+                                                                               other._pinky_side_tonic_finger),
                        thumb_non_adjacent=+self._thumb_non_adjacent + other._thumb_non_adjacent,
                        thumb_side_tonic_finger=self._at_most_one_non_optional(self._thumb_side_tonic_finger,
                                                                               other._thumb_side_tonic_finger),
                        nb_thumb_over=+self._nb_thumb_over + other._nb_thumb_over,
                        nb_white_after_thumb=+self._nb_white_after_thumb + other._nb_white_after_thumb,
-                       nice_extremity=self._and_optional(self._nice_extremity, other._nice_extremity),
+                       extremity_penalty=self._and_optional(self._extremity_penalty, other._extremity_penalty),
                        number_of_thumbs_on_black=self._number_of_thumbs_on_black,
                        number_of_spaced_3_and_four=self._number_of_3_and_4_non_adjacent)
 
@@ -133,76 +133,36 @@ class Penalty:
         c._nb_white_after_thumb += 1
         return c
 
-
     def add_thumb_over(self, fingering=None):
         c = self._copy(fingering=fingering)
         c._nb_thumb_over += 1
         return c
 
-
-    def set_bad_extremity(self, fingering=None):
-        return self.set_extremity(False, fingering=fingering)
-
-    def set_good_extremity(self, fingering=None):
-        return self.set_extremity(True, fingering=fingering)
-
-    def set_extremity(self, niceness: bool, fingering=None):
-        assert self._nice_extremity is None
+    def set_extremity(self, penalty: int, fingering=None):
+        assert self._extremity_penalty is None
         c = self._copy(fingering=fingering)
-        c._nice_extremity = niceness
+        c._extremity_penalty = penalty
         return c
 
-    def is_bad_extremity(self):
-        return not self._nice_extremity
-
-    def is_good_extremity(self):
-        return self._nice_extremity
+    def _ordinal(self):
+        return (self._extremity_penalty, self._number_of_thumbs_on_black, self._thumb_non_adjacent, self._nb_thumb_over,
+                self._number_of_3_and_4_non_adjacent,
+                self._pinky_side_tonic_finger if self._pinky_side_tonic_finger is not None else "a",
+                # two incomparable types
+                self._thumb_side_tonic_finger, self._nb_white_after_thumb)
 
     def __ge__(self, other: Optional[Penalty]):
-        return self == other or self > other
-
-    def __gt__(self, other: Optional[Penalty]):
         """Whether self is worse than other"""
         if other is None:
             return False
+        return self._ordinal() >= other._ordinal()
 
-        if self._number_of_thumbs_on_black > other._number_of_thumbs_on_black:
-            return True
-        if self._number_of_thumbs_on_black < other._number_of_thumbs_on_black:
+    def best_known_is_at_least_as_good(self, other: Optional[Penalty]):
+        try:
+            return self >= other
+        except TypeError:
+            # Can't compare both penalties because of the pinky_side_tonic_finger not yet being known for one.
             return False
-
-        if self._thumb_non_adjacent > other._thumb_non_adjacent:
-            return True
-        if self._thumb_non_adjacent < other._thumb_non_adjacent:
-            return False
-
-        if self._nb_thumb_over > other._nb_thumb_over:
-            return True
-        if self._nb_thumb_over < other._nb_thumb_over:
-            return False
-
-        if self.is_bad_extremity() and other.is_good_extremity():
-            return True
-        if other.is_bad_extremity() and self.is_bad_extremity():
-            return False
-
-        if self._number_of_3_and_4_non_adjacent != other._number_of_3_and_4_non_adjacent:
-            return self._number_of_3_and_4_non_adjacent > other._number_of_3_and_4_non_adjacent
-
-        assert (self._pinky_side_tonic_finger is not None) == (other._pinky_side_tonic_finger is not None)
-        if self._pinky_side_tonic_finger is not None:
-            if self._pinky_side_tonic_finger > other._pinky_side_tonic_finger:
-                return False
-            if self._pinky_side_tonic_finger < other._pinky_side_tonic_finger:
-                return True
-
-        if self._thumb_side_tonic_finger != other._thumb_side_tonic_finger:
-            return self._thumb_side_tonic_finger > other._thumb_side_tonic_finger
-
-        if self._nb_white_after_thumb != other._nb_white_after_thumb:
-            return self._nb_white_after_thumb > other._nb_white_after_thumb
-
-        return False
 
     def warning(self):
         text = ""
@@ -244,13 +204,7 @@ class TestPenalty(unittest.TestCase):
 
     def test_fail_set_nice_twice(self):
         with self.assertRaises(Exception):
-            Penalty().set_good_extremity().set_good_extremity()
-        with self.assertRaises(Exception):
-            Penalty().set_good_extremity().set_bad_extremity()
-        with self.assertRaises(Exception):
-            Penalty().set_bad_extremity().set_good_extremity()
-        with self.assertRaises(Exception):
-            Penalty().set_bad_extremity().set_bad_extremity()
+            Penalty().set_extremity(3).set_extremity(2)
 
     def test_set_nice(self):
         nice = Penalty().set_good_extremity()

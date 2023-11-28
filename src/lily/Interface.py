@@ -1,5 +1,5 @@
 class Lilyable:
-    def lily(self, use_color: bool = False):
+    def lily(self):
         return NotImplemented
 
     def lily_comment(self) -> str:

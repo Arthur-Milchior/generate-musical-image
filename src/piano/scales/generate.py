@@ -6,12 +6,16 @@
 # 3 hands
 # =18144 images
 # Taking 4 seconds each, it takes 20 hours
+import os
 import unittest
 from typing import Optional, List, Tuple, Union, Callable
 
+import util
+from lily.lily import compile_, lilypond_code_for_one_hand
 from piano.scales.fingering import Fingering, TestFingering
 from piano.scales.penalty import Penalty
-from solfege.Scale.scale_pattern import ScalePattern, minor_melodic, blues, pentatonic_major
+from solfege.chord.chord_pattern import minor_seven
+from solfege.scale.scale_pattern import ScalePattern, minor_melodic, blues, pentatonic_major
 from solfege.note import Note
 
 lilyProgram = "lilypond "
@@ -55,12 +59,12 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
         if last_added_note.is_black_key_on_piano() and last_added_finger == 1:
             penalty = penalty.add_thumb_on_black()
         if not remaining_notes:
-            penalty = penalty.set_extremity(fingering.is_end_nice())
+            penalty = penalty.set_extremity(fingering.is_extremity_nice())
             penalty._thumb_side_tonic_finger = fingering.get_thumb_side_tonic_finger()
             penalty._pinky_side_tonic_finger = fingering.pinky_side_tonic_finger
             penalty.fingering = fingering
             # it's okay to edit in place as `penalty` is a local variable that has no other owner
-            return best_known_penalty if penalty >= best_known_penalty else penalty
+            return best_known_penalty if penalty.best_known_is_at_least_as_good(best_known_penalty) else penalty
 
         # on the right hand, we go from high to low. So we take the last interval and reverse it to decrease the
         # current note.
@@ -89,7 +93,7 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
         else:
             next_possible_fingers = [last_added_finger - 1, last_added_finger - 2]
 
-        if penalty >= best_known_penalty:
+        if penalty.best_known_is_at_least_as_good(best_known_penalty):
             return best_known_penalty
 
         for next_possible_finger in next_possible_fingers:
@@ -132,11 +136,29 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
 
 class TestGenerate(unittest.TestCase):
     maxDiff = None
+    test_folder = "../../../test_files"
+
+    def generation_testing(self, fundamental: Note, scale_pattern: ScalePattern, for_right_hand: bool,
+                           expected: Fingering,
+                           show: bool = False):
+        penalty = generate_fingering(fundamental=fundamental, scale_pattern=scale_pattern,
+                                     for_right_hand=for_right_hand)
+        fingering = penalty.fingering
+        if show:
+            scale = fingering.generate(first_played_note=fundamental, number_of_octaves=2, scale_pattern=scale_pattern)
+            lily_code = lilypond_code_for_one_hand(key="c", notes_or_chords=scale, for_right_hand=for_right_hand,
+                                                   midi=False)
+            prefix_path = f"{self.test_folder}/test_generation"
+            ly_path = f"{prefix_path}.ly"
+            svg_path = f"{prefix_path}.svg"
+            util.delete_file_if_exists(svg_path)
+            util.delete_file_if_exists(ly_path)
+            cmd = compile_(lily_code, file_prefix=prefix_path, execute_lily=True, wav=False)
+            os.system(cmd)
+
+        self.assertEquals(fingering, expected)
 
     def test_blues_D_right(self):
-        penalty = generate_fingering(fundamental=Note(chromatic=2, diatonic=1), scale_pattern=blues,
-                                     for_right_hand=True)
-        fingering = penalty.fingering
         expected = (Fingering(for_right_hand=True).
                     add_pinky_side(note=Note(chromatic=2, diatonic=1), finger=5).
                     add(note=Note(chromatic=0, diatonic=0), finger=4).
@@ -145,14 +167,11 @@ class TestGenerate(unittest.TestCase):
                     add(note=Note(chromatic=7, diatonic=4), finger=1).
                     add(note=Note(chromatic=5, diatonic=3), finger=3).
                     add(note=Note(chromatic=2, diatonic=1), finger=1))
-        self.assertEquals(fingering, expected)
+        fundamental = Note(chromatic=2, diatonic=1)
+        self.generation_testing(fundamental=fundamental, scale_pattern=blues, for_right_hand=True, expected=expected,
+                                show=True)
 
     def test_pentatonic_major_right(self):
-        # All black notes
-        penalty = generate_fingering(fundamental=Note(chromatic=1, diatonic=0), scale_pattern=pentatonic_major,
-                                     for_right_hand=True)
-        self.assertIsNotNone(penalty)
-        fingering = penalty.fingering
         expected = (Fingering(for_right_hand=True).
                     add_pinky_side(Note.from_name("C# "), 5).
                     add(Note.from_name("A# "), 4).
@@ -160,8 +179,19 @@ class TestGenerate(unittest.TestCase):
                     add(Note.from_name("E# "), 1).
                     add(Note.from_name("D# "), 2).
                     add(Note.from_name("C# "), 1))
-        self.assertEquals(expected,
-                          fingering)
+        self.generation_testing(fundamental=Note.from_name("C#"), scale_pattern=pentatonic_major, for_right_hand=True,
+                                expected=expected)
+        # All black notes
+
+    def test_minor_seventh_arpeggio_A(self):
+        expected = (Fingering(for_right_hand=True).
+                    add_pinky_side(Note.from_name("A "), 5).
+                    add(Note.from_name("A "), 1).
+                    add(Note.from_name("C "), 2).
+                    add(Note.from_name("E "), 3).
+                    add(Note.from_name("G "), 4))
+        self.generation_testing(fundamental=Note.from_name("A"), scale_pattern=minor_seven.to_arpeggio_pattern(),
+                                for_right_hand=True, expected=expected, show=True)
 
     def test_minor_melodic_right(self):
         penalty = generate_fingering(fundamental=Note(chromatic=0, diatonic=0), scale_pattern=minor_melodic,

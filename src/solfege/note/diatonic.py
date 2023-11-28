@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from solfege.interval.diatonic import DiatonicInterval, TestDiatonicInterval
 from solfege.note.abstract import AbstractNote
-from solfege.note.alteration import LILY, FILE_NAME, TEXT, MONOSPACE
+from solfege.note.alteration import LILY, FILE_NAME, FULL_NAME, DEBUG, NAME_UP_TO_OCTAVE
 
 
 class DiatonicNote(AbstractNote, DiatonicInterval):
@@ -10,23 +10,23 @@ class DiatonicNote(AbstractNote, DiatonicInterval):
     # Saved as the interval from middle C
     IntervalClass = DiatonicInterval
 
-    def get_note_name(self, usage: str):
-        lower_cap = ["c", "d", "e", "f", "g", "a", "b"][self.get_number() % 7]
-        if usage == LILY:
-            return lower_cap
-        assert usage == FILE_NAME or usage == TEXT or usage == MONOSPACE
-        return lower_cap.upper()
+    def lily(self):
+        return ["c", "d", "e", "f", "g", "a", "b"][self.get_number() % 7]
 
-    def get_octave_name(self, usage: str):
+    def get_name_up_to_octave(self):
+        return ["C", "D", "E", "F", "G", "A", "B"][self.get_number() % 7]
+
+    def get_octave_name_lily(self):
         """How to write the octave."""
         # must be separated from note name, because, in lilypond, the alteration is between the note name and the octave
-        if usage == LILY:
-            if self.get_octave() > 0:
-                return "'" * self.get_octave()
-            return "," * (-self.get_octave())
-        assert usage == FILE_NAME or usage == TEXT or usage == MONOSPACE
-        return str(self.get_octave(scientificNotation=True))
+        if self.get_octave() >= 0:
+            return "'" * (self.get_octave()+1)
+        return "," * (-self.get_octave()-1)
 
+    def get_octave_name_ascii(self):
+        """How to write the octave."""
+        # must be separated from note name, because, in lilypond, the alteration is between the note name and the octave
+        return str(self.get_octave(scientificNotation=True))
 
     @staticmethod
     def from_name(name: str):
@@ -102,14 +102,6 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(self.B2.get_octave(), -2)
         self.assertEquals(self.C5.get_octave(), 1)
 
-    def test_lily_octave(self):
-        self.assertEquals(self.C4.lily_octave(), "'")
-        self.assertEquals(self.B4.lily_octave(), "'")
-        self.assertEquals(self.D3.lily_octave(), "")
-        self.assertEquals(self.C3.lily_octave(), "")
-        self.assertEquals(self.B2.lily_octave(), ",")
-        self.assertEquals(self.C5.lily_octave(), "''")
-
     def test_add_octave(self):
         self.assertEquals(self.C5.add_octave(-1), self.C4)
         self.assertEquals(self.C4.add_octave(1), self.C5)
@@ -156,87 +148,88 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(DiatonicNote(-9).get_chromatic(), ChromaticNote(-15))
 
     def test_get_note_name_LILY(self):
-        self.assertEquals(DiatonicNote(0).get_note_name(usage=LILY), "c")
-        self.assertEquals(DiatonicNote(1).get_note_name(usage=LILY), "d")
-        self.assertEquals(DiatonicNote(2).get_note_name(usage=LILY), "e")
-        self.assertEquals(DiatonicNote(3).get_note_name(usage=LILY), "f")
-        self.assertEquals(DiatonicNote(4).get_note_name(usage=LILY), "g")
-        self.assertEquals(DiatonicNote(5).get_note_name(usage=LILY), "a")
-        self.assertEquals(DiatonicNote(6).get_note_name(usage=LILY), "b")
-        self.assertEquals(DiatonicNote(7).get_note_name(usage=LILY), "c")
-        self.assertEquals(DiatonicNote(8).get_note_name(usage=LILY), "d")
-        self.assertEquals(DiatonicNote(9).get_note_name(usage=LILY), "e")
-        self.assertEquals(DiatonicNote(-1).get_note_name(usage=LILY), "b")
-        self.assertEquals(DiatonicNote(-2).get_note_name(usage=LILY), "a")
-        self.assertEquals(DiatonicNote(-3).get_note_name(usage=LILY), "g")
-        self.assertEquals(DiatonicNote(-4).get_note_name(usage=LILY), "f")
-        self.assertEquals(DiatonicNote(-5).get_note_name(usage=LILY), "e")
-        self.assertEquals(DiatonicNote(-6).get_note_name(usage=LILY), "d")
-        self.assertEquals(DiatonicNote(-7).get_note_name(usage=LILY), "c")
-        self.assertEquals(DiatonicNote(-8).get_note_name(usage=LILY), "b")
-        self.assertEquals(DiatonicNote(-9).get_note_name(usage=LILY), "a")
+        self.assertEquals(DiatonicNote(0).lily(), "c")
+        self.assertEquals(DiatonicNote(1).lily(), "d")
+        self.assertEquals(DiatonicNote(2).lily(), "e")
+        self.assertEquals(DiatonicNote(3).lily(), "f")
+        self.assertEquals(DiatonicNote(4).lily(), "g")
+        self.assertEquals(DiatonicNote(5).lily(), "a")
+        self.assertEquals(DiatonicNote(6).lily(), "b")
+        self.assertEquals(DiatonicNote(7).lily(), "c")
+        self.assertEquals(DiatonicNote(8).lily(), "d")
+        self.assertEquals(DiatonicNote(9).lily(), "e")
+        self.assertEquals(DiatonicNote(-1).lily(), "b")
+        self.assertEquals(DiatonicNote(-2).lily(), "a")
+        self.assertEquals(DiatonicNote(-3).lily(), "g")
+        self.assertEquals(DiatonicNote(-4).lily(), "f")
+        self.assertEquals(DiatonicNote(-5).lily(), "e")
+        self.assertEquals(DiatonicNote(-6).lily(), "d")
+        self.assertEquals(DiatonicNote(-7).lily(), "c")
+        self.assertEquals(DiatonicNote(-8).lily(), "b")
+        self.assertEquals(DiatonicNote(-9).lily(), "a")
 
     def test_get_note_name_FILE_NAME(self):
-        self.assertEquals(DiatonicNote(0).get_note_name(usage=FILE_NAME), "C")
-        self.assertEquals(DiatonicNote(1).get_note_name(usage=FILE_NAME), "D")
-        self.assertEquals(DiatonicNote(2).get_note_name(usage=FILE_NAME), "E")
-        self.assertEquals(DiatonicNote(3).get_note_name(usage=FILE_NAME), "F")
-        self.assertEquals(DiatonicNote(4).get_note_name(usage=FILE_NAME), "G")
-        self.assertEquals(DiatonicNote(5).get_note_name(usage=FILE_NAME), "A")
-        self.assertEquals(DiatonicNote(6).get_note_name(usage=FILE_NAME), "B")
-        self.assertEquals(DiatonicNote(7).get_note_name(usage=FILE_NAME), "C")
-        self.assertEquals(DiatonicNote(8).get_note_name(usage=FILE_NAME), "D")
-        self.assertEquals(DiatonicNote(9).get_note_name(usage=FILE_NAME), "E")
-        self.assertEquals(DiatonicNote(-1).get_note_name(usage=FILE_NAME), "B")
-        self.assertEquals(DiatonicNote(-2).get_note_name(usage=FILE_NAME), "A")
-        self.assertEquals(DiatonicNote(-3).get_note_name(usage=FILE_NAME), "G")
-        self.assertEquals(DiatonicNote(-4).get_note_name(usage=FILE_NAME), "F")
-        self.assertEquals(DiatonicNote(-5).get_note_name(usage=FILE_NAME), "E")
-        self.assertEquals(DiatonicNote(-6).get_note_name(usage=FILE_NAME), "D")
-        self.assertEquals(DiatonicNote(-7).get_note_name(usage=FILE_NAME), "C")
-        self.assertEquals(DiatonicNote(-8).get_note_name(usage=FILE_NAME), "B")
-        self.assertEquals(DiatonicNote(-9).get_note_name(usage=FILE_NAME), "A")
+        self.assertEquals(DiatonicNote(0).get_name_up_to_octave(), "C")
+        self.assertEquals(DiatonicNote(1).get_name_up_to_octave(), "D")
+        self.assertEquals(DiatonicNote(2).get_name_up_to_octave(), "E")
+        self.assertEquals(DiatonicNote(3).get_name_up_to_octave(), "F")
+        self.assertEquals(DiatonicNote(4).get_name_up_to_octave(), "G")
+        self.assertEquals(DiatonicNote(5).get_name_up_to_octave(), "A")
+        self.assertEquals(DiatonicNote(6).get_name_up_to_octave(), "B")
+        self.assertEquals(DiatonicNote(7).get_name_up_to_octave(), "C")
+        self.assertEquals(DiatonicNote(8).get_name_up_to_octave(), "D")
+        self.assertEquals(DiatonicNote(9).get_name_up_to_octave(), "E")
+        self.assertEquals(DiatonicNote(-1).get_name_up_to_octave(), "B")
+        self.assertEquals(DiatonicNote(-2).get_name_up_to_octave(), "A")
+        self.assertEquals(DiatonicNote(-3).get_name_up_to_octave(), "G")
+        self.assertEquals(DiatonicNote(-4).get_name_up_to_octave(), "F")
+        self.assertEquals(DiatonicNote(-5).get_name_up_to_octave(), "E")
+        self.assertEquals(DiatonicNote(-6).get_name_up_to_octave(), "D")
+        self.assertEquals(DiatonicNote(-7).get_name_up_to_octave(), "C")
+        self.assertEquals(DiatonicNote(-8).get_name_up_to_octave(), "B")
+        self.assertEquals(DiatonicNote(-9).get_name_up_to_octave(), "A")
+
     def test_get_octave_name_LILY(self):
-        self.assertEquals(DiatonicNote(0).get_octave_name(usage=LILY), "")
-        self.assertEquals(DiatonicNote(1).get_octave_name(usage=LILY), "")
-        self.assertEquals(DiatonicNote(2).get_octave_name(usage=LILY), "")
-        self.assertEquals(DiatonicNote(3).get_octave_name(usage=LILY), "")
-        self.assertEquals(DiatonicNote(4).get_octave_name(usage=LILY), "")
-        self.assertEquals(DiatonicNote(5).get_octave_name(usage=LILY), "")
-        self.assertEquals(DiatonicNote(6).get_octave_name(usage=LILY), "")
-        self.assertEquals(DiatonicNote(7).get_octave_name(usage=LILY), "'")
-        self.assertEquals(DiatonicNote(8).get_octave_name(usage=LILY), "'")
-        self.assertEquals(DiatonicNote(9).get_octave_name(usage=LILY), "'")
-        self.assertEquals(DiatonicNote(-1).get_octave_name(usage=LILY), ",")
-        self.assertEquals(DiatonicNote(-2).get_octave_name(usage=LILY), ",")
-        self.assertEquals(DiatonicNote(-3).get_octave_name(usage=LILY), ",")
-        self.assertEquals(DiatonicNote(-4).get_octave_name(usage=LILY), ",")
-        self.assertEquals(DiatonicNote(-5).get_octave_name(usage=LILY), ",")
-        self.assertEquals(DiatonicNote(-6).get_octave_name(usage=LILY), ",")
-        self.assertEquals(DiatonicNote(-7).get_octave_name(usage=LILY), ",")
-        self.assertEquals(DiatonicNote(-8).get_octave_name(usage=LILY), ",,")
-        self.assertEquals(DiatonicNote(-9).get_octave_name(usage=LILY), ",,")
+        self.assertEquals(DiatonicNote(0).get_octave_name_lily(), "'")
+        self.assertEquals(DiatonicNote(1).get_octave_name_lily(), "'")
+        self.assertEquals(DiatonicNote(2).get_octave_name_lily(), "'")
+        self.assertEquals(DiatonicNote(3).get_octave_name_lily(), "'")
+        self.assertEquals(DiatonicNote(4).get_octave_name_lily(), "'")
+        self.assertEquals(DiatonicNote(5).get_octave_name_lily(), "'")
+        self.assertEquals(DiatonicNote(6).get_octave_name_lily(), "'")
+        self.assertEquals(DiatonicNote(7).get_octave_name_lily(), "''")
+        self.assertEquals(DiatonicNote(8).get_octave_name_lily(), "''")
+        self.assertEquals(DiatonicNote(9).get_octave_name_lily(), "''")
+        self.assertEquals(DiatonicNote(-1).get_octave_name_lily(), "")
+        self.assertEquals(DiatonicNote(-2).get_octave_name_lily(), "")
+        self.assertEquals(DiatonicNote(-3).get_octave_name_lily(), "")
+        self.assertEquals(DiatonicNote(-4).get_octave_name_lily(), "")
+        self.assertEquals(DiatonicNote(-5).get_octave_name_lily(), "")
+        self.assertEquals(DiatonicNote(-6).get_octave_name_lily(), "")
+        self.assertEquals(DiatonicNote(-7).get_octave_name_lily(), "")
+        self.assertEquals(DiatonicNote(-8).get_octave_name_lily(), ",")
+        self.assertEquals(DiatonicNote(-9).get_octave_name_lily(), ",")
 
     def test_get_octave_name_FILE_NAME(self):
-        self.assertEquals(DiatonicNote(0).get_octave_name(usage=FILE_NAME), "4")
-        self.assertEquals(DiatonicNote(1).get_octave_name(usage=FILE_NAME), "4")
-        self.assertEquals(DiatonicNote(2).get_octave_name(usage=FILE_NAME), "4")
-        self.assertEquals(DiatonicNote(3).get_octave_name(usage=FILE_NAME), "4")
-        self.assertEquals(DiatonicNote(4).get_octave_name(usage=FILE_NAME), "4")
-        self.assertEquals(DiatonicNote(5).get_octave_name(usage=FILE_NAME), "4")
-        self.assertEquals(DiatonicNote(6).get_octave_name(usage=FILE_NAME), "4")
-        self.assertEquals(DiatonicNote(7).get_octave_name(usage=FILE_NAME), "5")
-        self.assertEquals(DiatonicNote(8).get_octave_name(usage=FILE_NAME), "5")
-        self.assertEquals(DiatonicNote(9).get_octave_name(usage=FILE_NAME), "5")
-        self.assertEquals(DiatonicNote(-1).get_octave_name(usage=FILE_NAME), "3")
-        self.assertEquals(DiatonicNote(-2).get_octave_name(usage=FILE_NAME), "3")
-        self.assertEquals(DiatonicNote(-3).get_octave_name(usage=FILE_NAME), "3")
-        self.assertEquals(DiatonicNote(-4).get_octave_name(usage=FILE_NAME), "3")
-        self.assertEquals(DiatonicNote(-5).get_octave_name(usage=FILE_NAME), "3")
-        self.assertEquals(DiatonicNote(-6).get_octave_name(usage=FILE_NAME), "3")
-        self.assertEquals(DiatonicNote(-7).get_octave_name(usage=FILE_NAME), "3")
-        self.assertEquals(DiatonicNote(-8).get_octave_name(usage=FILE_NAME), "2")
-        self.assertEquals(DiatonicNote(-9).get_octave_name(usage=FILE_NAME), "2")
+        self.assertEquals(DiatonicNote(0).get_octave_name_ascii(), "4")
+        self.assertEquals(DiatonicNote(1).get_octave_name_ascii(), "4")
+        self.assertEquals(DiatonicNote(2).get_octave_name_ascii(), "4")
+        self.assertEquals(DiatonicNote(3).get_octave_name_ascii(), "4")
+        self.assertEquals(DiatonicNote(4).get_octave_name_ascii(), "4")
+        self.assertEquals(DiatonicNote(5).get_octave_name_ascii(), "4")
+        self.assertEquals(DiatonicNote(6).get_octave_name_ascii(), "4")
+        self.assertEquals(DiatonicNote(7).get_octave_name_ascii(), "5")
+        self.assertEquals(DiatonicNote(8).get_octave_name_ascii(), "5")
+        self.assertEquals(DiatonicNote(9).get_octave_name_ascii(), "5")
+        self.assertEquals(DiatonicNote(-1).get_octave_name_ascii(), "3")
+        self.assertEquals(DiatonicNote(-2).get_octave_name_ascii(), "3")
+        self.assertEquals(DiatonicNote(-3).get_octave_name_ascii(), "3")
+        self.assertEquals(DiatonicNote(-4).get_octave_name_ascii(), "3")
+        self.assertEquals(DiatonicNote(-5).get_octave_name_ascii(), "3")
+        self.assertEquals(DiatonicNote(-6).get_octave_name_ascii(), "3")
+        self.assertEquals(DiatonicNote(-7).get_octave_name_ascii(), "3")
+        self.assertEquals(DiatonicNote(-8).get_octave_name_ascii(), "2")
+        self.assertEquals(DiatonicNote(-9).get_octave_name_ascii(), "2")
 
     def test_from_name(self):
         self.assertEquals(DiatonicNote(0), DiatonicNote.from_name("C"))

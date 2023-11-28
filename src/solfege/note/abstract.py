@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Union, TypeVar
 
 from solfege.interval.abstract import AbstractInterval, TestBaseInterval
-from solfege.note.alteration import TEXT, MONOSPACE
+from solfege.note.alteration import FULL_NAME, DEBUG
 
 
 class AbstractNote(AbstractInterval):
@@ -49,14 +49,11 @@ class AbstractNote(AbstractInterval):
         octave = super().get_octave()
         return octave + 4 if scientificNotation else octave
 
-    def get_note_name(self, usage: str):
-        """The name of this note.
+    def get_name_up_to_octave(self) -> str:
+        raise NotImplemented
 
-        Args: usage -- see Alteration file."""
-        return NotImplemented
-
-    def __str__(self):
-        return self.get_note_name(usage=MONOSPACE)
+    def get_full_name(self):
+        return f"{self.get_name_up_to_octave()}{str(self.get_octave()+4)}"
 
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)

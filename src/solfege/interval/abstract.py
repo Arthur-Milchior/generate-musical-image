@@ -54,15 +54,15 @@ class AbstractInterval:
         """Sum of both intervals. Class of `self`"""
         from solfege.note.abstract import AbstractNote
         if isinstance(other, AbstractNote):
-            clazz = other.__class__
+            cls = other.__class__
         else:
-            clazz = self.__class__
+            cls = self.__class__
         if not isinstance(other, int):
             other_number = other.get_number()
         else:
             other_number = other
         sum_ = self.get_number() + other_number
-        ret = clazz(value=sum_)
+        ret = cls(value=sum_)
         return ret
 
     def __rmul__(self, other):
@@ -72,13 +72,13 @@ class AbstractInterval:
         assert (isinstance(other, int))
         from solfege.note.abstract import AbstractNote
         assert (not isinstance(self, AbstractNote))
-        clazz = self.ClassToTransposeTo or self.__class__
-        return clazz(value=self.get_number() * other)
+        cls = self.ClassToTransposeTo or self.__class__
+        return cls(value=self.get_number() * other)
 
     def __neg__(self):
         """Inverse interval"""
-        clazz = self.ClassToTransposeTo or self.__class__
-        return clazz(value=-self.get_number())
+        cls = self.ClassToTransposeTo or self.__class__
+        return cls(value=-self.get_number())
 
     def __sub__(self, other):
         """This interval minus the other one. Class of `self`"""
@@ -124,8 +124,8 @@ class AbstractInterval:
 
     def difference_in_base_octave(self, other):
         """self-other, in octave"""
-        clazz = self.ClassToTransposeTo or self.__class__
-        return clazz((self.get_number() - other.get_number()) % self.__class__.number_of_interval_in_an_octave)
+        cls = self.ClassToTransposeTo or self.__class__
+        return cls((self.get_number() - other.get_number()) % self.__class__.number_of_interval_in_an_octave)
 
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)

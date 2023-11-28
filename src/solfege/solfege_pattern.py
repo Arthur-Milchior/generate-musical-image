@@ -17,16 +17,16 @@ class SolfegePattern:
         if isinstance(names, str):
             names = [names]
         self.names = names
-        clazz = self.__class__
-        if clazz not in self.class_to_name_to_pattern:
-            self.class_to_name_to_pattern[clazz] = dict()
-            assert (clazz not in self.class_to_patterns)
-            self.class_to_patterns[clazz] = []
+        cls = self.__class__
+        if cls not in self.class_to_name_to_pattern:
+            self.class_to_name_to_pattern[cls] = dict()
+            assert (cls not in self.class_to_patterns)
+            self.class_to_patterns[cls] = []
         for name in names:
-            self.class_to_name_to_pattern[clazz][name] = self
+            self.class_to_name_to_pattern[cls][name] = self
 
         if record:
-            self.class_to_patterns[clazz].append(self)
+            self.class_to_patterns[cls].append(self)
 
     def get_the_first_of_the_name(self) -> str:
         """The first of all the names associated to this pattern. Hopefully the most canonical one"""

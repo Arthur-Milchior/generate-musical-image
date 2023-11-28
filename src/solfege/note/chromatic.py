@@ -11,23 +11,21 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         """Color to print the note in lilypond"""
         return "black"
 
-    def get_note_name(self, withOctave=False):
-        note_name = ["C", "C#", "D", "E♭", "E", "F", "F#", "G", "A♭", "A", "B♭", "B"][self.get_number() % 12]
-        octave = str(self.get_octave(scientificNotation=True)) if withOctave else ""
-        return note_name + octave
+    def get_name_up_to_octave(self):
+        return ["C", "C#", "D", "E♭", "E", "F", "F#", "G", "A♭", "A", "B♭", "B"][self.get_number() % 12]
 
-    def get_note(self, clazz=None):
+    def get_note(self, cls=None):
         """A solfège note. Diatonic note is guessed. The default class is
         Note. May return None if no diatonic note can be guessed. """
         diatonic = self.get_diatonic()
         if diatonic is None:
             return None
-        if clazz is None:
+        if cls is None:
             from solfege.note.note import Note
-            clazz = Note
+            cls = Note
         diatonic = diatonic.get_number()
         chromatic = self.get_number()
-        return clazz(diatonic=diatonic, chromatic=chromatic)
+        return cls(diatonic=diatonic, chromatic=chromatic)
 
 
 class TestChromaticNote(TestChromaticInterval):
@@ -121,66 +119,66 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertTrue(self.C5.equals_modulo_octave(self.C3))
 
     def test_get_interval_name(self):
-        self.assertEquals(ChromaticNote(0).get_note_name(), "C")
-        self.assertEquals(ChromaticNote(1).get_note_name(), "C#")
-        self.assertEquals(ChromaticNote(2).get_note_name(), "D")
-        self.assertEquals(ChromaticNote(3).get_note_name(), "E♭")
-        self.assertEquals(ChromaticNote(4).get_note_name(), "E")
-        self.assertEquals(ChromaticNote(5).get_note_name(), "F")
-        self.assertEquals(ChromaticNote(6).get_note_name(), "F#")
-        self.assertEquals(ChromaticNote(7).get_note_name(), "G")
-        self.assertEquals(ChromaticNote(8).get_note_name(), "A♭")
-        self.assertEquals(ChromaticNote(9).get_note_name(), "A")
-        self.assertEquals(ChromaticNote(10).get_note_name(), "B♭")
-        self.assertEquals(ChromaticNote(11).get_note_name(), "B")
-        self.assertEquals(ChromaticNote(12).get_note_name(), "C")
-        self.assertEquals(ChromaticNote(13).get_note_name(), "C#")
-        self.assertEquals(ChromaticNote(14).get_note_name(), "D")
-        self.assertEquals(ChromaticNote(-1).get_note_name(), "B")
-        self.assertEquals(ChromaticNote(-2).get_note_name(), "B♭")
-        self.assertEquals(ChromaticNote(-3).get_note_name(), "A")
-        self.assertEquals(ChromaticNote(-4).get_note_name(), "A♭")
-        self.assertEquals(ChromaticNote(-5).get_note_name(), "G")
-        self.assertEquals(ChromaticNote(-6).get_note_name(), "F#")
-        self.assertEquals(ChromaticNote(-7).get_note_name(), "F")
-        self.assertEquals(ChromaticNote(-8).get_note_name(), "E")
-        self.assertEquals(ChromaticNote(-9).get_note_name(), "E♭")
-        self.assertEquals(ChromaticNote(-10).get_note_name(), "D")
-        self.assertEquals(ChromaticNote(-11).get_note_name(), "C#")
-        self.assertEquals(ChromaticNote(-12).get_note_name(), "C")
-        self.assertEquals(ChromaticNote(-13).get_note_name(), "B")
-        self.assertEquals(ChromaticNote(-14).get_note_name(), "B♭")
+        self.assertEquals(ChromaticNote(0).get_name_up_to_octave(), "C")
+        self.assertEquals(ChromaticNote(1).get_name_up_to_octave(), "C#")
+        self.assertEquals(ChromaticNote(2).get_name_up_to_octave(), "D")
+        self.assertEquals(ChromaticNote(3).get_name_up_to_octave(), "E♭")
+        self.assertEquals(ChromaticNote(4).get_name_up_to_octave(), "E")
+        self.assertEquals(ChromaticNote(5).get_name_up_to_octave(), "F")
+        self.assertEquals(ChromaticNote(6).get_name_up_to_octave(), "F#")
+        self.assertEquals(ChromaticNote(7).get_name_up_to_octave(), "G")
+        self.assertEquals(ChromaticNote(8).get_name_up_to_octave(), "A♭")
+        self.assertEquals(ChromaticNote(9).get_name_up_to_octave(), "A")
+        self.assertEquals(ChromaticNote(10).get_name_up_to_octave(), "B♭")
+        self.assertEquals(ChromaticNote(11).get_name_up_to_octave(), "B")
+        self.assertEquals(ChromaticNote(12).get_name_up_to_octave(), "C")
+        self.assertEquals(ChromaticNote(13).get_name_up_to_octave(), "C#")
+        self.assertEquals(ChromaticNote(14).get_name_up_to_octave(), "D")
+        self.assertEquals(ChromaticNote(-1).get_name_up_to_octave(), "B")
+        self.assertEquals(ChromaticNote(-2).get_name_up_to_octave(), "B♭")
+        self.assertEquals(ChromaticNote(-3).get_name_up_to_octave(), "A")
+        self.assertEquals(ChromaticNote(-4).get_name_up_to_octave(), "A♭")
+        self.assertEquals(ChromaticNote(-5).get_name_up_to_octave(), "G")
+        self.assertEquals(ChromaticNote(-6).get_name_up_to_octave(), "F#")
+        self.assertEquals(ChromaticNote(-7).get_name_up_to_octave(), "F")
+        self.assertEquals(ChromaticNote(-8).get_name_up_to_octave(), "E")
+        self.assertEquals(ChromaticNote(-9).get_name_up_to_octave(), "E♭")
+        self.assertEquals(ChromaticNote(-10).get_name_up_to_octave(), "D")
+        self.assertEquals(ChromaticNote(-11).get_name_up_to_octave(), "C#")
+        self.assertEquals(ChromaticNote(-12).get_name_up_to_octave(), "C")
+        self.assertEquals(ChromaticNote(-13).get_name_up_to_octave(), "B")
+        self.assertEquals(ChromaticNote(-14).get_name_up_to_octave(), "B♭")
 
     def test_get_name_with_octave(self):
-        self.assertEquals(ChromaticNote(0).get_note_name(withOctave=True), "C4")
-        self.assertEquals(ChromaticNote(1).get_note_name(withOctave=True), "C#4")
-        self.assertEquals(ChromaticNote(2).get_note_name(withOctave=True), "D4")
-        self.assertEquals(ChromaticNote(3).get_note_name(withOctave=True), "E♭4")
-        self.assertEquals(ChromaticNote(4).get_note_name(withOctave=True), "E4")
-        self.assertEquals(ChromaticNote(5).get_note_name(withOctave=True), "F4")
-        self.assertEquals(ChromaticNote(6).get_note_name(withOctave=True), "F#4")
-        self.assertEquals(ChromaticNote(7).get_note_name(withOctave=True), "G4")
-        self.assertEquals(ChromaticNote(8).get_note_name(withOctave=True), "A♭4")
-        self.assertEquals(ChromaticNote(9).get_note_name(withOctave=True), "A4")
-        self.assertEquals(ChromaticNote(10).get_note_name(withOctave=True), "B♭4")
-        self.assertEquals(ChromaticNote(11).get_note_name(withOctave=True), "B4")
-        self.assertEquals(ChromaticNote(12).get_note_name(withOctave=True), "C5")
-        self.assertEquals(ChromaticNote(13).get_note_name(withOctave=True), "C#5")
-        self.assertEquals(ChromaticNote(14).get_note_name(withOctave=True), "D5")
-        self.assertEquals(ChromaticNote(-1).get_note_name(withOctave=True), "B3")
-        self.assertEquals(ChromaticNote(-2).get_note_name(withOctave=True), "B♭3")
-        self.assertEquals(ChromaticNote(-3).get_note_name(withOctave=True), "A3")
-        self.assertEquals(ChromaticNote(-4).get_note_name(withOctave=True), "A♭3")
-        self.assertEquals(ChromaticNote(-5).get_note_name(withOctave=True), "G3")
-        self.assertEquals(ChromaticNote(-6).get_note_name(withOctave=True), "F#3")
-        self.assertEquals(ChromaticNote(-7).get_note_name(withOctave=True), "F3")
-        self.assertEquals(ChromaticNote(-8).get_note_name(withOctave=True), "E3")
-        self.assertEquals(ChromaticNote(-9).get_note_name(withOctave=True), "E♭3")
-        self.assertEquals(ChromaticNote(-10).get_note_name(withOctave=True), "D3")
-        self.assertEquals(ChromaticNote(-11).get_note_name(withOctave=True), "C#3")
-        self.assertEquals(ChromaticNote(-12).get_note_name(withOctave=True), "C3")
-        self.assertEquals(ChromaticNote(-13).get_note_name(withOctave=True), "B2")
-        self.assertEquals(ChromaticNote(-14).get_note_name(withOctave=True), "B♭2")
+        self.assertEquals(ChromaticNote(0).get_full_name(), "C4")
+        self.assertEquals(ChromaticNote(1).get_full_name(), "C#4")
+        self.assertEquals(ChromaticNote(2).get_full_name(), "D4")
+        self.assertEquals(ChromaticNote(3).get_full_name(), "E♭4")
+        self.assertEquals(ChromaticNote(4).get_full_name(), "E4")
+        self.assertEquals(ChromaticNote(5).get_full_name(), "F4")
+        self.assertEquals(ChromaticNote(6).get_full_name(), "F#4")
+        self.assertEquals(ChromaticNote(7).get_full_name(), "G4")
+        self.assertEquals(ChromaticNote(8).get_full_name(), "A♭4")
+        self.assertEquals(ChromaticNote(9).get_full_name(), "A4")
+        self.assertEquals(ChromaticNote(10).get_full_name(), "B♭4")
+        self.assertEquals(ChromaticNote(11).get_full_name(), "B4")
+        self.assertEquals(ChromaticNote(12).get_full_name(), "C5")
+        self.assertEquals(ChromaticNote(13).get_full_name(), "C#5")
+        self.assertEquals(ChromaticNote(14).get_full_name(), "D5")
+        self.assertEquals(ChromaticNote(-1).get_full_name(), "B3")
+        self.assertEquals(ChromaticNote(-2).get_full_name(), "B♭3")
+        self.assertEquals(ChromaticNote(-3).get_full_name(), "A3")
+        self.assertEquals(ChromaticNote(-4).get_full_name(), "A♭3")
+        self.assertEquals(ChromaticNote(-5).get_full_name(), "G3")
+        self.assertEquals(ChromaticNote(-6).get_full_name(), "F#3")
+        self.assertEquals(ChromaticNote(-7).get_full_name(), "F3")
+        self.assertEquals(ChromaticNote(-8).get_full_name(), "E3")
+        self.assertEquals(ChromaticNote(-9).get_full_name(), "E♭3")
+        self.assertEquals(ChromaticNote(-10).get_full_name(), "D3")
+        self.assertEquals(ChromaticNote(-11).get_full_name(), "C#3")
+        self.assertEquals(ChromaticNote(-12).get_full_name(), "C3")
+        self.assertEquals(ChromaticNote(-13).get_full_name(), "B2")
+        self.assertEquals(ChromaticNote(-14).get_full_name(), "B♭2")
 
     def test_get_solfege(self):
         from solfege.note.note import Note

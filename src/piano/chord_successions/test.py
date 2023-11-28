@@ -5,18 +5,18 @@ import util
 from piano.chord_successions.__main__ import generate_chord_successions_pattern_fundamental, \
     generate_chord_successions_pattern, generate_chord_successions
 from piano.chord_successions.generate import TestChordSuccession, triad
+from solfege.note import Note
 from util import delete_file_if_exists
 
 
 class TestGeneration(unittest.TestCase):
-    test_folder = "test_files"
+    test_folder = "../../../test_files/chord_successions"
     prefix = f"{test_folder}/triad_in_C"
     svg = f"{prefix}.svg"
     wav = f"{prefix}.wav"
     ly = f"{prefix}.ly"
     anki = f"{test_folder}/anki.csv"
-    lyly_code = """%%right hand fingering:['', '', '', '', '', '', '', '']
-\\version "2.20.0"
+    lyly_code = """\\version "2.20.0"
 \\header{
   tagline=""
 }
@@ -83,11 +83,10 @@ class TestGeneration(unittest.TestCase):
             folder_path=self.test_folder,
             execute_lily=True,
             wav=True,
-            key_file="C",
-            key_lily="c"
+            key=Note.from_name("C"),
         )
         self.check_compiled_file_exists()
-        self.assertEquals(output, f"triad,C,<img src='{self.svg}'>")
+        self.assertEquals(output, f"Play the triads in the C   major scale,<img src='triad_in_C_____.svg'>")
 
     def test_generate_pattern(self):
         generate_chord_successions_pattern(
