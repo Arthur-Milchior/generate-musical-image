@@ -5,8 +5,8 @@ from solfege.interval.abstract import AbstractInterval
 
 
 class DiatonicInterval(AbstractInterval):
-    """An interval, where we count the number of notes in the major scale,
-    and ignore the notes which are absent. B and B# can't be
+    """An interval, where we count the number of note in the major scale,
+    and ignore the note which are absent. B and B# can't be
     distinguished, since A# does not really exist. However, this would
     allow to distinguish between B# and C"""
     number_of_interval_in_an_octave = 7

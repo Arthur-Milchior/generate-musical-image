@@ -1,4 +1,4 @@
-increase_fret_limit = 4  # The maximal distance between two notes played on the same string.
+increase_fret_limit = 4  # The maximal distance between two note played on the same string.
 decreasing_fret_limit = 4  # The maximal distance between the last note played on the string, and the fret on the next string
 
 

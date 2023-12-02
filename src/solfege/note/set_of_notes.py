@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import unittest
-from typing import Optional, FrozenSet, List
+from typing import Optional, List
 
-from lily.Interface import Lilyable
-from util import _indent
+from lily.interface import Lilyable
+from utils.util import indent
 from solfege.interval.interval import Interval
 from solfege.note import Note
 
@@ -31,16 +31,16 @@ class SetOfNotes(Lilyable):
         return sorted(self.notes)
 
     def lily(self):
-        newline = "\n"
-        return f"""\\clef treble <
-{_indent(newline.join(note.lily() for note in sorted(self.notes)))}
->"""
+        return f"""<{indent(" ".join(note.lily() for note in sorted(self.notes)))}>"""
 
     def __repr__(self):
         return f"""SetOfNotes(notes={self.notes!r}{f", fundamental={self.fundamental!r}" if self.fundamental else ""}"""
 
     def __str__(self):
         return f"""SetOfNotes([{",".join(str(note) for note in self.notes)}]{f"/{self.fundamental}" if self.fundamental else ""}"""
+
+    def add_octaves(self, octaves: int):
+        return SetOfNotes([note.add_octave(octaves) for note in self.notes], self.fundamental.add_octave(octaves))
 
 
 class TestSetOfNotes(unittest.TestCase):

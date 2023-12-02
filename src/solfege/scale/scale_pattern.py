@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from typing import List, Generic, Union, Tuple
 
+from solfege.chord.chord_pattern import chord_patterns
+from solfege.key import nor_flat_nor_sharp, three_flats, one_sharp, seven_sharps, one_flat, two_flats, five_flats, \
+    four_flats, three_sharps
 from solfege.scale.scale import Scale
 from solfege.interval.abstract import IntervalType
 from solfege.note import Note
@@ -9,7 +12,7 @@ from solfege.note.abstract import NoteType
 
 """Contains a class to represent a scale.
 
-Also contains all scales from wikipedia, which can be done using the 12 notes from chromatic scales."""
+Also contains all scales from wikipedia, which can be done using the 12 note from chromatic scales."""
 import unittest
 
 import sys
@@ -23,7 +26,7 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
 
     def __init__(self, names, intervals: List[Union[IntervalType, int, Tuple[int, int]]],
                  interval_for_signature: Interval,
-                 increasing=True, **kwargs):
+                 increasing=True, suppress_warning: bool = False, **kwargs):
         """
         intervals -- A list of intervals.
         An interval can be represented as:
@@ -51,9 +54,9 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
             self._intervals.append(interval)
             self._diatonic_sum += interval.get_diatonic().get_number()
             self._chromatic_sum += interval.get_chromatic().get_number()
-        if self._diatonic_sum % 7:
+        if self._diatonic_sum % 7 and not suppress_warning:
             print(f"Warning: scale {names[0]} has a diatonic sum of {self._diatonic_sum}", file=sys.stderr)
-        elif self._chromatic_sum % 12:
+        elif self._chromatic_sum % 12 and not suppress_warning:
             print(f"Warning: scale {names[0]} has a chromatic sum of {self._chromatic_sum}", file=sys.stderr)
         self.interval_for_signature = interval_for_signature
         self.increasing = increasing
@@ -90,7 +93,7 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
 
     def generate(self, fundamental: NoteType, number_of_octaves=1,
                  add_an_extra_note: bool = False) -> Scale[NoteType]:
-        """The notes, starting at tonic, following this pattern for nb_octave.
+        """The note, starting at tonic, following this pattern for nb_octave.
         If nb_octave is negative, the generated scale is decreasing."""
         assert number_of_octaves != 0
         if number_of_octaves < 0:
@@ -108,101 +111,97 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
     def number_of_intervals(self):
         return len(self._intervals)
 
-
-seven_sharps = Interval(diatonic=0, chromatic=1)  # when playing a C, have C# signature, 3 sharps
-three_sharps = Interval(diatonic=5, chromatic=9)  # when playing a C, have A signature, 3 sharps
-two_sharps = Interval(diatonic=1, chromatic=2)  # when playing a C, have D signature, 2 sharps
-one_sharp = Interval(diatonic=4, chromatic=7)  # when playing a C, have G signature, 1 sharp
-unison = Interval(diatonic=0, chromatic=0)  # when playing a C, have C signature
-one_flat = Interval(diatonic=3, chromatic=5)  # when playing a C, have F signature, 1 flat
-two_flats = Interval(diatonic=6, chromatic=10)  # when playing a C, have Bb signature, 2 flats
-three_flats = Interval(diatonic=2, chromatic=3)  # when playing a C, have Eb signature, 3 flats
-four_flats = Interval(diatonic=5, chromatic=8)  # when playing a C, have Ab signature, 4 flats
-five_flats = Interval(diatonic=1, chromatic=1)  # when playing a C, have Bb signature, 5 flats
-height_flats = Interval(diatonic=3, chromatic=4)  # when playing a C, have Fb signature, 8 flats including Bbb
-
-ScalePattern[Interval](["Greek Dorian tonos (chromatic genus)"], [1, 1, 3, 2, 1, 1, 3],
-                       unison)
 # ré b, mi bb, f, g, a b, b bb, c
-major_scale = ScalePattern[Interval](["Major"], [2, 2, 1, 2, 2, 2, 1], unison)
-ScalePattern[Interval](["Minor harmonic"], [2, 1, 2, 2, 1, 3, 1], three_flats)
+
+major_scale = ScalePattern[Interval](["Major"], [2, 2, 1, 2, 2, 2, 1], nor_flat_nor_sharp)
 blues = ScalePattern[Interval](["Blues"], [(3, 2), 2, (1, 0), 1, (3, 2), 2], three_flats)
+minor_harmonic = ScalePattern[Interval](["Minor harmonic"], [2, 1, 2, 2, 1, 3, 1], three_flats)
 pentatonic_minor = ScalePattern[Interval](["Pentatonic minor"], [(3, 2), 2, 2, (3, 2), 2],
                                           three_flats)
-pentatonic_major = ScalePattern[Interval](["Pentatonic major"], [2, 2, (3, 2), 2, (3, 2)], unison)
-ScalePattern[Interval](["Whole tone"], [(2, 1), (2, 1), (2, 1), (2, 1), (2, 1), (2, 2)], one_sharp)
-ScalePattern[Interval](["Chromatic"],
-                       [(1, 0), (1, 1), (1, 0), (1, 1), (1, 1), (1, 0), (1, 1), (1, 0), (1, 1), (1, 0), (1, 1),
-                        (1, 1), ], unison)
-ScalePattern[Interval](["Minor natural", "Aeolian mode"], [2, 1, 2, 2, 1, 2, 2], three_flats)
+pentatonic_major = ScalePattern[Interval](["Pentatonic major"], [2, 2, (3, 2), 2, (3, 2)], nor_flat_nor_sharp)
+whole_tone = ScalePattern[Interval](["Whole tone"], [(2, 1), (2, 1), (2, 1), (2, 1), (2, 1), (2, 2)], one_sharp)
+chromatic_scale_pattern = ScalePattern[Interval](["Chromatic"],
+                                                 [(1, 0), (1, 1), (1, 0), (1, 1), (1, 1), (1, 0), (1, 1), (1, 0),
+                                                  (1, 1), (1, 0), (1, 1),
+                                                  (1, 1), ], nor_flat_nor_sharp)
+minor_natural = ScalePattern[Interval](["Minor natural", "Aeolian mode"], [2, 1, 2, 2, 1, 2, 2], three_flats)
 minor_melodic = ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], three_flats)
-ScalePattern[Interval](["Acoustic", "overtone", "lydian dominant", "Lydian ♭7"], [2, 2, 2, 1, 2, 1, 2], one_sharp)
-ScalePattern[Interval](
-    ["Altered", "Altered", "Super-Locrian", "Locrian flat four", "Pomeroy", "Ravel", "diminished whole tone"],
-    [1, 2, 1, 2, 2, 2, 2], seven_sharps)
-ScalePattern[Interval](["Augmented", ], [(3, 2), (1, 0), (3, 2), (1, 0), (3, 2), 1], unison)
-ScalePattern[Interval](["Prometheus", "Mystic chord"], [2, 2, 2, (3, 2), 1, 2],
-                       unison)  # one flat one sharp, can't decide
-ScalePattern[Interval](["Tritone", ], [1, 3, (2, 2), (1, 0), (3, 2), 2], one_flat)
-ScalePattern[Interval](["Bebop dominant", ], [2, 2, 1, 2, 2, 1, (1, 0), 1], unison)
-ScalePattern[Interval](["Bebop dorian", "Bebop minor"], [2, 1, (1, 0), 1, 2, 2, 1, 2, ], unison)
-ScalePattern[Interval](["Alternate bebop dorian"], [2, 1, 2, 2, 2, 1, (1, 0), 1, ], two_flats)
-ScalePattern[Interval](["Bebop major", ], [2, 2, 1, 2, (1, 0), 1, 2, 1], unison)
-ScalePattern[Interval](["Bebop melodic minor", ], [2, 1, 2, 2, (1, 0), 1, 2, 1], unison)
-ScalePattern[Interval](["Bebop harmonic minor", "Bebop natural minor"], [2, 1, 2, 2, 1, 2, (1, 0), 1],
-                       three_flats)
-ScalePattern[Interval](["Double harmonic major", "Byzantine", "Arabic", "Gypsi major"], [1, 3, 1, 2, 1, 3, 1],
-                       unison)
-ScalePattern[Interval](["Enigmatic"], [1, 3, 2, 2, 2, 1, 1], unison)
-ScalePattern[Interval](["Descending Enigmatic"], [1, 3, 1, 3, 2, 1, 1], unison)
-#ScalePattern[Interval](["Flamenco mode"], [1, 3, 1, 2, 1, 3, 1], unison) can't find anymore on wp
-ScalePattern[Interval](["Hungarian", "Hungarian Gypsy"], [2, 1, 3, 1, 1, 2, 2], three_flats)
-ScalePattern[Interval](["Half diminished"], [2, 1, 2, 1, 2, 2, 2], five_flats)
-ScalePattern[Interval](["Harmonic major"], [2, 2, 1, 2, 1, 3, 1], unison)
-ScalePattern[Interval](["Hirajōshi Burrows"], [(4, 2), 2, 1, (4, 2), 1], one_sharp)
-ScalePattern[Interval](["Hirajōshi Sachs-Slonimsky"], [1, (4, 2), 1, (4, 2), 2], unison)
-ScalePattern[Interval](["Hirajōshi Kostka and Payne-Speed"], [2, 1, (4, 2), 1, (4, 2)],
-                       unison)
-ScalePattern[Interval](["Hungarian minor"], [2, 1, 3, 1, 1, 3, 1], three_flats)  # should also have one sharp
-ScalePattern[Interval](["Greek Dorian tonos (diatonic genus)", "Phrygian mode"], [1, 2, 2, 2, 1, 2, 2],
-                       three_flats)
-ScalePattern[Interval](["Miyako-bushi"], [1, (4, 2), 2, 1, (4, 2)], two_flats)
-ScalePattern[Interval](["Insen"], [1, (4, 2), 2, (3, 2), 2], four_flats)
-ScalePattern[Interval](["Iwato"], [1, (4, 2), 1, (4, 2), 2], five_flats)
-ScalePattern[Interval](["Lydian augmented"], [2, 2, 2, 2, 1, 2, 1], three_sharps)
-ScalePattern[Interval](["Major Locrian"], [2, 2, 1, 1, 2, 2, 2], five_flats)
-ScalePattern[Interval](["Minyo"], [(3, 2), 2, (3, 2), 2, 2], unison)
-ScalePattern[Interval](["Neapolitan minor"], [1, 2, 2, 2, 1, 3, 1], four_flats)
-ScalePattern[Interval](["Neapolitan major"], [1, 2, 2, 2, 2, 2, 1], unison)
-ScalePattern[Interval](["Pelog"], [1, 2, 3, 1, 1, 2, 2, ], four_flats)
-ScalePattern[Interval](["Pelog bem"], [1, (5, 2), 1, 1, (4, 2)], four_flats)
-ScalePattern[Interval](["Pelog barang"], [2, (4, 2), 1, 2, (3, 2)], four_flats)
-ScalePattern[Interval](["Persian"], [1, 3, 1, 1, 2, 3, 1], five_flats)
-ScalePattern[Interval](["Phrygian dominant"], [1, 3, 1, 2, 1, 2, 2], four_flats)
-ScalePattern[Interval](["Greek Phrygian tonos (diatonic genus)"], [2, 1, 2, 2, 2, 1, 2],
-                       unison)
-ScalePattern[Interval](["Greek Phrygian tonos (chromatic genus)"], [3, 1, 1, 2, 3, 1, 1],
-                       unison)
-ScalePattern[Interval](["Slendro"], [2, (3, 2), 2, 2, (3, 2)], unison)
-ScalePattern[Interval](["Two-semitone tritone"], [1, (1, 0), (4, 2), 1, 1, (4, 2)], unison)
-ScalePattern[Interval](["Ukrainian Dorian"], [2, 1, 3, 1, 2, 1, 2], two_flats)  # shold also have one sharp
-ScalePattern[Interval](["Misheberak"], [2, 1, 3, 1, 2, 1, 2], unison)
-ScalePattern[Interval](["Yo ascending"], [2, (3, 2), 2, (3, 2), 2], two_flats)
-ScalePattern[Interval](["Yo descending"], [2, (3, 2), 2, 2, (3, 2)], two_flats)
-ScalePattern[Interval](["Yo with auxiliary"], [2, 1, 2, 2, 2, 1, 2], two_flats)
-ScalePattern[Interval](["Dorian"], [2, 1, 2, 2, 2, 1, 2], two_flats)
-ScalePattern[Interval](["Locrian"], [1, 2, 2, 1, 2, 2, 2], five_flats)
-ScalePattern[Interval](["Lydian"], [2, 2, 2, 1, 2, 2, 1], one_sharp)
-ScalePattern[Interval](["Greek Lydian tonos (diatonic genus)"], [2, 2, 1, 2, 2, 2, 1],
-                       unison)
-ScalePattern[Interval](["Greek Lydian tonos (chromatic genus)"], [1, 3, 1, 1, 3, 2, 1],
-                       unison)
-ScalePattern[Interval](["Mixolydian", "Adonal malakh mode"], [2, 2, 1, 2, 2, 1, 2], one_flat)
-ScalePattern[Interval](["Greek Mixolydian tonos (diatonic genus)"], [1, 2, 2, 1, 2, 2, 2],
-                       unison)
-ScalePattern[Interval](["Greek Mixolydian tonos (chromatic genus)"], [2, 1, 3, 1, 1, 3, 1],
-                       unison)
-ScalePattern[Interval](["Octave"], [(12, 7)], unison)
+
+scale_patterns_I_practice = [major_scale, blues, minor_natural, minor_harmonic, minor_melodic, chromatic_scale_pattern,
+                             whole_tone, pentatonic_major, pentatonic_minor] + [chord_pattern.to_arpeggio_pattern() for
+                                                                                chord_pattern in chord_patterns]
+
+scale_patterns = scale_patterns_I_practice + [
+    ScalePattern[Interval](["Greek Dorian tonos (chromatic genus)"], [1, 1, 3, 2, 1, 1, 3],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Acoustic", "overtone", "lydian dominant", "Lydian ♭7"], [2, 2, 2, 1, 2, 1, 2], one_sharp),
+    ScalePattern[Interval](
+        ["Altered", "Altered", "Super-Locrian", "Locrian flat four", "Pomeroy", "Ravel", "diminished whole tone"],
+        [1, 2, 1, 2, 2, 2, 2], seven_sharps),
+    ScalePattern[Interval](["Augmented", ], [(3, 2), (1, 0), (3, 2), (1, 0), (3, 2), 1], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Prometheus", "Mystic chord"], [2, 2, 2, (3, 2), 1, 2],
+                           nor_flat_nor_sharp),  # one flat one sharp, can't decide
+    ScalePattern[Interval](["Tritone", ], [1, 3, (2, 2), (1, 0), (3, 2), 2], one_flat),
+    ScalePattern[Interval](["Bebop dominant", ], [2, 2, 1, 2, 2, 1, (1, 0), 1], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Bebop dorian", "Bebop minor"], [2, 1, (1, 0), 1, 2, 2, 1, 2, ], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Alternate bebop dorian"], [2, 1, 2, 2, 2, 1, (1, 0), 1, ], two_flats),
+    ScalePattern[Interval](["Bebop major", ], [2, 2, 1, 2, (1, 0), 1, 2, 1], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Bebop melodic minor", ], [2, 1, 2, 2, (1, 0), 1, 2, 1], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Bebop harmonic minor", "Bebop natural minor"], [2, 1, 2, 2, 1, 2, (1, 0), 1],
+                           three_flats),
+    ScalePattern[Interval](["Double harmonic major", "Byzantine", "Arabic", "Gypsi major"], [1, 3, 1, 2, 1, 3, 1],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Enigmatic"], [1, 3, 2, 2, 2, 1, 1], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Descending Enigmatic"], [1, 3, 1, 3, 2, 1, 1], nor_flat_nor_sharp),
+    # ScalePattern[Interval](["Flamenco mode"], [1, 3, 1, 2, 1, 3, 1], unison) can't find anymore on wp
+    ScalePattern[Interval](["Hungarian", "Hungarian Gypsy"], [2, 1, 3, 1, 1, 2, 2], three_flats),
+    ScalePattern[Interval](["Half diminished"], [2, 1, 2, 1, 2, 2, 2], five_flats),
+    ScalePattern[Interval](["Harmonic major"], [2, 2, 1, 2, 1, 3, 1], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Hirajōshi Burrows"], [(4, 2), 2, 1, (4, 2), 1], one_sharp),
+    ScalePattern[Interval](["Hirajōshi Sachs-Slonimsky"], [1, (4, 2), 1, (4, 2), 2], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Hirajōshi Kostka and Payne-Speed"], [2, 1, (4, 2), 1, (4, 2)],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Hungarian minor"], [2, 1, 3, 1, 1, 3, 1], three_flats),  # should also have one sharp
+    ScalePattern[Interval](["Greek Dorian tonos (diatonic genus)", "Phrygian mode"], [1, 2, 2, 2, 1, 2, 2],
+                           three_flats),
+    ScalePattern[Interval](["Miyako-bushi"], [1, (4, 2), 2, 1, (4, 2)], two_flats),
+    ScalePattern[Interval](["Insen"], [1, (4, 2), 2, (3, 2), 2], four_flats),
+    ScalePattern[Interval](["Iwato"], [1, (4, 2), 1, (4, 2), 2], five_flats),
+    ScalePattern[Interval](["Lydian augmented"], [2, 2, 2, 2, 1, 2, 1], three_sharps),
+    ScalePattern[Interval](["Major Locrian"], [2, 2, 1, 1, 2, 2, 2], five_flats),
+    ScalePattern[Interval](["Minyo"], [(3, 2), 2, (3, 2), 2, 2], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Neapolitan minor"], [1, 2, 2, 2, 1, 3, 1], four_flats),
+    ScalePattern[Interval](["Neapolitan major"], [1, 2, 2, 2, 2, 2, 1], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Pelog"], [1, 2, 3, 1, 1, 2, 2, ], four_flats),
+    ScalePattern[Interval](["Pelog bem"], [1, (5, 2), 1, 1, (4, 2)], four_flats),
+    ScalePattern[Interval](["Pelog barang"], [2, (4, 2), 1, 2, (3, 2)], four_flats),
+    ScalePattern[Interval](["Persian"], [1, 3, 1, 1, 2, 3, 1], five_flats),
+    ScalePattern[Interval](["Phrygian dominant"], [1, 3, 1, 2, 1, 2, 2], four_flats),
+    ScalePattern[Interval](["Greek Phrygian tonos (diatonic genus)"], [2, 1, 2, 2, 2, 1, 2],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Greek Phrygian tonos (chromatic genus)"], [3, 1, 1, 2, 3, 1, 1],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Slendro"], [2, (3, 2), 2, 2, (3, 2)], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Two-semitone tritone"], [1, (1, 0), (4, 2), 1, 1, (4, 2)], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Ukrainian Dorian"], [2, 1, 3, 1, 2, 1, 2], two_flats),  # shold also have one sharp
+    ScalePattern[Interval](["Misheberak"], [2, 1, 3, 1, 2, 1, 2], nor_flat_nor_sharp),
+    ScalePattern[Interval](["Yo ascending"], [2, (3, 2), 2, (3, 2), 2], two_flats),
+    ScalePattern[Interval](["Yo descending"], [2, (3, 2), 2, 2, (3, 2)], two_flats),
+    ScalePattern[Interval](["Yo with auxiliary"], [2, 1, 2, 2, 2, 1, 2], two_flats),
+    ScalePattern[Interval](["Dorian"], [2, 1, 2, 2, 2, 1, 2], two_flats),
+    ScalePattern[Interval](["Locrian"], [1, 2, 2, 1, 2, 2, 2], five_flats),
+    ScalePattern[Interval](["Lydian"], [2, 2, 2, 1, 2, 2, 1], one_sharp),
+    ScalePattern[Interval](["Greek Lydian tonos (diatonic genus)"], [2, 2, 1, 2, 2, 2, 1],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Greek Lydian tonos (chromatic genus)"], [1, 3, 1, 1, 3, 2, 1],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Mixolydian", "Adonal malakh mode"], [2, 2, 1, 2, 2, 1, 2], one_flat),
+    ScalePattern[Interval](["Greek Mixolydian tonos (diatonic genus)"], [1, 2, 2, 1, 2, 2, 2],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Greek Mixolydian tonos (chromatic genus)"], [2, 1, 3, 1, 1, 3, 1],
+                           nor_flat_nor_sharp),
+    ScalePattern[Interval](["Octave"], [(12, 7)], nor_flat_nor_sharp)
+]
 
 
 # Ignored=[
@@ -234,7 +233,7 @@ class TestScalePattern(unittest.TestCase):
         self.assertNotEquals(minor_melodic,
                              ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], four_flats))
         self.assertNotEquals(minor_melodic, ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2],
-                                                                   three_flats))
+                                                                   three_flats, suppress_warning=False))
         self.assertNotEquals(minor_melodic, ScalePattern[Interval](["Minor"], [2, 1, 2, 2, 2, 2, 1],
                                                                    three_flats))
 
@@ -353,7 +352,7 @@ class TestScalePattern(unittest.TestCase):
             Note(chromatic=-21, diatonic=-12),
             Note(chromatic=-22, diatonic=-13),
             Note(chromatic=-24, diatonic=-14),
-        ])
+        ], pattern=minor_melodic)
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=-2)
         self.assertEquals(expected, generated)
         expected = Scale(notes=[
@@ -373,7 +372,7 @@ class TestScalePattern(unittest.TestCase):
             Note(chromatic=-22, diatonic=-13),
             Note(chromatic=-24, diatonic=-14),
             Note(chromatic=-25, diatonic=-15),
-        ])
+        ], pattern=minor_melodic)
         generated = minor_melodic.generate(Note(chromatic=0, diatonic=0), number_of_octaves=-2, add_an_extra_note=True)
         self.assertEquals(expected, generated)
 

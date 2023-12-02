@@ -1,6 +1,5 @@
 from .util import *
 from guitar.chord.Chord.chord import GuitarChord
-from util import debug
 
 
 class IntervalWithNoRole(MyException):

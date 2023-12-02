@@ -1,56 +1,119 @@
 import os
 
-import util
-from lily.lily import lilypond_code_for_one_hand, compile_
-from piano.chord_successions.generate import chord_patterns, ChordPattern, \
-    chord_succession_for_scale
-from solfege.key import sets_of_enharmonic_keys
-from solfege.note import Note
-from solfege.scale.scale import Scale
-from solfege.scale.scale_pattern import major_scale
-
-
-def generate_chord_successions_pattern_fundamental(two_octave_scales: Scale,
-                                                   key: Note,
-                                                   chord_pattern: ChordPattern,
-                                                   folder_path: str,
-                                                   execute_lily: bool,
-                                                   wav: bool):
-    chords = chord_succession_for_scale(scale=two_octave_scales, chord_pattern=chord_pattern, nb_of_chords=8)
-    file_prefix = f"{chord_pattern.name}_in_{key.get_ascii_name()}"
-    file_path_prefix = f"{folder_path}/{file_prefix}"
-    if execute_lily:
-        lily_code = lilypond_code_for_one_hand(key=key.lily(), notes_or_chords=chords,
-                                               for_right_hand=True, midi=wav)
-        compile_(lily_code, file_path_prefix, execute_lily=execute_lily, wav=wav)
-    return f"Play the {chord_pattern.name}s in the {key.get_symbol_name()} major scale,<img src='{file_prefix}.svg'>"
-
-
-def generate_chord_successions_pattern(chord_pattern: ChordPattern, folder_path: str, execute_lily: bool, wav: bool):
-    anki_csv = []
-    for set_of_enharmonic_keys in sets_of_enharmonic_keys:
-        key = set_of_enharmonic_keys[0].note
-        while key >= Note.from_name("F4"):
-            key = key.add_octave(-1)
-        two_octave_scales = major_scale.generate(fundamental=key, number_of_octaves=2)
-        csv_line = generate_chord_successions_pattern_fundamental(two_octave_scales=two_octave_scales,
-                                                                  key=key,
-                                                                  chord_pattern=chord_pattern, folder_path=folder_path,
-                                                                  execute_lily=execute_lily, wav=wav)
-        anki_csv.append(csv_line)
-    return anki_csv
-
-
-def generate_chord_successions(folder_path: str, execute_lily: bool, wav: bool):
-    anki_csv = []
-    for chord_pattern in chord_patterns:
-        anki_csv += generate_chord_successions_pattern(chord_pattern, folder_path, execute_lily, wav)
-    with open(f"{folder_path}/anki.csv", "w") as file:
-        file.write("\n".join(anki_csv))
-
+from lily.lily import compile_
+from piano.chord_successions.generate import successions
+from utils import util
 
 if __name__ == '__main__':
     os.system("echo $(pwd)")
     folder_path = "../../../generated/piano/chord_successions"
     util.ensure_folder(folder_path)
-    generate_chord_successions(folder_path=folder_path, execute_lily=True, wav=True)
+    notes = successions(folder_path, midi=False)
+    anki_csv = "\n".join(
+        note.to_anki() for note in notes
+    )
+    for note in notes:
+        for succession in note.successions:
+            compile_(succession.lily_code, file_prefix=succession.filepath, wav=False)
+    with open(f"{folder_path}/anki.csv", "w") as f:
+        f.write(anki_csv)
+
+#
+#
+# class TestChordSuccessionGenerationMain(unittest.TestCase):
+#     maxDiff = None
+#     test_chord_folder = f"{test_folder}/chord_successions"
+#     prefix = f"{test_chord_folder}/triad_in_C_____"
+#     svg = f"{prefix}.svg"
+#     wav = f"{prefix}.wav"
+#     ly = f"{prefix}.ly"
+#     anki = f"{test_chord_folder}/anki.csv"
+#     lyly_code = """\\version "2.20.0"
+# \\header{
+#   tagline=""
+# }
+# \\score{
+#   \\layout{}
+#   \\midi{}
+#   \\new Staff{
+#     \\clef treble
+#     \\key c' \\major
+#     \\clef treble <
+#       c'
+#       e'
+#       g'
+#     > \\clef treble <
+#       d'
+#       f'
+#       a'
+#     > \\clef treble <
+#       e'
+#       g'
+#       b'
+#     > \\clef treble <
+#       f'
+#       a'
+#       c''
+#     > \\clef treble <
+#       g'
+#       b'
+#       d''
+#     > \\clef treble <
+#       a'
+#       c''
+#       e''
+#     > \\clef treble <
+#       b'
+#       d''
+#       f''
+#     > \\clef treble <
+#       c''
+#       e''
+#       g''
+#     >
+#   }
+# }"""
+#     util.ensure_folder(test_chord_folder)
+#
+#     def clean_example(self):
+#         delete_file_if_exists(self.svg)
+#         delete_file_if_exists(self.wav)
+#         delete_file_if_exists(self.ly)
+#         delete_file_if_exists(self.anki)
+#
+#     def check_compiled_file_exists(self):
+#         with open(self.ly) as file:
+#             self.assertEquals(self.lyly_code, file.read())
+#         self.assertTrue(os.path.exists(self.svg))
+#         display_svg_file(self.svg)
+#         os.system(f"vlc {self.wav}&")
+#
+#     def test_generate_pattern_fundamental(self):
+#         output = generate_chord_successions_pattern_fundamental(
+#             two_octave_scales=TestChordSuccession.two_octave_major_c4_scale,
+#             chord_pattern=triad,
+#             folder_path=self.test_chord_folder,
+#             execute_lily=True,
+#             wav=True,
+#             key=Note.from_name("C"),
+#         )
+#         self.check_compiled_file_exists()
+#         self.assertEquals(output, f"Play the triads in the C   major scale,<img src='triad_in_C_____.svg'>")
+#
+#     def test_generate_pattern(self):
+#         generate_chord_successions_pattern(
+#             chord_pattern=triad,
+#             folder_path=self.test_chord_folder,
+#             execute_lily=True,
+#             wav=True,
+#         )
+#         self.check_compiled_file_exists()
+#
+#     def test_generate(self):
+#         generate_chord_successions(
+#             folder_path=self.test_chord_folder,
+#             execute_lily=True,
+#             wav=True,
+#         )
+#         self.check_compiled_file_exists()
+#         self.assertTrue(os.path.exists(f"{self.test_chord_folder}/anki.csv"))

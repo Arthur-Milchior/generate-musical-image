@@ -1,16 +1,14 @@
-import os
 import pathlib
-import sys
 from dataclasses import dataclass
 from typing import List, Union
 
-import util
+from utils import util
 from lily.lily import lilypond_code_for_one_hand, lilypond_code_for_two_hands, compile_
 from piano.pianonote import PianoNote
 from piano.scales.fingering import Fingering
 from piano.scales.generate import generate_fingering
 from solfege.chord.chord_pattern import add_arpeggios_to_scales
-from solfege.scale.scale_pattern import ScalePattern
+from solfege.scale.scale_pattern import ScalePattern, scale_patterns
 from solfege.key import sets_of_enharmonic_keys
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import Note
@@ -401,7 +399,7 @@ def generate_scores(folder_path: str, execute_lily: bool, wav: bool) -> Generate
     too_big_alterations = []
     html_main_index_lines = []
     anki_every_notes_as_csv: List[str] = []
-    for scale_pattern in ScalePattern.class_to_patterns[ScalePattern]:
+    for scale_pattern in scale_patterns:
         scale_pattern_folder_path = f"""{folder_path}/{scale_pattern.get_the_first_of_the_name().replace(" ", "_")}"""
         util.ensure_folder(scale_pattern_folder_path)
         output = generate_score_fixed_pattern(

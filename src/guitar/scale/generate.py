@@ -1,5 +1,5 @@
 from .utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
-from util import *
+from utils.util import *
 from guitar.pos import Pos, SetOfPos
 from solfege.scale.scale_pattern import ScalePattern
 import guitar.util
@@ -26,7 +26,7 @@ for scale in ScalePattern.class_to_patterns[ScalePattern]:
     intervals = scale.get_intervals()
     folder_scale = imageFolder + name
     ensure_folder(folder_scale)
-    web = """<html><head><title>All transposable %s on a standard guitar</title></head><body>Each transposable version of the scale %s.<br/> Successive notes are separated by %s half-notes
+    web = """<html><head><title>All transposable %s on a standard guitar</title></head><body>Each transposable version of the scale %s.<br/> Successive note are separated by %s half-note
 <hr/>""" % (name, name, str(intervals))
     for string in range(1, 7):
         for fret in range(1, 5):

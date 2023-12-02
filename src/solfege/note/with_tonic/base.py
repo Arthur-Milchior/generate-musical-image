@@ -9,7 +9,7 @@ from solfege.note.abstract import AbstractNote
 
 class _NoteWithFundamental(AbstractNote):
     """
-    Classes for notes with base. They are a note, with an additional property representing the tonic.
+    Classes for note with base. They are a note, with an additional property representing the tonic.
     If `tonic` is `True`, then `self` is the tonic.
     """
 

@@ -8,9 +8,11 @@ from solfege.interval.interval import Interval
 from solfege.note import Note
 from solfege.scale.scale_pattern import ScalePattern, minor_melodic
 
-GOOD_EXTREMITIES = 0
-OKAY_EXTREMITIES = 1
-BAD_EXTREMITIES = 2
+THUMB_TO_PINKY = -1
+FOUR_TO_FOUR = 0
+SAME_EXTREMITIES = 1
+DIFFERENT_EXTREMITIES = 2
+
 
 class Fingering:
     """
@@ -47,16 +49,16 @@ class Fingering:
         nex._dic = dict(self._dic)
         return nex
 
-    def __eq__(self, other: Fingering):
+    def __eq__(self, other: Fingering) -> bool:
         assert isinstance(other, Fingering)
         assert self.for_right_hand == other.for_right_hand  # If we compare fingering for left and right hand, there is a bug somewhere
         return self.fundamental == other.fundamental and self._dic == other._dic and self.pinky_side_tonic_finger == other.pinky_side_tonic_finger
 
-    def __contains__(self, note):
+    def __contains__(self, note) -> bool:
         note = note.get_in_base_octave()
         return note in self._dic
 
-    def add_pinky_side(self, note: Note, finger: int):
+    def add_pinky_side(self, note: Note, finger: int) -> Fingering:
         assert self.pinky_side_tonic_finger is None
         assert finger != 1
         nex = self._copy()
@@ -89,19 +91,30 @@ class Fingering:
         """Whether the last finger of the scale's fingering is a thumb"""
         return self.ends_with_a_thumb() and self.get_pinky_side_tonic_finger() == 5
 
+    def pinky_to_thumb_on_white(self) -> bool:
+        return self.pinky_to_thumb() and not self.fundamental.is_black_key_on_piano()
+
     def ends_with_a_thumb(self) -> bool:
         """Whether the last finger of the scale's fingering is a thumb"""
         return self.get_thumb_side_tonic_finger() == 1
 
+    def avoid_this_extremity(self) -> bool:
+        """Whether it's something really to avoid."""
+        if self.pinky_side_tonic_finger is None:
+            return False
+        if self.pinky_to_thumb():
+            return False
+        return self.pinky_side_tonic_finger != self.get_thumb_side_tonic_finger()
+
     def is_extremity_nice(self) -> int:
         """Whether the ends of the scale allows for a nice transition to second octave"""
-        if self.pinky_to_thumb():
-            return GOOD_EXTREMITIES
-        if self.get_thumb_side_tonic_finger() != self.get_pinky_side_tonic_finger():
-            return BAD_EXTREMITIES
-        if self.get_thumb_side_tonic_finger() == 4:
-            return GOOD_EXTREMITIES
-        return OKAY_EXTREMITIES
+        if self.pinky_to_thumb() and not self.fundamental.is_black_key_on_piano():
+            return THUMB_TO_PINKY
+        if self.get_thumb_side_tonic_finger() == self.get_pinky_side_tonic_finger():
+            if self.get_thumb_side_tonic_finger() == 4:
+                return FOUR_TO_FOUR
+            return SAME_EXTREMITIES
+        return DIFFERENT_EXTREMITIES
 
     def get_thumb_side_tonic_finger(self) -> Optional[int]:
         return self.get_finger(self.fundamental)
@@ -134,14 +147,16 @@ class Fingering:
             text += f""".\n  add(note={note!r}, finger={finger})"""
         return text
 
-    def generate(self, first_played_note: Note, scale_pattern: ScalePattern[Interval], number_of_octaves: int = 1) -> List[PianoNote]:
+    def generate(self, first_played_note: Note, scale_pattern: ScalePattern[Interval], number_of_octaves: int = 1) -> \
+    List[PianoNote]:
         assert first_played_note.equals_modulo_octave(self.fundamental)
         assert number_of_octaves != 0
         scale = scale_pattern.generate(first_played_note, number_of_octaves=number_of_octaves)
         fingered_scale = [
             PianoNote(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number(),
                       finger=self.get_finger(note)) for note in scale.notes]
-        pos_of_pinky_side_extremity = -1 if (self.for_right_hand and number_of_octaves >0) or (not self.for_right_hand and number_of_octaves<0) else 0
+        pos_of_pinky_side_extremity = -1 if (self.for_right_hand and number_of_octaves > 0) or (
+                    not self.for_right_hand and number_of_octaves < 0) else 0
         last_note = fingered_scale[pos_of_pinky_side_extremity]
         last_note.finger = self.get_finger(note=last_note, starting_finger=True)
         return fingered_scale
@@ -162,7 +177,9 @@ class TestFingering(unittest.TestCase):
                              PianoNote(chromatic=12, diatonic=7, finger=5),
                              ]
     for note in reversed(right_minor_melodic_1[:-1]):
-        right_minor_melodic_fingering = right_minor_melodic_fingering.add(Note(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number()), finger=note.finger)
+        right_minor_melodic_fingering = right_minor_melodic_fingering.add(
+            Note(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number()),
+            finger=note.finger)
 
     left_minor_melodic_fingering = Fingering(for_right_hand=False).add_pinky_side(tonic, 5)
     left_minor_melodic_1 = [PianoNote(chromatic=0, diatonic=0, finger=5),
@@ -176,7 +193,9 @@ class TestFingering(unittest.TestCase):
                             ]
 
     for note in left_minor_melodic_1[1:]:
-        left_minor_melodic_fingering = left_minor_melodic_fingering.add(Note(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number()), finger=note.finger)
+        left_minor_melodic_fingering = left_minor_melodic_fingering.add(
+            Note(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number()),
+            finger=note.finger)
 
     empty = Fingering(for_right_hand=True)
     pinky_alone = empty.add_pinky_side(tonic, 5)

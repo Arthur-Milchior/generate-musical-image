@@ -2,7 +2,7 @@
 1 and 5"""
 import guitar.util
 from guitar.pos import Pos
-from util import ensure_folder
+from utils.util import ensure_folder
 
 leafFolder = "solo/"
 imageFolder = guitar.util.imageFolder + leafFolder

@@ -1,24 +1,27 @@
 import os
 import pathlib
 import unittest
-from typing import List
 
-import util
-from piano.scales.fingering import Fingering
+from lily.svg import display_svg_file
+from piano.pianonote import PianoNote
+from piano.scales import fingering, generate, penalty
 from piano.scales.__main__ import \
     generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both, \
     INCREASING, generate_score_fixed_pattern_first_note_direction_number_of_octaves, \
     generate_score_fixed_pattern_first_note_number_of_octaves, generate_score_fixed_pattern_first_note, \
-    ScoreFixedPatternFirstNote, MissingFingering, generate_score_fixed_pattern, generate_scores
-from piano.pianonote import PianoNote
+    ScoreFixedPatternFirstNote, MissingFingering, generate_score_fixed_pattern
+from piano.scales.fingering import Fingering
 from solfege.chord.chord_pattern import minor_triad
 from solfege.note import Note
+from utils import util
+from utils.constants import test_folder
+from utils.util import tests_modules
 
+tests_modules([fingering, generate, penalty])
 
 class TestGeneration(unittest.TestCase):
     maxDiff = None
     execute_lily = True
-    test_folder = "../../../test_files"
     folder_scale = f"{test_folder}/Minor_arpeggio"
     folder_note_scale = f"{folder_scale}/F_____"
     pathlib.Path(folder_note_scale).mkdir(parents=True, exist_ok=True)
@@ -216,14 +219,14 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
         if expect_compiled:
             self.assertTrue(os.path.exists(self.svg_both_hands_path))
             self.assertTrue(os.path.exists(self.wav_both_hands_path))
-            # os.system(f"eog {self.svg_path}")
+            display_svg_file(self.svg_both_hands_path)
 
     def check_pentatonic_major_left_hand_increasing_F_exists(self, expect_compiled: bool):
         with open(self.lilypond_path_left_hand) as file:
             self.assertEquals(self.lily_code_left_hand, file.read())
         if expect_compiled:
             self.assertTrue(os.path.exists(self.svg_left_hand_path))
-            os.system(f"eog {self.svg_left_hand_path}")
+            display_svg_file(self.svg_left_hand_path)
 
     def test_generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both(self):
         self.clean_example()
@@ -302,7 +305,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
         self.clean_example()
         output = generate_score_fixed_pattern_first_note_number_of_octaves(key="aes",
                                                                            right_hand_lowest_note=self.scale_lowest_note,
-                                                                           scale_pattern=minor_arpeggio,
+                                                                           scale_pattern=minor_triad.to_arpeggio_pattern(),
                                                                            folder_path=self.folder_note_scale,
                                                                            number_of_octaves=1,
                                                                            left_fingering=self.left_fingering,
@@ -380,6 +383,7 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
     #                       ])
 
     def test_generate_score_fixed_pattern(self):
+        minor_arpeggio = minor_triad.to_arpeggio_pattern()
         self.clean_example()
         output = (generate_score_fixed_pattern(scale_pattern=minor_arpeggio, folder_path=self.folder_scale,
                                                execute_lily=self.execute_lily, wav=True))
@@ -402,13 +406,14 @@ Minor arpeggio,A# ,<img src='Minor_arpeggio-Asharp-left_hand-1-increasing.svg'>,
         self.check_scale_note_index_exists()
         self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
         self.check_pentatonic_major_left_hand_increasing_F_exists(expect_compiled=self.execute_lily)
-
-    def test_generate_score(self):
-        self.clean_example()
-        generate_scores(self.test_folder, execute_lily=self.execute_lily, wav=True)
-        self.check_anki_exists()
-        self.check_index_exists()
-        self.check_scale_index_exists()
-        self.check_scale_note_index_exists()
-        self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
-        self.check_pentatonic_major_left_hand_increasing_F_exists(expect_compiled=self.execute_lily)
+    #
+    # def test_generate_score(self):
+    #     # test generating all scores. Deactivated because FAR TOO SLOW
+    #     self.clean_example()
+    #     generate_scores(test_folder, execute_lily=self.execute_lily, wav=True)
+    #     self.check_anki_exists()
+    #     self.check_index_exists()
+    #     self.check_scale_index_exists()
+    #     self.check_scale_note_index_exists()
+    #     self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
+    #     self.check_pentatonic_major_left_hand_increasing_F_exists(expect_compiled=self.execute_lily)

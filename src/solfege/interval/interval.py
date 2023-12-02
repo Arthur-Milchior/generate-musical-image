@@ -97,73 +97,74 @@ class Interval(ChromaticInterval):
 ChromaticInterval.RelatedSolfegeClass = Interval
 Interval.IntervalClass = Interval
 
+minus_octave = Interval(-12, -7)
+minus_second_minor = Interval(-1, -1)
+unison = Interval(0, 0)
+second_minor = Interval(1, 1)
+second_major = Interval(2, 1)
+third_major = Interval(4, 2)
+third_minor = Interval(3, 2)
+octave = Interval(12, 7)
+
 
 class TestInterval(unittest.TestCase):
-    minus_octave = Interval(-12, -7)
-    minus_second_minor = Interval(-1, -1)
-    unison = Interval(0, 0)
-    second_minor = Interval(1, 1)
-    second_major = Interval(2, 1)
-    third_major = Interval(4, 2)
-    third_minor = Interval(3, 2)
-    octave = Interval(12, 7)
 
     def test_is_note(self):
-        self.assertFalse(self.unison.is_note())
+        self.assertFalse(unison.is_note())
 
     def test_has_number(self):
-        self.assertTrue(self.unison.has_number())
+        self.assertTrue(unison.has_number())
 
     def test_get_number(self):
-        self.assertEquals(self.unison.get_number(), 0)
+        self.assertEquals(unison.get_number(), 0)
 
     def test_equal(self):
-        self.assertEquals(self.unison, self.unison)
-        self.assertNotEquals(self.second_major, self.unison)
-        self.assertEquals(self.second_major, self.second_major)
+        self.assertEquals(unison, unison)
+        self.assertNotEquals(second_major, unison)
+        self.assertEquals(second_major, second_major)
 
     def test_add(self):
-        self.assertEquals(self.second_major + self.second_minor, self.third_minor)
+        self.assertEquals(second_major + second_minor, third_minor)
 
     def test_neg(self):
-        self.assertEquals(-self.second_minor, self.minus_second_minor)
+        self.assertEquals(-second_minor, minus_second_minor)
 
     def test_sub(self):
-        self.assertEquals(self.third_minor - self.second_major, self.second_minor)
+        self.assertEquals(third_minor - second_major, second_minor)
 
     def test_lt(self):
-        self.assertLess(self.second_minor, self.second_major)
-        self.assertLessEqual(self.second_minor, self.second_major)
-        self.assertLessEqual(self.second_major, self.second_major)
+        self.assertLess(second_minor, second_major)
+        self.assertLessEqual(second_minor, second_major)
+        self.assertLessEqual(second_major, second_major)
 
     def test_repr(self):
-        self.assertEquals(repr(self.second_major), "Interval(chromatic = 2, diatonic = 1)")
+        self.assertEquals(repr(second_major), "Interval(chromatic = 2, diatonic = 1)")
 
     def test_get_octave(self):
-        self.assertEquals(self.unison.get_octave(), 0)
-        self.assertEquals(self.minus_octave.get_octave(), -1)
-        self.assertEquals(self.octave.get_octave(), 1)
+        self.assertEquals(unison.get_octave(), 0)
+        self.assertEquals(minus_octave.get_octave(), -1)
+        self.assertEquals(octave.get_octave(), 1)
 
     def test_add_octave(self):
-        self.assertEquals(self.octave.add_octave(-1), self.unison)
-        self.assertEquals(self.unison.add_octave(1), self.octave)
-        self.assertEquals(self.octave.add_octave(-2), self.minus_octave)
-        self.assertEquals(self.minus_octave.add_octave(2), self.octave)
+        self.assertEquals(octave.add_octave(-1), unison)
+        self.assertEquals(unison.add_octave(1), octave)
+        self.assertEquals(octave.add_octave(-2), minus_octave)
+        self.assertEquals(minus_octave.add_octave(2), octave)
 
     def test_same_interval_in_base_octave(self):
-        self.assertEquals(self.octave.get_in_base_octave(), self.unison)
-        self.assertEquals(self.minus_octave.get_in_base_octave(), self.unison)
-        self.assertEquals(self.unison.get_in_base_octave(), self.unison)
-        self.assertEquals(self.second_major.get_in_base_octave(), self.second_major)
+        self.assertEquals(octave.get_in_base_octave(), unison)
+        self.assertEquals(minus_octave.get_in_base_octave(), unison)
+        self.assertEquals(unison.get_in_base_octave(), unison)
+        self.assertEquals(second_major.get_in_base_octave(), second_major)
 
     def test_same_interval_in_different_octave(self):
-        self.assertFalse(self.second_major.equals_modulo_octave(self.unison))
-        self.assertFalse(self.second_major.equals_modulo_octave(self.octave))
-        self.assertFalse(self.second_major.equals_modulo_octave(self.minus_octave))
-        self.assertTrue(self.unison.equals_modulo_octave(self.unison))
-        self.assertTrue(self.unison.equals_modulo_octave(self.octave))
-        self.assertTrue(self.unison.equals_modulo_octave(self.minus_octave))
-        self.assertTrue(self.octave.equals_modulo_octave(self.minus_octave))
+        self.assertFalse(second_major.equals_modulo_octave(unison))
+        self.assertFalse(second_major.equals_modulo_octave(octave))
+        self.assertFalse(second_major.equals_modulo_octave(minus_octave))
+        self.assertTrue(unison.equals_modulo_octave(unison))
+        self.assertTrue(unison.equals_modulo_octave(octave))
+        self.assertTrue(unison.equals_modulo_octave(minus_octave))
+        self.assertTrue(octave.equals_modulo_octave(minus_octave))
 
     def test_clean_interval_interval(self):
         i = Interval(chromatic=3, diatonic=2)
@@ -176,10 +177,10 @@ class TestInterval(unittest.TestCase):
         self.assertEquals(Interval.factory((3, 2)), Interval(chromatic=3, diatonic=2))
 
     def test_mul(self):
-        self.assertEquals(self.unison * 4, self.unison)
-        self.assertEquals(self.second_major * 2, self.third_major)
-        self.assertEquals(2 * self.second_major, self.third_major)
-        self.assertEquals(4 * self.unison, self.unison)
+        self.assertEquals(unison * 4, unison)
+        self.assertEquals(second_major * 2, third_major)
+        self.assertEquals(2 * second_major, third_major)
+        self.assertEquals(4 * unison, unison)
 
     def test_one_octave(self):
         self.assertEquals(Interval.get_one_octave(), Interval(chromatic=12, diatonic=7))

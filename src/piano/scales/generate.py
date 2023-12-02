@@ -10,13 +10,14 @@ import os
 import unittest
 from typing import Optional, List, Tuple, Union, Callable
 
-import util
+from utils import util
 from lily.lily import compile_, lilypond_code_for_one_hand
 from piano.scales.fingering import Fingering, TestFingering
 from piano.scales.penalty import Penalty
-from solfege.chord.chord_pattern import minor_seven
+from solfege.chord.chord_pattern import minor_seven, augmented_major_seventh_chord
 from solfege.scale.scale_pattern import ScalePattern, minor_melodic, blues, pentatonic_major
 from solfege.note import Note
+from utils.constants import test_folder
 
 lilyProgram = "lilypond "
 
@@ -26,7 +27,7 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
     Returns the best penalty extending `fingering` to add `base_note`, and then one note per interval starting at
     `base_note`.
 
-    For the left hand, the notes added are thus:
+    For the left hand, the note added are thus:
     * base_note
     * base_note + intervals[0]
     * base_note + intervals[0] + intervals[1]
@@ -36,7 +37,7 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
     return False if no fingering can be found
     Otherwise, return:
        --the starting finger (lowest for left hand, highest for right hand),
-       --the fingering for the non-starting notes
+       --the fingering for the non-starting note
        , and
        --the penalty
     """
@@ -51,18 +52,15 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
         """
         Return the best extension of `fingering`, with `current_note` associated to `current_finger` if it exists and is less than best_known_penalty.
         Penalty -- the penalty for currently added fingers, not considering penalties associated to extremities.
-        The extension should be valid for the notes of [remaining_notes].
+        The extension should be valid for the note of [remaining_notes].
         The first of remaining_notes is the one closer to last_added_note.
 
          Return the best penalty if it exists.
         """
+        penalty = penalty._copy(fingering=fingering)
         if last_added_note.is_black_key_on_piano() and last_added_finger == 1:
             penalty = penalty.add_thumb_on_black()
         if not remaining_notes:
-            penalty = penalty.set_extremity(fingering.is_extremity_nice())
-            penalty._thumb_side_tonic_finger = fingering.get_thumb_side_tonic_finger()
-            penalty._pinky_side_tonic_finger = fingering.pinky_side_tonic_finger
-            penalty.fingering = fingering
             # it's okay to edit in place as `penalty` is a local variable that has no other owner
             return best_known_penalty if penalty.best_known_is_at_least_as_good(best_known_penalty) else penalty
 
@@ -134,13 +132,12 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
     return best_penalty_for_whole_scale
 
 
-class TestGenerate(unittest.TestCase):
+class TestScalesGenerate(unittest.TestCase):
     maxDiff = None
-    test_folder = "../../../test_files"
 
-    def generation_testing(self, fundamental: Note, scale_pattern: ScalePattern, for_right_hand: bool,
-                           expected: Fingering,
-                           show: bool = False):
+    def generation_helper(self, fundamental: Note, scale_pattern: ScalePattern, for_right_hand: bool,
+                          expected: Fingering,
+                          show: bool = False):
         penalty = generate_fingering(fundamental=fundamental, scale_pattern=scale_pattern,
                                      for_right_hand=for_right_hand)
         fingering = penalty.fingering
@@ -148,13 +145,13 @@ class TestGenerate(unittest.TestCase):
             scale = fingering.generate(first_played_note=fundamental, number_of_octaves=2, scale_pattern=scale_pattern)
             lily_code = lilypond_code_for_one_hand(key="c", notes_or_chords=scale, for_right_hand=for_right_hand,
                                                    midi=False)
-            prefix_path = f"{self.test_folder}/test_generation"
+            prefix_path = f"{test_folder}/test_generation"
             ly_path = f"{prefix_path}.ly"
             svg_path = f"{prefix_path}.svg"
             util.delete_file_if_exists(svg_path)
             util.delete_file_if_exists(ly_path)
             cmd = compile_(lily_code, file_prefix=prefix_path, execute_lily=True, wav=False)
-            os.system(cmd)
+            cmd()
 
         self.assertEquals(fingering, expected)
 
@@ -162,14 +159,14 @@ class TestGenerate(unittest.TestCase):
         expected = (Fingering(for_right_hand=True).
                     add_pinky_side(note=Note(chromatic=2, diatonic=1), finger=5).
                     add(note=Note(chromatic=0, diatonic=0), finger=4).
-                    add(note=Note(chromatic=9, diatonic=5), finger=3).
-                    add(note=Note(chromatic=8, diatonic=4), finger=2).
-                    add(note=Note(chromatic=7, diatonic=4), finger=1).
-                    add(note=Note(chromatic=5, diatonic=3), finger=3).
+                    add(note=Note(chromatic=9, diatonic=5), finger=2).
+                    add(note=Note(chromatic=8, diatonic=4), finger=1).
+                    add(note=Note(chromatic=7, diatonic=4), finger=3).
+                    add(note=Note(chromatic=5, diatonic=3), finger=2).
                     add(note=Note(chromatic=2, diatonic=1), finger=1))
         fundamental = Note(chromatic=2, diatonic=1)
-        self.generation_testing(fundamental=fundamental, scale_pattern=blues, for_right_hand=True, expected=expected,
-                                show=True)
+        self.generation_helper(fundamental=fundamental, scale_pattern=blues, for_right_hand=True, expected=expected,
+                               show=True)
 
     def test_pentatonic_major_right(self):
         expected = (Fingering(for_right_hand=True).
@@ -179,9 +176,9 @@ class TestGenerate(unittest.TestCase):
                     add(Note.from_name("E# "), 1).
                     add(Note.from_name("D# "), 2).
                     add(Note.from_name("C# "), 1))
-        self.generation_testing(fundamental=Note.from_name("C#"), scale_pattern=pentatonic_major, for_right_hand=True,
-                                expected=expected)
-        # All black notes
+        self.generation_helper(fundamental=Note.from_name("C#"), scale_pattern=pentatonic_major, for_right_hand=True,
+                               expected=expected)
+        # All black note
 
     def test_minor_seventh_arpeggio_A(self):
         expected = (Fingering(for_right_hand=True).
@@ -190,8 +187,8 @@ class TestGenerate(unittest.TestCase):
                     add(Note.from_name("C "), 2).
                     add(Note.from_name("E "), 3).
                     add(Note.from_name("G "), 4))
-        self.generation_testing(fundamental=Note.from_name("A"), scale_pattern=minor_seven.to_arpeggio_pattern(),
-                                for_right_hand=True, expected=expected, show=True)
+        self.generation_helper(fundamental=Note.from_name("A"), scale_pattern=minor_seven.to_arpeggio_pattern(),
+                               for_right_hand=True, expected=expected, show=True)
 
     def test_minor_melodic_right(self):
         penalty = generate_fingering(fundamental=Note(chromatic=0, diatonic=0), scale_pattern=minor_melodic,
@@ -206,3 +203,13 @@ class TestGenerate(unittest.TestCase):
         fingering = penalty.fingering
         self.assertEquals(TestFingering.left_minor_melodic_fingering,
                           fingering)
+
+    def test_augmented_major_seventh_arpeggio_f_left(self):
+        expected = (Fingering(for_right_hand=False).
+                    add_pinky_side(Note.from_name("F2 "), 5).
+                    add(Note.from_name("A "), 4).
+                    add(Note.from_name("C# "), 3).
+                    add(Note.from_name("E "), 2).
+                    add(Note.from_name("F "), 1))
+        self.generation_helper(Note.from_name("F2"), scale_pattern=augmented_major_seventh_chord.to_arpeggio_pattern(),
+                               for_right_hand=False, show=True, expected=expected)

@@ -29,7 +29,7 @@ class SetOfGuitarPositions:
     """
     A set of positions on the guitar.
 
-    There may be 0, 1 or many notes by strings.
+    There may be 0, 1 or many note by strings.
     Iterated in GuitarPosition order.
     """
 

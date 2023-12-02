@@ -33,12 +33,12 @@ class TestSetOfIntervals(unittest.TestCase):
     })
 
     def test_contains(self):
-        self.assertIn(0, self.soi)
-        self.assertIn(3, self.soi)
-        self.assertIn(10, self.soi)
-        self.assertNotIn(2, self.soi)
+        self.assertIn(DiatonicInterval(0), self.soi)
+        self.assertIn(DiatonicInterval(3), self.soi)
+        self.assertIn(DiatonicInterval(10), self.soi)
+        self.assertNotIn(DiatonicInterval(2), self.soi)
 
     def test_iter(self):
         l = list(self.soi)  # use of list to keep duplicate
         self.assertEquals(len(l), 2)
-        self.assertEquals(set(l), {DiatonicInterval(0, DiatonicInterval(3))})
+        self.assertEquals(set(l), {DiatonicInterval(0), DiatonicInterval(3)})

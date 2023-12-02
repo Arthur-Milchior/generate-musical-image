@@ -1,4 +1,4 @@
-import util
+from utils import util
 
 modDebug = util.doDebug
 fretDifMax = 3 if not modDebug else 2

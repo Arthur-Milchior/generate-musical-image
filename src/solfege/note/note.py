@@ -1,8 +1,7 @@
-from lily.Interface import Lilyable
+from lily.interface import Lilyable
 from solfege.interval.interval import Interval, TestInterval
-from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import ChromaticNote, DiatonicNote
-from solfege.note.alteration import LILY, Alteration, FILE_NAME, DEBUG, NAME_UP_TO_OCTAVE, alteration_symbols
+from solfege.note.alteration import Alteration, alteration_symbols
 
 
 class Note(Interval, ChromaticNote, Lilyable):

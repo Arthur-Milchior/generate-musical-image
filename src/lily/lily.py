@@ -1,12 +1,10 @@
 import os
 import unittest
-from typing import List
+from typing import List, Callable, Any
 
-from lily.Interface import Lilyable
-from lily.svg import clean_svg
-from piano.pianonote import PianoNote
-from solfege.note.set_of_notes import TestSetOfNotes
-from util import _indent
+from lily.interface import Lilyable
+from lily.svg import clean_svg, display_svg_file
+from utils.util import indent
 
 lilyHeader = """"""
 lowLimit = {"left": -14, "right": -3}
@@ -14,7 +12,7 @@ highLimit = {"left": 3, "right": 14}
 lilyProgram = "lilypond"
 
 
-def _for_list_of_notes(fingering: List[Lilyable]):
+def _for_list_of_notes(fingering: List[Lilyable]) -> str:
     """Generate the lilypond code to put in a staff, according to the fingering given in argument.
     
     chooseOctave is the function which, given its argument, decide which ottava is applied (if any)
@@ -22,12 +20,12 @@ def _for_list_of_notes(fingering: List[Lilyable]):
     return " ".join(note.lily() for note in fingering)
 
 
-def _staff(key: str, fingering: List[Lilyable], for_right_hand: bool):
+def _staff(key: str, fingering: List[Lilyable], for_right_hand: bool) -> str:
     """A lilypond staff.  
 
     The key is the given one.
 
-    The notes are decorated with the fingering given in argument.
+    The note are decorated with the fingering given in argument.
 
     Bass for left hand and treble for right
  
@@ -36,11 +34,11 @@ def _staff(key: str, fingering: List[Lilyable], for_right_hand: bool):
     return f"""\\new Staff{{
   \\clef {"treble" if for_right_hand else "bass"}
   \\key {key} \\major
-{_indent(_for_list_of_notes(fingering))}
+{indent(_for_list_of_notes(fingering))}
 }}"""
 
 
-def comment(fingering: List[Lilyable], for_right_hand):
+def comment(fingering: List[Lilyable], for_right_hand) -> str:
     return f"""{"right" if for_right_hand else "left"} hand fingering:{[note.lily_comment() for note in fingering]}"""
 
 
@@ -52,12 +50,12 @@ _lilyHeader = """\\version "2.20.0"
 
 
 def lilypond_code_for_one_hand(key: str, notes_or_chords: List[Lilyable], for_right_hand: bool,
-                               midi: bool):
+                               midi: bool) -> str:
     """A lilypond score, with a single staff.  
 
     The key is the given one.
 
-    The notes are decorated with the fingering given in argument.
+    The note are decorated with the fingering given in argument.
 
     The bass/treble key depends on the hand
     """
@@ -66,14 +64,15 @@ def lilypond_code_for_one_hand(key: str, notes_or_chords: List[Lilyable], for_ri
     return f"""{_lilyHeader}
 \\score{{
   \\layout{{}}{midi_str}
-{_indent(_staff(key, notes_or_chords, for_right_hand=for_right_hand))}
+{indent(_staff(key, notes_or_chords, for_right_hand=for_right_hand))}
 }}"""
 
 
-def lilypond_code_for_two_hands(key: str, left_fingering: List[Lilyable], right_fingering: List[Lilyable], midi: bool):
+def lilypond_code_for_two_hands(key: str, left_fingering: List[Lilyable], right_fingering: List[Lilyable],
+                                midi: bool) -> str:
     """A lilypond score for piano.
 
-    The notes are decorated with the fingering given in arguments.
+    The note are decorated with the fingering given in arguments.
     """
     midi_str = """
   \\midi{}""" if midi else ""
@@ -81,13 +80,13 @@ def lilypond_code_for_two_hands(key: str, left_fingering: List[Lilyable], right_
 \\score{{
   \\layout{{}}{midi_str}
   \\new PianoStaff<<
-{_indent(_staff(key, right_fingering, for_right_hand=True), 4)}
-{_indent(_staff(key, left_fingering, for_right_hand=False), 4)}
+{indent(_staff(key, right_fingering, for_right_hand=True), 4)}
+{indent(_staff(key, left_fingering, for_right_hand=False), 4)}
   >>
 }}"""
 
 
-def chord(notes):
+def chord(notes) -> str:
     return f"""\\version "2.20.0"
 \\header{{
   tagline=""
@@ -95,21 +94,21 @@ def chord(notes):
 \\score{{
   \\new Staff{{
     \\clef treble <
-{_indent("".join(note.lily() for note in notes), 6)}
+{indent("".join(note.lily() for note in notes), 6)}
     >
   }}
 }}"""
 
-def command(file_prefix: str, extension: str="svg"):
+
+def command(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
     if extension == "svg":
-        return f"eog {file_prefix}.svg"
+        return lambda: display_svg_file(f"{file_prefix}.svg")
     else:
         assert extension == "pdf"
-        return f"evince {file_prefix}.pdf"
+        return lambda: os.system(f"evince {file_prefix}.pdf")
 
 
-
-def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool = True) -> str:
+def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool = True) -> Callable[[], object]:
     """Write `code` in `filename`. If `execute_lily`, compile it in a file with the given extension
 
     return the command to see the generated file.
@@ -132,7 +131,7 @@ def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool =
         clean_svg(preview_path, preview_path, "white")
     else:
         assert extension == "pdf"
-        os.system( f"""lilypond  -o "{file_prefix}" "{file_prefix}.ly" """)
+        os.system(f"""lilypond  -o "{file_prefix}" "{file_prefix}.ly" """)
     os.system(f"""mv -f "{preview_path}" "{file_prefix}.{extension}" """)
     if wav:
         os.system(f"""timidity "{file_prefix}.midi" --output-mode=w -o "{file_prefix}.wav" """)
@@ -141,19 +140,22 @@ def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool =
 
 
 class TestLily(unittest.TestCase):
-    c_pentatonic_minor_5th_right = [
-        PianoNote(chromatic=0, diatonic=0, finger=1),
-        PianoNote(chromatic=3, diatonic=2, finger=2),
-        PianoNote(chromatic=7, diatonic=4, finger=3),
-        PianoNote(chromatic=12, diatonic=7, finger=5),
-    ]
+    def setUp(self):
+        from piano.pianonote import PianoNote
 
-    c_pentatonic_minor_5th_left = [
-        PianoNote(chromatic=-12, diatonic=-7, finger=5),
-        PianoNote(chromatic=-9, diatonic=-5, finger=3),
-        PianoNote(chromatic=-5, diatonic=-3, finger=2),
-        PianoNote(chromatic=0, diatonic=0, finger=1),
-    ]
+        self.c_pentatonic_minor_5th_right = [
+            PianoNote(chromatic=0, diatonic=0, finger=1),
+            PianoNote(chromatic=3, diatonic=2, finger=2),
+            PianoNote(chromatic=7, diatonic=4, finger=3),
+            PianoNote(chromatic=12, diatonic=7, finger=5),
+        ]
+
+        self.c_pentatonic_minor_5th_left = [
+            PianoNote(chromatic=-12, diatonic=-7, finger=5),
+            PianoNote(chromatic=-9, diatonic=-5, finger=3),
+            PianoNote(chromatic=-5, diatonic=-3, finger=2),
+            PianoNote(chromatic=0, diatonic=0, finger=1),
+        ]
 
     both_hand_lily = """\\version "2.20.0"
 \\header{
@@ -199,11 +201,12 @@ class TestLily(unittest.TestCase):
 }"""
 
     def test_indent(self):
-        self.assertEquals(_indent("""foo
+        self.assertEquals(indent("""foo
   bar"""), """  foo
     bar""")
 
     def test_for_list_of_notes(self):
+        from piano.pianonote import PianoNote
         self.assertEquals(_for_list_of_notes([PianoNote(chromatic=0, diatonic=0, finger=1)], ),
                           "c'-1")
         self.assertEquals(_for_list_of_notes(self.c_pentatonic_minor_5th_right, ),
@@ -226,22 +229,22 @@ class TestLily(unittest.TestCase):
         self.assertEquals(
             generated,
             """\\version "2.20.0"
-    \\header{
-      tagline=""
-    }
-    \\score{
-      \\new Staff{
-        \\clef treble
-        \\key g \\major
-        c'-1 ees'-2 g'-3 c''-5
-      }
-    }"""
+\\header{
+  tagline=""
+}
+\\score{
+  \\layout{}
+  \\new Staff{
+    \\clef treble
+    \\key g \\major
+    c'-1 ees'-2 g'-3 c''-5
+  }
+}"""
         )
 
     def test_lilypond_for_left(self):
         generated = lilypond_code_for_one_hand(key="g", notes_or_chords=self.c_pentatonic_minor_5th_left,
-                                               for_right_hand=False
-                                               , midi=False)
+                                               for_right_hand=False, midi=False)
         self.assertEquals(
             generated,
             """\\version "2.20.0"
@@ -260,33 +263,53 @@ class TestLily(unittest.TestCase):
 
     def test_lilypond_both_hands(self):
         generated = lilypond_code_for_two_hands(key="g", left_fingering=self.c_pentatonic_minor_5th_left,
-                                                right_fingering=self.c_pentatonic_minor_5th_right
-                                                , midi=False)
+                                                right_fingering=self.c_pentatonic_minor_5th_right, midi=False)
         self.assertEquals(
-            generated, """\\version "2.20.0"
+            generated, """\
+\\version "2.20.0"
 \\header{
   tagline=""
 }
 \\score{
   \\layout{}
-  \\new Staff{
-    \\clef bass
-    \\key g \\major
-    c-5 ees-3 g-2 c'-1
-  }
+  \\new PianoStaff<<
+    \\new Staff{
+      \\clef treble
+      \\key g \\major
+      c'-1 ees'-2 g'-3 c''-5
+    }
+    \\new Staff{
+      \\clef bass
+      \\key g \\major
+      c-5 ees-3 g-2 c'-1
+    }
+  >>
 }"""
         )
 
     def test_lilypond_for_left_and_midi(self):
         generated = lilypond_code_for_one_hand(key="g", notes_or_chords=self.c_pentatonic_minor_5th_left,
-                                               for_right_hand=False
-                                               , midi=True)
+                                               for_right_hand=True, midi=True)
+        expected = """\\version "2.20.0"
+\\header{
+  tagline=""
+}
+\\score{
+  \\layout{}
+  \\midi{}
+  \\new Staff{
+    \\clef treble
+    \\key g \\major
+    c-5 ees-3 g-2 c'-1
+  }
+}"""
         self.assertEquals(
             generated,
-            self.both_hand_lily
+            expected
         )
 
     def test_lilypond_chords_generate(self):
+        from solfege.note.set_of_notes import TestSetOfNotes
         chords = [TestSetOfNotes.C_minor, TestSetOfNotes.F_minor]
         generated = lilypond_code_for_one_hand(key="ees", notes_or_chords=chords,
                                                for_right_hand=False, midi=True)
@@ -342,13 +365,12 @@ class TestLily(unittest.TestCase):
         if os.path.isfile(lily_path):
             os.remove(lily_path)  # in case it remains from failed test
         cmd = compile_(self.both_hand_lily, prefix_path, wav=True)
-        self.assertEquals(f"eog {prefix_path}.svg", cmd)
         self.assertTrue(os.path.isfile(lily_path))
         with open(lily_path, "r") as file:
             file_content = file.read()
         self.assertEquals(file_content, self.both_hand_lily)
-        os.system(cmd)
-        os.system(f"vlc {prefix_path}.wav")
+        cmd()
+        os.system(f"vlc {prefix_path}.wav&")
 
     def test_chord_compile(self):
         prefix_path = "test_chords"
@@ -356,10 +378,9 @@ class TestLily(unittest.TestCase):
         if os.path.isfile(lily_path):
             os.remove(lily_path)  # in case it remains from failed test
         cmd = compile_(self.chords_lily, prefix_path, wav=True)
-        self.assertEquals(f"eog {prefix_path}.svg", cmd)
         self.assertTrue(os.path.isfile(lily_path))
         with open(lily_path, "r") as file:
             file_content = file.read()
         self.assertEquals(file_content, self.chords_lily)
-        os.system(cmd)
-        os.system(f"vlc {prefix_path}.wav")
+        cmd()
+        os.system(f"vlc {prefix_path}.wav&")

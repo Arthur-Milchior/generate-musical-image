@@ -5,7 +5,7 @@ Generate an anki note, with this image, and the distance between both strings, a
 import guitar.util
 from guitar.pos import Pos, SetOfPos
 from solfege.interval.intervalmode import TEXT
-from util import *
+from utils.util import *
 
 leafFolder = "pair/"
 imageFolder = guitar.util.imageFolder + leafFolder

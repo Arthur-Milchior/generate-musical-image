@@ -7,7 +7,7 @@ from solfege.interval.too_big_alterations_exception import TooBigAlterationExcep
 
 
 class ChromaticInterval(AbstractInterval):
-    """A chromatic interval. Counting the number of half tone between two notes"""
+    """A chromatic interval. Counting the number of half tone between two note"""
     number_of_interval_in_an_octave = 12
     AlterationClass: type(ChromaticInterval)  # more specific an alteration
 

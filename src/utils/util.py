@@ -1,4 +1,6 @@
 import os
+import unittest
+from typing import List
 
 imageFolder = "../image/"
 ankiFolder = "../image/"
@@ -39,5 +41,13 @@ class MyException(Exception):
         return str(self.dic)
 
 
-def _indent(str: str, nb_space: int = 2):
+def indent(str: str, nb_space: int = 2):
     return "\n".join(f"""{" " * nb_space}{line}""" for line in str.split("\n"))
+
+
+def tests_modules(modules: List):
+    for module in modules:
+        # try to load all testcases from given module, hope your testcases are extending from unittest.TestCase
+        suite = unittest.TestLoader().loadTestsFromModule(module)
+        # run all tests with verbosity
+        unittest.TextTestRunner().run(suite)

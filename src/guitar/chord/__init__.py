@@ -5,9 +5,7 @@ If its a chord, satisfying some condition, the image is generated, and an anki n
 # anki: open/tranposable, starting note(for open),position of tonic (for transposable), 3, 5, 7 (,image,1, 3, 5, 7)*n
 
 from .debug import *
-from solfege.interval import *
-from util import *
-from guitar.pos import SetOfPos, Pos
+from utils.util import *
 from .util import *
 from .setOfChord import allChords
 import guitar.util

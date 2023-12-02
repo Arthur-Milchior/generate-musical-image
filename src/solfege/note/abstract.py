@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Union, TypeVar
 
 from solfege.interval.abstract import AbstractInterval, TestBaseInterval
-from solfege.note.alteration import FULL_NAME, DEBUG
 
 
 class AbstractNote(AbstractInterval):
@@ -11,7 +10,7 @@ class AbstractNote(AbstractInterval):
     """A note. Similar to an interval.
 
     -To a note may be added or subtracted an interval, but not to a note
-    -Two notes may be subtracted, leading to an interval.
+    -Two note may be subtracted, leading to an interval.
 
     """
 
@@ -39,7 +38,7 @@ class AbstractNote(AbstractInterval):
 
     def __add__(self, other: AbstractInterval):
         if isinstance(other, AbstractNote):
-            raise Exception("Adding two notes")
+            raise Exception("Adding two note")
         sum_ = super().__add__(
             other)  # Super still makes sens because a class inheriting _Note also inherits some other class.
         return sum_
