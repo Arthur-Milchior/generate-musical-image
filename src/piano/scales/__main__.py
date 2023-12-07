@@ -36,7 +36,7 @@ content_of_anki_csv = []
 scales_the_algorithm_failed_to_generate = []
 
 
-@dataclass
+@dataclass(frozen=True)
 class ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth:
     image_tag: str
     html_line: str
@@ -65,7 +65,7 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_
     return ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth(image_tag=image_tag, html_line=html_line)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ScoreFixedPatternFirstNoteNumberOfOctaves:
     image_tags: List[str]
     html_lines: List[str]
@@ -173,13 +173,13 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
         image_tags=anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves, html_lines=html_lines)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ScoreFixedPatternFirstNote:
     anki_note_as_csv: str
     html_link_for_this_starting_note: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class MissingFingering:
     scale_pattern: ScalePattern
     note: Note
@@ -273,7 +273,7 @@ def generate_score_fixed_pattern_first_note(key: str,
                                       html_link_for_this_starting_note=html_link_for_this_starting_note)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ScoreFixedPattern:
     # State that scale_pattern on note is missing for
     missing_scores: List[MissingFingering]
@@ -294,7 +294,7 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
     for set_of_enharmonic_keys in sets_of_enharmonic_keys:
         fundamental = set_of_enharmonic_keys[0]
         starting_note = fundamental.note - scale_pattern.interval_for_signature
-        while starting_note >= Note.from_name("F4"):
+        while starting_note >= Note("F4"):
             starting_note = starting_note.add_octave(-1)
         note_folder = f"{folder_path}/{starting_note.get_ascii_name()}"
         pathlib.Path(note_folder).mkdir(exist_ok=True)
@@ -388,7 +388,7 @@ Author: <a href="mailto:arthur@milchior.fr"/>Arthur Milchior</a>. Don't hesitate
         """
 
 
-@dataclass
+@dataclass(frozen=True)
 class GenerateScoreOutput:
     missing_scores: List[MissingFingering]
     too_big_alterations: List[TooBigAlterationException]

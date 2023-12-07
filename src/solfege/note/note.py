@@ -1,5 +1,7 @@
+from typing import Optional
+
 from lily.interface import Lilyable
-from solfege.interval.interval import Interval, TestInterval
+from solfege.interval.interval import Interval, TestInterval, third_minor
 from solfege.note import ChromaticNote, DiatonicNote
 from solfege.note.alteration import Alteration, alteration_symbols
 
@@ -10,7 +12,16 @@ class Note(Interval, ChromaticNote, Lilyable):
     ChromaticClass = ChromaticNote
     """A note of the scale, as an interval from middle C."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, name: Optional[str]=None, *args, **kwargs):
+        if name is not None:
+            name = name.strip()
+            diatonic_name = "".join(letter for letter in name if letter not in alteration_symbols)
+            alteration_name = "".join(letter for letter in name if letter in alteration_symbols)
+            diatonic = DiatonicNote.from_name(diatonic_name)
+            chromatic_from_diatonic = diatonic.get_chromatic()
+            alteration = Alteration.from_name(alteration_name)
+            kwargs["diatonic"] = diatonic.get_number()
+            kwargs["chromatic"] = ( chromatic_from_diatonic+alteration).get_number()
         super().__init__(*args, **kwargs)
 
     def __neg__(self):
@@ -44,7 +55,7 @@ class Note(Interval, ChromaticNote, Lilyable):
         raise NotImplemented
 
     def get_full_name(self):
-        return f"{self.get_symbol_name()}{self.get_octave()+4}"
+        return f"{self.get_symbol_name()}{self.get_octave() + 4}"
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""
@@ -61,14 +72,7 @@ class Note(Interval, ChromaticNote, Lilyable):
 
     @staticmethod
     def from_name(name: str):
-        name = name.strip()
-        diatonic_name = "".join(letter for letter in name if letter not in alteration_symbols)
-        alteration_name = "".join(letter for letter in name if letter in alteration_symbols)
-        diatonic = DiatonicNote.from_name(diatonic_name)
-        chromatic_from_diatonic = diatonic.get_chromatic()
-        alteration = Alteration.from_name(alteration_name)
-        return Note(diatonic=diatonic.get_number(),
-                    chromatic=(chromatic_from_diatonic + alteration).get_number())
+        return Note(name)
 
 
 class TestNote(TestInterval):
@@ -83,6 +87,10 @@ class TestNote(TestInterval):
     E4b = Note(chromatic=3, diatonic=2)
     F4 = Note(chromatic=5, diatonic=3)
     C5 = Note(chromatic=12, diatonic=7)
+
+    def test_lily(self):
+        self.assertEquals(self.C4.lily(), "c'")
+        self.assertEquals(self.F4.lily(), "f'")
 
     def test_is_note(self):
         self.assertTrue(self.C4.is_note())
@@ -101,8 +109,8 @@ class TestNote(TestInterval):
     def test_add(self):
         with self.assertRaises(Exception):
             _ = self.D4 + self.C4
-        self.assertEquals(self.D4 + self.third_minor, self.F4)
-        sum_ = self.third_minor + self.D4
+        self.assertEquals(self.D4 + third_minor, self.F4)
+        sum_ = third_minor + self.D4
         self.assertEquals(sum_, self.F4)
 
     def test_neg(self):
@@ -110,10 +118,10 @@ class TestNote(TestInterval):
             _ = -self.D4
 
     def test_sub(self):
-        self.assertEquals(self.F4 - self.D4, self.third_minor)
-        self.assertEquals(self.F4 - self.third_minor, self.D4)
+        self.assertEquals(self.F4 - self.D4, third_minor)
+        self.assertEquals(self.F4 - third_minor, self.D4)
         with self.assertRaises(Exception):
-            _ = self.third_minor - self.C4
+            _ = third_minor - self.C4
 
     def test_lt(self):
         self.assertLess(self.C4_sharp, self.D4)
@@ -169,18 +177,18 @@ class TestNote(TestInterval):
         self.assertTrue(self.C4.adjacent(self.B3_flat))
 
     def test_from_name(self):
-        self.assertEquals(Note.from_name("C"), Note(chromatic=0, diatonic=0))
-        self.assertEquals(Note.from_name("C4"), Note(chromatic=0, diatonic=0))
-        self.assertEquals(Note.from_name("B3#"), Note(chromatic=0, diatonic=-1))
-        self.assertEquals(Note.from_name("B#3"), Note(chromatic=0, diatonic=-1))
+        self.assertEquals(Note("C"), Note(chromatic=0, diatonic=0))
+        self.assertEquals(Note("C4"), Note(chromatic=0, diatonic=0))
+        self.assertEquals(Note("B3#"), Note(chromatic=0, diatonic=-1))
+        self.assertEquals(Note("B#3"), Note(chromatic=0, diatonic=-1))
 
-        self.assertEquals(Note.from_name("C♭"), Note(chromatic=-1, diatonic=0))
-        self.assertEquals(Note.from_name("C4♭"), Note(chromatic=-1, diatonic=0))
-        self.assertEquals(Note.from_name("C♭4"), Note(chromatic=-1, diatonic=0))
-        self.assertEquals(Note.from_name("B3"), Note(chromatic=-1, diatonic=-1))
+        self.assertEquals(Note("C♭"), Note(chromatic=-1, diatonic=0))
+        self.assertEquals(Note("C4♭"), Note(chromatic=-1, diatonic=0))
+        self.assertEquals(Note("C♭4"), Note(chromatic=-1, diatonic=0))
+        self.assertEquals(Note("B3"), Note(chromatic=-1, diatonic=-1))
 
     def test_from_name_to_name(self):
-        self.assertEquals(Note.from_name("C4").get_full_name(), "C  4")
-        self.assertEquals(Note.from_name("C♭4").get_full_name(), "C♭ 4")
+        self.assertEquals(Note("C4").get_full_name(), "C  4")
+        self.assertEquals(Note("C♭4").get_full_name(), "C♭ 4")
 
     # todo Test wwith color

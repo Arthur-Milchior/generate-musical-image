@@ -25,7 +25,7 @@ class TestGeneration(unittest.TestCase):
     folder_scale = f"{test_folder}/Minor_arpeggio"
     folder_note_scale = f"{folder_scale}/F_____"
     pathlib.Path(folder_note_scale).mkdir(parents=True, exist_ok=True)
-    scale_lowest_note = Note.from_name("F3")
+    scale_lowest_note = Note("F3")
     file_prefix_both_hands = f"{folder_note_scale}/Minor_arpeggio-F_____-two_hands-1-increasing"
     file_prefix_left_hand = f"{folder_note_scale}/Minor_arpeggio-F_____-left_hand-1-increasing"
     lilypond_path_both_hands = f"{file_prefix_both_hands}.ly"

@@ -108,7 +108,7 @@ def command(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
         return lambda: os.system(f"evince {file_prefix}.pdf")
 
 
-def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool = True) -> Callable[[], object]:
+def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool = True, force_recompile:bool = False) -> Callable[[], object]:
     """Write `code` in `filename`. If `execute_lily`, compile it in a file with the given extension
 
     return the command to see the generated file.
@@ -121,6 +121,8 @@ def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool =
                 if old_code == code:
                     print("""%s.ly's old code is equal to current one""" % file_prefix)
                     execute_lily = False
+    if force_recompile:
+        execute_lily = True
     with open(file_prefix + ".ly", "w") as file:
         file.write(code)
     if not execute_lily:

@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import unittest
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from lily.interface import Lilyable
+from solfege.interval.set_of_intervals import SetOfIntervals
 from utils.util import indent
 from solfege.interval.interval import Interval
 from solfege.note import Note
 
 
 class SetOfNotes(Lilyable):
-    fundamental: Optional[Note]
     notes: List[Note]
+    fundamental: Optional[Note]
 
     def __init__(self, notes: List[Note], fundamental: Optional[Note] = None):
         self.notes = notes
@@ -27,11 +28,16 @@ class SetOfNotes(Lilyable):
         fundamental = self.fundamental + interval if self.fundamental else None
         return SetOfNotes([note + interval for note in self.notes], fundamental=fundamental)
 
+    def __sub__(self, other: Union[Note, Interval]):
+        if isinstance(other, Note):
+            return SetOfIntervals([note - other for note in self.notes])
+        return SetOfNotes([note - other for note in self.notes], self.fundamental - other if self.fundamental else None)
+
     def __iter__(self):
         return sorted(self.notes)
 
     def lily(self):
-        return f"""<{indent(" ".join(note.lily() for note in sorted(self.notes)))}>"""
+        return f"""<{" ".join(note.lily() for note in sorted(self.notes))}>"""
 
     def __repr__(self):
         return f"""SetOfNotes(notes={self.notes!r}{f", fundamental={self.fundamental!r}" if self.fundamental else ""}"""
@@ -45,15 +51,15 @@ class SetOfNotes(Lilyable):
 
 class TestSetOfNotes(unittest.TestCase):
     C_minor = SetOfNotes(
-        [Note.from_name("C"),
-         Note.from_name("E♭"),
-         Note.from_name("G"),
+        [Note("C"),
+         Note("E♭"),
+         Note("G"),
          ])
 
     F_minor = SetOfNotes(
-        [Note.from_name("F"),
-         Note.from_name("A♭"),
-         Note.from_name("C5"),
+        [Note("F"),
+         Note("A♭"),
+         Note("C5"),
          ])
 
     def test_eq(self):
@@ -62,10 +68,3 @@ class TestSetOfNotes(unittest.TestCase):
 
     def test_add(self):
         self.assertEquals(self.C_minor + Interval(diatonic=3, chromatic=5), self.F_minor)
-
-    def test_lily(self):
-        self.assertEquals(self.C_minor.lily(), """\\clef treble <
-  c'
-  ees'
-  g'
->""")

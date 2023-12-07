@@ -3,20 +3,18 @@ import re
 import unittest
 
 
-def get_height(svg: str):
-    return re.search(r'height="(?P<height>[^"]*)"', svg).group("height")
+def rect(svg, color):
+    match = re.search(r"""viewBox="(?P<x>[^ ]*) (?P<y>[^ ]*) (?P<width>[^ ]*) (?P<height>[^"]*)">""", svg)
+    x = match.group("x")
+    y = match.group("y")
+    width = match.group("width")
+    height = match.group("height")
+    return f"""<rect x="{x}" width="{width}" y="{y}" height="{height}" fill="{color}"/>"""
 
 
-def get_width(svg: str):
-    return re.search(r'width="(?P<width>[^"]*)"', svg).group("width")
-
-
-def rect(width, height, color):
-    return f"""<rect x="0" width="{width}" y="0" height="{height}" fill="{color}"/>"""
-
-
-def display_svg_file(path:str):
+def display_svg_file(path: str):
     os.system(f"eog {path}&")
+
 
 def add_background(svg: str, background_color: str):
     prefix, content = svg.split("""
@@ -24,7 +22,7 @@ def add_background(svg: str, background_color: str):
 """)
     return f"""{prefix}
 </style>
-{rect(get_width(prefix), get_height(prefix), background_color)}
+{rect(svg, background_color)}
 {content}"""
 
 
@@ -40,6 +38,7 @@ def clean_svg(input: str, output: str, background_color: str):
 
 def remove_xlink(input: str):
     return re.sub(r' xlink:href="[^"]*"', "", input)
+
 
 class TestSvg(unittest.TestCase):
     example_no_xlink = """<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.2" width="67.79mm" height="15.02mm" viewBox="8.5358 -0.0000 38.5749 8.5450">
@@ -328,7 +327,7 @@ c0 -74 18 -133 36 -194c80 97 146 198 146 324z" fill="currentColor"/>
 tspan { white-space: pre; }
 ]]>
 </style>
-<rect x="0" width="67.79mm" y="0" height="15.02mm" fill="white"/>
+<rect x="8.5358" width="38.5749" y="-0.0000" height="8.5450" fill="white"/>
 <line transform="translate(8.5358, 6.0000)" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.1000" stroke="currentColor" x1="0.0500" y1="-0.0000" x2="38.5249" y2="-0.0000"/>
 <line transform="translate(8.5358, 5.0000)" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.1000" stroke="currentColor" x1="0.0500" y1="-0.0000" x2="38.5249" y2="-0.0000"/>
 <line transform="translate(8.5358, 4.0000)" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.1000" stroke="currentColor" x1="0.0500" y1="-0.0000" x2="38.5249" y2="-0.0000"/>
@@ -469,7 +468,7 @@ c0 -74 18 -133 36 -194c80 97 146 198 146 324z" fill="currentColor"/>
 tspan { white-space: pre; }
 ]]>
 </style>
-<rect x="0" width="67.79mm" y="0" height="15.02mm" fill="white"/>
+<rect x="8.5358" width="38.5749" y="-0.0000" height="8.5450" fill="white"/>
 <line transform="translate(8.5358, 6.0000)" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.1000" stroke="currentColor" x1="0.0500" y1="-0.0000" x2="38.5249" y2="-0.0000"/>
 <line transform="translate(8.5358, 5.0000)" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.1000" stroke="currentColor" x1="0.0500" y1="-0.0000" x2="38.5249" y2="-0.0000"/>
 <line transform="translate(8.5358, 4.0000)" stroke-linejoin="round" stroke-linecap="round" stroke-width="0.1000" stroke="currentColor" x1="0.0500" y1="-0.0000" x2="38.5249" y2="-0.0000"/>
@@ -609,14 +608,8 @@ c0 -74 18 -133 36 -194c80 97 146 198 146 324z" fill="currentColor"/>
     def test_remove_xlink(self):
         self.assertEquals(remove_xlink(self.example_input), self.example_no_xlink)
 
-    def test_get_width(self):
-        self.assertEquals(get_width(self.example_input), "67.79mm")
-
-    def test_get_height(self):
-        self.assertEquals(get_height(self.example_input), "15.02mm")
-
     def test_rect(self):
-        self.assertEquals(rect("2", "3", "white"), """<rect x="0" width="2" y="0" height="3" fill="white"/>""")
+        self.assertEquals(rect(self.example_input, "white"), """<rect x="8.5358" width="38.5749" y="-0.0000" height="8.5450" fill="white"/>""")
 
     def test_add_background(self):
         self.assertEquals(add_background(self.example_input, "white"), self.expected)

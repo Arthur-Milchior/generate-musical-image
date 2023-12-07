@@ -170,24 +170,24 @@ class TestScalesGenerate(unittest.TestCase):
 
     def test_pentatonic_major_right(self):
         expected = (Fingering(for_right_hand=True).
-                    add_pinky_side(Note.from_name("C# "), 5).
-                    add(Note.from_name("A# "), 4).
-                    add(Note.from_name("G# "), 3).
-                    add(Note.from_name("E# "), 1).
-                    add(Note.from_name("D# "), 2).
-                    add(Note.from_name("C# "), 1))
-        self.generation_helper(fundamental=Note.from_name("C#"), scale_pattern=pentatonic_major, for_right_hand=True,
+                    add_pinky_side(Note("C# "), 5).
+                    add(Note("A# "), 4).
+                    add(Note("G# "), 3).
+                    add(Note("E# "), 1).
+                    add(Note("D# "), 2).
+                    add(Note("C# "), 1))
+        self.generation_helper(fundamental=Note("C#"), scale_pattern=pentatonic_major, for_right_hand=True,
                                expected=expected)
         # All black note
 
     def test_minor_seventh_arpeggio_A(self):
         expected = (Fingering(for_right_hand=True).
-                    add_pinky_side(Note.from_name("A "), 5).
-                    add(Note.from_name("A "), 1).
-                    add(Note.from_name("C "), 2).
-                    add(Note.from_name("E "), 3).
-                    add(Note.from_name("G "), 4))
-        self.generation_helper(fundamental=Note.from_name("A"), scale_pattern=minor_seven.to_arpeggio_pattern(),
+                    add_pinky_side(Note("A "), 5).
+                    add(Note("A "), 1).
+                    add(Note("C "), 2).
+                    add(Note("E "), 3).
+                    add(Note("G "), 4))
+        self.generation_helper(fundamental=Note("A"), scale_pattern=minor_seven.to_arpeggio_pattern(),
                                for_right_hand=True, expected=expected, show=True)
 
     def test_minor_melodic_right(self):
@@ -206,10 +206,10 @@ class TestScalesGenerate(unittest.TestCase):
 
     def test_augmented_major_seventh_arpeggio_f_left(self):
         expected = (Fingering(for_right_hand=False).
-                    add_pinky_side(Note.from_name("F2 "), 5).
-                    add(Note.from_name("A "), 4).
-                    add(Note.from_name("C# "), 3).
-                    add(Note.from_name("E "), 2).
-                    add(Note.from_name("F "), 1))
-        self.generation_helper(Note.from_name("F2"), scale_pattern=augmented_major_seventh_chord.to_arpeggio_pattern(),
+                    add_pinky_side(Note("F2 "), 5).
+                    add(Note("A "), 4).
+                    add(Note("C# "), 3).
+                    add(Note("E "), 2).
+                    add(Note("F "), 1))
+        self.generation_helper(Note("F2"), scale_pattern=augmented_major_seventh_chord.to_arpeggio_pattern(),
                                for_right_hand=False, show=True, expected=expected)

@@ -11,7 +11,7 @@ from solfege.note import Note
 from solfege.note.set_of_notes import SetOfNotes
 
 
-@dataclass
+@dataclass(frozen=True)
 class ChordPattern:
     name: str
     intervals: List[int]
@@ -33,7 +33,7 @@ def chord_from_scale_pattern_and_position_key(scale: Scale, chord_pattern: Chord
     return SetOfNotes(chord, fundamental=chord[0])
 
 
-@dataclass
+@dataclass(frozen=True)
 class NamedSuccessionForScaleKey:
     successions: Succession
     name: str
@@ -45,7 +45,7 @@ def chord_succession_from_scale_pattern_and_position_key(scale: Scale, chord_pat
             range(nb_of_chords)]
 
 
-@dataclass
+@dataclass(frozen=True)
 class CardContent:
     name_prefix: str
     filepath: str
@@ -96,7 +96,7 @@ def succession_for_key_pattern_direction(
     return cards
 
 
-@dataclass
+@dataclass(frozen=True)
 class ChordSuccessionNote:
     successions: List[CardContent]
     key: Note
@@ -158,87 +158,87 @@ class TestChordSuccession(unittest.TestCase):
     maxDiff = None
 
     scale = Scale([
-        Note.from_name("C"),
-        Note.from_name("D"),
-        Note.from_name("E"),
-        Note.from_name("F"),
-        Note.from_name("G"),
-        Note.from_name("A"),
-        Note.from_name("B"),
-        Note.from_name("C5"),
-        Note.from_name("D5"),
-        Note.from_name("E5"),
-        Note.from_name("F5"),
-        Note.from_name("G5"),
-        Note.from_name("A5"),
-        Note.from_name("B5"),
-        Note.from_name("C6"),
+        Note("C"),
+        Note("D"),
+        Note("E"),
+        Note("F"),
+        Note("G"),
+        Note("A"),
+        Note("B"),
+        Note("C5"),
+        Note("D5"),
+        Note("E5"),
+        Note("F5"),
+        Note("G5"),
+        Note("A5"),
+        Note("B5"),
+        Note("C6"),
     ], pattern=major_scale)
 
     triad_right_succession = [
         SetOfNotes(
             [
-                Note.from_name("C"),
-                Note.from_name("E"),
-                Note.from_name("G"),
+                Note("C"),
+                Note("E"),
+                Note("G"),
             ],
-            Note.from_name("C"),
+            Note("C"),
         ),
         SetOfNotes(
             [
-                Note.from_name("D"),
-                Note.from_name("F"),
-                Note.from_name("A"),
+                Note("D"),
+                Note("F"),
+                Note("A"),
             ],
-            Note.from_name("D"),
+            Note("D"),
         ),
         SetOfNotes(
             [
-                Note.from_name("E"),
-                Note.from_name("G"),
-                Note.from_name("B"),
+                Note("E"),
+                Note("G"),
+                Note("B"),
             ],
-            Note.from_name("E"),
+            Note("E"),
         ),
         SetOfNotes(
             [
-                Note.from_name("F"),
-                Note.from_name("A"),
-                Note.from_name("C5"),
+                Note("F"),
+                Note("A"),
+                Note("C5"),
             ],
-            Note.from_name("F"),
+            Note("F"),
         ),
         SetOfNotes(
             [
-                Note.from_name("G"),
-                Note.from_name("B"),
-                Note.from_name("D5"),
+                Note("G"),
+                Note("B"),
+                Note("D5"),
             ],
-            Note.from_name("G"),
+            Note("G"),
         ),
         SetOfNotes(
             [
-                Note.from_name("A"),
-                Note.from_name("C5"),
-                Note.from_name("E5"),
+                Note("A"),
+                Note("C5"),
+                Note("E5"),
             ],
-            Note.from_name("A"),
+            Note("A"),
         ),
         SetOfNotes(
             [
-                Note.from_name("B"),
-                Note.from_name("D5"),
-                Note.from_name("F5"),
+                Note("B"),
+                Note("D5"),
+                Note("F5"),
             ],
-            Note.from_name("B"),
+            Note("B"),
         ),
         SetOfNotes(
             [
-                Note.from_name("C5"),
-                Note.from_name("E5"),
-                Note.from_name("G5"),
+                Note("C5"),
+                Note("E5"),
+                Note("G5"),
             ],
-            Note.from_name("C5"),
+            Note("C5"),
         ),
     ]
 
@@ -299,11 +299,11 @@ class TestChordSuccession(unittest.TestCase):
         )
         self.assertEquals(son, SetOfNotes(
             [
-                Note.from_name("F"),
-                Note.from_name("A"),
-                Note.from_name("C5"),
+                Note("F"),
+                Note("A"),
+                Note("C5"),
             ],
-            Note.from_name("F"),
+            Note("F"),
         ))
 
     def test_chord_succession_from_scale_pattern_and_position_key(self):
@@ -318,7 +318,7 @@ class TestChordSuccession(unittest.TestCase):
 
     def test_succession_for_hands_key_pattern_direction_right(self):
         suc = succession_for_hands_key_pattern_direction(
-            "folder", Note.from_name("C"), self.triad_right_succession, triad, for_left_hand=False, for_right_hand=True,
+            "folder", Note("C"), self.triad_right_succession, triad, for_left_hand=False, for_right_hand=True,
             direction="increasing", midi=False
         )
         self.assertEquals(suc,
@@ -328,7 +328,7 @@ class TestChordSuccession(unittest.TestCase):
 
     def test_succession_for_hands_key_pattern_direction_both(self):
         suc = succession_for_hands_key_pattern_direction(
-            "folder", Note.from_name("C"), self.triad_right_succession, triad, for_left_hand=True, for_right_hand=True,
+            "folder", Note("C"), self.triad_right_succession, triad, for_left_hand=True, for_right_hand=True,
             direction="increasing", midi=False
         )
         self.assertEquals(suc.lily_code, self.lily_both_c_triad)
@@ -339,7 +339,7 @@ class TestChordSuccession(unittest.TestCase):
 
     def test_succession_for_hands_key_pattern_direction_left(self):
         suc = succession_for_hands_key_pattern_direction(
-            "folder", Note.from_name("C"), self.triad_right_succession, triad, for_left_hand=True, for_right_hand=False,
+            "folder", Note("C"), self.triad_right_succession, triad, for_left_hand=True, for_right_hand=False,
             direction="increasing", midi=False
         )
         self.assertEquals(suc,

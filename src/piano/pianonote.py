@@ -16,7 +16,7 @@ class PianoNote(Note):
 
     @staticmethod
     def from_name(name: str, finger:int):
-        PianoNote.from_note_and_finger(Note.from_name(name), finger)
+        PianoNote.from_note_and_finger(Note(name), finger)
 
     def __eq__(self, other):
         if isinstance(other, PianoNote):

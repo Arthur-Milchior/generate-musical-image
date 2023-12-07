@@ -134,9 +134,9 @@ class Fingering:
     def __str__(self):
         text = f"""scales(for_right_hand={self.for_right_hand})"""
         if self.fundamental:
-            text += f""".\n  add_pinky_side(Note.from_name("{self.fundamental}"), {self.pinky_side_tonic_finger})"""
+            text += f""".\n  add_pinky_side(Note("{self.fundamental}"), {self.pinky_side_tonic_finger})"""
         for note, finger in self._dic.items():
-            text += f""".\n  add(Note.from_name("{note!r}"), {finger})"""
+            text += f""".\n  add(Note("{note!r}"), {finger})"""
         return text
 
     def __repr__(self):

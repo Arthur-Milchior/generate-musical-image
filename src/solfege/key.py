@@ -42,63 +42,63 @@ class Key:
             f" with {self.number_of_sharps} #" if self.number_of_sharps else "")
 
 
-key_of_C = Key(Note.from_name("C"))
+key_of_C = Key(Note("C"))
 
 """All keys, grouped by enharmonic, sorted by minimal number of alteration"""
 sets_of_enharmonic_keys = [
     [
         key_of_C,
-        Key(Note.from_name("D♭♭"), number_of_flats=12),
-        Key(Note.from_name("B#3"), number_of_flats=12),
+        Key(Note("D♭♭"), number_of_flats=12),
+        Key(Note("B#3"), number_of_flats=12),
     ],
     [
-        Key(Note.from_name("F3"), number_of_flats=1),
-        Key(Note.from_name("E#"), number_of_sharps=11),
-        Key(Note.from_name("G♭♭3"), number_of_flats=13),
+        Key(Note("F3"), number_of_flats=1),
+        Key(Note("E#"), number_of_sharps=11),
+        Key(Note("G♭♭3"), number_of_flats=13),
     ],
     [
-        Key(Note.from_name("G"), number_of_sharps=1),
-        Key(Note.from_name("A♭♭3"), number_of_flats=11),
-        Key(Note.from_name("F𝄪3"), number_of_flats=13),
+        Key(Note("G"), number_of_sharps=1),
+        Key(Note("A♭♭3"), number_of_flats=11),
+        Key(Note("F𝄪3"), number_of_flats=13),
     ],
     [
-        Key(Note.from_name("B♭3"), number_of_flats=2),
-        Key(Note.from_name("A#3"), number_of_sharps=10),
-        Key(Note.from_name("C♭♭"), number_of_flats=14),
+        Key(Note("B♭3"), number_of_flats=2),
+        Key(Note("A#3"), number_of_sharps=10),
+        Key(Note("C♭♭"), number_of_flats=14),
     ],
     [
-        Key(Note.from_name("D"), number_of_sharps=2),
-        Key(Note.from_name("E♭♭"), number_of_flats=10),
-        Key(Note.from_name("C𝄪"), number_of_flats=14),
+        Key(Note("D"), number_of_sharps=2),
+        Key(Note("E♭♭"), number_of_flats=10),
+        Key(Note("C𝄪"), number_of_flats=14),
     ],
     [
-        Key(Note.from_name("E♭"), number_of_flats=3),
-        Key(Note.from_name("D#"), number_of_sharps=9),
+        Key(Note("E♭"), number_of_flats=3),
+        Key(Note("D#"), number_of_sharps=9),
     ],
     [
-        Key(Note.from_name("A3"), number_of_sharps=3),
-        Key(Note.from_name("B♭♭3"), number_of_flats=9),
+        Key(Note("A3"), number_of_sharps=3),
+        Key(Note("B♭♭3"), number_of_flats=9),
     ],
     [
-        Key(Note.from_name("A♭3"), number_of_flats=4),
-        Key(Note.from_name("G#3"), number_of_sharps=8),
+        Key(Note("A♭3"), number_of_flats=4),
+        Key(Note("G#3"), number_of_sharps=8),
     ],
     [
-        Key(Note.from_name("E"), number_of_sharps=4),
-        Key(Note.from_name("F♭"), number_of_flats=8),
+        Key(Note("E"), number_of_sharps=4),
+        Key(Note("F♭"), number_of_flats=8),
     ],
     [
-        Key(Note.from_name("D♭"), number_of_flats=5),
-        Key(Note.from_name("C#"), number_of_sharps=7),
+        Key(Note("D♭"), number_of_flats=5),
+        Key(Note("C#"), number_of_sharps=7),
     ],
     [
-        Key(Note.from_name("B3"), number_of_sharps=5),
-        Key(Note.from_name("C♭"), number_of_flats=7),
-        Key(Note.from_name("A𝄪3"), number_of_sharps=7),
+        Key(Note("B3"), number_of_sharps=5),
+        Key(Note("C♭"), number_of_flats=7),
+        Key(Note("A𝄪3"), number_of_sharps=7),
     ],
     [
-        Key(Note.from_name("F#3"), number_of_flats=6),
-        Key(Note.from_name("G♭3"), number_of_sharps=6),
+        Key(Note("F#3"), number_of_flats=6),
+        Key(Note("G♭3"), number_of_sharps=6),
     ],
 ]
 
@@ -147,4 +147,4 @@ class TestClef(unittest.TestCase):
     #     self.assertEquals(enharmonic_keys[14].note.get_alteration(), IntervalMode(1))
 
     def test_get(self):
-        self.assertEquals(key_of_C, Key.from_note(Note.from_name("C")))
+        self.assertEquals(key_of_C, Key.from_note(Note("C")))
