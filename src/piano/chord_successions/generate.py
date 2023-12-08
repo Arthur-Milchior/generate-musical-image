@@ -1,14 +1,13 @@
 import unittest
-
 from dataclasses import dataclass
 from typing import List
 
-from lily.lily import lilypond_code_for_two_hands, lilypond_code_for_one_hand
+from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
 from solfege.key import sets_of_enharmonic_keys
-from solfege.scale.scale_pattern import major_scale, ScalePattern
-from solfege.scale.scale import Scale
 from solfege.note import Note
 from solfege.note.set_of_notes import SetOfNotes
+from solfege.scale.scale import Scale
+from solfege.scale.scale_pattern import major_scale
 
 
 @dataclass(frozen=True)
@@ -244,50 +243,48 @@ class TestChordSuccession(unittest.TestCase):
 
     lily_right_c_triad = """\
 \\version "2.20.0"
-\\header{
-  tagline=""
-}
 \\score{
-  \\layout{}
-  \\new Staff{
-    \\clef treble
-    \\key c' \\major
-    <  c' e' g'> <  d' f' a'> <  e' g' b'> <  f' a' c''> <  g' b' d''> <  a' c'' e''> <  b' d'' f''> <  c'' e'' g''>
-  }
+  <<
+    \\new Staff{
+      \\set Staff.printKeyCancellation = ##f
+      \\clef treble
+      \\key c' \\major
+      <c' e' g'> <d' f' a'> <e' g' b'> <f' a' c''> <g' b' d''> <a' c'' e''> <b' d'' f''> <c'' e'' g''>
+    }
+  >>
 }"""
 
     lily_left_c_triad = """\
 \\version "2.20.0"
-\\header{
-  tagline=""
-}
 \\score{
-  \\layout{}
-  \\new Staff{
-    \\clef bass
-    \\key c' \\major
-    <  c e g> <  d f a> <  e g b> <  f a c'> <  g b d'> <  a c' e'> <  b d' f'> <  c' e' g'>
-  }
+  <<
+    \\new Staff{
+      \\set Staff.printKeyCancellation = ##f
+      \\clef bass
+      \\key c' \\major
+      <c e g> <d f a> <e g b> <f a c'> <g b d'> <a c' e'> <b d' f'> <c' e' g'>
+    }
+  >>
 }"""
 
     lily_both_c_triad = """\
 \\version "2.20.0"
-\\header{
-  tagline=""
-}
 \\score{
-  \\layout{}
-  \\new PianoStaff<<
-    \\new Staff{
-      \\clef treble
-      \\key c' \\major
-      <  c' e' g'> <  d' f' a'> <  e' g' b'> <  f' a' c''> <  g' b' d''> <  a' c'' e''> <  b' d'' f''> <  c'' e'' g''>
-    }
-    \\new Staff{
-      \\clef bass
-      \\key c' \\major
-      <  c e g> <  d f a> <  e g b> <  f a c'> <  g b d'> <  a c' e'> <  b d' f'> <  c' e' g'>
-    }
+  <<
+    \\new PianoStaff<<
+      \\new Staff{
+        \\set Staff.printKeyCancellation = ##f
+        \\clef treble
+        \\key c' \\major
+        <c' e' g'> <d' f' a'> <e' g' b'> <f' a' c''> <g' b' d''> <a' c'' e''> <b' d'' f''> <c'' e'' g''>
+      }
+      \\new Staff{
+        \\set Staff.printKeyCancellation = ##f
+        \\clef bass
+        \\key c' \\major
+        <c e g> <d f a> <e g b> <f a c'> <g b d'> <a c' e'> <b d' f'> <c' e' g'>
+      }
+    >>
   >>
 }"""
 
@@ -342,7 +339,8 @@ class TestChordSuccession(unittest.TestCase):
             "folder", Note("C"), self.triad_right_succession, triad, for_left_hand=True, for_right_hand=False,
             direction="increasing", midi=False
         )
-        self.assertEquals(suc,
-                          CardContent("C______left_triad_increasing", "folder/C______left_triad_increasing",
+        cc = CardContent("C______left_triad_increasing", "folder/C______left_triad_increasing",
                                       self.lily_left_c_triad)
-                          )
+        print(suc)
+        print(cc)
+        self.assertEquals(suc, cc)

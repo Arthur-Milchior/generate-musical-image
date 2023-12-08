@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, List
 
 from piano.pianonote import PianoNote
 from solfege.interval.interval import Interval

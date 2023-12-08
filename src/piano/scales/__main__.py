@@ -2,8 +2,9 @@ import pathlib
 from dataclasses import dataclass
 from typing import List, Union
 
+from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
 from utils import util
-from lily.lily import lilypond_code_for_one_hand, lilypond_code_for_two_hands, compile_
+from lily.lily import compile_
 from piano.pianonote import PianoNote
 from piano.scales.fingering import Fingering
 from piano.scales.generate import generate_fingering

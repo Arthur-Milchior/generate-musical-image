@@ -42,7 +42,7 @@ class MyException(Exception):
 
 
 def indent(str: str, nb_space: int = 2):
-    return "\n".join(f"""{" " * nb_space}{line}""" for line in str.split("\n"))
+    return "\n".join(f"""{" " * (nb_space if line else 0)}{line}""" for line in str.split("\n"))
 
 
 def tests_modules(modules: List):

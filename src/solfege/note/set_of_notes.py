@@ -3,9 +3,8 @@ from __future__ import annotations
 import unittest
 from typing import Optional, List, Union
 
-from lily.interface import Lilyable
+from lily.Lilyable.lilyable import Lilyable
 from solfege.interval.set_of_intervals import SetOfIntervals
-from utils.util import indent
 from solfege.interval.interval import Interval
 from solfege.note import Note
 

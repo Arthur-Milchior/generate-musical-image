@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import unittest
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import List
 
+from lily.Lilyable.list_piano_lilyable import ListPianoLilyable
+from lily.Lilyable.piano_lilyable import PianoLilyable
 from lily.lily import compile_
-from piano.progression.pattern import NamedIntervalsPattern, ChordProgressionPattern
+# from piano.progression.pattern import NamedIntervalsPattern, ChordProgressionPattern
 from solfege.interval.interval import Interval
 from solfege.note import Note
 from solfege.note.set_of_notes import SetOfNotes
@@ -14,10 +16,11 @@ from utils.util import indent
 
 
 @dataclass(frozen=True)
-class NamedChord:
+class TwoHandsChord(PianoLilyable):
     name: str
     left_hand: SetOfNotes
     right_hand: SetOfNotes
+    tonic: Note = Note("C4")
 
     def left_lily(self):
         return self.left_hand.lily()
@@ -25,139 +28,133 @@ class NamedChord:
     def right_lily(self):
         return self.right_hand.lily()
 
+    def annotations_lily(self):
+        return self.name
+
+    def first_key(self) -> str:
+        """The lily code for the annotation"""
+        return self.tonic.lily()
+
     def __add__(self, other: Interval):
-        return NamedChord(self.name, self.left_hand + other, self.right_hand + other)
+        return TwoHandsChord(self.name, self.left_hand + other, self.right_hand + other, self.tonic + other)
 
-    def __sub__(self, other: Union[Note, Interval]):
-        if isinstance(other, Note):
-            return NamedIntervalsPattern(role=self.name, order=None, left_hand=self.left_hand - other,
-                                         right_hand=self.right_hand - other)
-        return NamedChord(self.name, left_hand=self.left_hand - other, right_hand=self.right_hand - other)
+    def __sub__(self, other: Interval
+                # Union[Note, Interval]
+                ):
+        # if isinstance(other, Note):
+        #     return NamedIntervalsPattern(role=self.name, left_hand=self.left_hand - other,
+        #                                  right_hand=self.right_hand - other)
+        return TwoHandsChord(self.name, left_hand=self.left_hand - other, right_hand=self.right_hand - other,
+                             tonic=self.tonic - other)
 
 
-@dataclass(frozen=True)
-class ChordProgression:
-    name: str
+class ChordProgression(ListPianoLilyable):
+    progression_name: str
+    disambiguation: str
     key: Note
-    chords: List[NamedChord]
-    pattern: Optional[ChordProgressionPattern] = None
+    chords: List[TwoHandsChord]
 
-    def left_lily(self):
-        inside = "\n".join(
-            ["\\clef bass", f"\\key {self.key.lily()} \\major"] + [
-                chord.left_lily() for chord in self.chords
-            ])
-        return f"""\\new Staff {{
-{indent(inside)}
-}}"""
-
-    def right_lily(self):
-        inside = "\n".join(
-            ["\\clef treble", f"\\key {self.key.lily()} \\major"] + [
-                chord.right_lily() for chord in self.chords
-            ])
-        return f"""\\new Staff {{
-{indent(inside)}
-}}"""
-
-    def chord_names_lily(self):
-        return f"""\\new Lyrics {{
-  \\lyricmode{{{" ".join(chord.name for chord in self.chords)}}}
-}}"""
-
-    def lily(self):
-        return f"""\
-\\version "2.20.0"
-\\score {{
-  <<
-{indent(self.chord_names_lily(), 4)}
-    \\new PianoStaff<<
-{indent(self.right_lily(), 6)}
-{indent(self.left_lily(), 6)}
-    >>
-  >>
-}}"""
+    def __init__(self, progression_name: str, disambiguation: str, key: Note, chords: List[TwoHandsChord]):
+        super().__init__(chords)
+        self.progression_name = progression_name
+        self.key = key
+        self.disambiguation = disambiguation
+        self.chords = chords
 
     def __add__(self, other: Interval):
-        return ChordProgression(self.name, self.key + other, [chord + other for chord in self.chords])
+        return ChordProgression(self.progression_name, self.disambiguation, self.key + other,
+                                [chord + other for chord in self.chords])
 
     def __radd__(self, other: Interval):
         return self + other
 
     def first_chord(self):
         first_chord = self.chords[0]
-        return ChordProgression(first_chord.name, self.key, [first_chord])
+        return ChordProgression(first_chord.name, disambiguation=self.disambiguation, key=self.key,
+                                chords=[first_chord])
+
+    def __sub__(self, other: Interval  # Optional[Note, Interval]
+                ):
+        # if isinstance(other, Note):
+        #     return ChordProgressionPattern(name=self.progression_name, chords=[chord - other for chord in self.chords])
+        return ChordProgression(progression_name=self.progression_name, disambiguation=self.progression_name,
+                                key=self.key - other, chords=[chord - other for chord in self.chords])
 
 
 class ProgressionTest(unittest.TestCase):
     maxDiff = None
-    d_min_7 = NamedChord("ii",
-                         left_hand=SetOfNotes([
-                             Note("D3"),
-                         ]),
-                         right_hand=SetOfNotes([
-                             Note("F4"),
-                             Note("C5"),
-                         ]),
-
-                         )
-    e_min_7 = NamedChord("ii",
-                         left_hand=SetOfNotes([
-                             Note("E3"),
-                         ]),
-                         right_hand=SetOfNotes([
-                             Note("G4"),
-                             Note("D5"),
-                         ]),
-                         )
+    d_min_7 = TwoHandsChord("ii",
+                            left_hand=SetOfNotes([
+                                Note("D3"),
+                            ]),
+                            right_hand=SetOfNotes([
+                                Note("F4"),
+                                Note("C5"),
+                            ]),
+                            tonic=Note("C")
+                            )
+    e_min_7 = TwoHandsChord("ii",
+                            left_hand=SetOfNotes([
+                                Note("E3"),
+                            ]),
+                            right_hand=SetOfNotes([
+                                Note("G4"),
+                                Note("D5"),
+                            ]),
+                            tonic=Note("D")
+                            )
     three_five_c = ChordProgression(
-        name="ii V I",
+        progression_name="ii V I", disambiguation="ii V I",
         key=Note("C"),
         chords=[
             d_min_7,
-            NamedChord("V",
-                       left_hand=SetOfNotes([
-                           Note("G3"),
-                       ]),
-                       right_hand=SetOfNotes([
-                           Note("F4"),
-                           Note("B4"),
-                       ]),
-                       ),
-            NamedChord("I",
-                       left_hand=SetOfNotes([
-                           Note("C3"),
-                       ]),
-                       right_hand=SetOfNotes([
-                           Note("E4"),
-                           Note("B4"),
-                       ]),
-                       ),
+            TwoHandsChord("V",
+                          left_hand=SetOfNotes([
+                              Note("G3"),
+                          ]),
+                          right_hand=SetOfNotes([
+                              Note("F4"),
+                              Note("B4"),
+                          ]),
+                          tonic=Note("C")
+                          ),
+            TwoHandsChord("I",
+                          left_hand=SetOfNotes([
+                              Note("C3"),
+                          ]),
+                          right_hand=SetOfNotes([
+                              Note("E4"),
+                              Note("B4"),
+                          ]),
+                          tonic=Note("C")
+                          ),
         ]
     )
     three_five_d = ChordProgression(
-        name="ii V I",
+        progression_name="ii V I", disambiguation="ii V I",
         key=Note("D"),
         chords=[
             e_min_7,
-            NamedChord("V",
-                       left_hand=SetOfNotes([
-                           Note("A3"),
-                       ]),
-                       right_hand=SetOfNotes([
-                           Note("G4"),
-                           Note("C#5"),
-                       ]),
-                       ),
-            NamedChord("I",
-                       left_hand=SetOfNotes([
-                           Note("D3"),
-                       ]),
-                       right_hand=SetOfNotes([
-                           Note("F#4"),
-                           Note("C#5"),
-                       ]),
-                       ),
+            TwoHandsChord("V",
+                          left_hand=SetOfNotes([
+                              Note("A3"),
+                          ]),
+                          right_hand=SetOfNotes([
+                              Note("G4"),
+                              Note("C#5"),
+                          ]),
+                          tonic=Note("D")
+                          ),
+            TwoHandsChord("I",
+                          left_hand=SetOfNotes([
+                              Note("D3"),
+                          ]),
+                          right_hand=SetOfNotes([
+                              Note("F#4"),
+                              Note("C#5"),
+                          ]),
+                          tonic=Note("D")
+                          ),
         ]
     )
 
@@ -171,49 +168,35 @@ class ProgressionTest(unittest.TestCase):
 
     three_five_c_lily = """\
 \\version "2.20.0"
-\\score {
+\\score{
   <<
     \\new Lyrics {
-      \\lyricmode{ii V I}
+      \\lyricmode{
+        ii V I
+      }
     }
     \\new PianoStaff<<
-      \\new Staff {
+      \\new Staff{
         \\clef treble
         \\key c' \\major
-        <f' c''>
-        <f' b'>
-        <e' b'>
+        <f' c''> <f' b'> <e' b'>
       }
-      \\new Staff {
+      \\new Staff{
         \\clef bass
         \\key c' \\major
-        <d>
-        <g>
-        <c>
+        <d> <g> <c>
       }
     >>
   >>
 }"""
 
-    names_lily = """\
-\\new Lyrics {
-  \\lyricmode{ii V I}
-}"""
+    right_lily = """<f' c''> <f' b'> <e' b'>"""
 
-    right_lily = """\
-\\new Staff {
-  \\clef treble
-  \\key c' \\major
-  <f' c''>
-  <f' b'>
-  <e' b'>
-}"""
-
-    def test_left(self):
+    def test_right(self):
         self.assertEquals(self.right_lily, self.three_five_c.right_lily())
 
     def test_lyrics(self):
-        self.assertEquals(self.names_lily, self.three_five_c.chord_names_lily())
+        self.assertEquals("ii V I", self.three_five_c.annotations_lily())
 
     def test_lily(self):
         self.assertEquals(
@@ -230,6 +213,9 @@ class ProgressionTest(unittest.TestCase):
         compile_(self.mini, prefix, wav=False, force_recompile=True)()
 
     def test_add(self):
-        self.assertEquals(self.d_min_7 + Interval(chromatic=2, diatonic=1), self.e_min_7)
-        generated = self.three_five_c + Interval(chromatic=2, diatonic=1)
-        self.assertEquals(generated, self.three_five_d)
+        s = self.d_min_7 + Interval(chromatic=2, diatonic=1)
+        self.assertEquals(s, self.e_min_7)
+        s = self.three_five_c + Interval(chromatic=2, diatonic=1)
+        print(s)
+        print(self.three_five_d)
+        self.assertEquals(s, self.three_five_d)

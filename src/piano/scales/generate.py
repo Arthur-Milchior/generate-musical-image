@@ -6,12 +6,12 @@
 # 3 hands
 # =18144 images
 # Taking 4 seconds each, it takes 20 hours
-import os
 import unittest
 from typing import Optional, List, Tuple, Union, Callable
 
+from lily.Lilyable.piano_lilyable import lilypond_code_for_one_hand
 from utils import util
-from lily.lily import compile_, lilypond_code_for_one_hand
+from lily.lily import compile_
 from piano.scales.fingering import Fingering, TestFingering
 from piano.scales.penalty import Penalty
 from solfege.chord.chord_pattern import minor_seven, augmented_major_seventh_chord

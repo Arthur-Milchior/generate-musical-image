@@ -1,6 +1,6 @@
 from typing import Optional
 
-from lily.interface import Lilyable
+from lily.Lilyable.lilyable import Lilyable
 from solfege.interval.interval import Interval, TestInterval, third_minor
 from solfege.note import ChromaticNote, DiatonicNote
 from solfege.note.alteration import Alteration, alteration_symbols

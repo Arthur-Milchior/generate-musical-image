@@ -23,3 +23,6 @@ class Scale(Generic[NoteType]):
 
     def __repr__(self):
         return f"Scale(notes={self.notes})"
+
+    def add_octave(self, nb_octave: int):
+        return Scale([note.add_octave(nb_octave) for note in self.notes], self.pattern)
