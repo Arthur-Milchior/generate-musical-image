@@ -300,7 +300,7 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
         note_folder = f"{folder_path}/{starting_note.get_ascii_name()}"
         pathlib.Path(note_folder).mkdir(exist_ok=True)
         try:
-            output = generate_score_fixed_pattern_first_note(key=fundamental.note.lily(),
+            output = generate_score_fixed_pattern_first_note(key=fundamental.note.lily_in_scale(),
                                                              right_hand_lowest_note=starting_note,
                                                              scale_pattern=scale_pattern,
                                                              folder_path=note_folder, execute_lily=execute_lily,

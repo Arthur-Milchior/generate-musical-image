@@ -3,13 +3,13 @@ from __future__ import annotations
 import unittest
 from typing import Optional, List, Union
 
-from lily.Lilyable.lilyable import Lilyable
-from solfege.interval.set_of_intervals import SetOfIntervals
+from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.interval.interval import Interval
+from solfege.interval.set_of_intervals import SetOfIntervals
 from solfege.note import Note
 
 
-class SetOfNotes(Lilyable):
+class SetOfNotes(LocalLilyable):
     notes: List[Note]
     fundamental: Optional[Note]
 
@@ -35,8 +35,8 @@ class SetOfNotes(Lilyable):
     def __iter__(self):
         return sorted(self.notes)
 
-    def lily(self):
-        return f"""<{" ".join(note.lily() for note in sorted(self.notes))}>"""
+    def lily_in_scale(self):
+        return f"""<{" ".join(note.lily_in_scale() for note in sorted(self.notes))}>"""
 
     def __repr__(self):
         return f"""SetOfNotes(notes={self.notes!r}{f", fundamental={self.fundamental!r}" if self.fundamental else ""}"""

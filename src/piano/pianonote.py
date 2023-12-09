@@ -37,9 +37,9 @@ class PianoNote(Note):
     def lily_comment(self):
         return str(self.finger)
 
-    def lily(self):
+    def lily_in_scale(self):
         try:
-            return f"{super().lily()}-{self.finger}"
+            return f"{super().lily_in_scale()}-{self.finger}"
         except TooBigAlterationException as tba:
             tba["The note which is too big"] = self
             raise
@@ -50,4 +50,4 @@ class PianoNote(Note):
 
 class TestPianoNote(unittest.TestCase):
     def test_lily(self):
-        self.assertEquals(PianoNote(chromatic=0, diatonic=0, finger=1).lily(), "c'-1")
+        self.assertEquals(PianoNote(chromatic=0, diatonic=0, finger=1).lily_in_scale(), "c'-1")

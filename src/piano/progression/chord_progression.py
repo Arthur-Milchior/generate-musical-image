@@ -23,17 +23,17 @@ class TwoHandsChord(PianoLilyable):
     tonic: Note = Note("C4")
 
     def left_lily(self):
-        return self.left_hand.lily()
+        return self.left_hand.lily_in_scale()
 
     def right_lily(self):
-        return self.right_hand.lily()
+        return self.right_hand.lily_in_scale()
 
     def annotations_lily(self):
         return self.name
 
     def first_key(self) -> str:
         """The lily code for the annotation"""
-        return self.tonic.lily()
+        return self.tonic.lily_in_scale()
 
     def __add__(self, other: Interval):
         return TwoHandsChord(self.name, self.left_hand + other, self.right_hand + other, self.tonic + other)

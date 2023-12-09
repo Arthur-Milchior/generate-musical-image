@@ -60,18 +60,15 @@ for set_ in allChords:
     for chord in set_:
         for (color_name, color) in [("color", True), ("black", False)]:
             fileName = chord.file_name()
-            fileName_color = "%s_%s.svg" % (fileName, color_name)
-            ankiLine += """",<img src="%s"/>""" % (fileName_color)
+            fileName_color = f"{fileName}_{color_name}.svg"
+            ankiLine += f"""",<img src="{fileName_color}"/>"""
             with open(localImage + fileName_color, "w") as f:
                 chord.draw(f, color=color)
-            try:
-                chordFile = "%s%s_chord_%s" % (localImage, fileName, color_name)
-                code = chord.lily()
-                lily.lily.compile_(code, chordFile, wav=False)
-            except TooBigAlteration as tba:
-                raise
+            chordFile = f"{localImage}{fileName}_chord_{color_name}"
+            code = chord.lily()
+            lily.lily.compile_(code, chordFile, wav=False)
 
-        ankiLine += """,%s,<img src="%s"/>""" % (chord.content_of_anki_csv(), chordFile)
+        ankiLine += f""",{chord.content_of_anki_csv()},<img src="{chordFile}"/>"""
         # index[kind] += """<li><a href='%s'>%s</li>"""%(fileName, patternName)
     ankiLine += ",,,,,,," * (len(set_) - longest)
     anki[kind].add(ankiLine)

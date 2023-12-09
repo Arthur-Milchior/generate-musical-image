@@ -71,10 +71,10 @@ def succession_for_hands_key_pattern_direction(
     left_succession = [succession.add_octaves(-1) for succession in right_succession]
     if for_left_hand and for_right_hand:
         code = lilypond_code_for_two_hands(
-            key=key.lily(), left_fingering=left_succession, right_fingering=right_succession, midi=midi
+            key=key.lily_in_scale(), left_fingering=left_succession, right_fingering=right_succession, midi=midi
         )
     else:
-        code = lilypond_code_for_one_hand(key.lily(), left_succession if for_left_hand else right_succession,
+        code = lilypond_code_for_one_hand(key.lily_in_scale(), left_succession if for_left_hand else right_succession,
                                           for_right_hand=for_right_hand, midi=midi)
     return CardContent(filename_prefix, filepath, code)
 

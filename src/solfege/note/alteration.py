@@ -10,7 +10,7 @@ NAME_UP_TO_OCTAVE = "ANKI"
 
 
 class Alteration(IntervalMode):
-    def lily(self):
+    def lily_in_scale(self):
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.get_number() + 2]
 

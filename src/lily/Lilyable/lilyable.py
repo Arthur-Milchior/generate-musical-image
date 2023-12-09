@@ -24,11 +24,11 @@ class LiteralLilyable(Lilyable):
 
 class TestLilyable(unittest.TestCase):
     def test_lily(self):
-        self.assertEquals("aes", LiteralLilyable("aes").lily())
+        self.assertEquals("aes", LiteralLilyable("aes").lily_in_scale())
 
     def test_eq_diff_class(self):
         class MockLily(Lilyable):
-            def lily(self):
+            def lily_in_scale(self):
                 return "aes"
 
         self.assertEquals(LiteralLilyable("aes"), MockLily())

@@ -198,7 +198,7 @@ Minor arpeggio,D# ,<img src='Minor_arpeggio-Dsharp-left_hand-1-increasing.svg'>,
         with open(self.scale_note_index_path) as file:
             self.assertEquals(self.scale_note_index_code, file.read())
         self.assertTrue(os.path.exists(self.scale_note_index_path))
-        os.system(f"chromium {self.scale_note_index_path}")
+        os.system(f"chromium {self.scale_note_index_path}&")
 
     def check_scale_index_exists(self):
         pass

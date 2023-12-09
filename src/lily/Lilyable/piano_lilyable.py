@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Optional, List, Iterable
 
 from lily.Lilyable.lilyable import Lilyable
+from lily.Lilyable.local_lilyable import LocalLilyable
 from lily.lily import compile_
 from solfege.note import Note
 from utils.constants import test_folder
@@ -95,9 +96,9 @@ class LiteralPianoLilyable(PianoLilyable):
     _annotation: Optional[str] = None
 
     @staticmethod
-    def factory(key: Note, left_hand: Iterable[Lilyable], right_hand: Iterable[Lilyable]):
-        return LiteralPianoLilyable(key.lily(), " ".join(l.lily() for l in left_hand),
-                                    " ".join(r.lily() for r in right_hand))
+    def factory(key: Note, left_hand: Iterable[LocalLilyable], right_hand: Iterable[LocalLilyable]):
+        return LiteralPianoLilyable(key.lily_in_scale(), " ".join(l.lily_in_scale() for l in left_hand),
+                                    " ".join(r.lily_in_scale() for r in right_hand))
 
     def first_key(self) -> str:
         return self._first_key
@@ -112,15 +113,15 @@ class LiteralPianoLilyable(PianoLilyable):
         return self._annotation
 
 
-def _for_list_of_notes(fingering: List[Lilyable]) -> str:
+def _for_list_of_notes(fingering: List[LocalLilyable]) -> str:
     """Generate the lilypond code to put in a staff, according to the fingering given in argument.
 
     chooseOctave is the function which, given its argument, decide which ottava is applied (if any)
     """
-    return " ".join(note.lily() for note in fingering)
+    return " ".join(note.lily_in_scale() for note in fingering)
 
 
-def lilypond_code_for_one_hand(key: str, notes_or_chords: List[Lilyable], for_right_hand: bool,
+def lilypond_code_for_one_hand(key: str, notes_or_chords: List[LocalLilyable], for_right_hand: bool,
                                midi: bool) -> str:
     """A lilypond score, with a single staff.
 
@@ -136,7 +137,7 @@ def lilypond_code_for_one_hand(key: str, notes_or_chords: List[Lilyable], for_ri
     return LiteralPianoLilyable(key, left_fingering, right_fingering).lily(midi)
 
 
-def lilypond_code_for_two_hands(key: str, left_fingering: List[Lilyable], right_fingering: List[Lilyable],
+def lilypond_code_for_two_hands(key: str, left_fingering: List[LocalLilyable], right_fingering: List[LocalLilyable],
                                 midi: bool) -> str:
     """A lilypond score for piano.
 
@@ -188,7 +189,7 @@ class TestPianoLilyable(unittest.TestCase):
 }"""
 
     def test_both_hand(self):
-        generated = LiteralPianoLilyable("aes", "cis", "gis'", None).lily()
+        generated = LiteralPianoLilyable("aes", "cis", "gis'", None).lily_in_scale()
         expected = r"""\version "2.20.0"
 \score{
   <<

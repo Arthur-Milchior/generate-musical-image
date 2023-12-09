@@ -1,12 +1,13 @@
 from typing import Optional
 
 from lily.Lilyable.lilyable import Lilyable
+from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.interval.interval import Interval, TestInterval, third_minor
 from solfege.note import ChromaticNote, DiatonicNote
 from solfege.note.alteration import Alteration, alteration_symbols
 
 
-class Note(Interval, ChromaticNote, Lilyable):
+class Note(Interval, ChromaticNote, LocalLilyable):
     IntervalClass = Interval
     DiatonicClass = DiatonicNote
     ChromaticClass = ChromaticNote
@@ -36,8 +37,8 @@ class Note(Interval, ChromaticNote, Lilyable):
             chromatic=chromatic.get_number()
         )
 
-    def lily(self):
-        return f"{self.get_diatonic().lily()}{self.get_alteration().lily()}{self.get_diatonic().get_octave_name_lily()}"
+    def lily_in_scale(self):
+        return f"{self.get_diatonic().lily_in_scale()}{self.get_alteration().lily_in_scale()}{self.get_diatonic().get_octave_name_lily()}"
 
     def get_symbol_name(self):
         """The name of this note.
@@ -89,8 +90,8 @@ class TestNote(TestInterval):
     C5 = Note(chromatic=12, diatonic=7)
 
     def test_lily(self):
-        self.assertEquals(self.C4.lily(), "c'")
-        self.assertEquals(self.F4.lily(), "f'")
+        self.assertEquals(self.C4.lily_in_scale(), "c'")
+        self.assertEquals(self.F4.lily_in_scale(), "f'")
 
     def test_is_note(self):
         self.assertTrue(self.C4.is_note())
@@ -158,10 +159,10 @@ class TestNote(TestInterval):
         self.assertTrue(self.C5.equals_modulo_octave(self.C3))
 
     def test_lily_black(self):
-        self.assertEquals(self.C4.lily(), "c'")
-        self.assertEquals(self.C3.lily(), "c")
-        self.assertEquals(self.C5.lily(), "c''")
-        self.assertEquals(self.B3.lily(), "b")
+        self.assertEquals(self.C4.lily_in_scale(), "c'")
+        self.assertEquals(self.C3.lily_in_scale(), "c")
+        self.assertEquals(self.C5.lily_in_scale(), "c''")
+        self.assertEquals(self.B3.lily_in_scale(), "b")
 
     def test_is_black_key(self):
         self.assertFalse(self.C4.is_black_key_on_piano())

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from typing import Dict, List
 
 from solfege.interval.interval import Interval
 from solfege.note import Note
@@ -11,18 +12,33 @@ class Key:
     number_of_flats: int = 0
     number_of_sharps: int = 0
     _from_note = dict()
+    _key_to_simplest_enharmonic: Dict[Note, Note] = {}
 
     def __init__(self, note: Note, number_of_flats: int = 0, number_of_sharps: int = 0):
         self.note = note
         self.number_of_flats = number_of_flats
         self.number_of_sharps = number_of_sharps
-        self._from_note[note] = self
+        self._from_note[note.get_in_base_octave()] = self
+
+    def simplest_enharmonic_major(self):
+        return self.from_note(self._key_to_simplest_enharmonic[self.note.get_in_base_octave()])
+
+    def simplest_enharmonic_minor(self):
+        relative_interval = Interval(chromatic=3, diatonic=2)
+        return self.from_note(
+            self._key_to_simplest_enharmonic[(self.note + relative_interval).get_in_base_octave()] - relative_interval)
+
+    @classmethod
+    def add_enharmonic_set(cls, enharmonic_set: List[Key]):
+        simplest = enharmonic_set[0]
+        for key in enharmonic_set:
+            cls._key_to_simplest_enharmonic[key.note.get_in_base_octave()] = simplest.note
 
     def _number_of_alterations(self):
         return self.number_of_flats + self.number_of_sharps
 
     @classmethod
-    def from_note(cls, note: Note):
+    def from_note(cls, note: Note) -> Key:
         return cls._from_note[note.get_in_base_octave()]
 
     def __eq__(self, other):
@@ -43,6 +59,7 @@ class Key:
 
 
 key_of_C = Key(Note("C"))
+key_of_A = Key(Note("A3"), number_of_sharps=3)
 
 """All keys, grouped by enharmonic, sorted by minimal number of alteration"""
 sets_of_enharmonic_keys = [
@@ -76,7 +93,7 @@ sets_of_enharmonic_keys = [
         Key(Note("D#"), number_of_sharps=9),
     ],
     [
-        Key(Note("A3"), number_of_sharps=3),
+        key_of_A,
         Key(Note("B♭♭3"), number_of_flats=9),
     ],
     [
@@ -101,6 +118,9 @@ sets_of_enharmonic_keys = [
         Key(Note("G♭3"), number_of_sharps=6),
     ],
 ]
+
+for enharmonic_set in sets_of_enharmonic_keys:
+    Key.add_enharmonic_set(enharmonic_set)
 
 seven_sharps = Interval(diatonic=0, chromatic=1)  # when playing a C, have C# signature, 3 sharps
 three_sharps = Interval(diatonic=5, chromatic=9)  # when playing a C, have A signature, 3 sharps
@@ -128,6 +148,15 @@ class TestClef(unittest.TestCase):
                 self.assertTrue(chromatic_of_first_key.equals_modulo_octave(chromatic_of_key))
             for i in range(len(enharmonic_key) - 1):
                 self.assertLessEqual(enharmonic_key[i], enharmonic_key[i + 1])
+
+    def test_simplest_major(self):
+        self.assertEquals(key_of_C, key_of_C.simplest_enharmonic_major())
+        self.assertEquals(key_of_C, Key(Note("D♭♭"), number_of_flats=12).simplest_enharmonic_major())
+
+    def test_simplest_minor(self):
+        self.assertEquals(key_of_A, key_of_A.simplest_enharmonic_minor())
+        self.assertEquals(key_of_A, Key(Note("B♭♭3"), number_of_flats=9).simplest_enharmonic_minor())
+        self.assertEquals(key_of_A, Key(Note("B♭♭"), number_of_flats=9).simplest_enharmonic_minor())
 
     # def test_alteration(self):
     #     self.assertEquals(enharmonic_keys[0].note.get_alteration(), IntervalMode(-1))

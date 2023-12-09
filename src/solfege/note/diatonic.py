@@ -10,7 +10,7 @@ class DiatonicNote(AbstractNote, DiatonicInterval):
     # Saved as the interval from middle C
     IntervalClass = DiatonicInterval
 
-    def lily(self):
+    def lily_in_scale(self):
         return ["c", "d", "e", "f", "g", "a", "b"][self.get_number() % 7]
 
     def get_name_up_to_octave(self):
@@ -148,25 +148,25 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEquals(DiatonicNote(-9).get_chromatic(), ChromaticNote(-15))
 
     def test_get_note_name_LILY(self):
-        self.assertEquals(DiatonicNote(0).lily(), "c")
-        self.assertEquals(DiatonicNote(1).lily(), "d")
-        self.assertEquals(DiatonicNote(2).lily(), "e")
-        self.assertEquals(DiatonicNote(3).lily(), "f")
-        self.assertEquals(DiatonicNote(4).lily(), "g")
-        self.assertEquals(DiatonicNote(5).lily(), "a")
-        self.assertEquals(DiatonicNote(6).lily(), "b")
-        self.assertEquals(DiatonicNote(7).lily(), "c")
-        self.assertEquals(DiatonicNote(8).lily(), "d")
-        self.assertEquals(DiatonicNote(9).lily(), "e")
-        self.assertEquals(DiatonicNote(-1).lily(), "b")
-        self.assertEquals(DiatonicNote(-2).lily(), "a")
-        self.assertEquals(DiatonicNote(-3).lily(), "g")
-        self.assertEquals(DiatonicNote(-4).lily(), "f")
-        self.assertEquals(DiatonicNote(-5).lily(), "e")
-        self.assertEquals(DiatonicNote(-6).lily(), "d")
-        self.assertEquals(DiatonicNote(-7).lily(), "c")
-        self.assertEquals(DiatonicNote(-8).lily(), "b")
-        self.assertEquals(DiatonicNote(-9).lily(), "a")
+        self.assertEquals(DiatonicNote(0).lily_in_scale(), "c")
+        self.assertEquals(DiatonicNote(1).lily_in_scale(), "d")
+        self.assertEquals(DiatonicNote(2).lily_in_scale(), "e")
+        self.assertEquals(DiatonicNote(3).lily_in_scale(), "f")
+        self.assertEquals(DiatonicNote(4).lily_in_scale(), "g")
+        self.assertEquals(DiatonicNote(5).lily_in_scale(), "a")
+        self.assertEquals(DiatonicNote(6).lily_in_scale(), "b")
+        self.assertEquals(DiatonicNote(7).lily_in_scale(), "c")
+        self.assertEquals(DiatonicNote(8).lily_in_scale(), "d")
+        self.assertEquals(DiatonicNote(9).lily_in_scale(), "e")
+        self.assertEquals(DiatonicNote(-1).lily_in_scale(), "b")
+        self.assertEquals(DiatonicNote(-2).lily_in_scale(), "a")
+        self.assertEquals(DiatonicNote(-3).lily_in_scale(), "g")
+        self.assertEquals(DiatonicNote(-4).lily_in_scale(), "f")
+        self.assertEquals(DiatonicNote(-5).lily_in_scale(), "e")
+        self.assertEquals(DiatonicNote(-6).lily_in_scale(), "d")
+        self.assertEquals(DiatonicNote(-7).lily_in_scale(), "c")
+        self.assertEquals(DiatonicNote(-8).lily_in_scale(), "b")
+        self.assertEquals(DiatonicNote(-9).lily_in_scale(), "a")
 
     def test_get_note_name_FILE_NAME(self):
         self.assertEquals(DiatonicNote(0).get_name_up_to_octave(), "C")
