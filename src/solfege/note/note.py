@@ -1,6 +1,5 @@
 from typing import Optional
 
-from lily.Lilyable.lilyable import Lilyable
 from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.interval.interval import Interval, TestInterval, third_minor
 from solfege.note import ChromaticNote, DiatonicNote
@@ -13,7 +12,7 @@ class Note(Interval, ChromaticNote, LocalLilyable):
     ChromaticClass = ChromaticNote
     """A note of the scale, as an interval from middle C."""
 
-    def __init__(self, name: Optional[str]=None, *args, **kwargs):
+    def __init__(self, name: Optional[str] = None, *args, **kwargs):
         if name is not None:
             name = name.strip()
             diatonic_name = "".join(letter for letter in name if letter not in alteration_symbols)
@@ -22,7 +21,7 @@ class Note(Interval, ChromaticNote, LocalLilyable):
             chromatic_from_diatonic = diatonic.get_chromatic()
             alteration = Alteration.from_name(alteration_name)
             kwargs["diatonic"] = diatonic.get_number()
-            kwargs["chromatic"] = ( chromatic_from_diatonic+alteration).get_number()
+            kwargs["chromatic"] = (chromatic_from_diatonic + alteration).get_number()
         super().__init__(*args, **kwargs)
 
     def __neg__(self):
@@ -66,10 +65,71 @@ class Note(Interval, ChromaticNote, LocalLilyable):
         """Whether `other` is at most two half-tone away"""
         return abs(other.get_number() - self.get_number()) <= 2
 
+    def is_white_key_on_piano(self):
+        """Whether this note corresponds to a black note of the keyboard"""
+        return not self.is_black_key_on_piano()
+
     def is_black_key_on_piano(self):
         """Whether this note corresponds to a black note of the keyboard"""
         blacks = {1, 3, 6, 8, 10}
         return (self.get_chromatic().get_number() % 12) in blacks
+
+    def simplest_enharmonic(self):
+        """Enharmonic note, with 0 alteration if possible or one of the same alteration"""
+        enharmonic = self
+        while enharmonic.get_alteration().value >= 2:
+            # double sharp at least, let's add a diatonic note
+            enharmonic += Interval(diatonic=1, chromatic=0)
+        while enharmonic.get_alteration().value <= -2:
+            # double flat at least, let's remove a diatonic note
+            enharmonic += Interval(diatonic=-1, chromatic=0)
+        if enharmonic.get_alteration().value == 1:
+            # It's a sharp note. Let's check if adding a diatonic note lead to a white key
+            above = enharmonic + Interval(diatonic=1, chromatic=0)
+            if above.is_white_key_on_piano():
+                return above
+        if enharmonic.get_alteration().value == -1:
+            # It's a flat note. Let's check if removing a diatonic note lead to a white key
+            below = enharmonic + Interval(diatonic=-1, chromatic=0)
+            if below.is_white_key_on_piano():
+                return below
+        return enharmonic
+
+    def canonize(self, for_sharp: bool):
+        """Enharmonic note, with no alteration if possible or a single sharp"""
+        enharmonic = self
+        while enharmonic.get_alteration().value > (1 if for_sharp else 0):
+            # too many sharp least, let's add a diatonic note
+            enharmonic += Interval(diatonic=1, chromatic=0)
+        while enharmonic.get_alteration().value < (0 if for_sharp else -1):
+            # too many flat, let's remove a diatonic note
+            enharmonic += Interval(diatonic=-1, chromatic=0)
+        if enharmonic.get_alteration().value == 1:
+            # It's a sharp note. Let's check if adding a diatonic note lead to a white key
+            above = enharmonic + Interval(diatonic=1, chromatic=0)
+            if above.is_white_key_on_piano():
+                return above
+        if enharmonic.get_alteration().value == -1:
+            # It's a flat note. Let's check if removing a diatonic note lead to a white key
+            below = enharmonic + Interval(diatonic=-1, chromatic=0)
+            if below.is_white_key_on_piano():
+                return below
+        return enharmonic
+
+    def is_natural(self):
+        return self.get_alteration() == Alteration(0)
+
+    def is_sharp(self):
+        return self.get_alteration() == Alteration(1)
+
+    def is_flat(self):
+        return self.get_alteration() == Alteration(-1)
+
+    def is_double_sharp(self):
+        return self.get_alteration() == Alteration(2)
+
+    def is_double_flat(self):
+        return self.get_alteration() == Alteration(-2)
 
     @staticmethod
     def from_name(name: str):
@@ -191,5 +251,30 @@ class TestNote(TestInterval):
     def test_from_name_to_name(self):
         self.assertEquals(Note("C4").get_full_name(), "C  4")
         self.assertEquals(Note("C♭4").get_full_name(), "C♭ 4")
+
+    def test_simplest_enharmonic(self):
+        self.assertEquals(Note("C").simplest_enharmonic(), Note("C"))
+        self.assertEquals(Note("C♭").simplest_enharmonic(), Note("B3"))
+        self.assertEquals(Note("B3#").simplest_enharmonic(), Note("C"))
+        self.assertEquals(Note("C#").simplest_enharmonic(), Note("C#"))
+        self.assertEquals(Note("C##").simplest_enharmonic(), Note("D"))
+        self.assertEquals(Note("D♭").simplest_enharmonic(), Note("D♭"))
+        self.assertEquals(Note("D♭♭").simplest_enharmonic(), Note("C"))
+
+    def test_canonize(self):
+        self.assertEquals(Note("C").canonize(for_sharp=True), Note("C"))
+        self.assertEquals(Note("C♭").canonize(for_sharp=True), Note("B3"))
+        self.assertEquals(Note("B3#").canonize(for_sharp=True), Note("C"))
+        self.assertEquals(Note("C#").canonize(for_sharp=True), Note("C#"))
+        self.assertEquals(Note("C##").canonize(for_sharp=True), Note("D"))
+        self.assertEquals(Note("D♭").canonize(for_sharp=True), Note("C#"))
+        self.assertEquals(Note("D♭♭").canonize(for_sharp=False), Note("C"))
+        self.assertEquals(Note("C").canonize(for_sharp=False), Note("C"))
+        self.assertEquals(Note("C♭").canonize(for_sharp=False), Note("B3"))
+        self.assertEquals(Note("B3#").canonize(for_sharp=False), Note("C"))
+        self.assertEquals(Note("C#").canonize(for_sharp=False), Note("D♭"))
+        self.assertEquals(Note("C##").canonize(for_sharp=False), Note("D"))
+        self.assertEquals(Note("D♭").canonize(for_sharp=False), Note("D♭"))
+        self.assertEquals(Note("D♭♭").canonize(for_sharp=False), Note("C"))
 
     # todo Test wwith color

@@ -28,7 +28,7 @@ class ChromaticInterval(AbstractInterval):
         return self.RelatedDiatonicClass([0, 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6][
                                              self.get_in_base_octave().get_number()] + 7 * self.get_octave())
 
-    def get_alteration(self):
+    def get_alteration(self) -> AlterationClass:
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
         import solfege.interval.intervalmode
         diatonic = self.get_diatonic()

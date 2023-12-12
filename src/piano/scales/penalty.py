@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import copy
-import unittest
-from typing import Union, Optional, Any
+from typing import Optional, Dict
 
 from piano.scales.fingering import Fingering
 
@@ -27,27 +26,33 @@ class Penalty:
 
     fingering: Optional[Fingering]
 
-    """The number of time a thumb have to pass over more than two half-tone"""
-    _thumb_non_adjacent: int
-
     """Number of thumb over"""
     _nb_thumb_over: int
 
     """Number of time a white note is played after the thumb"""
-    _nb_white_after_thumb: int
+    _nb_same_color_after_thumb_at_distance_diatonic: Dict[int, int]
+
+    """Number of time a white note is played after the thumb on a black note"""
+    _nb_black_after_white_thumb_at_distance_diatonic: Dict[int, int]
+
+    """Number of time a black thumb is succeeded by a white note"""
+    _nb_white_after_black_thumb: int
 
     """The number of times two far away consecutive note are played by 3rd and 4rth finger"""
     _number_of_3_and_4_non_adjacent: int
     _number_of_thumbs_on_black: int
 
     def __init__(self, fingering: Optional[Fingering] = None,
-                 thumb_non_adjacent: int = 0, nb_thumb_over: int = 0,
-                 nb_white_after_thumb: int = 0,
+                 nb_thumb_over: int = 0,
+                 nb_black_after_white_thumb_at_distance_diatonic: Optional[Dict[int, int]] = None,
+                 nb_white_after_black_thumb: int = 0,
+                 nb_same_color_after_thumb_at_distance_diatonic: Optional[Dict[int, int]] = None,
                  number_of_spaced_3_and_four: int = 0, number_of_thumbs_on_black: int = 0):
         self.fingering = fingering
-        self._thumb_non_adjacent = thumb_non_adjacent
         self._nb_thumb_over = nb_thumb_over
-        self._nb_white_after_thumb = nb_white_after_thumb
+        self._nb_black_after_white_thumb_at_distance_diatonic = nb_black_after_white_thumb_at_distance_diatonic or {}
+        self._nb_white_after_black_thumb = nb_white_after_black_thumb
+        self._nb_same_color_after_thumb_at_distance_diatonic = nb_same_color_after_thumb_at_distance_diatonic or {}
         self._number_of_3_and_4_non_adjacent = number_of_spaced_3_and_four
         self._number_of_thumbs_on_black = number_of_thumbs_on_black
 
@@ -76,10 +81,22 @@ class Penalty:
 
     def __add__(self, other: Penalty) -> Penalty:
         """Merge the penalty of self and other."""
+        nb_same_color_after_thumb_at_distance_diatonic = self._nb_same_color_after_thumb_at_distance_diatonic.copy()
+        for (distance, nb) in other._nb_same_color_after_thumb_at_distance_diatonic:
+            nb_same_color_after_thumb_at_distance_diatonic[distance] = (
+                    self._nb_same_color_after_thumb_at_distance_diatonic.get(distance,
+                                                                             0)
+                    + nb)
+        nb_black_after_white_thumb_at_distance_diatonic = self._nb_black_after_white_thumb_at_distance_diatonic.copy()
+        for (distance, nb) in other._nb_black_after_white_thumb_at_distance_diatonic:
+            nb_black_after_white_thumb_at_distance_diatonic[
+                distance] = self._nb_black_after_white_thumb_at_distance_diatonic.get(distance, 0) + nb
+
         return Penalty(fingering=None,
-                       thumb_non_adjacent=+self._thumb_non_adjacent + other._thumb_non_adjacent,
                        nb_thumb_over=+self._nb_thumb_over + other._nb_thumb_over,
-                       nb_white_after_thumb=+self._nb_white_after_thumb + other._nb_white_after_thumb,
+                       nb_same_color_after_thumb_at_distance_diatonic=nb_same_color_after_thumb_at_distance_diatonic,
+                       nb_black_after_white_thumb_at_distance_diatonic=nb_black_after_white_thumb_at_distance_diatonic,
+                       nb_white_after_black_thumb=self._nb_white_after_black_thumb + other._nb_white_after_black_thumb,
                        number_of_thumbs_on_black=self._number_of_thumbs_on_black,
                        number_of_spaced_3_and_four=self._number_of_3_and_4_non_adjacent)
 
@@ -93,14 +110,23 @@ class Penalty:
         c._number_of_3_and_4_non_adjacent += 1
         return c
 
-    def add_thumb_non_adjacent(self, fingering=None) -> Penalty:
+    def add_same_color_after_thumb(self, distance: int, fingering=None) -> Penalty:
+        assert 1 <= distance <= 4
         c = self._copy(fingering=fingering)
-        c._thumb_non_adjacent += 1
+        c._nb_same_color_after_thumb_at_distance_diatonic[
+            distance] = c._nb_same_color_after_thumb_at_distance_diatonic.get(distance, 0) + 1
         return c
 
-    def add_white_after_thumb(self, fingering=None) -> Penalty:
+    def add_white_after_black_thumb(self, fingering=None) -> Penalty:
         c = self._copy(fingering=fingering)
-        c._nb_white_after_thumb += 1
+        c._nb_white_after_black_thumb += 1
+        return c
+
+    def add_black_after_white_thumb(self, distance: int, fingering=None) -> Penalty:
+        assert 1 <= distance <= 4
+        c = self._copy(fingering=fingering)
+        c._nb_black_after_white_thumb_at_distance_diatonic[
+            distance] = c._nb_black_after_white_thumb_at_distance_diatonic.get(distance, 0) + 1
         return c
 
     def add_thumb_over(self, fingering=None) -> Penalty:
@@ -110,15 +136,29 @@ class Penalty:
 
     def _ordinal(self):
         pinky_side = self.fingering.pinky_side_tonic_finger
-        return (self.fingering.avoid_this_extremity(),
-                self._number_of_thumbs_on_black, self._thumb_non_adjacent,
-                not self.fingering.pinky_to_thumb_on_white(),
-                - pinky_side if pinky_side is not None else "a",
-                # two incomparable types
-                self._nb_thumb_over,
-                self._number_of_3_and_4_non_adjacent,
-                -self._nb_white_after_thumb,
-                self.fingering.get_thumb_side_tonic_finger(),)
+        return (
+            # This should never occur
+            self._nb_white_after_black_thumb,
+            self._nb_same_color_after_thumb_at_distance_diatonic.get(4, 0),
+            self._nb_black_after_white_thumb_at_distance_diatonic.get(4, 0),
+            self._nb_black_after_white_thumb_at_distance_diatonic.get(3, 0),
+            self._nb_same_color_after_thumb_at_distance_diatonic.get(3, 0),
+
+            # Still pretty bad
+            self.fingering.avoid_this_extremity(),
+
+            # bad practice but acceptable
+            self._number_of_thumbs_on_black,
+            not self.fingering.pinky_to_thumb_on_white(),
+            - pinky_side if pinky_side is not None else "a",
+            self._nb_thumb_over,
+
+            # Normal things
+            self._nb_same_color_after_thumb_at_distance_diatonic.get(2, 0),
+            self._nb_black_after_white_thumb_at_distance_diatonic.get(2, 0),
+            self._number_of_3_and_4_non_adjacent,
+            self._nb_same_color_after_thumb_at_distance_diatonic.get(1, 0),
+            self.fingering.get_thumb_side_tonic_finger(),)
 
     def __ge__(self, other: Optional[Penalty]) -> bool:
         """Whether self is worse than other"""
@@ -145,8 +185,13 @@ class Penalty:
     #     return text
 
     def acceptable(self) -> bool:
-        if self._thumb_non_adjacent:
-            return False
+        for distance, _ in self._nb_white_after_black_thumb:
+            if distance >= 3:
+                return False
+        for distance, _ in self._nb_same_color_after_thumb_at_distance_diatonic:
+            if distance >= 3:
+                return False
+
         if self.fingering.get_thumb_side_tonic_finger() != self.fingering.pinky_side_tonic_finger:
             if self.fingering.get_thumb_side_tonic_finger() not in [0, 1]:
                 return False

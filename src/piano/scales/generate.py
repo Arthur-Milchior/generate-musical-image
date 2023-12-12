@@ -76,10 +76,19 @@ def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right
         if last_added_finger == 1:
             if not fundamental.equals_modulo_octave(last_added_note):
                 penalty = penalty.add_thumb_over()
-            if not last_added_note.adjacent(next_note):
-                penalty = penalty.add_thumb_non_adjacent()
-            if not next_note.is_black_key_on_piano():
-                penalty = penalty.add_white_after_thumb()
+            diatonic_distance = (next_note.canonize(for_sharp=for_right_hand).get_diatonic().get_number() -
+                                 last_added_note.canonize(for_sharp=for_right_hand).get_diatonic().get_number())
+            if for_right_hand:
+                diatonic_distance = - diatonic_distance
+            if next_note.is_white_key_on_piano() == last_added_note.is_white_key_on_piano():
+                penalty = penalty.add_same_color_after_thumb(diatonic_distance)
+            elif next_note.is_white_key_on_piano():
+                assert last_added_note.is_black_key_on_piano()
+                penalty = penalty.add_white_after_black_thumb()
+            else:
+                assert next_note.is_black_key_on_piano()
+                assert last_added_note.is_white_key_on_piano()
+                penalty = penalty.add_black_after_white_thumb(diatonic_distance)
             next_possible_fingers = [3, 4, 2]
         elif last_added_finger == 2:
             next_possible_fingers = [1]
@@ -155,16 +164,29 @@ class TestScalesGenerate(unittest.TestCase):
 
         self.assertEquals(fingering, expected)
 
+    def test_blues_A_right(self):
+        expected = (Fingering(for_right_hand=True).
+                    add_pinky_side(note=Note("A"), finger=5).
+                    add(note=Note("G"), finger=4).
+                    add(note=Note("E"), finger=3).
+                    add(note=Note("D#"), finger=2).
+                    add(note=Note("D"), finger=1).
+                    add(note=Note("C"), finger=3).
+                    add(note=Note("A3"), finger=1))
+        fundamental = Note("A3")
+        self.generation_helper(fundamental=fundamental, scale_pattern=blues, for_right_hand=True, expected=expected,
+                               show=True)
+
     def test_blues_D_right(self):
         expected = (Fingering(for_right_hand=True).
-                    add_pinky_side(note=Note(chromatic=2, diatonic=1), finger=5).
-                    add(note=Note(chromatic=0, diatonic=0), finger=4).
-                    add(note=Note(chromatic=9, diatonic=5), finger=2).
-                    add(note=Note(chromatic=8, diatonic=4), finger=1).
-                    add(note=Note(chromatic=7, diatonic=4), finger=3).
-                    add(note=Note(chromatic=5, diatonic=3), finger=2).
-                    add(note=Note(chromatic=2, diatonic=1), finger=1))
-        fundamental = Note(chromatic=2, diatonic=1)
+                    add_pinky_side(note=Note("D5"), finger=5).
+                    add(note=Note("C5"), finger=4).
+                    add(note=Note("A"), finger=3).
+                    add(note=Note("G#"), finger=2).
+                    add(note=Note("G"), finger=1).
+                    add(note=Note("F"), finger=3).
+                    add(note=Note("D"), finger=1))
+        fundamental = Note("D")
         self.generation_helper(fundamental=fundamental, scale_pattern=blues, for_right_hand=True, expected=expected,
                                show=True)
 
@@ -180,7 +202,7 @@ class TestScalesGenerate(unittest.TestCase):
                                expected=expected)
         # All black note
 
-    def test_minor_seventh_arpeggio_A(self):
+    def test_minor_seventh_arpeggio_A_right(self):
         expected = (Fingering(for_right_hand=True).
                     add_pinky_side(Note("A "), 5).
                     add(Note("A "), 1).
@@ -189,6 +211,16 @@ class TestScalesGenerate(unittest.TestCase):
                     add(Note("G "), 4))
         self.generation_helper(fundamental=Note("A"), scale_pattern=minor_seven.to_arpeggio_pattern(),
                                for_right_hand=True, expected=expected, show=True)
+
+    def test_minor_seventh_arpeggio_A_left(self):
+        expected = (Fingering(for_right_hand=False).
+                    add_pinky_side(Note("A "), 5).
+                    add(Note("A "), 1).
+                    add(Note("C "), 4).
+                    add(Note("E "), 3).
+                    add(Note("G "), 2))
+        self.generation_helper(fundamental=Note("A2"), scale_pattern=minor_seven.to_arpeggio_pattern(),
+                               for_right_hand=False, expected=expected, show=True)
 
     def test_minor_melodic_right(self):
         penalty = generate_fingering(fundamental=Note(chromatic=0, diatonic=0), scale_pattern=minor_melodic,
