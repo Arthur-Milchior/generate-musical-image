@@ -28,7 +28,8 @@ def command(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
         return lambda: display_svg_file(f"{file_prefix}.svg")
     else:
         assert extension == "pdf"
-        return lambda: os.system(f"evince {file_prefix}.pdf")
+        command = f"evince {file_prefix}.pdf&"
+        return lambda: os.system(command)
 
 
 def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool = True, force_recompile: bool = False) -> \
@@ -58,7 +59,8 @@ def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool =
         clean_svg(preview_path, preview_path, "white")
     else:
         assert extension == "pdf"
-        os.system(f"""lilypond  -o "{file_prefix}" "{file_prefix}.ly" """)
+        cmd = f"""lilypond  -o "{file_prefix}" "{file_prefix}.ly" """
+        os.system(cmd)
     os.system(f"""mv -f "{preview_path}" "{file_prefix}.{extension}" """)
     if wav:
         os.system(f"""timidity "{file_prefix}.midi" --output-mode=w -o "{file_prefix}.wav" """)
@@ -68,7 +70,7 @@ def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool =
 
 class TestLily(unittest.TestCase):
     def setUp(self):
-        from piano.pianonote import PianoNote
+        from piano.piano_note import PianoNote
 
         self.c_pentatonic_minor_5th_right = [
             PianoNote(chromatic=0, diatonic=0, finger=1),

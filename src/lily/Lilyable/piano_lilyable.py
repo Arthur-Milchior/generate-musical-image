@@ -96,9 +96,13 @@ class LiteralPianoLilyable(PianoLilyable):
     _annotation: Optional[str] = None
 
     @staticmethod
-    def factory(key: Note, left_hand: Iterable[LocalLilyable], right_hand: Iterable[LocalLilyable]):
-        return LiteralPianoLilyable(key.lily_in_scale(), " ".join(l.lily_in_scale() for l in left_hand),
-                                    " ".join(r.lily_in_scale() for r in right_hand))
+    def factory(key: Note, left_hand: Optional[Iterable[LocalLilyable]] = None,
+                right_hand: Optional[Iterable[LocalLilyable]] = None) -> LiteralPianoLilyable:
+        return LiteralPianoLilyable(key.lily_in_scale(),
+                                    (" ".join(l.lily_in_scale() for l in left_hand) if (
+                                            left_hand is not None) else None),
+                                    (" ".join(
+                                        r.lily_in_scale() for r in right_hand) if right_hand is not None else None))
 
     def first_key(self) -> str:
         return self._first_key
@@ -143,7 +147,8 @@ def lilypond_code_for_two_hands(key: str, left_fingering: List[LocalLilyable], r
 
     The note are decorated with the fingering given in arguments.
     """
-    return LiteralPianoLilyable(key, _for_list_of_notes(left_fingering), _for_list_of_notes(right_fingering)).lily(midi)
+    return LiteralPianoLilyable(key, _for_list_of_notes(left_fingering), _for_list_of_notes(right_fingering)).lily(
+        midi)
 
 
 class TestPianoLilyable(unittest.TestCase):
@@ -151,63 +156,63 @@ class TestPianoLilyable(unittest.TestCase):
     value = LiteralPianoLilyable("aes", "cis", "gis'", "IV")
     both_hand_annotated_expected = r"""\version "2.20.0"
 \score{
-  \midi{}
-  \layout{}
-  <<
-    \new Lyrics {
-      \lyricmode{
-        IV
-      }
-    }
-    \new PianoStaff<<
-      \new Staff{
-        \set Staff.printKeyCancellation = ##f
-        \clef treble
-        \key aes \major
-        gis'
-      }
-      \new Staff{
-        \set Staff.printKeyCancellation = ##f
-        \clef bass
-        \key aes \major
-        cis
-      }
-    >>
-  >>
+\midi{}
+\layout{}
+<<
+\new Lyrics {
+  \lyricmode{
+    IV
+  }
+}
+\new PianoStaff<<
+  \new Staff{
+    \set Staff.printKeyCancellation = ##f
+    \clef treble
+    \key aes \major
+    gis'
+  }
+  \new Staff{
+    \set Staff.printKeyCancellation = ##f
+    \clef bass
+    \key aes \major
+    cis
+  }
+>>
+>>
 }"""
 
     expected_right_hand = r"""\version "2.20.0"
 \score{
-  <<
-    \new Staff{
-      \set Staff.printKeyCancellation = ##f
-      \clef treble
-      \key aes \major
-      gis'
-    }
-  >>
+<<
+\new Staff{
+  \set Staff.printKeyCancellation = ##f
+  \clef treble
+  \key aes \major
+  gis'
+}
+>>
 }"""
 
     def test_both_hand(self):
         generated = LiteralPianoLilyable("aes", "cis", "gis'", None).lily_in_scale()
         expected = r"""\version "2.20.0"
 \score{
-  <<
-    \new PianoStaff<<
-      \new Staff{
-        \set Staff.printKeyCancellation = ##f
-        \clef treble
-        \key aes \major
-        gis'
-      }
-      \new Staff{
-        \set Staff.printKeyCancellation = ##f
-        \clef bass
-        \key aes \major
-        cis
-      }
-    >>
-  >>
+<<
+\new PianoStaff<<
+  \new Staff{
+    \set Staff.printKeyCancellation = ##f
+    \clef treble
+    \key aes \major
+    gis'
+  }
+  \new Staff{
+    \set Staff.printKeyCancellation = ##f
+    \clef bass
+    \key aes \major
+    cis
+  }
+>>
+>>
 }"""
         self.assertEquals(expected, generated)
 

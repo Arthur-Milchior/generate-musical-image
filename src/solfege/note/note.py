@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from typing import Optional
 
 from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.interval.interval import Interval, TestInterval, third_minor
 from solfege.note import ChromaticNote, DiatonicNote
+from solfege.note.abstract import low_and_high
 from solfege.note.alteration import Alteration, alteration_symbols
 
 
@@ -27,7 +30,7 @@ class Note(Interval, ChromaticNote, LocalLilyable):
     def __neg__(self):
         raise Exception("Trying to negate a note makes no sens.")
 
-    def sub_note(self, other):
+    def sub_note(self, other: Note):
         diatonic = self.get_diatonic() - other.get_diatonic()
         chromatic = self.get_chromatic().__sub__(other)
 
@@ -61,9 +64,18 @@ class Note(Interval, ChromaticNote, LocalLilyable):
         """Whether the note has a printable alteration."""
         return self.get_alteration().printable()
 
-    def adjacent(self, other):
+    def adjacent(self, other: Note):
         """Whether `other` is at most two half-tone away"""
-        return abs(other.get_number() - self.get_number()) <= 2
+        lower, higher = low_and_high(self, other)
+        diff = higher - lower
+        assert diff.value > 0
+        if diff.value <= 2:
+            return True
+        if diff.value > 3:
+            return False
+        if higher.get_in_base_octave().value in [0, 1, 2, 5, 6, 7]:  # C or F natural
+            return False
+        return True
 
     def is_white_key_on_piano(self):
         """Whether this note corresponds to a black note of the keyboard"""
@@ -131,10 +143,6 @@ class Note(Interval, ChromaticNote, LocalLilyable):
     def is_double_flat(self):
         return self.get_alteration() == Alteration(-2)
 
-    @staticmethod
-    def from_name(name: str):
-        return Note(name)
-
 
 class TestNote(TestInterval):
     C3 = Note(chromatic=-12, diatonic=-7)
@@ -146,6 +154,7 @@ class TestNote(TestInterval):
     D4 = Note(chromatic=2, diatonic=1)
     D4_sharp = Note(chromatic=3, diatonic=1)
     E4b = Note(chromatic=3, diatonic=2)
+    E4 = Note(chromatic=4, diatonic=2)
     F4 = Note(chromatic=5, diatonic=3)
     C5 = Note(chromatic=12, diatonic=7)
 
@@ -229,13 +238,35 @@ class TestNote(TestInterval):
         self.assertTrue(self.C4_sharp.is_black_key_on_piano())
 
     def test_adjacent(self):
-        self.assertTrue(self.C4.adjacent(self.C4))
+        with self.assertRaises(Exception):
+            self.assertTrue(self.C4.adjacent(self.C4))
         self.assertTrue(self.C4.adjacent(self.B3))
+        self.assertTrue(self.C4.adjacent(self.B3_flat))
         self.assertTrue(self.C4.adjacent(self.C4_sharp))
         self.assertTrue(self.C4.adjacent(self.D4))
-        self.assertFalse(self.C4.adjacent(self.D4_sharp))
+        self.assertTrue(self.C4.adjacent(self.D4_sharp))
         self.assertFalse(self.C4.adjacent(self.A3))
-        self.assertTrue(self.C4.adjacent(self.B3_flat))
+        self.assertFalse(self.C4.adjacent(self.E4))
+
+        self.assertTrue(self.B3.adjacent(self.C4))
+        self.assertTrue(self.B3_flat.adjacent(self.C4))
+        self.assertTrue(self.C4_sharp.adjacent(self.C4))
+        self.assertTrue(self.D4.adjacent(self.C4))
+        self.assertTrue(self.D4_sharp.adjacent(self.C4))
+        self.assertFalse(self.A3.adjacent(self.C4))
+        self.assertFalse(self.E4.adjacent(self.C4))
+
+        self.assertFalse(Note("C4#").adjacent(Note("B3♭")))
+        self.assertFalse(Note("D4").adjacent(Note("B3")))
+        self.assertFalse(Note("F").adjacent(Note("D")))
+        self.assertFalse(Note("F#").adjacent(Note("D#")))
+        self.assertFalse(Note("G").adjacent(Note("E")))
+        self.assertTrue(Note("D#").adjacent(Note("C")))
+        self.assertTrue(Note("E").adjacent(Note("C#")))
+        self.assertTrue(Note("G#").adjacent(Note("F")))
+        self.assertTrue(Note("A").adjacent(Note("G♭")))
+        self.assertTrue(Note("A#").adjacent(Note("G")))
+        self.assertTrue(Note("B").adjacent(Note("A♭")))
 
     def test_from_name(self):
         self.assertEquals(Note("C"), Note(chromatic=0, diatonic=0))

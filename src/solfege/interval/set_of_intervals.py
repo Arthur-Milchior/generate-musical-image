@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from typing import Generic, Set, List
+from typing import Generic, List
 
 from solfege.interval import DiatonicInterval
 from solfege.interval.abstract import IntervalType

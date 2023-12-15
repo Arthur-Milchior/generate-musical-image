@@ -1,13 +1,14 @@
 import pathlib
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Optional
 
 from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
+from piano.fingering_generation.generate import generate_best_fingering_for_scale, BestPenaltyScale
+from piano.fingering_generation.penalty_for_scale import PenaltyForScale
 from utils import util
 from lily.lily import compile_
-from piano.pianonote import PianoNote
+from piano.piano_note import PianoNote
 from piano.scales.fingering import Fingering
-from piano.scales.generate import generate_fingering
 from solfege.chord.chord_pattern import add_arpeggios_to_scales
 from solfege.scale.scale_pattern import ScalePattern, scale_patterns
 from solfege.key import sets_of_enharmonic_keys
@@ -72,10 +73,14 @@ class ScoreFixedPatternFirstNoteNumberOfOctaves:
     html_lines: List[str]
 
 
+def flatten(notess: List[List[PianoNote]]):
+    return [note for notes in notess for note in notes]
+
+
 def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str,
                                                                         scale_lowest_note: Note,
-                                                                        left_scale_fingering: List[PianoNote],
-                                                                        right_scale_fingering: List[PianoNote],
+                                                                        left_scales_fingering: List[List[PianoNote]],
+                                                                        right_scales_fingering: List[List[PianoNote]],
                                                                         scale_name: str,
                                                                         folder_path: str,
                                                                         number_of_octaves: int,
@@ -85,23 +90,25 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str
                                                                         ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
     anki_fields_for_this_note_scale_direction = []
     html_lines = []
+    left_flattened = flatten(left_scales_fingering)
     try:
         left_code = lilypond_code_for_one_hand(key=key,
-                                               notes_or_chords=left_scale_fingering,
+                                               notes_or_chords=left_flattened,
                                                for_right_hand=False, midi=wav)
     except TooBigAlterationException as tba:
-        tba["fingering"] = left_scale_fingering
+        tba["fingering"] = left_scales_fingering
         raise
+    right_flattened = flatten(right_scales_fingering)
     try:
         right_code = lilypond_code_for_one_hand(key=key,
-                                                notes_or_chords=right_scale_fingering,
+                                                notes_or_chords=right_flattened,
                                                 for_right_hand=True, midi=wav)
     except TooBigAlterationException as tba:
-        tba["fingering"] = right_scale_fingering
+        tba["fingering"] = right_scales_fingering
         raise
     both_hands_code = lilypond_code_for_two_hands(key=key,
-                                                  left_fingering=left_scale_fingering,
-                                                  right_fingering=right_scale_fingering, midi=wav)
+                                                  left_fingering=left_flattened,
+                                                  right_fingering=right_flattened, midi=wav)
     for show_left, show_right, lily_code in [
         (True, False, left_code),
         (False, True, right_code),
@@ -125,8 +132,8 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str
 def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
                                                               right_hand_lowest_note: Note,
                                                               scale_pattern: ScalePattern,
-                                                              left_fingering: Fingering,
-                                                              right_fingering: Fingering,
+                                                              left_fingerings: List[Fingering],
+                                                              right_fingerings: List[Fingering],
                                                               folder_path: str,
                                                               number_of_octaves: int,
                                                               execute_lily: bool,
@@ -134,28 +141,35 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
                                                               ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
     anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves = []
     html_lines = []
-    left_hand_scale_increasing = left_fingering.generate(first_played_note=right_hand_lowest_note.add_octave(-1),
-                                                         scale_pattern=scale_pattern,
-                                                         number_of_octaves=number_of_octaves)
-    right_hand_scale_increasing = right_fingering.generate(first_played_note=right_hand_lowest_note,
+    left_hand_scales_increasing = [left_fingering.generate(first_played_note=right_hand_lowest_note.add_octave(-1),
                                                            scale_pattern=scale_pattern,
-                                                           number_of_octaves=number_of_octaves)
-    left_hand_scale_decreasing = list(reversed(left_hand_scale_increasing))
-    right_hand_scale_decreasing = list(reversed(right_hand_scale_increasing))
-    for direction, left_scale_fingering, right_scale_fingering in [
-        (INCREASING, left_hand_scale_increasing, right_hand_scale_increasing),
-        (DECREASING, left_hand_scale_decreasing, right_hand_scale_decreasing),
-        (TOTAL, left_hand_scale_increasing[:-1] + left_hand_scale_decreasing,
-         right_hand_scale_increasing[:-1] + right_hand_scale_decreasing),
-        (REVERSE, left_hand_scale_decreasing[:-1] + left_hand_scale_increasing,
-         right_hand_scale_decreasing[:-1] + right_hand_scale_increasing)
+                                                           number_of_octaves=number_of_octaves) for left_fingering in
+                                   left_fingerings]
+    right_hand_scales_increasing = [right_fingering.generate(first_played_note=right_hand_lowest_note,
+                                                             scale_pattern=scale_pattern,
+                                                             number_of_octaves=number_of_octaves) for right_fingering in
+                                    right_fingerings]
+    left_hand_scales_decreasing = [list(reversed(left_hand_scale_increasing)) for left_hand_scale_increasing in
+                                   left_hand_scales_increasing]
+    right_hand_scales_decreasing = [list(reversed(right_hand_scale_increasing)) for right_hand_scale_increasing in
+                                    right_hand_scales_increasing]
+    for direction, left_scales_fingering, right_scales_fingering in [
+        (INCREASING, left_hand_scales_increasing, right_hand_scales_increasing),
+        (DECREASING, left_hand_scales_decreasing, right_hand_scales_decreasing),
+        (TOTAL,
+         [left_hand_scales_increasing[i][:-1] + left_hand_scales_decreasing[i] for i in range(len(left_fingerings))],
+         [right_hand_scales_increasing[i][:-1] + right_hand_scales_decreasing[i] for i in
+          range(len(right_fingerings))]),
+        (REVERSE,
+         [left_hand_scales_decreasing[i][:-1] + left_hand_scales_increasing[i] for i in range(len(left_fingerings))],
+         [right_hand_scales_decreasing[i][:-1] + right_hand_scales_increasing[i] for i in range(len(right_fingerings))])
     ]:
         try:
             output = generate_score_fixed_pattern_first_note_direction_number_of_octaves(
                 key=key,
                 scale_lowest_note=right_hand_lowest_note,
-                left_scale_fingering=left_scale_fingering,
-                right_scale_fingering=right_scale_fingering,
+                left_scales_fingering=left_scales_fingering,
+                right_scales_fingering=right_scales_fingering,
                 scale_name=scale_pattern.get_the_first_of_the_name().replace(" ", "_"),
                 # this replace is uselessly costly, as iterated many time. But this is not a bottleneck compared to lily, so never mind
                 folder_path=folder_path,
@@ -190,6 +204,12 @@ class MissingFingering:
         return f"""Missing {"right" if self.for_right_hand else "left"} {self.note} {self.scale_pattern.get_the_first_of_the_name()}"""
 
 
+def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right_hand: bool) -> Optional[
+    BestPenaltyScale]:
+    scale = scale_pattern.generate(fundamental)
+    return generate_best_fingering_for_scale(scale.notes, for_right_hand)
+
+
 def generate_score_fixed_pattern_first_note(key: str,
                                             right_hand_lowest_note: Note,
                                             scale_pattern: ScalePattern,
@@ -215,8 +235,8 @@ def generate_score_fixed_pattern_first_note(key: str,
             MissingFingering(scale_pattern=scale_pattern, note=right_hand_lowest_note, for_right_hand=True))
     if missing_scales:
         return missing_scales
-    left_fingering = left_penalty.fingering
-    right_fingering = right_penalty.fingering
+    left_fingerings = [fingering for _, fingering in left_penalty.fingerings]
+    right_fingerings = [fingering for _, fingering in right_penalty.fingerings]
     anki_fields_for_this_scale_pattern_and_lowest_note = [scale_pattern.get_the_first_of_the_name(),
                                                           right_hand_lowest_note.get_symbol_name()]
     html_lines = []
@@ -232,8 +252,8 @@ def generate_score_fixed_pattern_first_note(key: str,
         output = generate_score_fixed_pattern_first_note_number_of_octaves(
             key=key,
             right_hand_lowest_note=right_hand_lowest_note,
-            left_fingering=left_fingering,
-            right_fingering=right_fingering,
+            left_fingerings=left_fingerings,
+            right_fingerings=right_fingerings,
             scale_pattern=scale_pattern,
             folder_path=folder_path,
             number_of_octaves=number_of_octaves,

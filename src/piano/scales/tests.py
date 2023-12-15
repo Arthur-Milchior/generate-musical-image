@@ -3,13 +3,14 @@ import pathlib
 import unittest
 
 from lily.svg import display_svg_file
-from piano.pianonote import PianoNote
-from piano.scales import fingering, generate, penalty
+from piano.piano_note import PianoNote
+from piano.scales import fingering
+from piano.fingering_generation import generate
 from piano.scales.__main__ import \
     generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both, \
     INCREASING, generate_score_fixed_pattern_first_note_direction_number_of_octaves, \
     generate_score_fixed_pattern_first_note_number_of_octaves, generate_score_fixed_pattern_first_note, \
-    ScoreFixedPatternFirstNote, MissingFingering, generate_score_fixed_pattern
+    ScoreFixedPatternFirstNote, generate_score_fixed_pattern
 from piano.scales.fingering import Fingering
 from solfege.chord.chord_pattern import minor_triad
 from solfege.note import Note

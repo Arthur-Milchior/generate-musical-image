@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, TypeVar
+from typing import Union, TypeVar, Tuple
 
 from solfege.interval.abstract import AbstractInterval, TestBaseInterval
 
@@ -52,10 +52,24 @@ class AbstractNote(AbstractInterval):
         raise NotImplemented
 
     def get_full_name(self):
-        return f"{self.get_name_up_to_octave()}{str(self.get_octave()+4)}"
+        return f"{self.get_name_up_to_octave()}{str(self.get_octave() + 4)}"
 
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)
+
+
+def low_and_high(note_1: NoteType, note_2: NoteType) -> Tuple[NoteType, NoteType]:
+    """Return the lowest and highest note of the inputs"""
+    return min(note_1, note_2), max(note_1, note_2)
+
+
+def pinky_and_thumb_side(note_1: NoteType, note_2: NoteType, for_right_hand: bool) -> Tuple[NoteType, NoteType]:
+    """Return the note on pinky side and thumb side of the hand"""
+    low, high = low_and_high(note_1, note_2)
+    if for_right_hand:
+        return high, low
+    else:
+        return low, high
 
 
 class TestBaseNote(TestBaseInterval):
@@ -100,3 +114,16 @@ class TestBaseNote(TestBaseInterval):
 
     def test_repr(self):
         self.assertEquals(repr(self.D4), "AbstractNote(value=1)")
+
+    def test_low_and_high(self):
+        self.assertEquals(low_and_high(self.C4, self.C4), (self.C4, self.C4))
+        self.assertEquals(low_and_high(self.D4, self.C4), (self.C4, self.D4))
+        self.assertEquals(low_and_high(self.C4, self.D4), (self.C4, self.D4))
+
+    def test_pinky_and_thumb(self):
+        self.assertEquals(pinky_and_thumb_side(self.C4, self.C4, for_right_hand=False), (self.C4, self.C4))
+        self.assertEquals(pinky_and_thumb_side(self.D4, self.C4, for_right_hand=False), (self.C4, self.D4))
+        self.assertEquals(pinky_and_thumb_side(self.C4, self.D4, for_right_hand=False), (self.C4, self.D4))
+        self.assertEquals(pinky_and_thumb_side(self.C4, self.C4, for_right_hand=True), (self.C4, self.C4))
+        self.assertEquals(pinky_and_thumb_side(self.D4, self.C4, for_right_hand=True), (self.D4, self.C4))
+        self.assertEquals(pinky_and_thumb_side(self.C4, self.D4, for_right_hand=True), (self.D4, self.C4))

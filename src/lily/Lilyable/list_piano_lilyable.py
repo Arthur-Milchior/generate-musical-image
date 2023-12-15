@@ -9,8 +9,10 @@ from lily.Lilyable.piano_lilyable import PianoLilyable, TestPianoLilyable, Liter
 class ListPianoLilyable(PianoLilyable):
     """Each element must have the same set of left/right/annotation"""
     list: List[PianoLilyable]
-    """Separator between elements in the scale/annotation"""
+    """Separator between elements in the scale/annotation in the source code"""
     separator: str = " "
+    "The bar separating part of the list"
+    bar_separator: Optional[str] = None
 
     def first_key(self) -> str:
         return self.list[0].first_key()
@@ -27,10 +29,14 @@ class ListPianoLilyable(PianoLilyable):
             piano_lilyable_key = piano_lilyable.first_key()
             if piano_lilyable_key != last_key:
                 last_key = piano_lilyable_key
-                lefts.append(f"\\key {piano_lilyable_key} \major")
+                lily = f"\\key {piano_lilyable_key} \major{self.separator}{lily}"
             lefts.append(lily)
-        assert (not none_found) or (lefts == [])
-        return self.separator.join(lefts)
+        if none_found:
+            assert lefts == []
+            return None
+        assert len(lefts) == len(self.list)
+        separator = f"""\\bar "{self.bar_separator}"{self.separator}""" if self.bar_separator is not None else self.separator
+        return separator.join(lefts)
 
     def right_lily(self) -> Optional[str]:
         rights = []
@@ -44,10 +50,14 @@ class ListPianoLilyable(PianoLilyable):
             piano_lilyable_key = piano_lilyable.first_key()
             if piano_lilyable_key != last_key:
                 last_key = piano_lilyable_key
-                rights.append(f"\\key {piano_lilyable_key} \major")
+                lily = f"\\key {piano_lilyable_key} \major{self.separator}{lily}"
             rights.append(lily)
-        assert (not none_found) or (rights == [])
-        return self.separator.join(rights)
+        if none_found:
+            assert rights == []
+            return None
+        assert len(rights) == len(self.list)
+        separator = f"""\\bar "{self.bar_separator}"{self.separator}""" if self.bar_separator is not None else self.separator
+        return separator.join(rights)
 
     def annotations_lily(self) -> Optional[str]:
         annotations = [piano_lilyable.annotations_lily() for piano_lilyable in self.list]
@@ -66,7 +76,6 @@ class TestList(unittest.TestCase):
             LiteralPianoLilyable("aes", "gauche", "droit", "am"),
             LiteralPianoLilyable("c", "izquierda", "derecha", "b"),
         ],
-        separator="\n"
     )
 
     def test_lily(self):

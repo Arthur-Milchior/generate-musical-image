@@ -1,4 +1,4 @@
-from piano import pianonote, scales
+from piano import piano_note, scales
 from utils.util import tests_modules
 import piano.scales.tests
 import piano.chord_successions.tests
