@@ -14,6 +14,7 @@ lilyProgram = "lilypond"
 def chord(notes) -> str:  # only used by guitar right now
     return f"""\\version "2.20.0"
 \\score{{
+  \\override Staff.TimeSignature.stencil = ##f
   \\new Staff{{
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <
