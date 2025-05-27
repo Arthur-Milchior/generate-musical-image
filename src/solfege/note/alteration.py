@@ -20,14 +20,24 @@ class Alteration(IntervalMode):
             return ["♭♭", "♭", "", "#", "𝄪"][self.get_number() + 2]
         return ["♭♭", "♭ ", "  ", "# ", "𝄪 "][self.get_number() + 2]
 
-    def get_ascii_name(self):
-        return [
-            "double_flat",
-            "flat_",
-            "_____",
-            "sharp",
-            "double_sharp",
-        ][self.get_number() + 2]
+    def get_ascii_name(self, fixed_length: bool = True):
+        """return fixed length except for double alteration"""
+        if fixed_length:
+            return [
+                "double_flat",
+                "flat_",
+                "_____",
+                "sharp",
+                "double_sharp",
+            ][self.get_number() + 2]
+        else:
+            return [
+                "double_flat",
+                "flat",
+                "",
+                "sharp",
+                "double_sharp",
+            ][self.get_number() + 2]
 
     @staticmethod
     def from_name(name: str):

@@ -24,7 +24,6 @@ class Interval(ChromaticInterval):
             assert (isinstance(chromatic, int))
             super().__init__(value=chromatic)
         else:
-            assert alteration
             assert (isinstance(alteration, int))
             super().__init__(value=self._diatonic.get_chromatic().get_number() + alteration)
 

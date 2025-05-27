@@ -50,13 +50,13 @@ class Note(Interval, ChromaticNote, LocalLilyable):
         Args: usage -- see Alteration file."""
         return f"{self.get_diatonic().get_name_up_to_octave()}{self.get_alteration().get_symbol_name(fixed_length = fixed_length)}"
 
-    def get_ascii_name(self):
+    def get_ascii_name(self, fixed_length: bool = True):
         """The name of this note.
 
-        Example "Csharp"
+        Example "C3sharp"
 
         Args: usage -- see Alteration file."""
-        return f"{self.get_diatonic().get_name_up_to_octave()}{self.get_alteration().get_ascii_name()}"
+        return f"{self.get_diatonic().get_name_with_octave()}{self.get_alteration().get_ascii_name(fixed_length=fixed_length)}"
 
     def get_name_up_to_octave(self):
         raise NotImplemented
