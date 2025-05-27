@@ -1,1 +1,3 @@
-from piano.chord_successions import generate, tests
+from piano.chord_successions import generate
+
+from . import main
