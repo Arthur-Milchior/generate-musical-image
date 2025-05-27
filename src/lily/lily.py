@@ -279,8 +279,8 @@ class TestLily(unittest.TestCase):
         self.assertEquals(generated,
                           """\\version "2.20.0"
 \\score{
-  \\override Staff.TimeSignature.stencil = ##f
   \\new Staff{
+    \\override Staff.TimeSignature.stencil = ##f
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <
       c'-1ees'-2g'-3c''-5
