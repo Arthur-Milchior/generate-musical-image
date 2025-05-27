@@ -14,10 +14,10 @@ class Alteration(IntervalMode):
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.get_number() + 2]
 
-    def get_symbol_name(self):
-        """The name of this note.
-
-        Args: `for_file` -- whether we should avoid non ascii symbol"""
+    def get_symbol_name(self, fixed_length: bool = True):
+        """The name of this note of fixed length"""
+        if fixed_length:
+            return ["♭♭", "♭", "", "#", "𝄪"][self.get_number() + 2]
         return ["♭♭", "♭ ", "  ", "# ", "𝄪 "][self.get_number() + 2]
 
     def get_ascii_name(self):

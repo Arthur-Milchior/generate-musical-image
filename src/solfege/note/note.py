@@ -40,16 +40,20 @@ class Note(Interval, ChromaticNote, LocalLilyable):
         )
 
     def lily_in_scale(self):
+        """For example "bes'"."""
         return f"{self.get_diatonic().lily_in_scale()}{self.get_alteration().lily_in_scale()}{self.get_diatonic().get_octave_name_lily()}"
 
-    def get_symbol_name(self):
+    def get_symbol_name(self, fixed_length: bool = True):
         """The name of this note.
 
+        For example "C#" or "C# "
         Args: usage -- see Alteration file."""
-        return f"{self.get_diatonic().get_name_up_to_octave()}{self.get_alteration().get_symbol_name()}"
+        return f"{self.get_diatonic().get_name_up_to_octave()}{self.get_alteration().get_symbol_name(fixed_length = fixed_length)}"
 
     def get_ascii_name(self):
         """The name of this note.
+
+        Example "Csharp"
 
         Args: usage -- see Alteration file."""
         return f"{self.get_diatonic().get_name_up_to_octave()}{self.get_alteration().get_ascii_name()}"
@@ -57,8 +61,11 @@ class Note(Interval, ChromaticNote, LocalLilyable):
     def get_name_up_to_octave(self):
         raise NotImplemented
 
-    def get_full_name(self):
-        return f"{self.get_symbol_name()}{self.get_octave() + 4}"
+    def get_full_name(self, fixed_length: bool = True):
+        """
+        Example "C# 4" or "C#4"
+        """
+        return f"{self.get_symbol_name(fixed_length = fixed_length)}{self.get_octave() + 4}"
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""

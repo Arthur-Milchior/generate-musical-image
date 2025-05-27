@@ -49,10 +49,10 @@ def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool =
                     execute_lily = False
     if force_recompile:
         execute_lily = True
-    with open(file_prefix + ".ly", "w") as file:
-        file.write(code)
     if not execute_lily:
         return command(file_prefix, extension)
+    with open(file_prefix + ".ly", "w") as file:
+        file.write(code)
     preview_path = f"{file_prefix}.preview.{extension}"
     if extension == "svg":
         cmd = f"""{lilyProgram} -dpreview -dbackend=svg -o "{file_prefix}"  "{file_prefix}.ly" """

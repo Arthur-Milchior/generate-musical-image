@@ -29,7 +29,7 @@ class ListPianoLilyable(PianoLilyable):
             piano_lilyable_key = piano_lilyable.first_key()
             if piano_lilyable_key != last_key:
                 last_key = piano_lilyable_key
-                lily = f"\\key {piano_lilyable_key} \major{self.separator}{lily}"
+                lily = f"""\\key {piano_lilyable_key} \\major{self.separator}{lily}"""
             lefts.append(lily)
         if none_found:
             assert lefts == []
@@ -50,7 +50,7 @@ class ListPianoLilyable(PianoLilyable):
             piano_lilyable_key = piano_lilyable.first_key()
             if piano_lilyable_key != last_key:
                 last_key = piano_lilyable_key
-                lily = f"\\key {piano_lilyable_key} \major{self.separator}{lily}"
+                lily = rf"""\key {piano_lilyable_key} \major{self.separator}{lily}"""
             rights.append(lily)
         if none_found:
             assert rights == []
@@ -114,11 +114,11 @@ class TestList(unittest.TestCase):
   >>
 }""", lily)
         self.assertEquals(self.value.first_key(), "aes")
-        self.assertEquals(self.value.right_lily(), """gis'
+        self.assertEquals(self.value.right_lily(), r"""gis'
 droit
 \key c \major
 derecha""")
-        self.assertEquals(self.value.left_lily(), """cis
+        self.assertEquals(self.value.left_lily(), r"""cis
 gauche
 \key c \major
 izquierda""")
@@ -127,7 +127,7 @@ am
 b""")
 
     def test_eq(self):
-        expected = LiteralPianoLilyable("aes", """cis
+        expected = LiteralPianoLilyable("aes", r"""cis
 gauche
 \\key c \major
 izquierda""", """gis'

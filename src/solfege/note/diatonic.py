@@ -17,14 +17,20 @@ class DiatonicNote(AbstractNote, DiatonicInterval):
         return ["C", "D", "E", "F", "G", "A", "B"][self.get_number() % 7]
 
     def get_octave_name_lily(self):
-        """How to write the octave."""
+        """How to write the octave.
+
+        Example: "'"
+        """
         # must be separated from note name, because, in lilypond, the alteration is between the note name and the octave
         if self.get_octave() >= 0:
             return "'" * (self.get_octave()+1)
         return "," * (-self.get_octave()-1)
 
     def get_octave_name_ascii(self):
-        """How to write the octave."""
+        """How to write the octave.
+
+        Example: 4
+        """
         # must be separated from note name, because, in lilypond, the alteration is between the note name and the octave
         return str(self.get_octave(scientificNotation=True))
 
