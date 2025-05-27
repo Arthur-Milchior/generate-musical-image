@@ -14,8 +14,8 @@ lilyProgram = "lilypond"
 def chord(notes) -> str:  # only used by guitar right now
     return f"""\\version "2.20.0"
 \\score{{
-  \\override Staff.TimeSignature.stencil = ##f
   \\new Staff{{
+    \\override Staff.TimeSignature.stencil = ##f
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <
 {indent("".join(note.lily() for note in notes), 6)}
@@ -93,6 +93,7 @@ class TestLily(unittest.TestCase):
   \\layout{}
   \\new PianoStaff<<
     \\new Staff{
+      \\override Staff.TimeSignature.stencil = ##f
       \\clef treble
       \\key g \\major
       c'-1 ees'-2 g'-3 c''-5
@@ -111,6 +112,7 @@ class TestLily(unittest.TestCase):
   \\midi{}
   \\layout{}
   \\new Staff{
+    \\override Staff.TimeSignature.stencil = ##f
     \\set Staff.printKeyCancellation = ##f
     \\clef bass
     \\key ees \\major
@@ -277,6 +279,7 @@ class TestLily(unittest.TestCase):
         self.assertEquals(generated,
                           """\\version "2.20.0"
 \\score{
+  \\override Staff.TimeSignature.stencil = ##f
   \\new Staff{
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <

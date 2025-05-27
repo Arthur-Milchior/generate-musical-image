@@ -42,6 +42,7 @@ class TestGeneration(unittest.TestCase):
   <<
     \\new PianoStaff<<
       \\new Staff{
+        \\override Staff.TimeSignature.stencil = ##f
         \\set Staff.printKeyCancellation = ##f
         \\clef treble
         \\key aes \\major
@@ -62,6 +63,7 @@ class TestGeneration(unittest.TestCase):
   \\layout{}
   <<
     \\new Staff{
+      \\override Staff.TimeSignature.stencil = ##f
       \\set Staff.printKeyCancellation = ##f
       \\clef bass
       \\key aes \\major

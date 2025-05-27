@@ -246,6 +246,7 @@ class TestChordSuccession(unittest.TestCase):
 \\score{
   <<
     \\new Staff{
+      \\override Staff.TimeSignature.stencil = ##f
       \\set Staff.printKeyCancellation = ##f
       \\clef treble
       \\key c' \\major
@@ -259,6 +260,7 @@ class TestChordSuccession(unittest.TestCase):
 \\score{
   <<
     \\new Staff{
+      \\override Staff.TimeSignature.stencil = ##f
       \\set Staff.printKeyCancellation = ##f
       \\clef bass
       \\key c' \\major
@@ -273,6 +275,7 @@ class TestChordSuccession(unittest.TestCase):
   <<
     \\new PianoStaff<<
       \\new Staff{
+      \\override Staff.TimeSignature.stencil = ##f
         \\set Staff.printKeyCancellation = ##f
         \\clef treble
         \\key c' \\major

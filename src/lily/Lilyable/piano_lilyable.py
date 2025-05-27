@@ -46,6 +46,7 @@ class PianoLilyable(Lilyable):
         if content is None:
             return None
         return f"""\\new Staff{{
+  \\override Staff.TimeSignature.stencil = ##f
   \\set Staff.printKeyCancellation = ##f
   \\clef {clef}
   \\key {self.first_key()} \\major
