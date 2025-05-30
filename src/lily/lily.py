@@ -16,6 +16,8 @@ def chord(notes) -> str:  # only used by guitar right now
 \\score{{
   \\new Staff{{
     \\override Staff.TimeSignature.stencil = ##f
+    \\omit Staff.BarLine
+    \\omit PianoStaff.SpanBar
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <
 {indent("".join(note.lily() for note in notes), 6)}
@@ -94,11 +96,16 @@ class TestLily(unittest.TestCase):
   \\new PianoStaff<<
     \\new Staff{
       \\override Staff.TimeSignature.stencil = ##f
+      \\omit Staff.BarLine
+      \\omit PianoStaff.SpanBar
       \\clef treble
       \\key g \\major
       c'-1 ees'-2 g'-3 c''-5
     }
     \\new Staff{
+      \\override Staff.TimeSignature.stencil = ##f
+      \\omit Staff.BarLine
+      \\omit PianoStaff.SpanBar
       \\set Staff.printKeyCancellation = ##f
       \\clef bass
       \\key g \\major
@@ -113,6 +120,8 @@ class TestLily(unittest.TestCase):
   \\layout{}
   \\new Staff{
     \\override Staff.TimeSignature.stencil = ##f
+    \\omit Staff.BarLine
+    \\omit PianoStaff.SpanBar
     \\set Staff.printKeyCancellation = ##f
     \\clef bass
     \\key ees \\major
@@ -281,6 +290,8 @@ class TestLily(unittest.TestCase):
 \\score{
   \\new Staff{
     \\override Staff.TimeSignature.stencil = ##f
+    \\omit Staff.BarLine
+    \\omit PianoStaff.SpanBar
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <
       c'-1ees'-2g'-3c''-5

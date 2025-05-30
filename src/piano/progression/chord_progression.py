@@ -177,7 +177,9 @@ class ProgressionTest(unittest.TestCase):
     }
     \\new PianoStaff<<
       \\new Staff{
-      \\override Staff.TimeSignature.stencil = ##f
+        \\override Staff.TimeSignature.stencil = ##f
+        \\omit Staff.BarLine
+        \\omit PianoStaff.SpanBar
         \\clef treble
         \\key c' \\major
         <f' c''> <f' b'> <e' b'>

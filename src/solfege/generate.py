@@ -16,6 +16,8 @@ def single_note(clef, note):
   \\new Staff{{
     \\clef {clef}
     \\override Staff.TimeSignature.stencil = ##f
+    \\omit Staff.BarLine
+    \\omit PianoStaff.SpanBar
     {note.lily_in_scale()}
     }}
 }}"""

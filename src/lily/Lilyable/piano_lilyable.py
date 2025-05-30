@@ -47,6 +47,8 @@ class PianoLilyable(Lilyable):
             return None
         return f"""\\new Staff{{
   \\override Staff.TimeSignature.stencil = ##f
+  \\omit Staff.BarLine
+  \\omit PianoStaff.SpanBar
   \\set Staff.printKeyCancellation = ##f
   \\clef {clef}
   \\key {self.first_key()} \\major
@@ -167,12 +169,18 @@ class TestPianoLilyable(unittest.TestCase):
 }
 \new PianoStaff<<
   \new Staff{
+    \override Staff.TimeSignature.stencil = ##f
+    \\omit Staff.BarLine
+    \\omit PianoStaff.SpanBar
     \set Staff.printKeyCancellation = ##f
     \clef treble
     \key aes \major
     gis'
   }
   \new Staff{
+    \override Staff.TimeSignature.stencil = ##f
+    \omit Staff.BarLine
+    \omit PianoStaff.SpanBar
     \set Staff.printKeyCancellation = ##f
     \clef bass
     \key aes \major
@@ -186,6 +194,9 @@ class TestPianoLilyable(unittest.TestCase):
 \score{
 <<
 \new Staff{
+  \override Staff.TimeSignature.stencil = ##f
+  \omit Staff.BarLine
+  \omit PianoStaff.SpanBar
   \set Staff.printKeyCancellation = ##f
   \clef treble
   \key aes \major
@@ -201,12 +212,18 @@ class TestPianoLilyable(unittest.TestCase):
 <<
 \new PianoStaff<<
   \new Staff{
+    \override Staff.TimeSignature.stencil = ##f
+    \omit Staff.BarLine
+    \omit PianoStaff.SpanBar
     \set Staff.printKeyCancellation = ##f
     \clef treble
     \key aes \major
     gis'
   }
   \new Staff{
+    \override Staff.TimeSignature.stencil = ##f
+    \omit Staff.BarLine
+    \omit PianoStaff.SpanBar
     \set Staff.printKeyCancellation = ##f
     \clef bass
     \key aes \major

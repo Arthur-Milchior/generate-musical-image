@@ -142,6 +142,8 @@ def generate_best_fingering_for_scale(scale: List[Note], for_right_hand: bool) -
     best_penalty = generate_best_fingering(fingered_notes=[], penalty_for_fingered_notes=PenaltyForScale(),
                                            notes_to_finger=scale, best_known_penalty_for_full_fingering=None,
                                            for_right_hand=for_right_hand, add_penalty_for_whole=penalty_scale)
+    if best_penalty is None:
+        return None
     fingerings = [(fingering, Fingering.from_scale(fingering, for_right_hand)) for fingering in best_penalty.fingerings]
     return BestPenaltyScale(best_penalty.penalty, fingerings)
 

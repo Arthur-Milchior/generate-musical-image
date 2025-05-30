@@ -93,6 +93,8 @@ class TestList(unittest.TestCase):
     \new PianoStaff<<
       \new Staff{
         \\override Staff.TimeSignature.stencil = ##f
+        \\omit Staff.BarLine
+        \\omit PianoStaff.SpanBar
         \set Staff.printKeyCancellation = ##f
         \clef treble
         \key aes \major
