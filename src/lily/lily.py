@@ -91,7 +91,7 @@ class TestLily(unittest.TestCase):
 
     both_hand_lily = """\\version "2.20.0"
 \\score{
-  \\midi{}
+  #\\midi{}
   \\layout{}
   \\new PianoStaff<<
     \\new Staff{
@@ -116,7 +116,7 @@ class TestLily(unittest.TestCase):
 
     chords_lily = """\\version "2.20.0"
 \\score{
-  \\midi{}
+  #\\midi{}
   \\layout{}
   \\new Staff{
     \\override Staff.TimeSignature.stencil = ##f

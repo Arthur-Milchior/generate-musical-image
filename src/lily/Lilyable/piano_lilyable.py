@@ -74,7 +74,7 @@ class PianoLilyable(Lilyable):
 
     def lily(self, midi: bool = False):
         midi_str = """
-  \\midi{}
+  #\\midi{}
   \\layout{}""" if midi else ""
         lyrics_content = self.annotations_lily()
         lyrics_str = indent(f"""
@@ -159,7 +159,7 @@ class TestPianoLilyable(unittest.TestCase):
     value = LiteralPianoLilyable("aes", "cis", "gis'", "IV")
     both_hand_annotated_expected = r"""\version "2.20.0"
 \score{
-\midi{}
+#\midi{}
 \layout{}
 <<
 \new Lyrics {

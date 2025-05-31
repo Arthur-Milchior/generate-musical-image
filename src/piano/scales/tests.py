@@ -37,7 +37,7 @@ class TestGeneration(unittest.TestCase):
     svg_left_hand_path = f"{file_prefix_left_hand}.svg"
     lily_code_both_hands = """\\version "2.20.0"
 \\score{
-  \\midi{}
+  #\\midi{}
   \\layout{}
   <<
     \\new PianoStaff<<
@@ -61,7 +61,7 @@ class TestGeneration(unittest.TestCase):
 }"""
     lily_code_left_hand = """\\version "2.20.0"
 \\score{
-  \\midi{}
+  #\\midi{}
   \\layout{}
   <<
     \\new Staff{
