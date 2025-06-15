@@ -35,7 +35,7 @@ def command(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
         return lambda: os.system(command)
 
 
-def compile_(code, file_prefix, wav: bool, extension="svg", execute_lily: bool = True, force_recompile: bool = False) -> \
+def compile_(code: str, file_prefix, wav: bool, extension="svg", execute_lily: bool = True, force_recompile: bool = False) -> \
         Callable[[], object]:
     """Write `code` in `filename`. If `execute_lily`, compile it in a file with the given extension
 

@@ -10,8 +10,6 @@ from solfege.note import Note
 from utils.constants import test_folder
 from utils.util import ensure_folder
 
-raise Exception("Why?")
-
 
 def progression_for_pattern_tonic(folder_path: str, pattern: ChordProgression, tonic: Note, wav: bool) -> str:
     """Generate the svg for this progression with this fundamental. Returns the anki card as a csv line

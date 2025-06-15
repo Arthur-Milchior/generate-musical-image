@@ -5,7 +5,7 @@ import unittest
 from lily.svg import display_svg_file
 from piano.piano_note import PianoNote
 from piano.scales import fingering
-from piano.fingering_generation import generate
+from piano.fingering_generation import generate, penalty
 from piano.scales.__main__ import \
     generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both, \
     INCREASING, generate_score_fixed_pattern_first_note_direction_number_of_octaves, \

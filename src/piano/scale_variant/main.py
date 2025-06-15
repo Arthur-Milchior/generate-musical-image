@@ -8,8 +8,9 @@ from solfege.scale.scale import Scale
 from solfege.scale.scale_pattern import major_scale, scale_patterns
 from utils.util import ensure_folder
 
-
-raise Exception("Why?")
+"""
+Generate the scales, followed by the same scale, moved by a semi-tone in the reverse side
+"""
 
 anki_entries = []
 folder_path = "/home/milchior/generate-musical-image/generated/piano/scales_half_tone_off"

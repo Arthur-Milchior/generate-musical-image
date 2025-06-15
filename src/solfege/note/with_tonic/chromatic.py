@@ -10,6 +10,9 @@ class ChromaticNoteWithFundamental(_NoteWithFundamental, ChromaticNote):
     role = ["unison", None, None, "third", "third", "third", "fifth", "fifth", "fifth", "interval", "interval",
             "interval"]
 
+    def __init__(self, chromatic: int,  fundamental = False, **kwargs):
+        super().__init__(fundamental=fundamental, value=chromatic, **kwargs)
+
     def get_color(self, color=True):
         if color:
             dic = {"unison": "black", "third": "violet", "fifth": "red", "interval": "green", None: None}

@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from typing import List, Generic
-
+from lily.Lilyable.lilyable import Lilyable
+from typing import Optional, List, Iterable
 from solfege.note.abstract import NoteType
+from utils.util import indent
+# from solfege.scale.scale_pattern import ScalePattern
 
 
-class Scale(Generic[NoteType]):
+class Scale(Generic[NoteType], Lilyable):
     notes: List[NoteType]
-
-    # pattern: ScalePattern
+    #pattern: ScalePattern
 
     def __init__(self, notes: List[NoteType], pattern  #: ScalePattern
                  ):
@@ -24,5 +26,48 @@ class Scale(Generic[NoteType]):
     def __repr__(self):
         return f"Scale(notes={self.notes})"
 
-    def add_octave(self, nb_octave: int):
+    def add_octave(self, nb_octave: int) -> Scale:
         return Scale([note.add_octave(nb_octave) for note in self.notes], self.pattern)
+
+    def reverse(self) -> Scale:
+        return Scale(list(reversed(self.notes)), self.pattern)
+
+    def append_reversed(self) -> Scale:
+        return self.concatenate(self.reverse())
+
+    def concatenate(self, other: Scale, merge_note: bool = True) -> Scale:
+        """Concatenation of two scales with the same pattern.
+        If `merge_note`, the last note of `self` is expected to be the same as the first note of `other`"""
+        assert self.pattern == other.pattern
+        if merge_note:
+            assert self.notes[-1] == other.notes[0]
+            notes = self.notes + other.notes[1:]
+        else:
+            notes = self.notes + other.notes
+        return Scale(notes, self.pattern)
+
+    def first_key(self):
+        return self.notes[0].lily_in_scale()
+
+    def lily(self, midi:bool = False) -> Optional[str]:
+        """A lilypond staff.
+
+        The key is the given one.
+
+        The note are decorated with the fingering given in argument.
+
+        Bass for left hand and treble for right
+
+        Add a comment with the complete fingering, to know whether recompilation is required. Or whether a change is due only to some meta information.
+        """
+        return f"""
+\\version "2.24.3"
+\\new Staff{{
+  \\override Staff.TimeSignature.stencil = ##f
+  \\omit Staff.BarLine
+  \\omit PianoStaff.SpanBar
+  \\set Staff.printKeyCancellation = ##f
+  \\clef treble
+  \\key {self.first_key()} \\major
+{" ".join(note.lily_in_scale() for note in self.notes)}
+}}"""

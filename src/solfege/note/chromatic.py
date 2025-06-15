@@ -25,6 +25,18 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         chromatic = self.get_number()
         return cls(diatonic=diatonic, chromatic=chromatic)
 
+    def file_name(self, clef: str):
+        """Return the file name without extension nor folder"""
+        return f"_{clef}_{self.get_ascii_name(fixed_length=False)}"
+
+    def image_file_name(self, clef: str):
+        """Return the file name without extension nor folder"""
+        return f"{self.file_name(clef)}.svg"
+
+    def image_html(self, clef: str="treble"):
+        """Return the file name without extension nor folder"""
+        return f"""<img src="{self.image_file_name(clef)}"/>"""
+
 
 class TestChromaticNote(TestChromaticInterval):
     C4 = ChromaticNote(0)

@@ -1,1 +1,1 @@
-from . import generate
+from ..generate import note
