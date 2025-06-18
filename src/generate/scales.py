@@ -100,9 +100,12 @@ for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
                         fundamental=scale_lowest_note,
                         number_of_octaves=number_of_octaves
                         )
-                    decreasing = increasing.reverse()
-                    total = increasing.append_reversed()
-                    reverse = decreasing.append_reversed()
+                    decreasing = scale_pattern.descending.generate(
+                        fundamental=scale_lowest_note,
+                        number_of_octaves=number_of_octaves
+                        ).reverse()
+                    total = increasing.concatenate(decreasing)
+                    reverse = decreasing.concatenate(increasing)
                     for direction, scale in [
                         (INCREASING, increasing),
                         (DECREASING, decreasing),

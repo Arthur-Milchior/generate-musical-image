@@ -38,7 +38,9 @@ class Scale(Generic[NoteType], Lilyable):
     def concatenate(self, other: Scale, merge_note: bool = True) -> Scale:
         """Concatenation of two scales with the same pattern.
         If `merge_note`, the last note of `self` is expected to be the same as the first note of `other`"""
-        assert self.pattern == other.pattern
+        # This assertion is false for melodic descending, as it's melodic natural
+        #assert self.pattern == other.pattern
+        assert self._key == other._key
         if merge_note:
             assert self.notes[-1] == other.notes[0]
             notes = self.notes + other.notes[1:]

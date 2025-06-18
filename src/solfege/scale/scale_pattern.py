@@ -26,7 +26,7 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
 
     def __init__(self, names, intervals: List[Union[IntervalType, int, Tuple[int, int]]],
                  interval_for_signature: Interval,
-                 increasing=True, suppress_warning: bool = False, **kwargs):
+                 increasing=True, suppress_warning: bool = False, descending: Optional[ScalePattern]=None , **kwargs):
         """
         intervals -- A list of intervals.
         An interval can be represented as:
@@ -49,6 +49,10 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
         # The sum of all the diatonic in the interval. It should ends on 12.
         self._chromatic_sum = 0
         self._intervals = []
+        if descending:
+            self.descending = descending
+        else:
+            self.descending = self
         for interval in intervals:
             interval = Interval.factory(interval)
             self._intervals.append(interval)
@@ -125,7 +129,7 @@ chromatic_scale_pattern = ScalePattern[Interval](["Chromatic"],
                                                   (1, 1), (1, 0), (1, 1),
                                                   (1, 1), ], nor_flat_nor_sharp)
 minor_natural = ScalePattern[Interval](["Minor natural", "Aeolian mode"], [2, 1, 2, 2, 1, 2, 2], three_flats)
-minor_melodic = ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], three_flats)
+minor_melodic = ScalePattern[Interval](["Minor melodic"], [2, 1, 2, 2, 2, 2, 1], three_flats, descending=minor_natural)
 
 scale_patterns_I_practice = [major_scale, blues, minor_natural, minor_harmonic, minor_melodic, chromatic_scale_pattern,
                              whole_tone, pentatonic_major, pentatonic_minor] + [chord_pattern.to_arpeggio_pattern() for
