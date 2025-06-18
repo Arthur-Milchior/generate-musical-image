@@ -18,6 +18,7 @@ def chord(notes) -> str:  # only used by guitar right now
     \\override Staff.TimeSignature.stencil = ##f
     \\omit Staff.BarLine
     \\omit PianoStaff.SpanBar
+    \\time 30/4
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <
 {indent("".join(note.lily() for note in notes), 6)}
@@ -98,6 +99,7 @@ class TestLily(unittest.TestCase):
       \\override Staff.TimeSignature.stencil = ##f
       \\omit Staff.BarLine
       \\omit PianoStaff.SpanBar
+      \\time 30/4
       \\clef treble
       \\key g \\major
       c'-1 ees'-2 g'-3 c''-5
@@ -106,6 +108,7 @@ class TestLily(unittest.TestCase):
       \\override Staff.TimeSignature.stencil = ##f
       \\omit Staff.BarLine
       \\omit PianoStaff.SpanBar
+      \\time 30/4
       \\set Staff.printKeyCancellation = ##f
       \\clef bass
       \\key g \\major
@@ -122,6 +125,7 @@ class TestLily(unittest.TestCase):
     \\override Staff.TimeSignature.stencil = ##f
     \\omit Staff.BarLine
     \\omit PianoStaff.SpanBar
+    \\time 30/4
     \\set Staff.printKeyCancellation = ##f
     \\clef bass
     \\key ees \\major
@@ -292,6 +296,7 @@ class TestLily(unittest.TestCase):
     \\override Staff.TimeSignature.stencil = ##f
     \\omit Staff.BarLine
     \\omit PianoStaff.SpanBar
+    \\time 30/4
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <
       c'-1ees'-2g'-3c''-5

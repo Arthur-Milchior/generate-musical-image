@@ -25,6 +25,7 @@ def single_note(clef, note):
     \\override Staff.TimeSignature.stencil = ##f
     \\omit Staff.BarLine
     \\omit PianoStaff.SpanBar
+    \\time 30/4
     {note.lily_in_scale()}
     }}
 }}"""

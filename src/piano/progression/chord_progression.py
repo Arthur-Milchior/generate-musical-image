@@ -180,6 +180,7 @@ class ProgressionTest(unittest.TestCase):
         \\override Staff.TimeSignature.stencil = ##f
         \\omit Staff.BarLine
         \\omit PianoStaff.SpanBar
+        \\time 30/4
         \\clef treble
         \\key c' \\major
         <f' c''> <f' b'> <e' b'>
