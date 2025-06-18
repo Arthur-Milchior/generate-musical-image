@@ -1,7 +1,8 @@
 from utils import util
 from solfege.key import sets_of_enharmonic_keys
-from typing import Optional
+from typing import Optional, Dict, List
 from solfege.scale.scale_pattern import scale_patterns_I_practice, scale_patterns, minor_melodic
+from operator import itemgetter
 from lily.lily import compile_
 from dataclasses import dataclass
 from solfege.chord.chord_pattern import ChordPattern
@@ -20,43 +21,126 @@ REVERSE = "reverse"
 
 chords = [ chord.to_arpeggio_pattern()  for chord in  ChordPattern.class_to_patterns[ChordPattern]]
 
+
 @dataclass(frozen=True)
 class Instrument:
+    """Represents the information needed to generate scales"""
     name: str
     lowest_instrument_note: Note
     highest_instrument_note: Note
     transposition: Interval = Interval(0, 0)
 
+    def difficulty(self, note) -> Optional[int]:
+        return 0 if self.lowest_instrument_note <= note <= self.highest_instrument_note else None
+    
+    def __str__(self):
+        return self.name
+
+class ChromaticInstrumentWithDifficultNote(Instrument):
+    """Chromatic instrument from lowest to highest
+    
+    difficulty_notes: map from chromatic note to the difficulty of playing it.
+    """
+    def __init__(self, name: str, lowest: Note, highest: Note, difficulty_notes: Dict[str, int], transposition: Optional[Interval]= None):
+        super().__init__(name, lowest, highest)
+        self.difficulty_notes = dict()
+        for note, value in difficulty_notes.items():
+            note = Note(note).get_chromatic().get_in_base_octave()
+            self.difficulty_notes[note] = max(value, self.difficulty_notes.get(note, 0))
+
+    def difficulty(self, note: Note):
+        return self.difficulty_notes.get(note.get_chromatic().get_in_base_octave, super().difficulty(note))
+
+    """
+    transposition: Interval = Interval(0, 0)
+    note_difficulties: Optional[Dict[str, int]] = None
+    simple_notes: Optional[List[str]]"""
+
+
+ocarina_harmorny_double = ChromaticInstrumentWithDifficultNote("ocarina_pendant", Note("C4"), Note("E5"),
+                             {"C4#":1, "E♭4":1, })
+ocarina_pendant = ChromaticInstrumentWithDifficultNote("ocarina_pendant", Note("C4"), Note("E5"),
+                             {"C4#":1, "E♭4":1, })
+
+ocarina_harmorny_triple = Instrument("ocarina_harmony_triple", Note("A4"), Note("E♭6"))
+ocarina_transverse = Instrument("ocarina_transverse", Note("C4"), Note("C6"))
+mv_ocarina = Instrument("mv_ocarina", Note("B3"), Note("E5"))
+saxophone = Instrument("saxophone", Note("B♭3"), Note("A6"))
+tin_whistle = ChromaticInstrumentWithDifficultNote("tin_whistle", Note("D4"), Note("D6"), 
+                                                   {
+                                                    "D4#":2,
+                                                    "F4":2,
+                                                    "G#4":2,
+                                                    "B♭4":1,
+                                                    "A#4":1,
+                                                    "C5":1,
+                                                   }, Interval(chromatic=2, diatonic=1),)
+recorder = ChromaticInstrumentWithDifficultNote("recorder", Note("C4"), Note("D6"),
+                                                   {
+                                                       "C4#": 2,
+                                                       "E4♭": 2,
+                                                       "F4": 1,
+                                                       "F#4": 1,
+                                                       "G#4": 1,
+                                                       "B4♭": 1,
+                                                       "C5#": 2,
+                                                       "D5": 1,
+                                                   })
+harmonica_diatonic = ChromaticInstrumentWithDifficultNote("harmonica_diatonic", Note("C3"), Note("C6"), {
+    "D3♭": 1,
+    "F#3": 1,
+    "F3": 2,
+    "B♭3": 1,
+    "A3": 2,
+    "A3♭": 3,
+    "C#4": 1,
+    "A♭4": 1,
+    "E♭6": 2,
+    "F#6": 2,
+    "B6": 2,
+    "B6♭": 3,
+})
+haromnica_chromatic = Instrument("harmonica_chromatic", Note("C3"), Note("C7#"))
+
+instruments: List[Instrument] = [
+    ocarina_harmorny_double,
+    ocarina_pendant,
+    ocarina_harmorny_triple,
+    ocarina_transverse,
+    mv_ocarina,
+    saxophone,
+    tin_whistle,
+    recorder,
+    harmonica_diatonic,
+    haromnica_chromatic
+    ]
 
 all_csv = []
-for instrument in [
-        Instrument("ocarina_pendant", Note("C4"), Note("E5")),
-        Instrument("ocarina_harmony_triple", Note("A4"), Note("E♭6")),
-        Instrument("ocarina_transverse", Note("C4"), Note("C6")),
-        Instrument("mv_ocarina", Note("B3"), Note("E5")),
-        Instrument("saxophone", Note("B♭3"), Note("A6")),
-        Instrument("tin_whistle", Note("D4"), Note("D6")),
-        Instrument("recorder", Note("C4"), Note("D6"), Interval(chromatic=2, diatonic=1)),
-        Instrument("harmonica_diatonic", Note("C3"), Note("C6")),
-        Instrument("harmonica_chromatic", Note("C3"), Note("C7#")),
-    ]:
+for instrument in instruments:
     instrument_image = f"""<img src="{instrument}.png"/>"""
     csv_path = f"{folder_path}/{instrument}.csv"
-    notes = []
+    anki_notes = []
     for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
         for scale_pattern in patterns:
             scale_name = scale_pattern.names[0]
+            anki_notes_in_scale = []
             for set_of_enharmonic_keys in sets_of_enharmonic_keys:
-                bass_key = set_of_enharmonic_keys[0] + instrument.transposition - scale_pattern.interval_for_signature
-                bass_note = bass_key.note
+                bass_note = set_of_enharmonic_keys[0].note + instrument.transposition - scale_pattern.interval_for_signature
                 while bass_note < instrument.lowest_instrument_note:
                     bass_note = bass_note.add_octave(1)
                 while bass_note >= instrument.lowest_instrument_note.add_octave(1):
                     bass_note = bass_note.add_octave(-1)
+                scale = scale_pattern.generate(
+                        fundamental=bass_note,
+                        number_of_octaves=1,
+                        )
+                difficulties = [instrument.difficulty(note) for note in scale.notes]
+                if None in difficulties: 
+                    continue
+                difficulty = max(difficulties)
                 tonic_name = bass_note.get_symbol_name()
                 note = []
-                notes.append(note)
-                note.append(f"{instrument} {scale_name.replace(",", "")} {bass_note.get_full_name()}") # key
+                note.append(f"{instrument} {scale_name.replace(",", "")} {bass_note.get_full_name()} difficulty {difficulty}") # key
                 note.append(instrument_image)
                 note.append("") # Hide single octave
                 note.append("") # Practice single direction
@@ -83,9 +167,12 @@ for instrument in [
                             file_name = f"""{scale_name}-{scale_lowest_note.get_ascii_name(fixed_length=False)}-{number_of_octaves}-{direction}"""
                             note.append(f"""<img src="{file_name}.svg"/>""")
                 note.append(bass_note.add_octave(2).image_html()) # 1
+                anki_notes_in_scale.append((difficulty, note))
 
-    csv = "\n".join(",".join(note) for note in notes)
-    all_csv += notes
+            anki_notes_in_scale.sort(key=itemgetter(0))
+            anki_notes.extend(anki_note for _, anki_note in anki_notes_in_scale)
+    csv = "\n".join(",".join(anki_note) for anki_note in anki_notes)
+    all_csv += anki_notes
     print(f"{csv_path=}")
     with open(csv_path, "w") as f:
         f.write(csv)
