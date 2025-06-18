@@ -13,9 +13,10 @@ class Scale(Generic[NoteType], Lilyable):
     #pattern: ScalePattern
 
     def __init__(self, notes: List[NoteType], pattern  #: ScalePattern
-                 ):
+                 , key: Optional[NoteType]):
         self.notes = notes
         self.pattern = pattern
+        self._key = key
 
     def all_blacks(self):
         return all(note.is_black_key_on_piano() for note in self.notes)
@@ -24,13 +25,13 @@ class Scale(Generic[NoteType], Lilyable):
         return self.notes == other.notes
 
     def __repr__(self):
-        return f"Scale(notes={self.notes})"
+        return f"Scale(notes={self.notes}, key = {self._key})"
 
     def add_octave(self, nb_octave: int) -> Scale:
-        return Scale([note.add_octave(nb_octave) for note in self.notes], self.pattern)
+        return Scale([note.add_octave(nb_octave) for note in self.notes], self.pattern, key= self._key)
 
     def reverse(self) -> Scale:
-        return Scale(list(reversed(self.notes)), self.pattern)
+        return Scale(list(reversed(self.notes)), self.pattern, key= self._key)
 
     def append_reversed(self) -> Scale:
         return self.concatenate(self.reverse())
@@ -46,10 +47,15 @@ class Scale(Generic[NoteType], Lilyable):
             notes = self.notes + other.notes[1:]
         else:
             notes = self.notes + other.notes
-        return Scale(notes, self.pattern)
+        return Scale(notes, self.pattern, self._key)
+
+    def key(self):
+        if self._key:
+            return self._key
+        return self.first_key()
 
     def first_key(self):
-        return self.notes[0].lily_in_scale()
+        return self.notes[0]
 
     def lily(self, midi:bool = False) -> Optional[str]:
         """A lilypond staff.
@@ -68,8 +74,9 @@ class Scale(Generic[NoteType], Lilyable):
   \\override Staff.TimeSignature.stencil = ##f
   \\omit Staff.BarLine
   \\omit PianoStaff.SpanBar
+  \\time 30/4
   \\set Staff.printKeyCancellation = ##f
   \\clef treble
-  \\key {self.first_key()} \\major
+  \\key {self.key().lily_in_scale()} \\major
 {" ".join(note.lily_in_scale() for note in self.notes)}
 }}"""

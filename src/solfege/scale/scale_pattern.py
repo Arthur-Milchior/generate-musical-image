@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Generic, Union, Tuple
+from typing import List, Generic, Union, Tuple, Optional
 
 from solfege.chord.chord_pattern import chord_patterns
 from solfege.key import nor_flat_nor_sharp, three_flats, one_sharp, seven_sharps, one_flat, two_flats, five_flats, \
@@ -110,7 +110,7 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
                 notes.append(current_note)
         if add_an_extra_note:
             notes.append(notes[-1] + self._intervals[0])
-        return Scale[NoteType](notes=notes, pattern=self)
+        return Scale[NoteType](notes=notes, pattern=self, key = notes[0] + self.interval_for_signature)
 
     def number_of_intervals(self):
         return len(self._intervals)
