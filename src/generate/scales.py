@@ -8,9 +8,10 @@ from dataclasses import dataclass
 from solfege.chord.chord_pattern import ChordPattern
 from solfege.interval.interval import Interval
 from solfege.note import Note
+from consts import generate_root_folder
 
 
-folder_path = "../generated/solfege/scales"
+folder_path = f"{generate_root_folder}/solfege/scales"
 util.ensure_folder(folder_path)
 
 

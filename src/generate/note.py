@@ -1,6 +1,7 @@
 from ..solfege.note import Note
 from lily.lily import compile_
 from utils import util
+from consts import generate_root_folder
 
 """
 Generate every note.
@@ -31,7 +32,7 @@ def single_note(clef, note):
 }}"""
 
 
-folder_path = "../../generated/note"
+folder_path = f"{generate_root_folder}/note"
 util.ensure_folder(folder_path)
 
 def generate(clef, notes):

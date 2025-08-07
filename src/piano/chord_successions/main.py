@@ -3,10 +3,11 @@ import os
 from lily.lily import compile_
 from piano.chord_successions.generate import successions
 from utils import util
+from consts import generate_root_folder
 
 if __name__ == '__main__':
     os.system("echo $(pwd)")
-    folder_path = "../../generated/piano/chord_successions"
+    folder_path = f"{generate_root_folder}/piano/chord_successions"
     util.ensure_folder(folder_path)
     notes = successions(folder_path, midi=False)
     anki_csv = "\n".join(
