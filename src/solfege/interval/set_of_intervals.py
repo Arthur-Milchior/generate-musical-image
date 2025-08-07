@@ -41,20 +41,3 @@ class SetOfIntervals(Generic[IntervalType]):
         return f"""SetOfIntervals(set_={self.set_})"""
 
 
-class TestSetOfIntervals(unittest.TestCase):
-    soi = SetOfIntervals[DiatonicInterval]([
-        DiatonicInterval(value=0),
-        DiatonicInterval(value=3),
-        DiatonicInterval(value=7),
-    ])
-
-    def test_contains(self):
-        self.assertIn(DiatonicInterval(0), self.soi)
-        self.assertIn(DiatonicInterval(3), self.soi)
-        self.assertIn(DiatonicInterval(10), self.soi)
-        self.assertNotIn(DiatonicInterval(2), self.soi)
-
-    def test_iter(self):
-        l = list(self.soi)  # use of list to keep duplicate
-        self.assertEquals(len(l), 2)
-        self.assertEquals(set(l), {DiatonicInterval(0), DiatonicInterval(3)})

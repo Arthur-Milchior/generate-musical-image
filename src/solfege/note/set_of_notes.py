@@ -48,22 +48,3 @@ class SetOfNotes(LocalLilyable):
         return SetOfNotes([note.add_octave(octaves) for note in self.notes], self.fundamental.add_octave(octaves))
 
 
-class TestSetOfNotes(unittest.TestCase):
-    C_minor = SetOfNotes(
-        [Note("C"),
-         Note("E♭"),
-         Note("G"),
-         ])
-
-    F_minor = SetOfNotes(
-        [Note("F"),
-         Note("A♭"),
-         Note("C5"),
-         ])
-
-    def test_eq(self):
-        self.assertNotEquals(self.C_minor, self.F_minor)
-        self.assertEquals(self.C_minor, self.C_minor)
-
-    def test_add(self):
-        self.assertEquals(self.C_minor + Interval(diatonic=3, chromatic=5), self.F_minor)

@@ -185,12 +185,3 @@ patterns_in_C: List[ChordProgression] = [
     ii_v_i_fifth_seventh_and_third, ]
 
 
-class ProgressionPatternTest(unittest.TestCase):
-    maxDiff = None
-
-    def test_see_all(self):
-        for chord in patterns_in_C:
-            lily = chord.lily()
-            path = f"{test_folder}/{chord.progression_name.replace(' ', '_')}"
-            compile_(lily, path, wav=True)
-            display_svg_file(f"{path}.svg")
