@@ -1,4 +1,3 @@
-import unittest
 from typing import List
 
 from lily.lily import compile_

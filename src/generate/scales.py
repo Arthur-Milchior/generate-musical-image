@@ -132,7 +132,7 @@ for instrument in instruments:
                 while bass_note >= instrument.lowest_instrument_note.add_octave(1):
                     bass_note = bass_note.add_octave(-1)
                 scale = scale_pattern.generate(
-                        fundamental=bass_note,
+                        tonic=bass_note,
                         number_of_octaves=1,
                         )
                 difficulties = [instrument.difficulty(note) for note in scale.notes]
@@ -196,11 +196,11 @@ for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
             for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2)]:
                     scale_lowest_note = bass_note.add_octave(start_octave)
                     increasing = scale_pattern.generate(
-                        fundamental=scale_lowest_note,
+                        tonic=scale_lowest_note,
                         number_of_octaves=number_of_octaves
                         )
                     decreasing = scale_pattern.descending.generate(
-                        fundamental=scale_lowest_note,
+                        tonic=scale_lowest_note,
                         number_of_octaves=number_of_octaves
                         ).reverse()
                     total = increasing.concatenate(decreasing)

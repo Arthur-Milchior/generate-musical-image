@@ -1,6 +1,6 @@
 from .utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
 from utils.util import *
-from guitar.pos import Pos, SetOfPos
+from guitar.pos import Pos, SetOfGuitarPositions
 from solfege.scale.scale_pattern import ScalePattern
 import guitar.util
 
@@ -31,15 +31,15 @@ for scale in ScalePattern.class_to_patterns[ScalePattern]:
     for string in range(1, 7):
         for fret in range(1, 5):
             print("""considering %s %d-%d""" % (name, string, fret))
-            basePos = Pos(string, fret)
+            basePos = GuitarPosition(string, fret)
             poss = scale2Pos(intervals, basePos)
             if poss is False:
                 print("poss is false:continue")
                 continue
             file = "%d-%d-%s.svg" % (string, fret, name)
             path = "%s/%s" % (folder_scale, file)
-            sop = SetOfPos(poss)
-            if not sop.isOneMin():
+            sop = SetOfGuitarPositions(poss)
+            if not sop.is_lowest_fret_one():
                 print("no fret one:continue")
                 continue
             with open(path, "w") as f:

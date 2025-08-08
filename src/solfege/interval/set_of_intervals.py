@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import unittest
 from typing import Generic, List
 
 from solfege.interval import DiatonicInterval
 from solfege.interval.abstract import IntervalType
 from solfege.interval.interval import Interval
+from src.utils.util import assert_all_same_class
 
 
 class SetOfIntervals(Generic[IntervalType]):
@@ -14,10 +14,14 @@ class SetOfIntervals(Generic[IntervalType]):
     def __init__(self, set_: List[IntervalType]):
         self.set_ = list()
         self.set_base_octave = set()
-        if set_:
-            for interval in set_:
-                self.set_.append(interval)
-                self.set_base_octave.add(interval.get_in_base_octave())
+        for interval in set_:
+            self.set_.append(interval)
+            self.set_base_octave.add(interval.get_in_base_octave())
+        
+        # Checks all elements have the same class
+        assert_all_same_class(set_)
+        assert_all_same_class(self.set_base_octave)
+
 
     def __contains__(self, interval):
         """Whether this note belongs to the set (up to octave)"""

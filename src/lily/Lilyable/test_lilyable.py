@@ -1,16 +1,17 @@
+import unittest
 from .lilyable import *
 
 
 class TestLilyable(unittest.TestCase):
     def test_lily(self):
-        self.assertEquals("aes", LiteralLilyable("aes").lily_in_scale())
+        self.assertEqual("aes", LiteralLilyable("aes").lily())
 
     def test_eq_diff_class(self):
         class MockLily(Lilyable):
-            def lily_in_scale(self):
+            def lily(self):
                 return "aes"
 
-        self.assertEquals(LiteralLilyable("aes"), MockLily())
+        self.assertEqual(LiteralLilyable("aes"), MockLily())
 
     def test_eq(self):
-        self.assertEquals(LiteralLilyable("aes"), LiteralLilyable("aes"))
+        self.assertEqual(LiteralLilyable("aes"), LiteralLilyable("aes"))

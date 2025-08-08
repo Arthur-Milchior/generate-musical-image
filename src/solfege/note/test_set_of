@@ -12,8 +12,8 @@ class TestSetOfNotes(unittest.TestCase):
          ])
 
     def test_eq(self):
-        self.assertNotEquals(self.C_minor, self.F_minor)
-        self.assertEquals(self.C_minor, self.C_minor)
+        self.assertNotEqual(self.C_minor, self.F_minor)
+        self.assertEqual(self.C_minor, self.C_minor)
 
     def test_add(self):
-        self.assertEquals(self.C_minor + Interval(diatonic=3, chromatic=5), self.F_minor)
+        self.assertEqual(self.C_minor + Interval(diatonic=3, chromatic=5), self.F_minor)

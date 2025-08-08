@@ -1,34 +1,35 @@
+import unittest
 from .chromatic import *
 
 class TestChromaticNoteWithTonic(unittest.TestCase):
-    C4 = ChromaticNoteWithFundamental(chromatic=0, fundamental=True)
-    D4 = ChromaticNoteWithFundamental(chromatic=2, fundamental=C4)
-    B3 = ChromaticNoteWithFundamental(chromatic=-1, fundamental=C4)
-    E4 = ChromaticNoteWithFundamental(chromatic=4, fundamental=C4)
-    F4 = ChromaticNoteWithFundamental(chromatic=5, fundamental=C4)
-    C5 = ChromaticNoteWithFundamental(chromatic=12, fundamental=C4)
-    B4 = ChromaticNoteWithFundamental(chromatic=11, fundamental=C4)
-    D3 = ChromaticNoteWithFundamental(chromatic=-10, fundamental=C4)
-    C3 = ChromaticNoteWithFundamental(chromatic=-12, fundamental=C4)
-    B2 = ChromaticNoteWithFundamental(chromatic=-13, fundamental=C4)
+    C4 = ChromaticNoteWithTonic(value =0, tonic=True)
+    D4 = ChromaticNoteWithTonic(value =2, tonic=C4)
+    B3 = ChromaticNoteWithTonic(value =-1, tonic=C4)
+    E4 = ChromaticNoteWithTonic(value =4, tonic=C4)
+    F4 = ChromaticNoteWithTonic(value =5, tonic=C4)
+    C5 = ChromaticNoteWithTonic(value =12, tonic=C4)
+    B4 = ChromaticNoteWithTonic(value =11, tonic=C4)
+    D3 = ChromaticNoteWithTonic(value =-10, tonic=C4)
+    C3 = ChromaticNoteWithTonic(value =-12, tonic=C4)
+    B2 = ChromaticNoteWithTonic(value =-13, tonic=C4)
 
     def test_eq(self):
-        zero = ChromaticNoteWithFundamental(chromatic=0, fundamental=True)
-        self.assertEquals(zero.get_number(), 0)
-        self.assertEquals(zero.get_tonic(), zero)
+        zero = ChromaticNoteWithTonic(value =0, tonic=True)
+        self.assertEqual(zero.get_number(), 0)
+        self.assertEqual(zero.get_tonic(), zero)
 
     def test_add_octave(self):
-        self.assertEquals(self.C5.add_octave(-1), self.C4)
-        self.assertEquals(self.C4.add_octave(1), self.C5)
-        self.assertEquals(self.C5.add_octave(-2), self.C3)
-        self.assertEquals(self.C3.add_octave(2), self.C5)
+        self.assertEqual(self.C5.add_octave(-1), self.C4)
+        self.assertEqual(self.C4.add_octave(1), self.C5)
+        self.assertEqual(self.C5.add_octave(-2), self.C3)
+        self.assertEqual(self.C3.add_octave(2), self.C5)
 
     def test_same_note_in_base_octave(self):
-        self.assertEquals(self.C5.get_in_base_octave(), self.C4)
-        self.assertEquals(self.C3.get_in_base_octave(), self.C4)
-        self.assertEquals(self.C4.get_in_base_octave(), self.C4)
-        self.assertEquals(self.D4.get_in_base_octave(), self.D4)
-        self.assertEquals(self.B3.get_in_base_octave(), self.B4)
+        self.assertEqual(self.C5.get_in_base_octave(), self.C4)
+        self.assertEqual(self.C3.get_in_base_octave(), self.C4)
+        self.assertEqual(self.C4.get_in_base_octave(), self.C4)
+        self.assertEqual(self.D4.get_in_base_octave(), self.D4)
+        self.assertEqual(self.B3.get_in_base_octave(), self.B4)
 
     def test_same_note_in_different_octaves(self):
         self.assertFalse(self.D4.equals_modulo_octave(self.C4))

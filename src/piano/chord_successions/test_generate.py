@@ -1,3 +1,4 @@
+import unittest
 from .generate import *
 
 class TestChordSuccession(unittest.TestCase):
@@ -153,7 +154,7 @@ class TestChordSuccession(unittest.TestCase):
             chord_pattern=triad,
             position=3,
         )
-        self.assertEquals(son, SetOfNotes(
+        self.assertEqual(son, SetOfNotes(
             [
                 Note("F"),
                 Note("A"),
@@ -168,7 +169,7 @@ class TestChordSuccession(unittest.TestCase):
             chord_pattern=triad,
             nb_of_chords=8,
         )
-        self.assertEquals(suc,
+        self.assertEqual(suc,
                           self.triad_right_succession
                           )
 
@@ -177,7 +178,7 @@ class TestChordSuccession(unittest.TestCase):
             "folder", Note("C"), self.triad_right_succession, triad, for_left_hand=False, for_right_hand=True,
             direction="increasing", midi=False
         )
-        self.assertEquals(suc,
+        self.assertEqual(suc,
                           CardContent("C______right_triad_increasing", "folder/C______right_triad_increasing",
                                       self.lily_right_c_triad)
                           )
@@ -187,8 +188,8 @@ class TestChordSuccession(unittest.TestCase):
             "folder", Note("C"), self.triad_right_succession, triad, for_left_hand=True, for_right_hand=True,
             direction="increasing", midi=False
         )
-        self.assertEquals(suc.lily_code, self.lily_both_c_triad)
-        self.assertEquals(suc,
+        self.assertEqual(suc.lily_code, self.lily_both_c_triad)
+        self.assertEqual(suc,
                           CardContent("C______both_triad_increasing", "folder/C______both_triad_increasing",
                                       self.lily_both_c_triad)
                           )
@@ -202,4 +203,4 @@ class TestChordSuccession(unittest.TestCase):
                                       self.lily_left_c_triad)
         print(suc)
         print(cc)
-        self.assertEquals(suc, cc)
+        self.assertEqual(suc, cc)

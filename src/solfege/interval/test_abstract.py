@@ -1,3 +1,4 @@
+import unittest
 from .abstract import *
 
 class TestBaseInterval(unittest.TestCase):
@@ -14,21 +15,21 @@ class TestBaseInterval(unittest.TestCase):
         self.assertTrue(self.zero.has_number())
 
     def test_get_number(self):
-        self.assertEquals(self.zero.get_number(), 0)
+        self.assertEqual(self.zero.get_number(), 0)
 
     def test_equal(self):
-        self.assertEquals(self.zero, self.zero)
-        self.assertNotEquals(self.un, self.zero)
-        self.assertEquals(self.un, self.un)
+        self.assertEqual(self.zero, self.zero)
+        self.assertNotEqual(self.un, self.zero)
+        self.assertEqual(self.un, self.un)
 
     def test_add(self):
-        self.assertEquals(self.un + self.deux, self.trois)
+        self.assertEqual(self.un + self.deux, self.trois)
 
     def test_neg(self):
-        self.assertEquals(-self.un, self.moins_un)
+        self.assertEqual(-self.un, self.moins_un)
 
     def test_sub(self):
-        self.assertEquals(self.trois - self.deux, self.un)
+        self.assertEqual(self.trois - self.deux, self.un)
 
     def test_lt(self):
         self.assertLess(self.un, self.deux)
@@ -36,10 +37,10 @@ class TestBaseInterval(unittest.TestCase):
         self.assertLessEqual(self.un, self.un)
 
     def test_repr(self):
-        self.assertEquals(repr(self.un), "AbstractInterval(value=1)")
+        self.assertEqual(repr(self.un), "AbstractInterval(value=1)")
 
     def test_mul(self):
-        self.assertEquals(self.zero * 4, self.zero)
-        self.assertEquals(self.un * 2, self.deux)
-        self.assertEquals(2 * self.un, self.deux)
-        self.assertEquals(4 * self.zero, self.zero)
+        self.assertEqual(self.zero * 4, self.zero)
+        self.assertEqual(self.un * 2, self.deux)
+        self.assertEqual(2 * self.un, self.deux)
+        self.assertEqual(4 * self.zero, self.zero)

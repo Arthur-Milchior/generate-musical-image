@@ -1,8 +1,9 @@
 import os
-import unittest
-from typing import Callable
+from typing import Callable, List
+from sh import assertNotUnitTest, shell
 
 from lily.svg import clean_svg, display_svg_file
+from src.solfege.note.note import Note
 from utils.util import indent
 
 lilyHeader = """"""
@@ -11,7 +12,7 @@ highLimit = {"left": 3, "right": 14}
 lilyProgram = "lilypond"
 
 
-def chord(notes) -> str:  # only used by guitar right now
+def chord(notes: List[Note]) -> str:  # only used by guitar right now
     return f"""\\version "2.20.0"
 \\score{{
   \\new Staff{{
@@ -21,7 +22,7 @@ def chord(notes) -> str:  # only used by guitar right now
     \\time 30/4
     \\set Staff.printKeyCancellation = ##f
     \\clef treble <
-{indent("".join(note.lily() for note in notes), 6)}
+{indent("".join(note.lily_in_scale() for note in notes), 6)}
     >
   }}
 }}"""
@@ -33,7 +34,7 @@ def command(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
     else:
         assert extension == "pdf"
         command = f"evince {file_prefix}.pdf&"
-        return lambda: os.system(command)
+        return lambda: shell(command)
 
 
 def compile_(code: str, file_prefix, wav: bool, extension="svg", execute_lily: bool = True, force_recompile: bool = False) -> \
@@ -59,15 +60,15 @@ def compile_(code: str, file_prefix, wav: bool, extension="svg", execute_lily: b
     preview_path = f"{file_prefix}.preview.{extension}"
     if extension == "svg":
         cmd = f"""{lilyProgram} -dpreview -dbackend=svg -o "{file_prefix}"  "{file_prefix}.ly" """
-        os.system(cmd)
+        shell(cmd)
         clean_svg(preview_path, preview_path, "white")
     else:
         assert extension == "pdf"
         cmd = f"""lilypond  -o "{file_prefix}" "{file_prefix}.ly" """
-        os.system(cmd)
-    os.system(f"""mv -f "{preview_path}" "{file_prefix}.{extension}" """)
+        shell(cmd)
+    shell(f"""mv -f "{preview_path}" "{file_prefix}.{extension}" """)
     if wav:
-        os.system(f"""timidity "{file_prefix}.midi" --output-mode=w -o "{file_prefix}.wav" """)
+        shell(f"""timidity "{file_prefix}.midi" --output-mode=w -o "{file_prefix}.wav" """)
     return command(file_prefix, extension)
-    # os.system("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
+    # shell("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
 

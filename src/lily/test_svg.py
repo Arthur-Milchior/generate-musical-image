@@ -1,3 +1,4 @@
+import unittest
 from .svg import *
 from .svg import *
 
@@ -568,13 +569,13 @@ c0 -74 18 -133 36 -194c80 97 146 198 146 324z" fill="currentColor"/>
     maxDiff = None
 
     def test_remove_xlink(self):
-        self.assertEquals(remove_xlink(self.example_input), self.example_no_xlink)
+        self.assertEqual(remove_xlink(self.example_input), self.example_no_xlink)
 
     def test_rect(self):
-        self.assertEquals(rect(self.example_input, "white"), """<rect x="8.5358" width="38.5749" y="-0.0000" height="8.5450" fill="white"/>""")
+        self.assertEqual(rect(self.example_input, "white"), """<rect x="8.5358" width="38.5749" y="-0.0000" height="8.5450" fill="white"/>""")
 
     def test_add_background(self):
-        self.assertEquals(add_background(self.example_input, "white"), self.expected)
+        self.assertEqual(add_background(self.example_input, "white"), self.expected)
 
     example_input_path = "example.svg"
     example_output_path = "example_output.svg"
@@ -584,5 +585,5 @@ c0 -74 18 -133 36 -194c80 97 146 198 146 324z" fill="currentColor"/>
             f.write(self.example_input)
         clean_svg(self.example_input_path, self.example_output_path, "white")
         with open(self.example_output_path, "r") as f:
-            self.assertEquals(f.read(), self.expected_clean)
+            self.assertEqual(f.read(), self.expected_clean)
         display_svg_file(self.example_output_path)

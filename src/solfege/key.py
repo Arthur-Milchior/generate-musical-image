@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from typing import Dict, List
 
 from solfege.interval.interval import Interval

@@ -3,10 +3,11 @@ import os
 from lily.lily import compile_
 from piano.chord_successions.generate import successions
 from utils import util
+from sh import shell
 from consts import generate_root_folder
 
 if __name__ == '__main__':
-    os.system("echo $(pwd)")
+    shell("echo $(pwd)")
     folder_path = f"{generate_root_folder}/piano/chord_successions"
     util.ensure_folder(folder_path)
     notes = successions(folder_path, midi=False)
@@ -84,13 +85,13 @@ if __name__ == '__main__':
 #
 #     def check_compiled_file_exists(self):
 #         with open(self.ly) as file:
-#             self.assertEquals(self.lyly_code, file.read())
+#             self.assertEqual(self.lyly_code, file.read())
 #         self.assertTrue(os.path.exists(self.svg))
 #         display_svg_file(self.svg)
-#         os.system(f"vlc {self.wav}&")
+#         shell(f"vlc {self.wav}&")
 #
-#     def test_generate_pattern_fundamental(self):
-#         output = generate_chord_successions_pattern_fundamental(
+#     def test_generate_pattern_tonic(self):
+#         output = generate_chord_successions_pattern_tonic(
 #             two_octave_scales=TestChordSuccession.two_octave_major_c4_scale,
 #             chord_pattern=triad,
 #             folder_path=self.test_chord_folder,
@@ -99,7 +100,7 @@ if __name__ == '__main__':
 #             key=Note("C"),
 #         )
 #         self.check_compiled_file_exists()
-#         self.assertEquals(output, f"Play the triads in the C   major scale,<img src='triad_in_C_____.svg'>")
+#         self.assertEqual(output, f"Play the triads in the C   major scale,<img src='triad_in_C_____.svg'>")
 #
 #     def test_generate_pattern(self):
 #         generate_chord_successions_pattern(

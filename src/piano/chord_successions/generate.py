@@ -1,4 +1,3 @@
-import unittest
 from dataclasses import dataclass
 from typing import List
 
@@ -29,7 +28,7 @@ def chord_from_scale_pattern_and_position_key(scale: Scale, chord_pattern: Chord
     for interval in [0] + chord_pattern.intervals:
         position = position + interval
         chord.append(scale.notes[position])
-    return SetOfNotes(chord, fundamental=chord[0])
+    return SetOfNotes(chord, tonic=chord[0])
 
 
 @dataclass(frozen=True)

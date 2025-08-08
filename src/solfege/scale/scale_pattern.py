@@ -13,7 +13,6 @@ from solfege.note.abstract import NoteType
 """Contains a class to represent a scale.
 
 Also contains all scales from wikipedia, which can be done using the 12 note from chromatic scales."""
-import unittest
 
 import sys
 
@@ -98,15 +97,15 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
                             interval_for_signature=self.interval_for_signature, increasing=not self.increasing,
                             record=False)
 
-    def generate(self, fundamental: NoteType, number_of_octaves=1,
+    def generate(self, tonic: NoteType, number_of_octaves=1,
                  add_an_extra_note: bool = False) -> Scale[NoteType]:
         """The note, starting at tonic, following this pattern for nb_octave.
         If nb_octave is negative, the generated scale is decreasing."""
         assert number_of_octaves != 0
         if number_of_octaves < 0:
-            return (-self).generate(fundamental, -number_of_octaves, add_an_extra_note=add_an_extra_note)
-        current_note = fundamental
-        notes = [fundamental]
+            return (-self).generate(tonic, -number_of_octaves, add_an_extra_note=add_an_extra_note)
+        current_note = tonic
+        notes = [tonic]
         for _ in range(number_of_octaves):
             for interval in self._intervals:
                 current_note += interval

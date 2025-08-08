@@ -1,13 +1,12 @@
-import unittest
 
 from solfege.interval.interval import Interval
 from solfege.note import Note, DiatonicNote, ChromaticNote
-from solfege.note.with_tonic import ChromaticNoteWithFundamental
+from solfege.note.with_tonic import ChromaticNoteWithTonic
+from solfege.note.with_tonic.base import AbstractNoteWithTonic
 
 
-class NoteWithTonic(ChromaticNoteWithFundamental, Note):
+class NoteWithTonic(AbstractNoteWithTonic, Note):
     """A note of the scale, as an interval from middle C."""
-
     IntervalClass = Interval
     DiatonicClass = DiatonicNote
     ChromaticClass = ChromaticNote
@@ -22,7 +21,7 @@ class NoteWithTonic(ChromaticNoteWithFundamental, Note):
     #     except TooBigAlteration as tba:
     #         tba.addInformation("Note", self)
     #         raise
-    #     diatonicName = diatonic.get_interval_name().upper()
+    #     diatoànicName = diatonic.get_interval_name().upper()
     #     alterationName = alteration.get_interval_name(forFile=forFile)
     #     return "%s%s" % (diatonicName, alterationName)
     #

@@ -1,4 +1,3 @@
-import unittest
 
 from solfege.interval.intervalmode import IntervalMode
 

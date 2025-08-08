@@ -1,4 +1,3 @@
-import unittest
 
 from solfege.interval import ChromaticInterval
 from solfege.interval.abstract import AbstractInterval

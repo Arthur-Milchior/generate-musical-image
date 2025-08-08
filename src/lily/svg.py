@@ -1,6 +1,6 @@
 import os
 import re
-import unittest
+from sh import shell
 
 
 def rect(svg, color):
@@ -13,7 +13,7 @@ def rect(svg, color):
 
 
 def display_svg_file(path: str):
-    os.system(f"eog {path}&")
+    shell(f"eog {path}&")
 
 
 def add_background(svg: str, background_color: str):

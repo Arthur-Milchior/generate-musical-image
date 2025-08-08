@@ -6,7 +6,6 @@
 # 3 hands
 # =18144 images
 # Taking 4 seconds each, it takes 20 hours
-import unittest
 from dataclasses import dataclass, astuple
 from typing import Optional, List, Callable, Tuple
 

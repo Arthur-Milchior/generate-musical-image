@@ -24,6 +24,7 @@ class Note(Interval, ChromaticNote, LocalLilyable):
             chromatic_from_diatonic = diatonic.get_chromatic()
             alteration = Alteration.from_name(alteration_name)
             kwargs["diatonic"] = diatonic.get_number()
+            kwargs["alteration"] = alteration
             kwargs["chromatic"] = (chromatic_from_diatonic + alteration).get_number()
         super().__init__(*args, **kwargs)
 

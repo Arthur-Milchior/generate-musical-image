@@ -9,17 +9,17 @@ class TestSolfegePattern(unittest.TestCase):
     instance_2 = PatternDeux(names=["2a"])
 
     def test_empty_set(self):
-        self.assertEquals(self.PatternEmpty.get_all_instances(), [])
+        self.assertEqual(self.PatternEmpty.get_all_instances(), [])
         self.assertIsNone(self.PatternEmpty.get_from_name("foo"))
 
     def test_pattern_deux_not_in_1(self):
-        self.assertEquals(self.PatternEmpty.get_all_instances(), [])
-        self.assertEquals(self.PatternEmpty.get_from_name("1a"), None)
+        self.assertEqual(self.PatternEmpty.get_all_instances(), [])
+        self.assertEqual(self.PatternEmpty.get_from_name("1a"), None)
 
     def test_pattern_deux(self):
-        self.assertEquals(self.PatternDeux.get_all_instances(), [self.instance_1, self.instance_2])
-        self.assertEquals(self.PatternDeux.get_from_name("1a"), self.instance_1)
+        self.assertEqual(self.PatternDeux.get_all_instances(), [self.instance_1, self.instance_2])
+        self.assertEqual(self.PatternDeux.get_from_name("1a"), self.instance_1)
 
     def test_name(self):
-        self.assertEquals(self.instance_1.get_names(), ["1a", "1b"])
-        self.assertEquals(self.instance_1.get_the_first_of_the_name(), "1a")
+        self.assertEqual(self.instance_1.get_names(), ["1a", "1b"])
+        self.assertEqual(self.instance_1.get_the_first_of_the_name(), "1a")

@@ -27,7 +27,7 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
 
     def file_name(self, clef: str):
         """Return the file name without extension nor folder"""
-        return f"_{clef}_{self.get_ascii_name(fixed_length=False)}"
+        return f"_{clef}_chromatic_{self.value}"
 
     def image_file_name(self, clef: str):
         """Return the file name without extension nor folder"""

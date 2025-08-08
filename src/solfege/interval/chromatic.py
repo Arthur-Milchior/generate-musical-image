@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from typing import Optional
 from solfege.interval.abstract import AbstractInterval
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
@@ -9,7 +8,7 @@ from solfege.interval.too_big_alterations_exception import TooBigAlterationExcep
 class ChromaticInterval(AbstractInterval):
     """A chromatic interval. Counting the number of half tone between two note"""
     number_of_interval_in_an_octave = 12
-    AlterationClass: type(ChromaticInterval)  # more specific an alteration
+    AlterationClass: type[ChromaticInterval]  # more specific an alteration
 
     """the diatonic class to which such a chromatic class must be converted"""
 
@@ -17,9 +16,10 @@ class ChromaticInterval(AbstractInterval):
     # moved to init because cyclic dependencies
 
     def __add__(self, other):
-        if not isinstance(other, ChromaticInterval):
+    # No idea why this check does not work. But self is a solfege.interval.chromatic.ChromaticInterval while other is a src.solfege.interval.chromatic.ChromaticInterval , note the src
+        if not isinstance(other, ChromaticInterval.clazz):
             raise Exception(
-                f"Adding a ChromaticInterval interval to something which is not a ChromaticInterval but {other}")
+                f"Adding a ChromaticInterval {self}: {self.__class__}: {self.__class__.__bases__} interval to something which is not a ChromaticInterval but {other}: {other.clazz}")
         return super().__add__(other)
 
     def get_diatonic(self):
@@ -28,7 +28,7 @@ class ChromaticInterval(AbstractInterval):
         return self.RelatedDiatonicClass([0, 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6][
                                              self.get_in_base_octave().get_number()] + 7 * self.get_octave())
 
-    def get_alteration(self) -> AlterationClass:
+    def get_alteration(self):
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
         import solfege.interval.intervalmode
         diatonic = self.get_diatonic()
@@ -45,7 +45,7 @@ class ChromaticInterval(AbstractInterval):
             diatonic = self.get_diatonic().get_number()
         return self.RelatedSolfegeClass(diatonic=diatonic, chromatic=self.get_number())
 
-    def get_interval_name(self, usage: str, octave=True, side=False):
+    def get_interval_name(self, octave=True, side=False):
         """The name of the interval.
 
         octave -- For example: if this variable is set true, the name is given as "supertonic and one octave".
@@ -59,7 +59,7 @@ class ChromaticInterval(AbstractInterval):
         todo
         """
         if self < 0:
-            name = (-self).get_interval_name(usage=usage, octave=octave, side=False)
+            name = (-self).get_interval_name(octave=octave, side=False)
             if side:
                 return name + " decreasing"
             else:
@@ -84,5 +84,6 @@ class ChromaticInterval(AbstractInterval):
 
 
 ChromaticInterval.IntervalClass = ChromaticInterval
+ChromaticInterval.clazz = ChromaticInterval
 
 

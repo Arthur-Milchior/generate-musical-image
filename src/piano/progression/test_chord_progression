@@ -114,13 +114,13 @@ class ProgressionTest(unittest.TestCase):
     right_lily = """<f' c''> <f' b'> <e' b'>"""
 
     def test_right(self):
-        self.assertEquals(self.right_lily, self.three_five_c.right_lily())
+        self.assertEqual(self.right_lily, self.three_five_c.right_lily())
 
     def test_lyrics(self):
-        self.assertEquals("ii V I", self.three_five_c.annotations_lily())
+        self.assertEqual("ii V I", self.three_five_c.annotations_lily())
 
     def test_lily(self):
-        self.assertEquals(
+        self.assertEqual(
             self.three_five_c.lily(),
             self.three_five_c_lily
         )
@@ -135,8 +135,8 @@ class ProgressionTest(unittest.TestCase):
 
     def test_add(self):
         s = self.d_min_7 + Interval(chromatic=2, diatonic=1)
-        self.assertEquals(s, self.e_min_7)
+        self.assertEqual(s, self.e_min_7)
         s = self.three_five_c + Interval(chromatic=2, diatonic=1)
         print(s)
         print(self.three_five_d)
-        self.assertEquals(s, self.three_five_d)
+        self.assertEqual(s, self.three_five_d)

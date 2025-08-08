@@ -1,4 +1,3 @@
-import unittest
 from typing import Optional, List
 
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException

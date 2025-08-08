@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 from typing import TypeVar
-import unittest
 
 
 class AbstractInterval:
@@ -27,6 +26,7 @@ class AbstractInterval:
     def __init__(self, value: int, **kwargs):
         """If the interval is passed as argument, it is copied. Otherwise, the value is used."""
         super().__init__(**kwargs)
+        assert isinstance(value, int)
         self.value = value
 
     def is_note(self):

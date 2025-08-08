@@ -1,3 +1,4 @@
+import unittest
 from .generate import *
 
 class TestScalesGenerate(unittest.TestCase):
@@ -53,17 +54,17 @@ class TestScalesGenerate(unittest.TestCase):
         delete_file_if_exists(f"{file}.ly")
         compile_(lily, file, False, extension="pdf")  # ()
 
-    def generation_helper(self, fundamental: Note, scale_pattern: ScalePattern, for_right_hand: bool,
+    def generation_helper(self, tonic: Note, scale_pattern: ScalePattern, for_right_hand: bool,
                           expected: Fingering, key: Optional[Note] = None,
                           show: bool = False):
-        key = key or fundamental
-        scale = scale_pattern.generate(fundamental, 1)
+        key = key or tonic
+        scale = scale_pattern.generate(tonic, 1)
         best_penalty, fingerings = generate_best_fingering_for_scale(scale.notes,
                                                                      for_right_hand=for_right_hand)
-        self.assertEquals(len(fingerings), 1)
+        self.assertEqual(len(fingerings), 1)
         piano_notes, fingering = fingerings[0]
         if show:
-            # scale = fingering.generate(first_played_note=fundamental, number_of_octaves=2, scale_pattern=scale_pattern)
+            # scale = fingering.generate(first_played_note=tonic, number_of_octaves=2, scale_pattern=scale_pattern)
             lily_code = lilypond_code_for_one_hand(key=key.lily_in_scale(), notes_or_chords=piano_notes,
                                                    for_right_hand=for_right_hand,
                                                    midi=False)
@@ -74,7 +75,7 @@ class TestScalesGenerate(unittest.TestCase):
             cmd = compile_(lily_code, file_prefix=self.prefix_path, execute_lily=True, wav=False)
             cmd()
 
-        self.assertEquals(fingering, expected)
+        self.assertEqual(fingering, expected)
 
     def test_blues_A_right(self):
         expected = (Fingering(for_right_hand=True).
@@ -85,8 +86,8 @@ class TestScalesGenerate(unittest.TestCase):
                     add(note=PianoNote("D", finger=3)).
                     add(note=PianoNote("C", finger=2)).
                     add(note=PianoNote("A3", finger=1)))
-        fundamental = Note("A3")
-        self.generation_helper(fundamental=fundamental, scale_pattern=blues, for_right_hand=True, expected=expected,
+        tonic = Note("A3")
+        self.generation_helper(tonic=tonic, scale_pattern=blues, for_right_hand=True, expected=expected,
                                show=False, key=Note("c"))
 
     def test_blues_D_right(self):
@@ -98,8 +99,8 @@ class TestScalesGenerate(unittest.TestCase):
                     add(note=PianoNote("G", finger=3)).
                     add(note=PianoNote("F", finger=2)).
                     add(note=PianoNote("D", finger=1)))
-        fundamental = Note("D")
-        self.generation_helper(fundamental=fundamental, scale_pattern=blues, for_right_hand=True, expected=expected,
+        tonic = Note("D")
+        self.generation_helper(tonic=tonic, scale_pattern=blues, for_right_hand=True, expected=expected,
                                show=True, key=Note("F"))
 
     def test_pentatonic_major_right(self):
@@ -110,7 +111,7 @@ class TestScalesGenerate(unittest.TestCase):
                     add(PianoNote("E# ", finger=1)).
                     add(PianoNote("D# ", finger=2)).
                     add(PianoNote("C# ", finger=1)))
-        self.generation_helper(fundamental=Note("C#"), scale_pattern=pentatonic_major, for_right_hand=True,
+        self.generation_helper(tonic=Note("C#"), scale_pattern=pentatonic_major, for_right_hand=True,
                                expected=expected, show=False)
         # All black note
 
@@ -121,7 +122,7 @@ class TestScalesGenerate(unittest.TestCase):
                     add(PianoNote("C ", finger=2)).
                     add(PianoNote("E ", finger=3)).
                     add(PianoNote("G ", finger=4)))
-        self.generation_helper(fundamental=Note("A"), scale_pattern=minor_seven.to_arpeggio_pattern(),
+        self.generation_helper(tonic=Note("A"), scale_pattern=minor_seven.to_arpeggio_pattern(),
                                for_right_hand=True, expected=expected, show=False)
 
     def test_minor_seventh_arpeggio_A_left(self):
@@ -132,7 +133,7 @@ class TestScalesGenerate(unittest.TestCase):
                     add(PianoNote("C ", finger=3)).
                     add(PianoNote("A ", finger=4))
                     )
-        self.generation_helper(fundamental=Note("A2"), scale_pattern=minor_seven.to_arpeggio_pattern(),
+        self.generation_helper(tonic=Note("A2"), scale_pattern=minor_seven.to_arpeggio_pattern(),
                                for_right_hand=False, expected=expected, show=False, key=Note("C"))
 
     def test_minor_melodic_right(self):

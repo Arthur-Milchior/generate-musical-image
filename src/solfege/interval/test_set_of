@@ -13,5 +13,5 @@ class TestSetOfIntervals(unittest.TestCase):
 
     def test_iter(self):
         l = list(self.soi)  # use of list to keep duplicate
-        self.assertEquals(len(l), 2)
-        self.assertEquals(set(l), {DiatonicInterval(0), DiatonicInterval(3)})
+        self.assertEqual(len(l), 2)
+        self.assertEqual(set(l), {DiatonicInterval(0), DiatonicInterval(3)})

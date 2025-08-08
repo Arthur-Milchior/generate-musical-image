@@ -13,7 +13,7 @@ class Scale(Generic[NoteType], Lilyable):
     #pattern: ScalePattern
 
     def __init__(self, notes: List[NoteType], pattern  #: ScalePattern
-                 , key: Optional[NoteType]):
+                 , key: Optional[NoteType] = None):
         self.notes = notes
         self.pattern = pattern
         self._key = key

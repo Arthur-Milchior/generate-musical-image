@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import unittest
 from typing import Optional, Dict, TypeVar, Any, Tuple, List
 
 from piano.piano_note import PianoNote

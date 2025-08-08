@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from typing import Optional
 
 from solfege.interval.chromatic import ChromaticInterval
@@ -18,7 +17,7 @@ class Interval(ChromaticInterval):
         Otherwise, if chromatic is present, it supposed to be the exact value.
         otherwise, alteration should be present, and chromatic is the sum of diatonic and alteration
         """
-        assert (alteration is not None or chromatic is not None)
+        assert (alteration is not None) or (chromatic is not None)
         self._diatonic = self.__class__.DiatonicClass(value=diatonic)
         if chromatic is not None:
             assert (isinstance(chromatic, int))

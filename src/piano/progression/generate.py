@@ -1,4 +1,3 @@
-import unittest
 from typing import List
 
 from lily.lily import compile_
@@ -12,7 +11,7 @@ from utils.util import ensure_folder
 
 
 def progression_for_pattern_tonic(folder_path: str, pattern: ChordProgression, tonic: Note, wav: bool) -> str:
-    """Generate the svg for this progression with this fundamental. Returns the anki card as a csv line
+    """Generate the svg for this progression with this tonic. Returns the anki card as a csv line
 
     pattern: the chord progression in C"""
 

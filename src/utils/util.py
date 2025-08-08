@@ -1,6 +1,6 @@
 import os
+from typing import Iterable, List
 import unittest
-from typing import List
 
 imageFolder = "../image/"
 ankiFolder = "../image/"
@@ -51,3 +51,11 @@ def tests_modules(modules: List):
         suite = unittest.TestLoader().loadTestsFromModule(module)
         # run all tests with verbosity
         unittest.TextTestRunner().run(suite)
+
+def assert_all_same_class(it: Iterable):
+    if not it:
+        return True
+    elt = list(it)[0]
+    for e in it:
+        assert e.__class__ == elt.__class__, "{it=}"
+            

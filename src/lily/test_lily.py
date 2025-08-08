@@ -1,5 +1,7 @@
+import unittest
 from .lily import *
 
+from sh import shell
 
 class TestLily(unittest.TestCase):
     def setUp(self):
@@ -71,21 +73,21 @@ class TestLily(unittest.TestCase):
 }"""
 
     def test_indent(self):
-        self.assertEquals(indent("""foo
+        self.assertEqual(indent("""foo
   bar"""), """  foo
     bar""")
 
     #
     # def test_for_list_of_notes(self):
     #     from piano.pianonote import PianoNote
-    #     self.assertEquals(_for_list_of_notes([PianoNote(chromatic=0, diatonic=0, finger=1)], ),
+    #     self.assertEqual(_for_list_of_notes([PianoNote(chromatic=0, diatonic=0, finger=1)], ),
     #                       "c'-1")
-    #     self.assertEquals(_for_list_of_notes(self.c_pentatonic_minor_5th_right, ),
+    #     self.assertEqual(_for_list_of_notes(self.c_pentatonic_minor_5th_right, ),
     #                       "c'-1 ees'-2 g'-3 c''-5")
     #
     # #
     # #     def test_staff(self):
-    # #         self.assertEquals(
+    # #         self.assertEqual(
     # #             _staff(key="g", fingering=self.c_pentatonic_minor_5th_right, for_right_hand=True, ),
     # #             """\\new Staff{
     # #   \\clef treble
@@ -98,7 +100,7 @@ class TestLily(unittest.TestCase):
     #         generated = lilypond_code_for_one_hand(key="g", notes_or_chords=self.c_pentatonic_minor_5th_right,
     #                                                for_right_hand=True
     #                                                , midi=False)
-    #         self.assertEquals(
+    #         self.assertEqual(
     #             generated,
     #             """\\version "2.20.0"
     # \\header{
@@ -117,7 +119,7 @@ class TestLily(unittest.TestCase):
     #     def test_lilypond_for_left(self):
     #         generated = lilypond_code_for_one_hand(key="g", notes_or_chords=self.c_pentatonic_minor_5th_left,
     #                                                for_right_hand=False, midi=False)
-    #         self.assertEquals(
+    #         self.assertEqual(
     #             generated,
     #             """\\version "2.20.0"
     # \\header{
@@ -136,7 +138,7 @@ class TestLily(unittest.TestCase):
     #     def test_lilypond_both_hands(self):
     #         generated = lilypond_code_for_two_hands(key="g", left_fingering=self.c_pentatonic_minor_5th_left,
     #                                                 right_fingering=self.c_pentatonic_minor_5th_right, midi=False)
-    #         self.assertEquals(
+    #         self.assertEqual(
     #             generated, """\
     # \\version "2.20.0"
     # \\header{
@@ -175,7 +177,7 @@ class TestLily(unittest.TestCase):
     #     c-5 ees-3 g-2 c'-1
     #   }
     # }"""
-    #         self.assertEquals(
+    #         self.assertEqual(
     #             generated,
     #             expected
     #         )
@@ -185,7 +187,7 @@ class TestLily(unittest.TestCase):
     #         chords = [TestSetOfNotes.C_minor, TestSetOfNotes.F_minor]
     #         generated = lilypond_code_for_one_hand(key="ees", notes_or_chords=chords,
     #                                                for_right_hand=False, midi=True)
-    #         self.assertEquals(
+    #         self.assertEqual(
     #             generated,
     #             self.chords_lily
     #         )
@@ -193,7 +195,7 @@ class TestLily(unittest.TestCase):
     #     def test_lilypond_both_hands_and_midi(self):
     #         generated = lilypond_code_for_two_hands(key="g", left_fingering=self.c_pentatonic_minor_5th_left,
     #                                                 right_fingering=self.c_pentatonic_minor_5th_right, midi=True)
-    #         self.assertEquals(
+    #         self.assertEqual(
     #             generated, """\\version "2.20.0"
     # \\header{
     #   tagline=""
@@ -218,7 +220,7 @@ class TestLily(unittest.TestCase):
 
     def test_chord(self):
         generated = chord(self.c_pentatonic_minor_5th_right, )
-        self.assertEquals(generated,
+        self.assertEqual(generated,
                           """\\version "2.20.0"
 \\score{
   \\new Staff{
@@ -242,9 +244,9 @@ class TestLily(unittest.TestCase):
         self.assertTrue(os.path.isfile(lily_path))
         with open(lily_path, "r") as file:
             file_content = file.read()
-        self.assertEquals(file_content, self.both_hand_lily)
+        self.assertEqual(file_content, self.both_hand_lily)
         cmd()
-        os.system(f"vlc {prefix_path}.wav&")
+        shell(f"vlc {prefix_path}.wav&")
 
     def test_chord_compile(self):
         prefix_path = "test_chords"
@@ -255,6 +257,6 @@ class TestLily(unittest.TestCase):
         self.assertTrue(os.path.isfile(lily_path))
         with open(lily_path, "r") as file:
             file_content = file.read()
-        self.assertEquals(file_content, self.chords_lily)
+        self.assertEqual(file_content, self.chords_lily)
         cmd()
-        os.system(f"vlc {prefix_path}.wav&")
+        shell(f"vlc {prefix_path}.wav&")

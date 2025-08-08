@@ -1,3 +1,4 @@
+from solfege.interval.test_abstract import TestBaseInterval
 from .abstract import *
 
 class TestBaseNote(TestBaseInterval):
@@ -14,16 +15,16 @@ class TestBaseNote(TestBaseInterval):
         self.assertTrue(self.C4.has_number())
 
     def test_get_number(self):
-        self.assertEquals(self.C4.get_number(), 0)
+        self.assertEqual(self.C4.get_number(), 0)
 
     def test_equal(self):
-        self.assertEquals(self.C4, self.C4)
-        self.assertNotEquals(self.D4, self.C4)
-        self.assertEquals(self.D4, self.D4)
+        self.assertEqual(self.C4, self.C4)
+        self.assertNotEqual(self.D4, self.C4)
+        self.assertEqual(self.D4, self.D4)
 
     def test_add(self):
-        self.assertEquals(self.D4 + self.deux, self.F4)
-        self.assertEquals(self.deux + self.D4, self.F4)
+        self.assertEqual(self.D4 + self.deux, self.F4)
+        self.assertEqual(self.deux + self.D4, self.F4)
         with self.assertRaises(Exception):
             _ = self.D4 + self.D4
 
@@ -32,8 +33,8 @@ class TestBaseNote(TestBaseInterval):
             _ = -self.D4
 
     def test_sub(self):
-        self.assertEquals(self.F4 - self.deux, self.D4)
-        self.assertEquals(self.F4 - self.D4, self.deux)
+        self.assertEqual(self.F4 - self.deux, self.D4)
+        self.assertEqual(self.F4 - self.D4, self.deux)
 
     def test_lt(self):
         self.assertLess(self.D4, self.deux)
@@ -41,17 +42,17 @@ class TestBaseNote(TestBaseInterval):
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
-        self.assertEquals(repr(self.D4), "AbstractNote(value=1)")
+        self.assertEqual(repr(self.D4), "AbstractNote(value=1)")
 
     def test_low_and_high(self):
-        self.assertEquals(low_and_high(self.C4, self.C4), (self.C4, self.C4))
-        self.assertEquals(low_and_high(self.D4, self.C4), (self.C4, self.D4))
-        self.assertEquals(low_and_high(self.C4, self.D4), (self.C4, self.D4))
+        self.assertEqual(low_and_high(self.C4, self.C4), (self.C4, self.C4))
+        self.assertEqual(low_and_high(self.D4, self.C4), (self.C4, self.D4))
+        self.assertEqual(low_and_high(self.C4, self.D4), (self.C4, self.D4))
 
     def test_pinky_and_thumb(self):
-        self.assertEquals(pinky_and_thumb_side(self.C4, self.C4, for_right_hand=False), (self.C4, self.C4))
-        self.assertEquals(pinky_and_thumb_side(self.D4, self.C4, for_right_hand=False), (self.C4, self.D4))
-        self.assertEquals(pinky_and_thumb_side(self.C4, self.D4, for_right_hand=False), (self.C4, self.D4))
-        self.assertEquals(pinky_and_thumb_side(self.C4, self.C4, for_right_hand=True), (self.C4, self.C4))
-        self.assertEquals(pinky_and_thumb_side(self.D4, self.C4, for_right_hand=True), (self.D4, self.C4))
-        self.assertEquals(pinky_and_thumb_side(self.C4, self.D4, for_right_hand=True), (self.D4, self.C4))
+        self.assertEqual(pinky_and_thumb_side(self.C4, self.C4, for_right_hand=False), (self.C4, self.C4))
+        self.assertEqual(pinky_and_thumb_side(self.D4, self.C4, for_right_hand=False), (self.C4, self.D4))
+        self.assertEqual(pinky_and_thumb_side(self.C4, self.D4, for_right_hand=False), (self.C4, self.D4))
+        self.assertEqual(pinky_and_thumb_side(self.C4, self.C4, for_right_hand=True), (self.C4, self.C4))
+        self.assertEqual(pinky_and_thumb_side(self.D4, self.C4, for_right_hand=True), (self.D4, self.C4))
+        self.assertEqual(pinky_and_thumb_side(self.C4, self.D4, for_right_hand=True), (self.D4, self.C4))
