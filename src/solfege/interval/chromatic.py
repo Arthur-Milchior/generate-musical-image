@@ -16,7 +16,7 @@ class ChromaticInterval(AbstractInterval):
     # moved to init because cyclic dependencies
 
     def __add__(self, other):
-    # No idea why this check does not work. But self is a solfege.interval.chromatic.ChromaticInterval while other is a src.solfege.interval.chromatic.ChromaticInterval , note the src
+    # No idea why this check does not work. But self is a solfege.interval.chromatic.ChromaticInterval while other is a solfege.interval.chromatic.ChromaticInterval , note the src
         if not isinstance(other, ChromaticInterval.clazz):
             raise Exception(
                 f"Adding a ChromaticInterval {self}: {self.__class__}: {self.__class__.__bases__} interval to something which is not a ChromaticInterval but {other}: {other.clazz}")

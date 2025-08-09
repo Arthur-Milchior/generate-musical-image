@@ -1,6 +1,6 @@
 import unittest
 
-from src.solfege.note.alteration import Alteration
+from solfege.note.alteration import Alteration
 
 
 class TestAlterationNote(unittest.TestCase):

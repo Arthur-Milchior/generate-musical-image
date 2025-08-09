@@ -1,6 +1,6 @@
 from solfege.solfege_pattern import SolfegePattern
 from solfege.scale.scale_pattern import ScalePattern
-from src.guitar.position.guitar_position import GuitarPosition
+from guitar.position.guitar_position import GuitarPosition
 from .utils import scale2Pos
 import unittest
 

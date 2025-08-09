@@ -1,1 +1,1 @@
-generate_root_folder = "~/generated"
+generate_root_folder = "./generated"

@@ -3,7 +3,7 @@ from typing import Callable, List
 from sh import assertNotUnitTest, shell
 
 from lily.svg import clean_svg, display_svg_file
-from src.solfege.note.note import Note
+from solfege.note.note import Note
 from utils.util import indent
 
 lilyHeader = """"""
@@ -49,7 +49,7 @@ def compile_(code: str, file_prefix, wav: bool, extension="svg", execute_lily: b
             with open(file_prefix + ".ly", "r") as file:
                 old_code = file.read()
                 if old_code == code:
-                    print("""%s.ly's old code is equal to current one""" % file_prefix)
+#                    print("""%s.ly's old code is equal to current one""" % file_prefix)
                     execute_lily = False
     if force_recompile:
         execute_lily = True

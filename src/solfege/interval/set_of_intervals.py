@@ -5,7 +5,7 @@ from typing import Generic, List
 from solfege.interval import DiatonicInterval
 from solfege.interval.abstract import IntervalType
 from solfege.interval.interval import Interval
-from src.utils.util import assert_all_same_class
+from utils.util import assert_all_same_class
 
 
 class SetOfIntervals(Generic[IntervalType]):

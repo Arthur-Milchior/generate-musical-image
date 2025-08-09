@@ -50,7 +50,7 @@ class ChromaticInstrumentWithDifficultNote(Instrument):
             self.difficulty_notes[note] = max(value, self.difficulty_notes.get(note, 0))
 
     def difficulty(self, note: Note):
-        return self.difficulty_notes.get(note.get_chromatic().get_in_base_octave, super().difficulty(note))
+        return self.difficulty_notes.get(note.get_chromatic().get_in_base_octave(), super().difficulty(note))
 
     """
     transposition: Interval = Interval(0, 0)
@@ -104,17 +104,47 @@ harmonica_diatonic = ChromaticInstrumentWithDifficultNote("harmonica_diatonic", 
 haromnica_chromatic = Instrument("harmonica_chromatic", Note("C3"), Note("C7#"))
 
 instruments: List[Instrument] = [
-    ocarina_harmorny_double,
-    ocarina_pendant,
-    ocarina_harmorny_triple,
-    ocarina_transverse,
-    mv_ocarina,
-    saxophone,
+#    ocarina_harmorny_double,
+ #   ocarina_pendant,
+  #  ocarina_harmorny_triple,
+   # ocarina_transverse,
+#    mv_ocarina,
+ #   saxophone,
     tin_whistle,
     recorder,
     harmonica_diatonic,
     haromnica_chromatic
     ]
+
+class Difficulties:
+    def __init__(self):
+        self.difficulties = dict()
+        self.biggest = 0
+
+    def add(self, d):
+        self.biggest = max(d, self.biggest)
+        self.difficulties[d] = self.difficulties.get(d, 0) + 1
+
+    def __eq__(self, value):
+        return self.difficulties == value.difficulties
+    
+    def __hash__(self):
+        return hash(self.difficulties)
+     
+    def __lt__(self, other):
+        if self.biggest > other.biggest:
+            return False
+        if self.biggest < other.biggest:
+            return True
+        for d in range(self.biggest, -1, -1):
+            if self.difficulties.get(d, 0) > other.difficulties.get(d, 0):
+                return False
+            if self.difficulties.get(d, 0) < other.difficulties.get(d, 0):
+                 return True
+        return False
+    
+    def __str__(self):
+        return str(self.difficulties)
 
 all_csv = []
 for instrument in instruments:
@@ -124,6 +154,7 @@ for instrument in instruments:
     for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
         for scale_pattern in patterns:
             scale_name = scale_pattern.names[0]
+            scale_notation = scale_pattern.notation
             anki_notes_in_scale = []
             for set_of_enharmonic_keys in sets_of_enharmonic_keys:
                 bass_note = set_of_enharmonic_keys[0].note + instrument.transposition - scale_pattern.interval_for_signature
@@ -138,21 +169,26 @@ for instrument in instruments:
                 difficulties = [instrument.difficulty(note) for note in scale.notes]
                 if None in difficulties: 
                     continue
-                difficulty = max(difficulties)
+                difficulty = Difficulties()
+                for d in difficulties:
+                    difficulty.add(d)
+
                 tonic_name = bass_note.get_symbol_name()
                 note = []
-                note.append(f"{instrument} {scale_name.replace(",", "")} {bass_note.get_full_name()} difficulty {difficulty}") # key
+                note.append(f"""\"{instrument} {scale_name.replace(",", "")} {bass_note.get_full_name()} difficulty {difficulty}\"""") # key
                 note.append(instrument_image)
                 note.append("") # Hide single octave
                 note.append("") # Practice single direction
                 note.append("") #signature
                 note.append("") #position
                 note.append(tonic_name)  #tonic
-                note.append(scale_name) # mode
+                note.append(scale_name) # Mode Name
+                note.append(scale_notation) # Mode Notation
                 note.append(specific) # specific
                 note.append(bass_note.image_html())#0
                 note.append(bass_note.add_octave(1).image_html()) # 1
                 note.append(bass_note.add_octave(2).image_html()) # 2
+                note.append(bass_note.add_octave(3).image_html()) # 3
 
                 for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2), (2,1), (1,2), (0,3)]:
                     scale_lowest_note = bass_note.add_octave(start_octave)
@@ -167,7 +203,6 @@ for instrument in instruments:
                         else:
                             file_name = f"""{scale_name}-{scale_lowest_note.get_ascii_name(fixed_length=False)}-{number_of_octaves}-{direction}"""
                             note.append(f"""<img src="{file_name}.svg"/>""")
-                note.append(bass_note.add_octave(2).image_html()) # 1
                 anki_notes_in_scale.append((difficulty, note))
 
             anki_notes_in_scale.sort(key=itemgetter(0))

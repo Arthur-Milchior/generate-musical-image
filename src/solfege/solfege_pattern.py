@@ -27,9 +27,12 @@ class SolfegePattern:
         if record:
             self.class_to_patterns[cls].append(self)
 
-    def get_the_first_of_the_name(self) -> str:
+    def get_the_first_of_the_name(self, for_file= False) -> str:
         """The first of all the names associated to this pattern. Hopefully the most canonical one"""
-        return self.names[0]
+        name = self.names[0] 
+        if for_file:
+            return name.replace(" ", "_")
+        return name
 
     def get_names(self):
         """All the names associated to this pattern"""
