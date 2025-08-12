@@ -12,6 +12,9 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
     def get_name_up_to_octave(self):
         return ["C", "C#", "D", "E♭", "E", "F", "F#", "G", "A♭", "A", "B♭", "B"][self.get_number() % 12]
 
+    def get_name_with_octave(self):
+        return f"{self.get_name_up_to_octave()}{self.get_octave(scientificNotation=True)}"
+
     def get_degree(self):
         return ["1", "1#", "2", "3♭", "3", "4", "4#", "5", "6♭", "6", "7♭", "7"][self.get_number() % 12]
 

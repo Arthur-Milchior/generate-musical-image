@@ -1,0 +1,1 @@
+This file contains all fingering using k1, k2 or k3 (in Jay's notation), that is Tf, Ta, Tc, in Londeix notation. Except if it also uses overtone, or a C_n button. (That is, it misses some note F6# and higher, as they will be found in either the overtone or the cn folder)

@@ -1,0 +1,1 @@
+this folder contains every single fingering using the overtone note (A in jay book. x for londeix)

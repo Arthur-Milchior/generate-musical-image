@@ -1,0 +1,1 @@
+This folder contains all fingering that contains C1, C2, C3, or C4 (in Londeix notation). Equivalently, in Jay's notation H1, H2, H3 or K4.

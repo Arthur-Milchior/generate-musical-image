@@ -1,0 +1,1 @@
+This folder contains every fingering that don't fit into the other folder. That is, don't use overtone ("x"/"A"), don't use a H/C n key. Don't use a K_n (Tf, Ta, Tc) key
