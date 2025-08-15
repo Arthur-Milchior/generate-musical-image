@@ -2,7 +2,7 @@ from math import sqrt
 from typing import Optional
 from solfege.note.chromatic import ChromaticNote
 from solfege.interval.chromatic import ChromaticInterval
-import unittest
+from solfege.note.note import Note
 
 radius = 7
 button_distance = 20
@@ -27,6 +27,9 @@ class AccordinaNote(ChromaticNote):
         self.selected = selected
         self.absolute = absolute
 
+    def __repr__(self):
+        return f"""AccordinaNote(value={self.value}, selected={self.selected}, absolute={self.absolute})"""
+
     def _nunber_of_semitone_from_c(self):
         return self.value
 
@@ -38,6 +41,24 @@ class AccordinaNote(ChromaticNote):
 
     def _row(self):
         return self._column() + 2* self._diagonal_number()
+    
+    def first_note_of_diagonal(self):
+        return max(self - ChromaticInterval(self._column()), min_accordina_note).copy(selected=False)
+
+    def last_note_of_diagonal(self):
+        return min(self + ChromaticInterval(2 - self._column()), max_accordina_note).copy(selected=False)
+    
+    def copy(self, selected: Optional[bool] = None, absolute: Optional[bool] = None):
+        return AccordinaNote(value = self.value,
+                              selected=selected if selected is not None else self.selected,
+                              absolute=absolute if absolute is not None else self.absolute
+                              )
+
+    def __add__(self, other):
+        note = super().__add__(other)
+        note.selected = self.selected
+        note.absolute = self.absolute
+        return note
     
     def fill_color(self):
         if self.absolute:
@@ -60,8 +81,6 @@ class AccordinaNote(ChromaticNote):
         else:
             return "black"
         
-
-    
     def __eq__(self, other):
         return isinstance(other, AccordinaNote) and super().__eq__(other) and self.selected == other.selected
 
@@ -75,3 +94,6 @@ class AccordinaNote(ChromaticNote):
     
 accordina_lowest_note = AccordinaNote(-5, selected = False, absolute=True) #G3
 accordina_highest_note = AccordinaNote(accordina_lowest_note.value + 12*3, selected = False, absolute=True) #G6
+
+min_accordina_note = AccordinaNote(Note("G3").get_chromatic().value, selected=False, absolute=True)
+max_accordina_note = AccordinaNote(Note("G6").get_chromatic().value, selected=False, absolute=True)

@@ -65,7 +65,7 @@ ensure_folder(notes_folder)
 anki_fingering_notes = []
 for value in range(accordina_lowest_note.value, accordina_highest_note.value+1):
     fingered_note = AccordinaNote(value, absolute=True)
-    set = SetOfAccordinaNote({accordina_lowest_note, fingered_note, accordina_highest_note, }, absolute= True)
+    set = SetOfAccordinaNote({fingered_note}, absolute= True, min=min_accordina_note, max=max_accordina_note)
     svg_name = f"accordina_{value}.svg"
     svg = set.svg()
     path = f"{notes_folder}/{svg_name}"

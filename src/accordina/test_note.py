@@ -1,11 +1,14 @@
 import unittest
 from .note import *
 
-C4 = AccordinaNote(0)
-C4_sharp = AccordinaNote(1)
-D4 = AccordinaNote(2)
-D4_sharp = AccordinaNote(3)
-C5 = AccordinaNote(12)
+half_tone = ChromaticInterval(1)
+C4 = AccordinaNote(0, selected=False)
+C4_sharp = C4 + half_tone
+D4 = C4_sharp + half_tone
+D4_sharp = D4 + half_tone
+E4 = D4_sharp + half_tone
+F4 = E4 + half_tone
+C5 = C4 + ChromaticInterval(12)
 
 class TestAccordinaNote(unittest.TestCase):
 
@@ -22,6 +25,20 @@ class TestAccordinaNote(unittest.TestCase):
         self.assertEqual(D4._diagonal_number(), 0)
         self.assertEqual(D4_sharp._diagonal_number(), 1)
         self.assertEqual(C5._diagonal_number(), 4)
+
+    def test_first_diagonal(self):
+        self.assertEqual(C4.first_note_of_diagonal(), C4)
+        self.assertEqual(C4_sharp.first_note_of_diagonal(), C4)
+        self.assertEqual(D4.first_note_of_diagonal(), C4)
+        self.assertEqual(D4_sharp.first_note_of_diagonal(), D4_sharp)
+        self.assertEqual(E4.first_note_of_diagonal(), D4_sharp)
+
+    def test_last_diagonal(self):
+        self.assertEqual(C4.last_note_of_diagonal(), D4)
+        self.assertEqual(C4_sharp.last_note_of_diagonal(), D4)
+        self.assertEqual(D4.last_note_of_diagonal(), D4)
+        self.assertEqual(D4_sharp.last_note_of_diagonal(), F4)
+        self.assertEqual(E4.last_note_of_diagonal(), F4)
 
     def test_row(self):
         self.assertEqual(C4._row(), 0)
