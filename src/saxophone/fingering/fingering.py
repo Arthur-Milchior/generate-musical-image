@@ -110,7 +110,7 @@ fingering_symbols = {
 
 
 class Fingering(ChromaticNote):
-    def __init__(self, chromatic_note_description: Union[str, int], buttons: Iterator[SaxophoneButton], fingering_symbol: str = FINGERING_N_COMPLETLY_EXPOSED, *, authors: Union[None, str, Iterator[str]] = None):
+    def __init__(self, chromatic_note_description: Union[str, int], buttons: Iterator[SaxophoneButton], fingering_symbol: str = FINGERING_N_COMPLETLY_EXPOSED, *, authors: Union[None, str, Iterator[str]] = None, test: bool = False):
         self.stack = traceback.format_stack(limit= 5)
         assert fingering_symbol in fingering_symbols
         self._buttons = frozenset(buttons)
@@ -130,7 +130,8 @@ class Fingering(ChromaticNote):
             value = chromatic_note_description
         fingerings_with_same_value = value_to_fingering.get(value, list())
         assert isinstance(fingerings_with_same_value, list) 
-        fingerings_with_same_value.append(self)
+        if not test:
+            fingerings_with_same_value.append(self)
         value_to_fingering[value] = fingerings_with_same_value
         super().__init__(value)
 

@@ -73,7 +73,7 @@ jay_6 = londeix_Bb = low_b_flat = SaxophoneButton(
 
 jay_k4 = londeix_c3 = high_e = top_side_key = SaxophoneButton(
     """<rect  style="fill:none;stroke:#000000;stroke-width:0.79375"  width="4.2715735"  height="13.06599"  x="10"  y="59.2778" />""",
-    "k4", "C3","E5")#
+    "k4", "C3","E6")#
 jay_k3 = londeix_tc = middle_side_key = SaxophoneButton(
     """<rect  style="fill:none;stroke:#000000;stroke-width:0.79375"  width="4.2715735"  height="13.06599"  x="10"  y="72.62829" />""",
     "k3", "Tc")#
