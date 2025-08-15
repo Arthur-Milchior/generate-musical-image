@@ -23,6 +23,7 @@ from solfege.solfege_pattern import SolfegePattern
 
 class ScalePattern(SolfegePattern, Generic[IntervalType]):
     _intervals: List[IntervalType]
+    interval_for_signature: Interval
 
     def __init__(self, names: List[str], intervals: List[Union[IntervalType, int, Tuple[int, int]]],
                  interval_for_signature: Interval,

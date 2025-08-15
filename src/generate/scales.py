@@ -157,7 +157,8 @@ for instrument in instruments:
             scale_notation = scale_pattern.notation
             anki_notes_in_scale = []
             for set_of_enharmonic_keys in sets_of_enharmonic_keys:
-                bass_note = set_of_enharmonic_keys[0].note + instrument.transposition - scale_pattern.interval_for_signature
+                interval = instrument.transposition - scale_pattern.interval_for_signature
+                bass_note = set_of_enharmonic_keys[0].note + interval
                 while bass_note < instrument.lowest_instrument_note:
                     bass_note = bass_note.add_octave(1)
                 while bass_note >= instrument.lowest_instrument_note.add_octave(1):

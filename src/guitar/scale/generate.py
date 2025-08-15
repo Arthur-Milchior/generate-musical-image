@@ -1,6 +1,7 @@
+from guitar.position.guitar_position import GuitarPosition
+from guitar.position.set_of_positions import SetOfGuitarPositions
 from .utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
 from utils.util import *
-from guitar.pos import Pos, SetOfGuitarPositions
 from solfege.scale.scale_pattern import ScalePattern
 import guitar.util
 

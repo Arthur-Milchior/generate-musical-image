@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Dict, List, Union
 
 
 class SolfegePattern:
@@ -9,7 +9,7 @@ class SolfegePattern:
     """Associate the class, then the name to the pattern"""
     class_to_name_to_pattern = dict()
     """associate to each class the list of all instances of this class"""
-    class_to_patterns = dict()
+    class_to_patterns: Dict[type, List['SolfegePattern']] = dict()
 
     def __init__(self, names: Union[str, List[str]], record=True):
         """"""

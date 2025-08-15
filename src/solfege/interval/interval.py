@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Self
 
 from solfege.interval.chromatic import ChromaticInterval
 from solfege.interval.diatonic import DiatonicInterval
@@ -63,7 +63,7 @@ class Interval(ChromaticInterval):
     def __repr__(self):
         return f"{self.__class__.__name__}(chromatic = {self.get_chromatic().get_number()}, diatonic = {self.get_diatonic().get_number()})"
 
-    def __add__(self, other):
+    def __add__(self, other) -> Self:
         diatonic = self.get_diatonic() + other.get_diatonic()
         chromatic = self.get_chromatic() + other.get_chromatic()
         from solfege.note.abstract import AbstractNote
