@@ -7,6 +7,7 @@ from lily.Lilyable.lilyable import Lilyable
 from lily.Lilyable.local_lilyable import LocalLilyable
 from lily.lily import compile_
 from solfege.note import Note
+from solfege.note.abstract import NoteOutput
 from utils.constants import test_folder
 from utils.util import indent
 
@@ -48,6 +49,7 @@ class PianoLilyable(Lilyable):
   \\override Staff.TimeSignature.stencil = ##f
   \\omit Staff.BarLine
   \\omit PianoStaff.SpanBar
+  \\time 30/4
   \\set Staff.printKeyCancellation = ##f
   \\clef {clef}
   \\key {self.first_key()} \\major
@@ -100,7 +102,7 @@ class LiteralPianoLilyable(PianoLilyable):
     @staticmethod
     def factory(key: Note, left_hand: Optional[Iterable[LocalLilyable]] = None,
                 right_hand: Optional[Iterable[LocalLilyable]] = None) -> LiteralPianoLilyable:
-        return LiteralPianoLilyable(key.lily_in_scale(),
+        return LiteralPianoLilyable(key.lily_key(),
                                     (" ".join(l.lily_in_scale() for l in left_hand) if (
                                             left_hand is not None) else None),
                                     (" ".join(

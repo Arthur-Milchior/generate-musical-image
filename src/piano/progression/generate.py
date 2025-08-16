@@ -6,6 +6,7 @@ from piano.progression.chord_progression import ChordProgression, TwoHandsChord
 from piano.progression.progressions_in_C import patterns_in_C, ii_v_i_third_and_seventh
 from solfege.key import sets_of_enharmonic_keys
 from solfege.note import Note
+from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils.constants import test_folder
 from utils.util import ensure_folder
 
@@ -18,14 +19,16 @@ def progression_for_pattern_tonic(folder_path: str, pattern: ChordProgression, t
     first_chord_pattern: TwoHandsChord = pattern.chords[0]
     progression = pattern + (tonic - Note("C4"))
     first_chord = progression.first_chord()
-    first_chord_prefix = f"""first_chord_progression_{tonic.get_ascii_name()}_{first_chord_pattern.name}_{pattern.disambiguation.replace(" ", "_")}"""
+    tonic_note_name_for_file = tonic.get_name_up_to_octave(alteration_output=AlterationOutput.ASCII, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.UNDERSCORE_SIMPLE)
+    first_chord_prefix = f"""first_chord_progression_{tonic_note_name_for_file}_{first_chord_pattern.name}_{pattern.disambiguation.replace(" ", "_")}"""
     lily_first_chord = first_chord.lily()
     compile_(lily_first_chord, f"{folder_path}/{first_chord_prefix}", wav=wav)
 
-    progression_prefix = f"""progression_ii_V_I_{tonic.get_ascii_name()}_{pattern.disambiguation.replace(" ", "_")}"""
+    progression_prefix = f"""progression_ii_V_I_{tonic_note_name_for_file}_{pattern.disambiguation.replace(" ", "_")}"""
     compile_(progression.lily(), f"{folder_path}/{progression_prefix}", wav=wav)
 
-    return ",".join([tonic.get_symbol_name(), "ii V I", f"""<img src="{first_chord_prefix}.svg">""",
+    tonic_note_name_for_field = tonic.get_name_up_to_octave(alteration_output= AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.SPACE_DOUBLE)
+    return ",".join([tonic_note_name_for_field, "ii V I", f"""<img src="{first_chord_prefix}.svg">""",
                      f"""<img src="{progression_prefix}.svg">"""])
 
 

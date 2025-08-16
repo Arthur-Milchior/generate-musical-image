@@ -99,12 +99,12 @@ class ProgressionTest(unittest.TestCase):
         \\omit PianoStaff.SpanBar
         \\time 30/4
         \\clef treble
-        \\key c' \\major
+        \\key c \\major
         <f' c''> <f' b'> <e' b'>
       }
       \\new Staff{
         \\clef bass
-        \\key c' \\major
+        \\key c \\major
         <d> <g> <c>
       }
     >>

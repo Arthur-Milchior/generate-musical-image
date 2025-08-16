@@ -54,10 +54,10 @@ for scale_pattern in scale_patterns:
                 second_part = LiteralPianoLilyable.factory(second_key_note, left_to_lily[length:],
                                                            right_to_lily[length:])
                 two_scales = ListPianoLilyable([first_part, second_part])
-                file_prefix = f"{pattern_name_}_{first_key.note.get_ascii_name()}_{first_direction}_{second_key_note.get_ascii_name()}_{second_direction}"
+                file_prefix = f"{pattern_name_}_{first_key.note.get_name_with_octave(ascii=True)}_{first_direction}_{second_key_note.get_name_with_octave(ascii=True)}_{second_direction}"
                 compile_(two_scales.lily(False), f"{scale_folder}/{file_prefix}", False)
                 anki_entries.append(
-                    f"""<img src="{file_prefix}.svg"/>|{pattern_name} in {first_key.note.get_symbol_name()} and {second_key_note.get_symbol_name()}""")
+                    f"""<img src="{file_prefix}.svg"/>|{pattern_name} in {first_key.note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )} and {second_key_note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )}""")
 
 with open(f"{folder_path}/anki.csv", "w") as f:
     f.write("\n".join(anki_entries))

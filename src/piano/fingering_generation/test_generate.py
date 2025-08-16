@@ -1,11 +1,14 @@
 import unittest
+
+from solfege.note.abstract import AlterationOutput, NoteOutput
+from piano.scales.test_fingering import TestFingering
 from .generate import *
 
 class TestScalesGenerate(unittest.TestCase):
     maxDiff = None
 
-    prefix_path = f"{test_folder}/test_generation"
-    ensure_folder(prefix_path)
+    test_folder = f"{test_folder}/test_generation"
+    ensure_folder(test_folder)
     c_major = [
         Note("C"),
         Note("D"),
@@ -65,14 +68,15 @@ class TestScalesGenerate(unittest.TestCase):
         piano_notes, fingering = fingerings[0]
         if show:
             # scale = fingering.generate(first_played_note=tonic, number_of_octaves=2, scale_pattern=scale_pattern)
-            lily_code = lilypond_code_for_one_hand(key=key.lily_in_scale(), notes_or_chords=piano_notes,
+            lily_code = lilypond_code_for_one_hand(key=key.get_name_up_to_octave(note_output=NoteOutput.LILY, alteration_output=AlterationOutput.LILY), notes_or_chords=piano_notes,
                                                    for_right_hand=for_right_hand,
                                                    midi=False)
-            ly_path = f"{self.prefix_path}.ly"
-            svg_path = f"{self.prefix_path}.svg"
+            test_file = f"{test_folder}/test"
+            ly_path = f"{test_file}.ly"
+            svg_path = f"{test_file}.svg"
             delete_file_if_exists(svg_path)
             delete_file_if_exists(ly_path)
-            cmd = compile_(lily_code, file_prefix=self.prefix_path, execute_lily=True, wav=False)
+            cmd = compile_(lily_code, file_prefix=test_file, execute_lily=True, wav=False)
             cmd()
 
         self.assertEqual(fingering, expected)
@@ -156,7 +160,7 @@ class TestScalesGenerate(unittest.TestCase):
 
     def test_blues_c_d(self):
         notes = blues.generate(Note("C")).notes + list(reversed(blues.generate(Note("D♭")).notes))
-        compile_(LiteralPianoLilyable.factory(key=Note("c"), right_hand=notes).lily(), f"{self.prefix_path}/c_d_blues",
+        compile_(LiteralPianoLilyable.factory(key=Note("c"), right_hand=notes).lily(), f"{self.test_folder}/c_d_blues",
                  wav=False)()
         right = generate_best_fingering_for_melody(notes, for_right_hand=True)
         left = generate_best_fingering_for_melody(notes, for_right_hand=False)

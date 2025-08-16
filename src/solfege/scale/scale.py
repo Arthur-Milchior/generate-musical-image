@@ -77,6 +77,6 @@ class Scale(Generic[NoteType], Lilyable):
   \\time 30/4
   \\set Staff.printKeyCancellation = ##f
   \\clef treble
-  \\key {self.key().lily_in_scale()} \\major
+  \\key {self.key().lily_key()} \\major
 {" ".join(note.lily_in_scale() for note in self.notes)}
 }}"""

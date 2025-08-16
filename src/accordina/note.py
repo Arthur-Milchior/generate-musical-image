@@ -90,7 +90,7 @@ class AccordinaNote(ChromaticNote):
     def svg(self, min_note: Optional['AccordinaNote'] = None):
         """Draw this position. The highest note pictured is `min_note`."""
         row = self._row() - min_note._row() if min_note else self ._row()
-        return f"""<circle cx="{x(self._column())}" cy="{y(row, self._column())}" r="{radius}" fill="{self.fill_color()}" stroke="{self.stroke_color()}" stroke-width="2"/><!--{self.get_full_name()}-->"""
+        return f"""<circle cx="{x(self._column())}" cy="{y(row, self._column())}" r="{radius}" fill="{self.fill_color()}" stroke="{self.stroke_color()}" stroke-width="2"/><!--{self.get_name_with_octave()}-->"""
     
 accordina_lowest_note = AccordinaNote(-5, selected = False, absolute=True) #G3
 accordina_highest_note = AccordinaNote(accordina_lowest_note.value + 12*3, selected = False, absolute=True) #G6

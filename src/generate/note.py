@@ -22,12 +22,13 @@ def single_note(clef, note):
 \\version "2.20.0"
 \\score{{
   \\new Staff{{
-    \\clef {clef}
     \\override Staff.TimeSignature.stencil = ##f
     \\omit Staff.BarLine
     \\omit PianoStaff.SpanBar
     \\time 30/4
-    {note.lily_in_scale()}
+    \\set Staff.printKeyCancellation = ##f
+    \\clef {clef}
+    {note.lily_key()}
     }}
 }}"""
 

@@ -5,6 +5,7 @@ from typing import List, Union, Optional
 from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
 from piano.fingering_generation.generate import generate_best_fingering_for_scale, BestPenaltyScale
 from piano.fingering_generation.penalty_for_scale import PenaltyForScale
+from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
 from lily.lily import compile_
 from piano.piano_note import PianoNote
@@ -58,7 +59,7 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_
     """Ensure that folder_path/ contains the score for lilyCode, for scale_name, hands left/right, number_of_octaves and direction.
     Don't compile if `compile` is false. Mostly used for testing"""
     assert show_right or show_left
-    file_name = f"""{scale_name}-{scale_lowest_note.get_ascii_name()}-{("two_hands" if show_left else "right_hand") if show_right else "left_hand"}-{number_of_octaves}-{direction}"""
+    file_name = f"""{scale_name}-{scale_lowest_note.get_name_with_octave(fixed_length = FixedLengthOutput.UNDERSCORE_SIMPLE, octave_notation=OctaveOutput.MIDDLE_IS_4, note_output=NoteOutput.LETTER, alteration_output=AlterationOutput.ASCII)}-{("two_hands" if show_left else "right_hand") if show_right else "left_hand"}-{number_of_octaves}-{direction}"""
     image_tag = f"<img src='{file_name}.svg'>"
     file_path = f"{folder_path}/{file_name}"
     html_line = f"<li><a href='{file_name}.ly'/>{image_tag}</a></li>"
@@ -238,15 +239,15 @@ def generate_score_fixed_pattern_first_note(key: str,
     left_fingerings = [fingering for _, fingering in left_penalty.fingerings]
     right_fingerings = [fingering for _, fingering in right_penalty.fingerings]
     anki_fields_for_this_scale_pattern_and_lowest_note = [scale_pattern.get_the_first_of_the_name(),
-                                                          right_hand_lowest_note.get_symbol_name()]
+                                                          right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )]
     html_lines = []
     # if not right_penalty.acceptable():
     #     print(
-    #         f"Warning:Right is not perfect on {right_hand_lowest_note.get_full_name()} {scale_pattern.get_the_first_of_the_name()}.\n{right_penalty.warning()}",
+    #         f"Warning:Right is not perfect on {right_hand_lowest_note.get_name_with_octave()} {scale_pattern.get_the_first_of_the_name()}.\n{right_penalty.warning()}",
     #         file=sys.stderr)
     # if not left_penalty.acceptable():
     #     print(
-    #         f"Warning:Left is not perfect on {right_hand_lowest_note.get_symbol_name()} {scale_pattern.get_the_first_of_the_name()}.\n{left_penalty.warning()}",
+    #         f"Warning:Left is not perfect on {right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )} {scale_pattern.get_the_first_of_the_name()}.\n{left_penalty.warning()}",
     #         file=sys.stderr)
     for number_of_octaves in [1, 2]:
         output = generate_score_fixed_pattern_first_note_number_of_octaves(
@@ -268,13 +269,13 @@ def generate_score_fixed_pattern_first_note(key: str,
 <html>
   <head>
     <title>
-      Fingerings of {right_hand_lowest_note.get_symbol_name()} {scale_pattern.get_the_first_of_the_name()}
+      Fingerings of {right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )} {scale_pattern.get_the_first_of_the_name()}
     </title>
   </head>
   <body>
     <header>
       <h1>
-        Fingerings of {right_hand_lowest_note.get_symbol_name()} {scale_pattern.get_the_first_of_the_name()}
+        Fingerings of {right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )} {scale_pattern.get_the_first_of_the_name()}
       </h1>
     </header>
     <ul>
@@ -289,7 +290,7 @@ def generate_score_fixed_pattern_first_note(key: str,
   </body>
 </html>""")
     anki_note_as_csv = ",".join(anki_fields_for_this_scale_pattern_and_lowest_note)
-    html_link_for_this_starting_note = f"""<li><a href='{right_hand_lowest_note.get_ascii_name()}'>{right_hand_lowest_note.get_symbol_name()}</a></li>"""
+    html_link_for_this_starting_note = f"""<li><a href='{right_hand_lowest_note.get_name_with_octave(ascii=True)}'>{right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )}</a></li>"""
     return ScoreFixedPatternFirstNote(anki_note_as_csv=anki_note_as_csv,
                                       html_link_for_this_starting_note=html_link_for_this_starting_note)
 
@@ -317,10 +318,10 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
         starting_note = fundamental.note - scale_pattern.interval_for_signature
         while starting_note >= Note("F4"):
             starting_note = starting_note.add_octave(-1)
-        note_folder = f"{folder_path}/{starting_note.get_ascii_name()}"
+        note_folder = f"{folder_path}/{starting_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4)}"
         pathlib.Path(note_folder).mkdir(exist_ok=True)
         try:
-            output = generate_score_fixed_pattern_first_note(key=fundamental.note.lily_in_scale(),
+            output = generate_score_fixed_pattern_first_note(key=fundamental.note.lily_key(),
                                                              right_hand_lowest_note=starting_note,
                                                              scale_pattern=scale_pattern,
                                                              folder_path=note_folder, execute_lily=execute_lily,

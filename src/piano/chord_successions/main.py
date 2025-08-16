@@ -39,7 +39,7 @@ if __name__ == '__main__':
 #   \\midi{}
 #   \\new Staff{
 #     \\clef treble
-#     \\key c' \\major
+#     \\key c \\major
 #     \\clef treble <
 #       c'
 #       e'

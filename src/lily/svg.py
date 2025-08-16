@@ -26,13 +26,13 @@ def add_background(svg: str, background_color: str):
 {content}"""
 
 
-def clean_svg(input: str, output: str, background_color: str):
+def clean_svg(svg_input_path: str, svg_output_path: str, background_color: str):
     """Remove xlink and add a white background"""
-    with open(input) as f:
+    with open(svg_input_path) as f:
         svg = f.read()
     svg = add_background(svg, background_color)
     svg = remove_xlink(svg)
-    with open(output, "w") as f:
+    with open(svg_output_path, "w") as f:
         f.write(svg)
 
 

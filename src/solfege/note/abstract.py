@@ -1,9 +1,32 @@
 from __future__ import annotations
 
-from typing import Union, TypeVar, Tuple
+from typing import Union, TypeVar, Tuple, assert_never
+from enum import Enum
 
 from solfege.interval.abstract import AbstractInterval
 
+class AlterationOutput(Enum):
+    ASCII = "ASCII"
+    SYMBOL = "SYMBOL"
+    LILY = "LILY"
+
+class NoteOutput(Enum):
+    LETTER = "LETTER" # C, D, ..., B
+    NUMBER = "NUMBER" # 1, ..., 7
+    FRENCH = "FRENCH" # do, ..., si
+    LILY = "LILY" #c, ..., b
+
+class OctaveOutput(Enum):
+    MIDDLE_IS_0 = "0"
+    MIDDLE_IS_4 = "4"
+    LILY = "LILY"
+
+class FixedLengthOutput(Enum):
+    SPACE_DOUBLE = "SPACE_DOUBLE"  # if we must consider double sharp and double flat
+    SPACE_SIMPLE = "SPACE_SIMPLE" # If we only deal with at moste one alteration
+    UNDERSCORE_DOUBLE = "DOUBLE"  # if we must consider double sharp and double flat
+    UNDERSCORE_SIMPLE = "SIMPLE" # If we only deal with at moste one alteration
+    NO = "NO"
 
 class AbstractNote(AbstractInterval):
     IntervalClass = AbstractInterval
@@ -43,17 +66,26 @@ class AbstractNote(AbstractInterval):
             other)  # Super still makes sens because a class inheriting _Note also inherits some other class.
         return sum_
 
-    def get_octave(self, scientific_notation=False):
+    def get_octave_name(self, octave_notation: OctaveOutput) -> str:
         """The octave.  By default, starting at middle c. If scientific_notation, starting at C0"""
-        octave = super().get_octave()
-        return octave + 4 if scientific_notation else octave
+        if octave_notation == OctaveOutput.MIDDLE_IS_4:
+            return str(self.get_octave() + 4)
+        elif octave_notation == OctaveOutput.MIDDLE_IS_0:
+            return str(self.get_octave())
+        elif octave_notation == OctaveOutput.LILY:
+            if self.get_octave() >= 0:
+                return "'" * (self.get_octave() + 1)
+            return "," * (-self.get_octave() - 1)
+        raise assert_never(octave_notation)
 
-    def get_name_up_to_octave(self) -> str:
-        raise NotImplemented
+    def get_name_up_to_octave(self,
+                              **kwargs
+                               # potential argument. alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput = FixedLengthOutput.NOT_FIXED_LENGTH
+                              ) -> str:
+        return NotImplemented
 
-    def get_full_name(self):
-        return f"{self.get_name_up_to_octave()}{str(self.get_octave() + 4)}"
-
+    def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs):
+        return f"{self.get_name_up_to_octave(**kwargs)}{str(self.get_octave_name(octave_notation=octave_notation))}"
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)
 

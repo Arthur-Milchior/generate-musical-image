@@ -5,8 +5,8 @@ from typing import Optional
 from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.interval.interval import Interval, third_minor
 from solfege.note import ChromaticNote, DiatonicNote
-from solfege.note.abstract import low_and_high
-from solfege.note.alteration import Alteration, alteration_symbols
+from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput, low_and_high
+from solfege.note.alteration import DOUBLE_FLAT, DOUBLE_SHARP, FLAT, NATURAL, SHARP, Alteration, alteration_symbols
 
 
 class Note(Interval, ChromaticNote, LocalLilyable):
@@ -38,37 +38,14 @@ class Note(Interval, ChromaticNote, LocalLilyable):
         return Interval(
             diatonic=diatonic.get_number(),
             chromatic=chromatic.get_number()
-        )
+        )        
 
-    def lily_in_scale(self):
-        """For example "bes'"."""
-        return f"{self.get_diatonic().lily_in_scale()}{self.get_alteration().lily_in_scale()}{self.get_diatonic().get_octave_name_lily()}"
-
-    def get_symbol_name(self, fixed_length: bool = True):
-        """The name of this note.
-
-        For example "C#" or "C# "
-        Args: usage -- see Alteration file."""
-        return f"{self.get_diatonic().get_name_up_to_octave()}{self.get_alteration().get_symbol_name(fixed_length = fixed_length)}"
-
-    def get_ascii_name(self, fixed_length: bool = True):
-        """The name of this note.
-
-        Example "C3sharp"
-
-        Args: usage -- see Alteration file."""
-        return f"{self.get_diatonic().get_name_with_octave()}{self.get_alteration().get_ascii_name(fixed_length=fixed_length)}"
-
-    def get_name_up_to_octave(self, ascii: bool= False):
-        if ascii:
-            return self.get_ascii_name(fixed_length=False)
-        raise NotImplemented
-
-    def get_full_name(self, fixed_length: bool = True):
-        """
-        Example "C# 4" or "C#4"
-        """
-        return f"{self.get_symbol_name(fixed_length = fixed_length)}{self.get_octave() + 4}"
+    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput):
+        diatonic_note: DiatonicNote = self.get_diatonic()
+        diatonic_name = diatonic_note.get_name_up_to_octave(note_output=note_output, fixed_length=fixed_length)
+        alteration: Alteration = self.get_alteration()
+        alteration_name = alteration.get_name(alteration_output=alteration_output, fixed_length=fixed_length)
+        return f"""{diatonic_name}{alteration_name}"""
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""
@@ -86,15 +63,6 @@ class Note(Interval, ChromaticNote, LocalLilyable):
         if higher.get_in_base_octave().value in [0, 1, 2, 5, 6, 7]:  # C or F natural
             return False
         return True
-
-    def is_white_key_on_piano(self):
-        """Whether this note corresponds to a black note of the keyboard"""
-        return not self.is_black_key_on_piano()
-
-    def is_black_key_on_piano(self):
-        """Whether this note corresponds to a black note of the keyboard"""
-        blacks = {1, 3, 6, 8, 10}
-        return (self.get_chromatic().get_number() % 12) in blacks
 
     def simplest_enharmonic(self):
         """Enharmonic note, with 0 alteration if possible or one of the same alteration"""
@@ -137,18 +105,26 @@ class Note(Interval, ChromaticNote, LocalLilyable):
             if below.is_white_key_on_piano():
                 return below
         return enharmonic
+    
+    def lily_in_scale(self):
+        """A string valid in a scale in lily"""
+        return self.get_name_with_octave(alteration_output=AlterationOutput.LILY, note_output=NoteOutput.LILY, octave_notation=OctaveOutput.LILY, fixed_length=FixedLengthOutput.NO, )
+    
+    def lily_key(self):
+        """A string valid as key indication for lily"""
+        return self.get_name_up_to_octave(alteration_output=AlterationOutput.LILY, note_output=NoteOutput.LILY, fixed_length=FixedLengthOutput.NO)
 
     def is_natural(self):
-        return self.get_alteration() == Alteration(0)
+        return self.get_alteration() == NATURAL
 
     def is_sharp(self):
-        return self.get_alteration() == Alteration(1)
+        return self.get_alteration() == SHARP
 
     def is_flat(self):
-        return self.get_alteration() == Alteration(-1)
+        return self.get_alteration() == FLAT
 
     def is_double_sharp(self):
-        return self.get_alteration() == Alteration(2)
+        return self.get_alteration() == DOUBLE_SHARP
 
     def is_double_flat(self):
-        return self.get_alteration() == Alteration(-2)
+        return self.get_alteration() == DOUBLE_FLAT

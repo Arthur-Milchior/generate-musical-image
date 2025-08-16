@@ -7,6 +7,7 @@ from solfege.note import Note
 from solfege.note.set_of_notes import SetOfNotes
 from solfege.scale.scale import Scale
 from solfege.scale.scale_pattern import major_scale
+from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 
 
 @dataclass(frozen=True)
@@ -65,15 +66,18 @@ def succession_for_hands_key_pattern_direction(
     else:
         assert for_right_hand
         hand_name = "right"
-    filename_prefix = f"{key.get_ascii_name()}_{hand_name}_{chord_pattern.name}_{direction}"
+    key_name = key.get_name_up_to_octave(alteration_output=AlterationOutput.ASCII, 
+                                        note_output= NoteOutput.LETTER, 
+                                        fixed_length=FixedLengthOutput.UNDERSCORE_SIMPLE)
+    filename_prefix = f"{key_name}_{hand_name}_{chord_pattern.name}_{direction}"
     filepath = f"{folder_path}/{filename_prefix}"
     left_succession = [succession.add_octaves(-1) for succession in right_succession]
     if for_left_hand and for_right_hand:
         code = lilypond_code_for_two_hands(
-            key=key.lily_in_scale(), left_fingering=left_succession, right_fingering=right_succession, midi=midi
+            key=key.lily_key(), left_fingering=left_succession, right_fingering=right_succession, midi=midi
         )
     else:
-        code = lilypond_code_for_one_hand(key.lily_in_scale(), left_succession if for_left_hand else right_succession,
+        code = lilypond_code_for_one_hand(key.lily_key(), left_succession if for_left_hand else right_succession,
                                           for_right_hand=for_right_hand, midi=midi)
     return CardContent(filename_prefix, filepath, code)
 
@@ -103,7 +107,7 @@ class ChordSuccessionNote:
     def to_anki(self) -> str:
         return ",".join([
                             self.chord_pattern.name,
-                            self.key.get_symbol_name(),
+                            self.key.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, ),
                             "", "single octave", "",
                         ] + [
                             succession.to_html() for succession in self.successions])

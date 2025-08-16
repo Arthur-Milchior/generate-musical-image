@@ -1,4 +1,4 @@
-from solfege.note.abstract import AbstractNote
+from solfege.note.abstract import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.interval.chromatic import ChromaticInterval
 
 
@@ -9,17 +9,8 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         """Color to print the note in lilypond"""
         return "black"
 
-    def get_name_up_to_octave(self, ascii:bool = False):
-        if ascii:
-            return ["C", "C_sharp", "D", "E_flat", "E", "F", "F_sharp", "G", "A_flat", "A", "B_flat", "B"][self.get_number() % 12]
-        else:
-            return ["C", "C#", "D", "E♭", "E", "F", "F#", "G", "A♭", "A", "B♭", "B"][self.get_number() % 12]
-
-    def get_name_with_octave(self, ascii:bool = False):
-        return f"{self.get_name_up_to_octave(ascii=ascii)}{self.get_octave(scientific_notation=True)}"
-
-    def get_degree(self):
-        return ["1", "1#", "2", "3♭", "3", "4", "4#", "5", "6♭", "6", "7♭", "7"][self.get_number() % 12]
+    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput):
+        return self.get_note().get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
 
     def get_note(self, cls=None):
         """A solfège note. Diatonic note is guessed. The default class is
@@ -45,3 +36,12 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
     def image_html(self, clef: str="treble"):
         """Return the html tag for the image."""
         return f"""<img src="{self.image_file_name(clef)}"/>"""
+
+    def is_white_key_on_piano(self):
+        """Whether this note corresponds to a black note of the keyboard"""
+        return not self.is_black_key_on_piano()
+
+    def is_black_key_on_piano(self):
+        """Whether this note corresponds to a black note of the keyboard"""
+        blacks = {1, 3, 6, 8, 10}
+        return (self.get_chromatic().get_number() % 12) in blacks

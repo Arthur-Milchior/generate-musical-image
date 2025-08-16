@@ -2,6 +2,7 @@ from typing import Optional, List
 
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import Note
+from solfege.note.abstract import NoteOutput
 
 
 class PianoNote(Note):

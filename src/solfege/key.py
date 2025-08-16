@@ -53,7 +53,7 @@ class Key:
         return (self._number_of_alterations(), self.note) < (other._number_of_alterations(), other.note)
 
     def __str__(self):
-        return self.note.get_symbol_name() + (f" with {self.number_of_flats} ♭" if self.number_of_flats else "") + (
+        return self.note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False) + (f" with {self.number_of_flats} ♭" if self.number_of_flats else "") + (
             f" with {self.number_of_sharps} #" if self.number_of_sharps else "")
 
 

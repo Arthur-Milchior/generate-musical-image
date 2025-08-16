@@ -1,4 +1,5 @@
 from solfege.interval.test_interval import TestInterval
+from solfege.note.abstract import OctaveOutput
 from .note import *
 
 class TestNote(TestInterval):
@@ -137,8 +138,8 @@ class TestNote(TestInterval):
         self.assertEqual(Note("B3"), Note(chromatic=-1, diatonic=-1))
 
     def test_from_name_to_name(self):
-        self.assertEqual(Note("C4").get_full_name(), "C4")
-        self.assertEqual(Note("C♭4").get_full_name(), "C♭4")
+        self.assertEqual(Note("C4").get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO, ), "C4")
+        self.assertEqual(Note("C♭4").get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO, ), "C♭4")
 
     def test_simplest_enharmonic(self):
         self.assertEqual(Note("C").simplest_enharmonic(), Note("C"))

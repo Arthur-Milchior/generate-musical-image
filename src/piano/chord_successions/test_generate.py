@@ -100,7 +100,7 @@ class TestChordSuccession(unittest.TestCase):
       \\time 30/4
       \\set Staff.printKeyCancellation = ##f
       \\clef treble
-      \\key c' \\major
+      \\key c \\major
       <c' e' g'> <d' f' a'> <e' g' b'> <f' a' c''> <g' b' d''> <a' c'' e''> <b' d'' f''> <c'' e'' g''>
     }
   >>
@@ -117,7 +117,7 @@ class TestChordSuccession(unittest.TestCase):
       \\time 30/4
       \\set Staff.printKeyCancellation = ##f
       \\clef bass
-      \\key c' \\major
+      \\key c \\major
       <c e g> <d f a> <e g b> <f a c'> <g b d'> <a c' e'> <b d' f'> <c' e' g'>
     }
   >>
@@ -135,13 +135,17 @@ class TestChordSuccession(unittest.TestCase):
         \\time 30/4
         \\set Staff.printKeyCancellation = ##f
         \\clef treble
-        \\key c' \\major
+        \\key c \\major
         <c' e' g'> <d' f' a'> <e' g' b'> <f' a' c''> <g' b' d''> <a' c'' e''> <b' d'' f''> <c'' e'' g''>
       }
       \\new Staff{
+        \\override Staff.TimeSignature.stencil = ##f
+        \\omit Staff.BarLine
+        \\omit PianoStaff.SpanBar
+        \\time 30/4
         \\set Staff.printKeyCancellation = ##f
         \\clef bass
-        \\key c' \\major
+        \\key c \\major
         <c e g> <d f a> <e g b> <f a c'> <g b d'> <a c' e'> <b d' f'> <c' e' g'>
       }
     >>
@@ -178,10 +182,9 @@ class TestChordSuccession(unittest.TestCase):
             "folder", Note("C"), self.triad_right_succession, triad, for_left_hand=False, for_right_hand=True,
             direction="increasing", midi=False
         )
-        self.assertEqual(suc,
-                          CardContent("C______right_triad_increasing", "folder/C______right_triad_increasing",
+        expected = CardContent("C______right_triad_increasing", "folder/C______right_triad_increasing",
                                       self.lily_right_c_triad)
-                          )
+        self.assertEqual(suc, expected)
 
     def test_succession_for_hands_key_pattern_direction_both(self):
         suc = succession_for_hands_key_pattern_direction(

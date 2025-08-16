@@ -26,11 +26,11 @@ class TestGeneration(unittest.TestCase):
     maxDiff = None
     execute_lily = False
     folder_scale = f"{test_folder}/Minor_arpeggio"
-    folder_note_scale = f"{folder_scale}/F3_____"
+    folder_note_scale = f"{folder_scale}/F_____3"
     pathlib.Path(folder_note_scale).mkdir(parents=True, exist_ok=True)
     scale_lowest_note = Note("F3")
-    file_prefix_both_hands = f"{folder_note_scale}/Minor_arpeggio-F3_____-two_hands-1-increasing"
-    file_prefix_left_hand = f"{folder_note_scale}/Minor_arpeggio-F3_____-left_hand-1-increasing"
+    file_prefix_both_hands = f"{folder_note_scale}/Minor_arpeggio-F_____3-two_hands-1-increasing"
+    file_prefix_left_hand = f"{folder_note_scale}/Minor_arpeggio-F_____3-left_hand-1-increasing"
     lilypond_path_both_hands = f"{file_prefix_both_hands}.ly"
     lilypond_path_left_hand = f"{file_prefix_left_hand}.ly"
     svg_both_hands_path = f"{file_prefix_both_hands}.svg"
@@ -46,6 +46,7 @@ class TestGeneration(unittest.TestCase):
         \\override Staff.TimeSignature.stencil = ##f
         \\omit Staff.BarLine
         \\omit PianoStaff.SpanBar
+        \\time 30/4
         \\set Staff.printKeyCancellation = ##f
         \\clef treble
         \\key aes \\major
@@ -69,6 +70,7 @@ class TestGeneration(unittest.TestCase):
       \\override Staff.TimeSignature.stencil = ##f
       \\omit Staff.BarLine
       \\omit PianoStaff.SpanBar
+      \\time 30/4
       \\set Staff.printKeyCancellation = ##f
       \\clef bass
       \\key aes \\major
@@ -112,7 +114,7 @@ Minor arpeggio,G  ,<img src='Minor_arpeggio-G_____-left_hand-1-increasing.svg'>,
 Minor arpeggio,B  ,<img src='Minor_arpeggio-B_____-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-B_____-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-B_____-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-B_____-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-B_____-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-B_____-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-B_____-left_hand-1-total.svg'>,<img src='Minor_arpeggio-B_____-right_hand-1-total.svg'>,<img src='Minor_arpeggio-B_____-two_hands-1-total.svg'>,<img src='Minor_arpeggio-B_____-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-B_____-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-B_____-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-B_____-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-B_____-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-B_____-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-B_____-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-B_____-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-B_____-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-B_____-left_hand-2-total.svg'>,<img src='Minor_arpeggio-B_____-right_hand-2-total.svg'>,<img src='Minor_arpeggio-B_____-two_hands-2-total.svg'>,<img src='Minor_arpeggio-B_____-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-B_____-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-B_____-two_hands-2-reverse.svg'>
 Minor arpeggio,C  ,<img src='Minor_arpeggio-C_____-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-C_____-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-C_____-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-C_____-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-C_____-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-C_____-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-C_____-left_hand-1-total.svg'>,<img src='Minor_arpeggio-C_____-right_hand-1-total.svg'>,<img src='Minor_arpeggio-C_____-two_hands-1-total.svg'>,<img src='Minor_arpeggio-C_____-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-C_____-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-C_____-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-C_____-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-C_____-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-C_____-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-C_____-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-C_____-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-C_____-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-C_____-left_hand-2-total.svg'>,<img src='Minor_arpeggio-C_____-right_hand-2-total.svg'>,<img src='Minor_arpeggio-C_____-two_hands-2-total.svg'>,<img src='Minor_arpeggio-C_____-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-C_____-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-C_____-two_hands-2-reverse.svg'>
 Minor arpeggio,F# ,<img src='Minor_arpeggio-Fsharp-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Fsharp-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Fsharp-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-Fsharp-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Fsharp-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Fsharp-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-Fsharp-left_hand-1-total.svg'>,<img src='Minor_arpeggio-Fsharp-right_hand-1-total.svg'>,<img src='Minor_arpeggio-Fsharp-two_hands-1-total.svg'>,<img src='Minor_arpeggio-Fsharp-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Fsharp-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Fsharp-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-Fsharp-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Fsharp-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Fsharp-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-Fsharp-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Fsharp-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Fsharp-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-Fsharp-left_hand-2-total.svg'>,<img src='Minor_arpeggio-Fsharp-right_hand-2-total.svg'>,<img src='Minor_arpeggio-Fsharp-two_hands-2-total.svg'>,<img src='Minor_arpeggio-Fsharp-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Fsharp-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Fsharp-two_hands-2-reverse.svg'>
-Minor arpeggio,F  ,<img src='Minor_arpeggio-F3_____-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-1-total.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-1-total.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-1-total.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-2-total.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-2-total.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-2-total.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-2-reverse.svg'>
+Minor arpeggio,F  ,<img src='Minor_arpeggio-F_____3-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-1-total.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-1-total.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-1-total.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-2-total.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-2-total.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-2-total.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-2-reverse.svg'>
 Minor arpeggio,C# ,<img src='Minor_arpeggio-Csharp-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Csharp-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Csharp-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-Csharp-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Csharp-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Csharp-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-Csharp-left_hand-1-total.svg'>,<img src='Minor_arpeggio-Csharp-right_hand-1-total.svg'>,<img src='Minor_arpeggio-Csharp-two_hands-1-total.svg'>,<img src='Minor_arpeggio-Csharp-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Csharp-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Csharp-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-Csharp-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Csharp-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Csharp-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-Csharp-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Csharp-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Csharp-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-Csharp-left_hand-2-total.svg'>,<img src='Minor_arpeggio-Csharp-right_hand-2-total.svg'>,<img src='Minor_arpeggio-Csharp-two_hands-2-total.svg'>,<img src='Minor_arpeggio-Csharp-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Csharp-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Csharp-two_hands-2-reverse.svg'>
 Minor arpeggio,B♭ ,<img src='Minor_arpeggio-Bflat_-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-1-total.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-1-total.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-1-total.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-2-total.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-2-total.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-2-total.svg'>,<img src='Minor_arpeggio-Bflat_-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Bflat_-two_hands-2-reverse.svg'>
 Minor arpeggio,G# ,<img src='Minor_arpeggio-Gsharp-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Gsharp-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-Gsharp-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-Gsharp-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Gsharp-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-Gsharp-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-Gsharp-left_hand-1-total.svg'>,<img src='Minor_arpeggio-Gsharp-right_hand-1-total.svg'>,<img src='Minor_arpeggio-Gsharp-two_hands-1-total.svg'>,<img src='Minor_arpeggio-Gsharp-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Gsharp-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-Gsharp-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-Gsharp-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Gsharp-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-Gsharp-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-Gsharp-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Gsharp-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-Gsharp-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-Gsharp-left_hand-2-total.svg'>,<img src='Minor_arpeggio-Gsharp-right_hand-2-total.svg'>,<img src='Minor_arpeggio-Gsharp-two_hands-2-total.svg'>,<img src='Minor_arpeggio-Gsharp-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Gsharp-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-Gsharp-two_hands-2-reverse.svg'>
@@ -164,30 +166,30 @@ Minor arpeggio,D# ,<img src='Minor_arpeggio-Dsharp-left_hand-1-increasing.svg'>,
       </h1>
     </header>
     <ul>
-      <li><a href='Minor_arpeggio-F3_____-left_hand-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-increasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-right_hand-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-increasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-left_hand-1-decreasing.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-decreasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-right_hand-1-decreasing.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-decreasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-two_hands-1-decreasing.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-decreasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-left_hand-1-total.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-total.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-right_hand-1-total.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-total.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-two_hands-1-total.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-total.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-left_hand-1-reverse.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-reverse.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-right_hand-1-reverse.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-reverse.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-two_hands-1-reverse.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-reverse.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-left_hand-2-increasing.ly'/><img src='Minor_arpeggio-F3_____-left_hand-2-increasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-right_hand-2-increasing.ly'/><img src='Minor_arpeggio-F3_____-right_hand-2-increasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-two_hands-2-increasing.ly'/><img src='Minor_arpeggio-F3_____-two_hands-2-increasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-left_hand-2-decreasing.ly'/><img src='Minor_arpeggio-F3_____-left_hand-2-decreasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-right_hand-2-decreasing.ly'/><img src='Minor_arpeggio-F3_____-right_hand-2-decreasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-two_hands-2-decreasing.ly'/><img src='Minor_arpeggio-F3_____-two_hands-2-decreasing.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-left_hand-2-total.ly'/><img src='Minor_arpeggio-F3_____-left_hand-2-total.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-right_hand-2-total.ly'/><img src='Minor_arpeggio-F3_____-right_hand-2-total.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-two_hands-2-total.ly'/><img src='Minor_arpeggio-F3_____-two_hands-2-total.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-left_hand-2-reverse.ly'/><img src='Minor_arpeggio-F3_____-left_hand-2-reverse.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-right_hand-2-reverse.ly'/><img src='Minor_arpeggio-F3_____-right_hand-2-reverse.svg'></a></li>
-      <li><a href='Minor_arpeggio-F3_____-two_hands-2-reverse.ly'/><img src='Minor_arpeggio-F3_____-two_hands-2-reverse.svg'></a></li>    </ul>
+      <li><a href='Minor_arpeggio-F_____3-left_hand-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-increasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-right_hand-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-increasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-left_hand-1-decreasing.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-decreasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-right_hand-1-decreasing.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-decreasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-two_hands-1-decreasing.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-decreasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-left_hand-1-total.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-total.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-right_hand-1-total.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-total.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-two_hands-1-total.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-total.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-left_hand-1-reverse.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-reverse.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-right_hand-1-reverse.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-reverse.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-two_hands-1-reverse.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-reverse.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-left_hand-2-increasing.ly'/><img src='Minor_arpeggio-F_____3-left_hand-2-increasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-right_hand-2-increasing.ly'/><img src='Minor_arpeggio-F_____3-right_hand-2-increasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-two_hands-2-increasing.ly'/><img src='Minor_arpeggio-F_____3-two_hands-2-increasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-left_hand-2-decreasing.ly'/><img src='Minor_arpeggio-F_____3-left_hand-2-decreasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-right_hand-2-decreasing.ly'/><img src='Minor_arpeggio-F_____3-right_hand-2-decreasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-two_hands-2-decreasing.ly'/><img src='Minor_arpeggio-F_____3-two_hands-2-decreasing.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-left_hand-2-total.ly'/><img src='Minor_arpeggio-F_____3-left_hand-2-total.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-right_hand-2-total.ly'/><img src='Minor_arpeggio-F_____3-right_hand-2-total.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-two_hands-2-total.ly'/><img src='Minor_arpeggio-F_____3-two_hands-2-total.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-left_hand-2-reverse.ly'/><img src='Minor_arpeggio-F_____3-left_hand-2-reverse.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-right_hand-2-reverse.ly'/><img src='Minor_arpeggio-F_____3-right_hand-2-reverse.svg'></a></li>
+      <li><a href='Minor_arpeggio-F_____3-two_hands-2-reverse.ly'/><img src='Minor_arpeggio-F_____3-two_hands-2-reverse.svg'></a></li>    </ul>
     <footer>
       <a href="../../about.html"/>About</a><br/>
       <a href='..'>Same scale with other first note</a>
@@ -254,9 +256,9 @@ Minor arpeggio,D# ,<img src='Minor_arpeggio-Dsharp-left_hand-1-increasing.svg'>,
             number_of_octaves=1, direction=INCREASING, lily_code=self.lily_code_left_hand,
             execute_lily=self.execute_lily,
             wav=True)
-        self.assertEqual(output_both_hands.image_tag, f"<img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'>")
+        self.assertEqual(output_both_hands.image_tag, f"<img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'>")
         self.assertEqual(output_both_hands.html_line,
-                          f"<li><a href='Minor_arpeggio-F3_____-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'></a></li>")
+                          f"<li><a href='Minor_arpeggio-F_____3-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'></a></li>")
         self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
         self.check_pentatonic_major_left_hand_increasing_F_exists(expect_compiled=self.execute_lily)
 
@@ -300,13 +302,13 @@ Minor arpeggio,D# ,<img src='Minor_arpeggio-Dsharp-left_hand-1-increasing.svg'>,
                                                                                      wav=True
                                                                                      )
         self.assertEqual(output.image_tags,
-                          ["<img src='Minor_arpeggio-F3_____-left_hand-1-increasing.svg'>",
-                           "<img src='Minor_arpeggio-F3_____-right_hand-1-increasing.svg'>",
-                           "<img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'>"])
+                          ["<img src='Minor_arpeggio-F_____3-left_hand-1-increasing.svg'>",
+                           "<img src='Minor_arpeggio-F_____3-right_hand-1-increasing.svg'>",
+                           "<img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'>"])
         self.assertEqual(output.html_lines, [
-            "<li><a href='Minor_arpeggio-F3_____-left_hand-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-increasing.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-right_hand-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-increasing.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'></a></li>"])
+            "<li><a href='Minor_arpeggio-F_____3-left_hand-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-increasing.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-right_hand-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-increasing.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'></a></li>"])
         self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
         self.check_pentatonic_major_left_hand_increasing_F_exists(expect_compiled=self.execute_lily)
 
@@ -324,32 +326,32 @@ Minor arpeggio,D# ,<img src='Minor_arpeggio-Dsharp-left_hand-1-increasing.svg'>,
                                                                            )
         self.assertEqual(output.image_tags,
                           [
-                              "<img src='Minor_arpeggio-F3_____-left_hand-1-increasing.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-right_hand-1-increasing.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-left_hand-1-decreasing.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-right_hand-1-decreasing.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-two_hands-1-decreasing.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-left_hand-1-total.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-right_hand-1-total.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-two_hands-1-total.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-left_hand-1-reverse.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-right_hand-1-reverse.svg'>",
-                              "<img src='Minor_arpeggio-F3_____-two_hands-1-reverse.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-left_hand-1-increasing.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-right_hand-1-increasing.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-left_hand-1-decreasing.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-right_hand-1-decreasing.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-two_hands-1-decreasing.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-left_hand-1-total.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-right_hand-1-total.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-two_hands-1-total.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-left_hand-1-reverse.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-right_hand-1-reverse.svg'>",
+                              "<img src='Minor_arpeggio-F_____3-two_hands-1-reverse.svg'>",
                           ])
         self.assertEqual(output.html_lines, [
-            "<li><a href='Minor_arpeggio-F3_____-left_hand-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-increasing.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-right_hand-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-increasing.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-left_hand-1-decreasing.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-decreasing.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-right_hand-1-decreasing.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-decreasing.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-two_hands-1-decreasing.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-decreasing.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-left_hand-1-total.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-total.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-right_hand-1-total.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-total.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-two_hands-1-total.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-total.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-left_hand-1-reverse.ly'/><img src='Minor_arpeggio-F3_____-left_hand-1-reverse.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-right_hand-1-reverse.ly'/><img src='Minor_arpeggio-F3_____-right_hand-1-reverse.svg'></a></li>",
-            "<li><a href='Minor_arpeggio-F3_____-two_hands-1-reverse.ly'/><img src='Minor_arpeggio-F3_____-two_hands-1-reverse.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-left_hand-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-increasing.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-right_hand-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-increasing.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-two_hands-1-increasing.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-left_hand-1-decreasing.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-decreasing.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-right_hand-1-decreasing.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-decreasing.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-two_hands-1-decreasing.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-decreasing.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-left_hand-1-total.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-total.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-right_hand-1-total.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-total.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-two_hands-1-total.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-total.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-left_hand-1-reverse.ly'/><img src='Minor_arpeggio-F_____3-left_hand-1-reverse.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-right_hand-1-reverse.ly'/><img src='Minor_arpeggio-F_____3-right_hand-1-reverse.svg'></a></li>",
+            "<li><a href='Minor_arpeggio-F_____3-two_hands-1-reverse.ly'/><img src='Minor_arpeggio-F_____3-two_hands-1-reverse.svg'></a></li>",
         ])
         self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
         self.check_pentatonic_major_left_hand_increasing_F_exists(expect_compiled=self.execute_lily)
@@ -367,9 +369,9 @@ Minor arpeggio,D# ,<img src='Minor_arpeggio-Dsharp-left_hand-1-increasing.svg'>,
                               ScoreFixedPatternFirstNote)
         self.assertEqual(output.anki_note_as_csv,
 
-                          "Minor arpeggio,F  ,<img src='Minor_arpeggio-F3_____-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-1-total.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-1-total.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-1-total.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-2-total.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-2-total.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-2-total.svg'>,<img src='Minor_arpeggio-F3_____-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-F3_____-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-F3_____-two_hands-2-reverse.svg'>",
+                          "Minor arpeggio,F  ,<img src='Minor_arpeggio-F_____3-left_hand-1-increasing.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-1-increasing.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-1-increasing.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-1-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-1-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-1-total.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-1-total.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-1-total.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-1-reverse.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-1-reverse.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-1-reverse.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-2-increasing.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-2-increasing.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-2-increasing.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-2-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-2-decreasing.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-2-total.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-2-total.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-2-total.svg'>,<img src='Minor_arpeggio-F_____3-left_hand-2-reverse.svg'>,<img src='Minor_arpeggio-F_____3-right_hand-2-reverse.svg'>,<img src='Minor_arpeggio-F_____3-two_hands-2-reverse.svg'>",
                           )
-        self.assertEqual(output.html_link_for_this_starting_note, "<li><a href='F3_____'>F  </a></li>")
+        self.assertEqual(output.html_link_for_this_starting_note, "<li><a href='F_____3'>F  </a></li>")
         self.check_pentatonic_major_two_hands_increasing_F_exists(expect_compiled=self.execute_lily)
         self.check_pentatonic_major_left_hand_increasing_F_exists(expect_compiled=self.execute_lily)
         self.check_scale_note_index_exists()

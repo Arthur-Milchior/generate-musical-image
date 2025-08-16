@@ -8,7 +8,7 @@ class LocalLilyable:
         return NotImplemented
 
     def __eq__(self, other: LocalLilyable):
-        return self.lily_in_scale() == other.lily_in_scale()
+        return self.lily_in_scale == other.lily_in_scale
 
 
 @dataclass(frozen=True)

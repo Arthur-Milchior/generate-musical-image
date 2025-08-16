@@ -1,6 +1,10 @@
+import unittest
+from piano.piano_note import PianoNote
+
+
 class TestPianoNote(unittest.TestCase):
     def test_lily(self):
-        self.assertEqual(PianoNote(chromatic=0, diatonic=0, finger=1).lily_in_scale(), "c'-1")
+        self.assertEqual(PianoNote(chromatic=0, diatonic=0, finger=1).lily_key(), "c'-1")
 
     def test_next_finger(self):
         for adjacent in (True, False):

@@ -11,6 +11,16 @@ lowLimit = {"left": -14, "right": -3}
 highLimit = {"left": 3, "right": 14}
 lilyProgram = "lilypond"
 
+"""
+Lily order is:
+    \\override Staff.TimeSignature.stencil = ##f
+    \\omit Staff.BarLine
+    \\omit PianoStaff.SpanBar
+    \\time 30/4
+    \\set Staff.printKeyCancellation = ##f
+    \\clef treble
+"""
+
 
 def chord(notes: List[Note]) -> str:  # only used by guitar right now
     return f"""\\version "2.20.0"
@@ -28,7 +38,8 @@ def chord(notes: List[Note]) -> str:  # only used by guitar right now
 }}"""
 
 
-def command(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
+def show_file(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
+    """Returns a function which shows the content of {file_prefix}.{extension}"""
     if extension == "svg":
         return lambda: display_svg_file(f"{file_prefix}.svg")
     else:
@@ -37,12 +48,13 @@ def command(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
         return lambda: shell(command)
 
 
-def compile_(code: str, file_prefix, wav: bool, extension="svg", execute_lily: bool = True, force_recompile: bool = False) -> \
+def compile_(code: str, file_prefix: str, wav: bool, extension="svg", execute_lily: bool = True, force_recompile: bool = False) -> \
         Callable[[], object]:
     """Write `code` in `filename`. If `execute_lily`, compile it in a file with the given extension
 
-    return the command to see the generated file.
+    return a function that shows the generated file.
     `execute_lily` should be False only for tests, to save time.
+    `file_prefix`: path, except for the .svg/.pdf
     wav: whether to convert midi to wav. Assumes the lilypond file will generate midi."""
     if os.path.isfile(file_prefix + ".ly"):
         if os.path.exists(f"{file_prefix}.svg"):
@@ -53,22 +65,21 @@ def compile_(code: str, file_prefix, wav: bool, extension="svg", execute_lily: b
                     execute_lily = False
     if force_recompile:
         execute_lily = True
-    if not execute_lily:
-        return command(file_prefix, extension)
-    with open(file_prefix + ".ly", "w") as file:
-        file.write(code)
-    preview_path = f"{file_prefix}.preview.{extension}"
-    if extension == "svg":
-        cmd = f"""{lilyProgram} -dpreview -dbackend=svg -o "{file_prefix}"  "{file_prefix}.ly" """
-        shell(cmd)
-        clean_svg(preview_path, preview_path, "white")
-    else:
-        assert extension == "pdf"
-        cmd = f"""lilypond  -o "{file_prefix}" "{file_prefix}.ly" """
-        shell(cmd)
-    shell(f"""mv -f "{preview_path}" "{file_prefix}.{extension}" """)
+    if execute_lily:
+        with open(file_prefix + ".ly", "w") as file:
+            file.write(code)
+        preview_path = f"{file_prefix}.preview.{extension}"
+        if extension == "svg":
+            cmd = f"""{lilyProgram} -dpreview -dbackend=svg -o "{file_prefix}"  "{file_prefix}.ly" """
+            shell(cmd)
+            clean_svg(preview_path, preview_path, "white")
+        else:
+            assert extension == "pdf"
+            cmd = f"""lilypond  -o "{file_prefix}" "{file_prefix}.ly" """
+            shell(cmd)
+        shell(f"""mv -f "{preview_path}" "{file_prefix}.{extension}" """)
     if wav:
         shell(f"""timidity "{file_prefix}.midi" --output-mode=w -o "{file_prefix}.wav" """)
-    return command(file_prefix, extension)
+    return show_file(file_prefix, extension)
     # shell("""convert -background "#FFFFFF" -flatten "%s.svg" "%s.png" """%(folder_fileName,folder_fileName))
 
