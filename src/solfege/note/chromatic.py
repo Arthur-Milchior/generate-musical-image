@@ -36,9 +36,9 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         return f"_{clef}_chromatic_{self.value}"
 
     def image_file_name(self, clef: str):
-        """Return the file name without extension nor folder"""
+        """Return the file name without folder"""
         return f"{self.file_name(clef)}.svg"
 
     def image_html(self, clef: str="treble"):
-        """Return the file name without extension nor folder"""
+        """Return the html tag for the image."""
         return f"""<img src="{self.image_file_name(clef)}"/>"""
