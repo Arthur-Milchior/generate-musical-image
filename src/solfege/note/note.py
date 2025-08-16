@@ -59,7 +59,9 @@ class Note(Interval, ChromaticNote, LocalLilyable):
         Args: usage -- see Alteration file."""
         return f"{self.get_diatonic().get_name_with_octave()}{self.get_alteration().get_ascii_name(fixed_length=fixed_length)}"
 
-    def get_name_up_to_octave(self):
+    def get_name_up_to_octave(self, ascii: bool= False):
+        if ascii:
+            return self.get_ascii_name(fixed_length=False)
         raise NotImplemented
 
     def get_full_name(self, fixed_length: bool = True):

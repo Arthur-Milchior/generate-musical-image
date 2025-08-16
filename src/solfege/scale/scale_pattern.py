@@ -51,7 +51,6 @@ class ScalePattern(SolfegePattern, Generic[IntervalType]):
         self._diatonic_sum = 0
         # The sum of all the diatonic in the interval. It should ends on 12.
         self._chromatic_sum = 0
-        self.notation = notation
         self._intervals = []
         self.notation = notation
         if descending:

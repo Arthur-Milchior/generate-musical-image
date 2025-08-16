@@ -9,11 +9,14 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         """Color to print the note in lilypond"""
         return "black"
 
-    def get_name_up_to_octave(self):
-        return ["C", "C#", "D", "E♭", "E", "F", "F#", "G", "A♭", "A", "B♭", "B"][self.get_number() % 12]
+    def get_name_up_to_octave(self, ascii:bool = False):
+        if ascii:
+            return ["C", "C_sharp", "D", "E_flat", "E", "F", "F_sharp", "G", "A_flat", "A", "B_flat", "B"][self.get_number() % 12]
+        else:
+            return ["C", "C#", "D", "E♭", "E", "F", "F#", "G", "A♭", "A", "B♭", "B"][self.get_number() % 12]
 
-    def get_name_with_octave(self):
-        return f"{self.get_name_up_to_octave()}{self.get_octave(scientificNotation=True)}"
+    def get_name_with_octave(self, ascii:bool = False):
+        return f"{self.get_name_up_to_octave(ascii=ascii)}{self.get_octave(scientific_notation=True)}"
 
     def get_degree(self):
         return ["1", "1#", "2", "3♭", "3", "4", "4#", "5", "6♭", "6", "7♭", "7"][self.get_number() % 12]
@@ -33,7 +36,7 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
 
     def file_name(self, clef: str):
         """Return the file name without extension nor folder"""
-        return f"_{clef}_chromatic_{self.value}"
+        return f"_{clef}_{self.get_name_with_octave(ascii=True)}"
 
     def image_file_name(self, clef: str):
         """Return the file name without folder"""

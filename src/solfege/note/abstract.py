@@ -43,10 +43,10 @@ class AbstractNote(AbstractInterval):
             other)  # Super still makes sens because a class inheriting _Note also inherits some other class.
         return sum_
 
-    def get_octave(self, scientificNotation=False):
-        """The octave.  By default, starting at middle c. If scientificNotation, starting at C0"""
+    def get_octave(self, scientific_notation=False):
+        """The octave.  By default, starting at middle c. If scientific_notation, starting at C0"""
         octave = super().get_octave()
-        return octave + 4 if scientificNotation else octave
+        return octave + 4 if scientific_notation else octave
 
     def get_name_up_to_octave(self) -> str:
         raise NotImplemented

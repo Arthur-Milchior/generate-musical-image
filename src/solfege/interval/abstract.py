@@ -103,7 +103,7 @@ class AbstractInterval:
     def __repr__(self):
         return f"{self.__class__.__name__}(value={self.get_number()})"
 
-    def get_octave(self):
+    def get_octave(self, scientific_notation:bool = False):
         """The octave number. 0 for unison/central C up to seventh/C one octave above."""
         return math.floor(self.get_number() / self.__class__.number_of_interval_in_an_octave)
 

@@ -77,7 +77,7 @@ for value in range(accordina_lowest_note.value, accordina_highest_note.value+1):
         "Accordina",
         degree,#degree
         alteration, #alteration
-        str(fingered_note.get_octave(scientificNotation=True)), #octave
+        str(fingered_note.get_octave(scientific_notation=True)), #octave
         "", # function
         f"""<img src="{svg_name}"/>"""
         ]

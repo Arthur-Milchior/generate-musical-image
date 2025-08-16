@@ -88,7 +88,7 @@ class Interval(ChromaticInterval):
     def get_one_octave(cls):
         return Interval(chromatic=12, diatonic=7)
 
-    def get_octave(self):
+    def get_octave(self, scientific_notation:bool=False):
         return self.get_diatonic().get_octave()
 
 

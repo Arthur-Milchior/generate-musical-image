@@ -1,1 +1,1 @@
-from . import note, scales
+from . import scales, note

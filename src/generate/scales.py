@@ -1,3 +1,4 @@
+from solfege.note.chromatic import ChromaticNote
 from utils import util
 from solfege.key import sets_of_enharmonic_keys
 from typing import Optional, Dict, List
@@ -30,6 +31,8 @@ class Instrument:
     lowest_instrument_note: Note
     highest_instrument_note: Note
     transposition: Interval = Interval(0, 0)
+    show_fingering: bool = True
+    image_extension: str = "png"
 
     def difficulty(self, note) -> Optional[int]:
         return 0 if self.lowest_instrument_note <= note <= self.highest_instrument_note else None
@@ -150,11 +153,11 @@ all_csv = []
 for instrument in instruments:
     instrument_image = f"""<img src="{instrument}.png"/>"""
     csv_path = f"{folder_path}/{instrument}.csv"
-    anki_notes = []
+    anki_notes: List[str] = []
     for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
         for scale_pattern in patterns:
             scale_name = scale_pattern.names[0]
-            scale_notation = scale_pattern.notation
+            scale_notation = scale_pattern.notation or ""
             anki_notes_in_scale = []
             for set_of_enharmonic_keys in sets_of_enharmonic_keys:
                 interval = instrument.transposition - scale_pattern.interval_for_signature
@@ -175,40 +178,57 @@ for instrument in instruments:
                     difficulty.add(d)
 
                 tonic_name = bass_note.get_symbol_name()
-                note = []
-                note.append(f"""\"{instrument} {scale_name.replace(",", "")} {bass_note.get_full_name()} difficulty {difficulty}\"""") # key
-                note.append(instrument_image)
-                note.append("") # Hide single octave
-                note.append("") # Practice single direction
-                note.append("") #signature
-                note.append("") #position
-                note.append(tonic_name)  #tonic
-                note.append(scale_name) # Mode Name
-                note.append(scale_notation) # Mode Notation
-                note.append(specific) # specific
-                note.append(bass_note.image_html())#0
-                note.append(bass_note.add_octave(1).image_html()) # 1
-                note.append(bass_note.add_octave(2).image_html()) # 2
-                note.append(bass_note.add_octave(3).image_html()) # 3
+                anki_note = []
+                anki_note.append(f"""\"{instrument} {scale_name.replace(",", "")} {bass_note.get_full_name()} difficulty {difficulty}\"""") # key
+                anki_note.append(instrument_image)
+                anki_note.append("") # Hide single octave
+                anki_note.append("") # Practice single direction
+                anki_note.append("") #signature
+                anki_note.append("") #position
+                anki_note.append(tonic_name)  #tonic
+                anki_note.append(scale_name) # Mode Name
+                anki_note.append(scale_notation) # Mode Notation
+                anki_note.append(specific) # specific
+                anki_note.append(bass_note.image_html())#0
+                anki_note.append(bass_note.add_octave(1).image_html()) # 1
+                anki_note.append(bass_note.add_octave(2).image_html()) # 2
+                anki_note.append(bass_note.add_octave(3).image_html()) # 3
 
                 for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2), (2,1), (1,2), (0,3)]:
                     scale_lowest_note = bass_note.add_octave(start_octave)
-                    for direction in [
-                        (INCREASING),
-                        (DECREASING),
-                        (TOTAL),
-                        (REVERSE)
+                    scale = scale_pattern.generate(
+                            tonic=bass_note.add_octave(start_octave),
+                            number_of_octaves=number_of_octaves,
+                            add_an_extra_note=True
+                            )
+                    increasing = scale.notes
+                    decreasing = list(reversed(scale.notes))
+                    for direction, notes in [
+                        (INCREASING, scale.notes),
+                        (DECREASING, decreasing),
+                        (TOTAL, increasing[:-1] + decreasing),
+                        (REVERSE, decreasing+increasing[1:])
                     ]:
                         if bass_note.add_octave(start_octave+number_of_octaves) > instrument.highest_instrument_note:
-                            note.append("")
+                            anki_note.append("")
                         else:
                             file_name = f"""{scale_name}-{scale_lowest_note.get_ascii_name(fixed_length=False)}-{number_of_octaves}-{direction}"""
-                            note.append(f"""<img src="{file_name}.svg"/>""")
-                anki_notes_in_scale.append((difficulty, note))
+                            field_parts = [f"""<img src="{file_name}.svg"/>"""]
+                            if instrument.show_fingering:
+                                field_parts.append("<br/>")
+                                for note_in_scale in notes:
+                                    # Necessary because the fingenirg is the same for enharmonic notes, so we need the canonical name for the enharmonic set.
+                                    chromatic_note: ChromaticNote = note_in_scale.get_chromatic()
+                                    note_name = chromatic_note.get_name_with_octave(ascii=True)
+                                    field_parts.append(f"""<img src="{instrument}_{note_name}.{instrument.image_extension}"/>""")
+                            field = "".join(field_parts)
+                            anki_note.append(field)
+                anki_notes_in_scale.append((difficulty, anki_note))
 
             anki_notes_in_scale.sort(key=itemgetter(0))
-            anki_notes.extend(anki_note for _, anki_note in anki_notes_in_scale)
-    csv = "\n".join(",".join(anki_note) for anki_note in anki_notes)
+            for _, anki_note in anki_notes_in_scale:
+                anki_notes.append(",".join(anki_note))
+    csv = "\n".join(anki_notes)
     all_csv += anki_notes
     print(f"{csv_path=}")
     with open(csv_path, "w") as f:

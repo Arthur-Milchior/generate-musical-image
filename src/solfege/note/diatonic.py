@@ -32,7 +32,7 @@ class DiatonicNote(AbstractNote, DiatonicInterval):
         Example: 4
         """
         # must be separated from note name, because, in lilypond, the alteration is between the note name and the octave
-        return str(self.get_octave(scientificNotation=True))
+        return str(self.get_octave(scientific_notation=True))
 
     def get_name_with_octave(self):
         """Example C4"""
