@@ -10,7 +10,7 @@
 # from utils.constants import test_folder
 #
 #
-# @dataclass(frozen=True)
+# @dataclass(frozen=True, eq=True)
 # class NamedIntervalsPattern:
 #     role: str
 #     left_hand: SetOfIntervals
@@ -21,7 +21,7 @@
 #         return TwoHandsChord(self.role, self.left_hand + other, self.right_hand + other)
 #
 #
-# @dataclass(frozen=True)
+# @dataclass(frozen=True, eq=True)
 # class ChordProgressionPattern:
 #     name: str
 #     chords: List[NamedIntervalsPattern]

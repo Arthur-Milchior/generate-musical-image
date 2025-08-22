@@ -1,7 +1,7 @@
 """Generates an image for every note which can be played on the guitar on a string, either open, or with fret between
 1 and 5"""
 import guitar.util
-from src.guitar.Position.guitar_position import GuitarPosition
+from guitar.Position.guitar_position import GuitarPosition
 from utils.util import ensure_folder
 
 leafFolder = "solo/"

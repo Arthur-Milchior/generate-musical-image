@@ -11,7 +11,7 @@ class LocalLilyable:
         return self.lily_in_scale == other.lily_in_scale
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class LiteralLocalLilyable(LocalLilyable):
     _lily: str
 

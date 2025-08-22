@@ -19,7 +19,7 @@ class SolfegePattern:
         cls = self.__class__
         if cls not in self.class_to_name_to_pattern:
             self.class_to_name_to_pattern[cls] = dict()
-            assert (cls not in self.class_to_patterns)
+            assert cls not in self.class_to_patterns
             self.class_to_patterns[cls] = []
         for name in names:
             self.class_to_name_to_pattern[cls][name] = self

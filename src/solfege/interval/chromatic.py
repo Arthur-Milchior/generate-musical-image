@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from typing import Optional
+from enum import Enum
 from solfege.interval.abstract import AbstractInterval
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 
+class IntervalNameCreasing(Enum):
+    ALWAYS = "ALWAYS"
+    NEVER = "NEVER"
+    DECREASING_ONLY = "DECREASING_ONLY"
 
 class ChromaticInterval(AbstractInterval):
     """A chromatic interval. Counting the number of half tone between two note"""
@@ -45,22 +50,17 @@ class ChromaticInterval(AbstractInterval):
             diatonic = self.get_diatonic().get_number()
         return self.RelatedSolfegeClass(diatonic=diatonic, chromatic=self.get_number())
 
-    def get_interval_name(self, octave=True, side=False):
+    def get_interval_name(self, octave=True, side: IntervalNameCreasing=IntervalNameCreasing.NEVER):
         """The name of the interval.
 
         octave -- For example: if this variable is set true, the name is given as "supertonic and one octave".
         Otherwise, if it is set to None, the variable is given as "eight"
 
-        usage -- see Alteration file.
-
         side -- Whether to add "increasing" or "decreasing"
-
-        kind -- if a number is given, then we consider that we want major/minor, and not a full name
-        todo
         """
         if self < 0:
             name = (-self).get_interval_name(octave=octave, side=False)
-            if side:
+            if side != IntervalNameCreasing.NEVER:
                 return name + " decreasing"
             else:
                 return name
@@ -68,19 +68,22 @@ class ChromaticInterval(AbstractInterval):
             nbOctave = self.get_octave()
             pos = self.get_number() % 12
             if nbOctave > 1:
-                name = "%d octaves" % nbOctave
+                octave_name = "%d octaves" % nbOctave
             elif nbOctave == 1:
-                name = "An octave"
+                octave_name = "octave"
             else:
-                name = ""
-            nameBis = \
+                octave_name = ""
+            mode_name = \
                 ["" if nbOctave else "unison", "second minor", "second major", "third minor", "third major", "fourth",
                  "tritone", "fifth", "sixth minor", "sixth major", "seventh minor", "seventh major"][pos]
-            if nameBis:
-                name += "and " + nameBis
-            if side:
+            if octave_name and mode_name:
+                name = f"{octave_name} and {mode_name}"
+            else:
+                name = octave_name or mode_name
+            if side == IntervalNameCreasing.ALWAYS and self.get_number() != 0:
                 name += " increasing"
             return name
+        return NotImplemented
 
 
 ChromaticInterval.IntervalClass = ChromaticInterval

@@ -14,7 +14,7 @@ from utils.constants import test_folder
 from utils.util import indent
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class TwoHandsChord(PianoLilyable):
     name: str
     left_hand: SetOfNotes

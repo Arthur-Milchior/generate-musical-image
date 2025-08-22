@@ -11,8 +11,7 @@ from lily.lily import compile_
 from piano.piano_note import PianoNote
 from piano.scales.fingering import Fingering
 from solfege.chord.chord_pattern import add_arpeggios_to_scales
-from solfege.scale.scale_pattern import ScalePattern, scale_patterns
-from solfege.key import sets_of_enharmonic_keys
+from solfege.scale.scale_pattern import ScalePattern
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
 from solfege.note import Note
 
@@ -39,7 +38,7 @@ content_of_anki_csv = []
 scales_the_algorithm_failed_to_generate = []
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth:
     image_tag: str
     html_line: str
@@ -68,7 +67,7 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_
     return ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth(image_tag=image_tag, html_line=html_line)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class ScoreFixedPatternFirstNoteNumberOfOctaves:
     image_tags: List[str]
     html_lines: List[str]
@@ -189,13 +188,13 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
         image_tags=anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves, html_lines=html_lines)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class ScoreFixedPatternFirstNote:
     anki_note_as_csv: str
     html_link_for_this_starting_note: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class MissingFingering:
     scale_pattern: ScalePattern
     note: Note
@@ -290,12 +289,17 @@ def generate_score_fixed_pattern_first_note(key: str,
   </body>
 </html>""")
     anki_note_as_csv = ",".join(anki_fields_for_this_scale_pattern_and_lowest_note)
-    html_link_for_this_starting_note = f"""<li><a href='{right_hand_lowest_note.get_name_with_octave(ascii=True)}'>{right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )}</a></li>"""
+    html_link_for_this_starting_note = f"""<li><a href='{right_hand_lowest_note.get_name_with_octave(
+                    octave_notation=OctaveOutput.MIDDLE_IS_4,
+                    alteration_output = AlterationOutput.SYMBOL, 
+                    note_output = NoteOutput.LETTER, 
+                    fixed_length = FixedLengthOutput.NO
+                    )}'>{right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )}</a></li>"""
     return ScoreFixedPatternFirstNote(anki_note_as_csv=anki_note_as_csv,
                                       html_link_for_this_starting_note=html_link_for_this_starting_note)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class ScoreFixedPattern:
     # State that scale_pattern on note is missing for
     missing_scores: List[MissingFingering]
@@ -410,7 +414,7 @@ Author: <a href="mailto:arthur@milchior.fr"/>Arthur Milchior</a>. Don't hesitate
         """
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class GenerateScoreOutput:
     missing_scores: List[MissingFingering]
     too_big_alterations: List[TooBigAlterationException]

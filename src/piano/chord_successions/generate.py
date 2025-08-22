@@ -10,7 +10,7 @@ from solfege.scale.scale_pattern import major_scale
 from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class ChordPattern:
     name: str
     intervals: List[int]
@@ -32,7 +32,7 @@ def chord_from_scale_pattern_and_position_key(scale: Scale, chord_pattern: Chord
     return SetOfNotes(chord, tonic=chord[0])
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class NamedSuccessionForScaleKey:
     successions: Succession
     name: str
@@ -44,7 +44,7 @@ def chord_succession_from_scale_pattern_and_position_key(scale: Scale, chord_pat
             range(nb_of_chords)]
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class CardContent:
     name_prefix: str
     filepath: str
@@ -98,7 +98,7 @@ def succession_for_key_pattern_direction(
     return cards
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class ChordSuccessionNote:
     successions: List[CardContent]
     key: Note

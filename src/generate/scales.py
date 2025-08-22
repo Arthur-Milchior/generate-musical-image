@@ -1,5 +1,5 @@
 from solfege.note.chromatic import ChromaticNote
-from solfege.note.abstract import OctaveOutput
+from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
 from solfege.key import sets_of_enharmonic_keys
 from typing import Optional, Dict, List
@@ -25,7 +25,7 @@ REVERSE = "reverse"
 chords = [ chord.to_arpeggio_pattern()  for chord in  ChordPattern.class_to_patterns[ChordPattern]]
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class Instrument:
     """Represents the information needed to generate scales"""
     name: str
@@ -178,9 +178,15 @@ for instrument in instruments:
                 for d in difficulties:
                     difficulty.add(d)
 
-                tonic_name = bass_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )
+                tonic_name = bass_note.get_name_with_octave(
+                    octave_notation=OctaveOutput.MIDDLE_IS_4,
+                    alteration_output = AlterationOutput.SYMBOL,
+                    note_output= NoteOutput.LETTER,
+                    fixed_length = FixedLengthOutput.NO,
+                )
                 anki_note = []
-                anki_note.append(f"""\"{instrument} {scale_name.replace(",", "")} {bass_note.get_name_with_octave()} difficulty {difficulty}\"""") # key
+                first_field = f"""\"{instrument} {scale_name.replace(",", "")} {tonic_name} difficulty {difficulty}\""""
+                anki_note.append(first_field) # key
                 anki_note.append(instrument_image)
                 anki_note.append("") # Hide single octave
                 anki_note.append("") # Practice single direction
@@ -213,14 +219,24 @@ for instrument in instruments:
                         if bass_note.add_octave(start_octave+number_of_octaves) > instrument.highest_instrument_note:
                             anki_note.append("")
                         else:
-                            file_name = f"""{scale_name}-{scale_lowest_note.get_name_with_octave(ascii=True, fixed_length=False)}-{number_of_octaves}-{direction}"""
+                            scale_note_name = scale_lowest_note.get_name_with_octave(
+                    octave_notation=OctaveOutput.MIDDLE_IS_4,
+                    alteration_output = AlterationOutput.ASCII, 
+                    note_output = NoteOutput.LETTER, 
+                    fixed_length = FixedLengthOutput.NO)
+                            file_name = f"""{scale_name}-{scale_note_name}-{number_of_octaves}-{direction}"""
                             field_parts = [f"""<img src="{file_name}.svg"/>"""]
                             if instrument.show_fingering:
                                 field_parts.append("<br/>")
                                 for note_in_scale in notes:
                                     # Necessary because the fingenirg is the same for enharmonic notes, so we need the canonical name for the enharmonic set.
                                     chromatic_note: ChromaticNote = note_in_scale.get_chromatic()
-                                    note_name = chromatic_note.get_name_with_octave(ascii=True)
+                                    note_name = chromatic_note.get_name_with_octave(
+                    octave_notation=OctaveOutput.MIDDLE_IS_4,
+                    alteration_output = AlterationOutput.ASCII, 
+                    note_output = NoteOutput.LETTER, 
+                    fixed_length = FixedLengthOutput.NO
+                    )
                                     field_parts.append(f"""<img src="{instrument}_{note_name}.{instrument.image_extension}"/>""")
                             field = "".join(field_parts)
                             anki_note.append(field)
@@ -248,7 +264,6 @@ for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
         for set_of_enharmonic_keys in sets_of_enharmonic_keys:
             bass_key = set_of_enharmonic_keys[0]
             bass_note = bass_key.note
-            tonic_name = bass_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )
 
             for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2)]:
                     scale_lowest_note = bass_note.add_octave(start_octave)
@@ -268,7 +283,7 @@ for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
                         (TOTAL, total),
                         (REVERSE, reverse)
                     ]:
-                        file_name = f"""{scale_name}-{scale_lowest_note.get_name_with_octave(ascii=True, fixed_length=False)}-{number_of_octaves}-{direction}"""
+                        file_name = f"""{scale_name}-{scale_lowest_note.get_name_with_octave(alteration_output = AlterationOutput.ASCII, note_output = NoteOutput.LETTER, fixed_length=False, octave_notation=OctaveOutput.MIDDLE_IS_4)}-{number_of_octaves}-{direction}"""
                         code = scale.lily()
                         path = f"{folder_path}/{file_name}"
                         compile_(

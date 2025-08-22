@@ -92,7 +92,7 @@ class PianoLilyable(Lilyable):
 }}"""
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class LiteralPianoLilyable(PianoLilyable):
     _first_key: str
     _left_lily: Optional[str] = None

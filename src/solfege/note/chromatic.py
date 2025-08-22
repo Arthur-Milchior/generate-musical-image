@@ -1,9 +1,15 @@
-from solfege.note.abstract import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput
+from typing import Optional
+from solfege.note.abstract import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from solfege.interval.chromatic import ChromaticInterval
 
 
 class ChromaticNote(AbstractNote, ChromaticInterval):
     IntervalClass = ChromaticInterval
+
+    @staticmethod
+    def from_name(name) -> "ChromaticNote":
+        from solfege.note.note import Note
+        return Note(name).get_chromatic()
 
     def get_color(self, color=True):
         """Color to print the note in lilypond"""
@@ -25,15 +31,23 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         chromatic = self.get_number()
         return cls(diatonic=diatonic, chromatic=chromatic)
 
-    def file_name(self, clef: str):
+    def file_name(self, clef: Optional[str] = None):
         """Return the file name without extension nor folder"""
-        return f"_{clef}_{self.get_name_with_octave(ascii=True)}"
+        name = f"_{self.get_name_with_octave(
+                    octave_notation=OctaveOutput.MIDDLE_IS_4,
+                    alteration_output = AlterationOutput.ASCII, 
+                    note_output = NoteOutput.LETTER, 
+                    fixed_length = FixedLengthOutput.NO
+                   )}"
+        if clef is not None:
+            return f"_{clef}_{name}"
+        return name
 
-    def image_file_name(self, clef: str):
+    def image_file_name(self, clef: Optional[str]  = None):
         """Return the file name without folder"""
         return f"{self.file_name(clef)}.svg"
 
-    def image_html(self, clef: str="treble"):
+    def image_html(self, clef: Optional[str]="treble"):
         """Return the html tag for the image."""
         return f"""<img src="{self.image_file_name(clef)}"/>"""
 

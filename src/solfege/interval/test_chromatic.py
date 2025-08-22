@@ -1,4 +1,7 @@
 import unittest
+from solfege.interval.intervalmode import IntervalMode
+from solfege.interval.interval import Interval
+from solfege.interval.diatonic import DiatonicInterval
 from .chromatic import *
 
 class TestChromaticInterval(unittest.TestCase):
@@ -90,7 +93,6 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertTrue(self.octave.equals_modulo_octave(self.octave_descending))
 
     def test_get_diatonic(self):
-        from solfege.interval.diatonic import DiatonicInterval
         self.assertEqual(ChromaticInterval(0).get_diatonic(), DiatonicInterval(0))
         self.assertEqual(ChromaticInterval(1).get_diatonic(), DiatonicInterval(0))
         self.assertEqual(ChromaticInterval(2).get_diatonic(), DiatonicInterval(1))
@@ -122,7 +124,6 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval(-14).get_diatonic(), DiatonicInterval(-8))
 
     def test_get_solfege(self):
-        from solfege.interval.interval import Interval
         self.assertEqual(ChromaticInterval(0).get_solfege(), Interval(0, 0))
         self.assertEqual(ChromaticInterval(1).get_solfege(), Interval(1, 0))
         self.assertEqual(ChromaticInterval(2).get_solfege(), Interval(2, 1))
@@ -154,7 +155,6 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval(-14).get_solfege(), Interval(-14, -8))
 
     def test_get_alteration(self):
-        from solfege.interval.intervalmode import IntervalMode
         self.assertEqual(ChromaticInterval(0).get_alteration(), IntervalMode(0))
         self.assertEqual(ChromaticInterval(1).get_alteration(), IntervalMode(1))
         self.assertEqual(ChromaticInterval(2).get_alteration(), IntervalMode(0))
@@ -184,6 +184,75 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval(-12).get_alteration(), IntervalMode(0))
         self.assertEqual(ChromaticInterval(-13).get_alteration(), IntervalMode(0))
         self.assertEqual(ChromaticInterval(-14).get_alteration(), IntervalMode(-1))
+
+    def test_get_interval_name_octave_NEVER_side(self):
+        self.assertEqual(ChromaticInterval(0).get_interval_name(), "unison")
+        self.assertEqual(ChromaticInterval(1).get_interval_name(), "second minor")
+        self.assertEqual(ChromaticInterval(2).get_interval_name(), "second major")
+        self.assertEqual(ChromaticInterval(3).get_interval_name(), "third minor")
+        self.assertEqual(ChromaticInterval(4).get_interval_name(), "third major")
+        self.assertEqual(ChromaticInterval(5).get_interval_name(), "fourth")
+        self.assertEqual(ChromaticInterval(6).get_interval_name(), "tritone")
+        self.assertEqual(ChromaticInterval(7).get_interval_name(), "fifth")
+        self.assertEqual(ChromaticInterval(8).get_interval_name(), "sixth minor")
+        self.assertEqual(ChromaticInterval(9).get_interval_name(), "sixth major")
+        self.assertEqual(ChromaticInterval(10).get_interval_name(), "seventh minor")
+        self.assertEqual(ChromaticInterval(11).get_interval_name(), "seventh major")
+        self.assertEqual(ChromaticInterval(12).get_interval_name(), "octave")
+        self.assertEqual(ChromaticInterval(13).get_interval_name(), "octave and second minor")
+        self.assertEqual(ChromaticInterval(24).get_interval_name(), "2 octaves")
+        self.assertEqual(ChromaticInterval(25).get_interval_name(), "2 octaves and second minor")
+        self.assertEqual(ChromaticInterval(-1).get_interval_name(), "second minor")
+        self.assertEqual(ChromaticInterval(-12).get_interval_name(), "octave")
+        self.assertEqual(ChromaticInterval(-13).get_interval_name(), "octave and second minor")
+        self.assertEqual(ChromaticInterval(-24).get_interval_name(), "2 octaves")
+        self.assertEqual(ChromaticInterval(-25).get_interval_name(), "2 octaves and second minor")
+
+    def test_get_interval_name_octave_ALWAYS_side(self):
+        self.assertEqual(ChromaticInterval(0).get_interval_name(side=IntervalNameCreasing.ALWAYS), "unison")
+        self.assertEqual(ChromaticInterval(1).get_interval_name(side=IntervalNameCreasing.ALWAYS), "second minor increasing")
+        self.assertEqual(ChromaticInterval(2).get_interval_name(side=IntervalNameCreasing.ALWAYS), "second major increasing")
+        self.assertEqual(ChromaticInterval(3).get_interval_name(side=IntervalNameCreasing.ALWAYS), "third minor increasing")
+        self.assertEqual(ChromaticInterval(4).get_interval_name(side=IntervalNameCreasing.ALWAYS), "third major increasing")
+        self.assertEqual(ChromaticInterval(5).get_interval_name(side=IntervalNameCreasing.ALWAYS), "fourth increasing")
+        self.assertEqual(ChromaticInterval(6).get_interval_name(side=IntervalNameCreasing.ALWAYS), "tritone increasing")
+        self.assertEqual(ChromaticInterval(7).get_interval_name(side=IntervalNameCreasing.ALWAYS), "fifth increasing")
+        self.assertEqual(ChromaticInterval(8).get_interval_name(side=IntervalNameCreasing.ALWAYS), "sixth minor increasing")
+        self.assertEqual(ChromaticInterval(9).get_interval_name(side=IntervalNameCreasing.ALWAYS), "sixth major increasing")
+        self.assertEqual(ChromaticInterval(10).get_interval_name(side=IntervalNameCreasing.ALWAYS), "seventh minor increasing")
+        self.assertEqual(ChromaticInterval(11).get_interval_name(side=IntervalNameCreasing.ALWAYS), "seventh major increasing")
+        self.assertEqual(ChromaticInterval(12).get_interval_name(side=IntervalNameCreasing.ALWAYS), "octave increasing")
+        self.assertEqual(ChromaticInterval(13).get_interval_name(side=IntervalNameCreasing.ALWAYS), "octave and second minor increasing")
+        self.assertEqual(ChromaticInterval(24).get_interval_name(side=IntervalNameCreasing.ALWAYS), "2 octaves increasing")
+        self.assertEqual(ChromaticInterval(25).get_interval_name(side=IntervalNameCreasing.ALWAYS), "2 octaves and second minor increasing")
+        self.assertEqual(ChromaticInterval(-1).get_interval_name(side=IntervalNameCreasing.ALWAYS), "second minor decreasing")
+        self.assertEqual(ChromaticInterval(-12).get_interval_name(side=IntervalNameCreasing.ALWAYS), "octave decreasing")
+        self.assertEqual(ChromaticInterval(-13).get_interval_name(side=IntervalNameCreasing.ALWAYS), "octave and second minor decreasing")
+        self.assertEqual(ChromaticInterval(-24).get_interval_name(side=IntervalNameCreasing.ALWAYS), "2 octaves decreasing")
+        self.assertEqual(ChromaticInterval(-25).get_interval_name(side=IntervalNameCreasing.ALWAYS), "2 octaves and second minor decreasing")
+
+    def test_get_interval_name_octave_DECREASING_side(self):
+        self.assertEqual(ChromaticInterval(0).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "unison")
+        self.assertEqual(ChromaticInterval(1).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "second minor")
+        self.assertEqual(ChromaticInterval(2).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "second major")
+        self.assertEqual(ChromaticInterval(3).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "third minor")
+        self.assertEqual(ChromaticInterval(4).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "third major")
+        self.assertEqual(ChromaticInterval(5).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "fourth")
+        self.assertEqual(ChromaticInterval(6).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "tritone")
+        self.assertEqual(ChromaticInterval(7).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "fifth")
+        self.assertEqual(ChromaticInterval(8).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "sixth minor")
+        self.assertEqual(ChromaticInterval(9).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "sixth major")
+        self.assertEqual(ChromaticInterval(10).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "seventh minor")
+        self.assertEqual(ChromaticInterval(11).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "seventh major")
+        self.assertEqual(ChromaticInterval(12).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "octave")
+        self.assertEqual(ChromaticInterval(13).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "octave and second minor")
+        self.assertEqual(ChromaticInterval(24).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves")
+        self.assertEqual(ChromaticInterval(25).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves and second minor")
+        self.assertEqual(ChromaticInterval(-1).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "second minor decreasing")
+        self.gassertEqual(ChromaticInterval(-12).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "octave decreasing")
+        self.assertEqual(ChromaticInterval(-13).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "octave and second minor decreasing")
+        self.assertEqual(ChromaticInterval(-24).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves decreasing")
+        self.assertEqual(ChromaticInterval(-25).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves and second minor decreasing")
 
     def test_mul(self):
         self.assertEqual(self.unison * 4, self.unison)

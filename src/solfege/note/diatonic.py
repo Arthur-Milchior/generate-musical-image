@@ -3,6 +3,8 @@ from __future__ import annotations
 from solfege.interval.diatonic import DiatonicInterval
 from solfege.note.abstract import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.note.alteration import LILY, FILE_NAME, FULL_NAME, DEBUG, NAME_UP_TO_OCTAVE
+from typing import assert_never
+from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 
 
 class DiatonicNote(AbstractNote, DiatonicInterval):

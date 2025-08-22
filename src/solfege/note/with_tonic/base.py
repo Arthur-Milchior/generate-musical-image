@@ -27,7 +27,7 @@ class AbstractNoteWithTonic(AbstractNote):
         elif tonic is True:
             self._tonic = self
         else:
-            assert (tonic is False)
+            assert tonic is False
             self._tonic = None
 
     def __add__(self, other: AbstractInterval) -> AbstractNoteWithTonic:
@@ -59,7 +59,7 @@ class AbstractNoteWithTonic(AbstractNote):
         return self is self.get_tonic()
 
     def set_tonic(self, tonic: AbstractNoteWithTonic):
-        assert (self._tonic is None)
+        assert self._tonic is None
         assert tonic.is_tonic(), f"{tonic=}"
         self._tonic = tonic
         if self.__class__ != tonic.__class__:

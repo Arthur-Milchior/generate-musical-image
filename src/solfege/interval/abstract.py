@@ -3,6 +3,8 @@ from __future__ import annotations
 import math
 from typing import Self, TypeVar
 
+from utils.util import assert_typing
+
 
 class AbstractInterval:
     """This class is the basis for each kind of interval. It should never be used directly.
@@ -68,10 +70,10 @@ class AbstractInterval:
     def __rmul__(self, other) -> Self:
         return self.__mul__(other)
 
-    def __mul__(self, other) -> Self:
-        assert (isinstance(other, int))
+    def __mul__(self, other: int) -> Self:
+        assert_typing(other, int)
         from solfege.note.abstract import AbstractNote
-        assert (not isinstance(self, AbstractNote))
+        assert not isinstance(self, AbstractNote)
         cls = self.ClassToTransposeTo or self.__class__
         return cls(value=self.get_number() * other)
 

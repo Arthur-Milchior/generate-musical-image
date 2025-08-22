@@ -40,7 +40,6 @@ class MyException(Exception):
     def __str__(self):
         return str(self.dic)
 
-
 def indent(str: str, nb_space: int = 2):
     return "\n".join(f"""{" " * (nb_space if line else 0)}{line}""" for line in str.split("\n"))
 
@@ -59,3 +58,11 @@ def assert_all_same_class(it: Iterable):
     for e in it:
         assert e.__class__ == elt.__class__, "{it=}"
             
+
+def assert_typing(value, type):
+    assert value is not None
+    assert isinstance(value, type), f"{value=} is not of {type=}"
+
+def assert_optional_type(value, type):
+    if value is not None:
+        assert_typing(value, type)

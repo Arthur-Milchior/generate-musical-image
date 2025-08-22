@@ -1,9 +1,17 @@
 from __future__ import annotations
 
-from typing import Optional
+from dataclasses import dataclass
+from enum import Enum
+from typing import List, Optional, Union
 
 from solfege.interval import ChromaticInterval
 from solfege.note import ChromaticNote
+from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
+from guitar.position.string import String
+from guitar.position.frets import Frets
+from guitar.position.string_deltas import ANY_STRING, StringDeltas
+from guitar.position.strings import ALL_STRINGS, Strings
+from utils.util import assert_typing
 
 # The 1-th string played free
 string_number_to_note_played_when_free = {
@@ -19,79 +27,78 @@ string_number_to_note_played_when_free = {
 fret_distance = 50
 string_distance = 30
 circle_radius = 11
-HIGHEST_FRET = 24
 
+
+@dataclass(frozen=True, eq=True)
 class GuitarPosition:
     """A position on the guitar, that is, a string and a fret.
     Fret 0 is open. Fret None is not played.
 
     Order is the same as its chromatic note, and in case of equality the string. Not played notes is maximal. This ensure that the minimal of a chord is its lowest note."""
-    string: int
-    fret: Optional[int]
+    string: String
+    fret: Fret
 
-    def __init__(self, string: int, fret: Optional[int], **kwargs):
-        assert isinstance(string, int)
-        assert 1 <= string <= 6
-        super().__init__(**kwargs)
-        self.string = string
-        self.fret = fret
-        if fret is not None:
-            assert isinstance(fret, int)
-            assert 0 <= fret <= HIGHEST_FRET  # Usually there are at most 24 frets on guitar
+    def __post_init__(self):
+        assert_typing(self.fret, Fret)
+        assert_typing(self.string, String)
 
-    @classmethod
-    def from_chromatic(cl, chromatic: ChromaticInterval) -> GuitarPosition:
-        string = 1
-        for i in range(2,7):
-            if string_number_to_note_played_when_free[i] < chromatic:
-                string = i
-            else:
-                break
-        fret = chromatic - string_number_to_note_played_when_free[string]
-        return cl(string=string, fret=fret.value)
+    @staticmethod
+    def from_chromatic(note:ChromaticNote, strings: Strings = ALL_STRINGS, frets: Frets = Frets()):
+        """Return all the position for `note` in `frets` and `strings`"""
+        positions: List[GuitarPosition] = []
+        for string in strings:
+            fret = string.fret_for_note(note)
+            if fret is None:
+                continue
+            if fret not in frets:
+                continue
+            positions.append(GuitarPosition(string, fret))
+        return positions
+    
+    def add(self, interval: ChromaticInterval, strings: Union[StringDeltas, Strings] = ANY_STRING, frets: Frets = Frets()):
+        if isinstance(strings, StringDeltas):
+            strings = strings.strings(self.string)
+        note = self.get_chromatic() + interval
+        return GuitarPosition.from_chromatic(note, strings, frets)
 
     def get_chromatic(self) -> Optional[ChromaticNote]:
-        if self.fret is None:
+        if self.fret == NOT_PLAYED:
             return None
-        return string_number_to_note_played_when_free[self.string] + ChromaticInterval(self.fret)
+        return self.string.note_open + ChromaticInterval(self.fret.value)
 
     def get_stroke_color(self):
         return "black"
 
     def svg(self):
         """Draw this position, assuming that f already contains the svg for the fret"""
-        fill_color = "white" if self.fret is 0 else "black"
-        cx = string_distance * (self.string - 0.5)
-        if self.fret is None:
+        fill_color = "white" if self.fret == OPEN_FRET else "black"
+        cx = string_distance * (self.string.value - 0.5)
+        if self.fret is NOT_PLAYED:
             return f"""
     <text x="{int(cx)}" y="{int(fret_distance / 3)}" font-size="30">x</text>"""
         else:
-            if self.fret == 0:
+            if self.fret == OPEN_FRET:
                 cy = fret_distance / 2
             else:
-                cy = self.fret * fret_distance
+                cy = self.fret.value * fret_distance
             return f"""
     <circle cx="{int(cx)}" cy="{int(cy)}" r="{int(circle_radius)}" fill="{fill_color}" stroke="{self.get_stroke_color()}" stroke-width="3"/>"""
 
     def __eq__(self, other: GuitarPosition):
-        return self.fret == other.fret and self.string == other.string
+        assert_typing(other, GuitarPosition)
+        return isinstance(other, GuitarPosition) and self.fret == other.fret and self.string == other.string
 
     def __lt__(self, other: GuitarPosition):
-        if self.fret == other.fret == None:
+        if self.get_chromatic() is None:
+            return False
+        if other.get_chromatic() is None:
+            return True
+        if self.get_chromatic() == other.get_chromatic():
             return self.string < other.string
-        if self.fret is not None and other.fret is None:
-            return True
-        if self.fret is None and other.fret is not None:
-            return False
-
-        if self.get_chromatic() < other.get_chromatic():
-            return True
-        if self.get_chromatic() > other.get_chromatic():
-            return False
-        return self.string < other.string
-
+        return self.get_chromatic() < other.get_chromatic()
+    
     def __le__(self, other: GuitarPosition):
-        return self == other or self < other
+        return self == other or self<other
 
     def __hash__(self):
         return hash((self.fret, self.string))
@@ -103,25 +110,15 @@ class GuitarPosition:
         assert isinstance(other, GuitarPosition)
         return self.get_chromatic() - other.get_chromatic()
     
-    def __add__(self, other: ChromaticInterval):
-        assert isinstance(other, ChromaticInterval)
-        return self.add(other)
+    def singleton_diagram_svg_name(self):
+        """A unique filename for the diagram containing only this note."""
+        return f"""{self.singleton_diagram_key()}.svg"""
+    
+    def singleton_diagram_key(self):
+        """A unique name short name for this position."""
+        return f"""guitar_{self.string.value}_{self.fret.value}"""
 
-    def add(self, interval, min=0, max=5):
-        """A pos, equal to self, with `interval`  semitone added
-
-        fret is minimal in [min,max]. If no such pos exists, return None
-
-        interval -- a chromatic interval
-        """
-        chromaticResult = self.get_chromatic() + interval
-        assert isinstance(chromaticResult, ChromaticNote)
-        max_string = None
-        for string, chromatic_note in string_number_to_note_played_when_free.items():
-            if min <= (chromaticResult - chromatic_note).get_number() <= max:
-                if (max_string is None) or (string > max_string):
-                    max_string = string
-        if max_string:
-            return GuitarPosition(max_string, (chromaticResult - string_number_to_note_played_when_free[max_string]).get_number())
-        else:
-            return None
+    def singleton_diagram_svg(self):
+        """The svg for a diagram with only this note"""
+        from .set_of_guitar_positions import SetOfGuitarPositions
+        return SetOfGuitarPositions(frozenset({self})).svg()

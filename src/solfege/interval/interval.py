@@ -4,6 +4,7 @@ from typing import Optional, Self
 
 from solfege.interval.chromatic import ChromaticInterval
 from solfege.interval.diatonic import DiatonicInterval
+from utils.util import assert_typing
 
 
 class Interval(ChromaticInterval):
@@ -20,10 +21,10 @@ class Interval(ChromaticInterval):
         assert (alteration is not None) or (chromatic is not None)
         self._diatonic = self.__class__.DiatonicClass(value=diatonic)
         if chromatic is not None:
-            assert (isinstance(chromatic, int))
+            assert_typing(chromatic, int)
             super().__init__(value=chromatic)
         else:
-            assert (isinstance(alteration, int))
+            assert_typing(alteration, int)
             super().__init__(value=self._diatonic.get_chromatic().get_number() + alteration)
 
     @classmethod
@@ -38,7 +39,7 @@ class Interval(ChromaticInterval):
         if isinstance(interval, int):
             return cls(chromatic=interval, diatonic=1)
         if isinstance(interval, tuple):
-            assert (len(interval) == 2)
+            assert len(interval) == 2
             chromatic, diatonic = interval
             return cls(chromatic=chromatic, diatonic=diatonic)
 
@@ -63,7 +64,7 @@ class Interval(ChromaticInterval):
     def __repr__(self):
         return f"{self.__class__.__name__}(chromatic = {self.get_chromatic().get_number()}, diatonic = {self.get_diatonic().get_number()})"
 
-    def __add__(self, other) -> Self:
+    def __add__(self, other: Interval) -> Self:
         diatonic = self.get_diatonic() + other.get_diatonic()
         chromatic = self.get_chromatic() + other.get_chromatic()
         from solfege.note.abstract import AbstractNote
@@ -77,8 +78,8 @@ class Interval(ChromaticInterval):
 
     def __mul__(self, other):
         from solfege.note.abstract import AbstractNote
-        assert (not isinstance(self, AbstractNote))
-        assert (isinstance(other, int))
+        assert not isinstance(self, AbstractNote)
+        assert isinstance(other, int)
         diatonic = self.get_diatonic() * other
         chromatic = self.get_chromatic() * other
         cls = self.ClassToTransposeTo or self.__class__

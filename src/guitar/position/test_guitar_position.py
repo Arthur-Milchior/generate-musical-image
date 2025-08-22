@@ -1,50 +1,118 @@
 
 import unittest
+
+from guitar.position import strings
+from solfege.note.note import Note
 from .guitar_position import *
+from guitar.position.string import strings
+from guitar.position.string_deltas import *
+from guitar.position.strings import StringsInterval
 
-class TestPosition(unittest.TestCase):
-    def test_fail_init(self):
-        with self.assertRaises(Exception):
-            GuitarPosition(string=0, fret=4)
-        with self.assertRaises(Exception):
-            GuitarPosition(string=1, fret=-1)
-        with self.assertRaises(Exception):
-            GuitarPosition(string=7, fret=4)
+empty_first_string = GuitarPosition(strings[0], Fret(0))
+E5 = Note("E5")
 
+E5_1 = GuitarPosition(strings[0], Fret(24))
+E5_2 = GuitarPosition(strings[1], Fret(19))
+E5_3 = GuitarPosition(strings[2], Fret(14))
+E5_4 = GuitarPosition(strings[3], Fret(9))
+E5_5 = GuitarPosition(strings[4], Fret(5))
+E5_6 = GuitarPosition(strings[5], Fret(0))
+class TestGuitarPosition(unittest.TestCase):
     def test_get_chromatic(self):
-        self.assertEqual(GuitarPosition(string=1, fret=None).get_chromatic(), None)
-        self.assertEqual(GuitarPosition(string=1, fret=0).get_chromatic(), ChromaticNote(value=-8))
-        self.assertEqual(GuitarPosition(string=3, fret=3).get_chromatic(), ChromaticNote(value=5))
+        self.assertEqual(GuitarPosition(strings[0], fret=NOT_PLAYED).get_chromatic(), None)
+        self.assertEqual(empty_first_string.get_chromatic(), ChromaticNote(value=-8))
+        self.assertEqual(GuitarPosition(strings[2], Fret(3)).get_chromatic(), ChromaticNote(value=5))
 
-    def test_csv(self):
-        self.assertEqual(GuitarPosition(string=1, fret=None).svg(), """
+    def test_svg(self):
+        self.assertEqual(GuitarPosition(strings[0], fret=NOT_PLAYED).svg(), """
     <text x="15" y="16" font-size="30">x</text>""")
-        self.assertEqual(GuitarPosition(string=1, fret=0).svg(), """
+        self.assertEqual(empty_first_string.svg(), """
     <circle cx="15" cy="25" r="11" fill="white" stroke="black" stroke-width="3"/>""")
-        self.assertEqual(GuitarPosition(string=1, fret=3).svg(), """
+        self.assertEqual(GuitarPosition(strings[0], Fret(3)).svg(), """
     <circle cx="15" cy="150" r="11" fill="black" stroke="black" stroke-width="3"/>""")
 
     def test_repr(self):
-        self.assertEqual(repr(GuitarPosition(string=1, fret=None)), "GuitarPosition(string=1, fret=None)")
-        self.assertEqual(repr(GuitarPosition(string=1, fret=0)), "GuitarPosition(string=1, fret=0)")
+        self.assertEqual(repr(GuitarPosition(strings[0], fret=NOT_PLAYED)), "GuitarPosition(string=strings[0], fret=Fret(value=None))")
+        self.assertEqual(repr(empty_first_string), "GuitarPosition(string=strings[0], fret=Fret(value=0))")
 
     def test_eq(self):
-        self.assertEqual(GuitarPosition(string=1, fret=None), GuitarPosition(string=1, fret=None))
-        self.assertEqual(GuitarPosition(string=1, fret=8), GuitarPosition(string=1, fret=8))
-        self.assertNotEqual(GuitarPosition(string=2, fret=8), GuitarPosition(string=1, fret=8))
-        self.assertNotEqual(GuitarPosition(string=1, fret=7), GuitarPosition(string=1, fret=8))
-        self.assertNotEqual(GuitarPosition(string=1, fret=None), GuitarPosition(string=1, fret=8))
+        self.assertEqual(GuitarPosition(strings[0], fret=NOT_PLAYED), GuitarPosition(strings[0], fret=NOT_PLAYED))
+        self.assertEqual(GuitarPosition(strings[0], Fret(8)), GuitarPosition(strings[0], Fret(8)))
+        self.assertNotEqual(GuitarPosition(strings[1], Fret(8)), GuitarPosition(strings[0], Fret(8)))
+        self.assertNotEqual(GuitarPosition(strings[0], Fret(7)), GuitarPosition(strings[0], Fret(8)))
+        self.assertNotEqual(GuitarPosition(strings[0], fret=NOT_PLAYED), GuitarPosition(strings[0], Fret(8)))
 
     def test_lt(self):
-        self.assertLess( GuitarPosition(string=1, fret=1), GuitarPosition(string=1, fret=None))
-        self.assertLess(GuitarPosition(string=1, fret=1), GuitarPosition(string=1, fret=2))
-        self.assertLess(GuitarPosition(string=1, fret=1), GuitarPosition(string=2, fret=1))
-        self.assertLess(GuitarPosition(string=1, fret=1), GuitarPosition(string=2, fret=None))
+        self.assertLess( GuitarPosition(strings[0], Fret(1)), GuitarPosition(strings[0], fret=NOT_PLAYED))
+        self.assertLess(GuitarPosition(strings[0], Fret(1)), GuitarPosition(strings[0], Fret(2)))
+        self.assertLess(GuitarPosition(strings[0], Fret(1)), GuitarPosition(strings[1], Fret(1)))
+        self.assertLess(GuitarPosition(strings[0], Fret(1)), GuitarPosition(strings[1], fret=NOT_PLAYED))
 
     def test_le(self):
-        self.assertEqual(GuitarPosition(string=1, fret=None), GuitarPosition(string=1, fret=None))
-        self.assertEqual(GuitarPosition(string=1, fret=8), GuitarPosition(string=1, fret=8))
-        self.assertLessEqual(GuitarPosition(string=1, fret=1), GuitarPosition(string=1, fret=None))
-        self.assertLessEqual(GuitarPosition(string=1, fret=1), GuitarPosition(string=1, fret=2))
-        self.assertLessEqual(GuitarPosition(string=1, fret=1), GuitarPosition(string=2, fret=1))
-        self.assertLessEqual(GuitarPosition(string=1, fret=1), GuitarPosition(string=2, fret=None))
+        self.assertEqual(GuitarPosition(strings[0], fret=NOT_PLAYED), GuitarPosition(strings[0], fret=NOT_PLAYED))
+        self.assertEqual(GuitarPosition(strings[0], Fret(8)), GuitarPosition(strings[0], Fret(8)))
+        self.assertLessEqual(GuitarPosition(strings[0], Fret(1)), GuitarPosition(strings[0], fret=NOT_PLAYED))
+        self.assertLessEqual(GuitarPosition(strings[0], Fret(1)), GuitarPosition(strings[0], Fret(2)))
+        self.assertLessEqual(GuitarPosition(strings[0], Fret(1)), GuitarPosition(strings[1], Fret(1)))
+        self.assertLessEqual(GuitarPosition(strings[0], Fret(1)), GuitarPosition(strings[1], fret=NOT_PLAYED))
+
+    def test_from_chromatic(self):
+        strings_interval = StringsInterval(strings[3], strings[5])
+        self.assertEqual(GuitarPosition.from_chromatic(E5), 
+                         [
+                             E5_1,
+                             E5_2,
+                             E5_3,
+                             E5_4,
+                             E5_5,
+                             E5_6,
+                          ])
+        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets(8, 15, True)), 
+                         [
+                             E5_3,
+                             E5_4,
+                             E5_6,
+                          ])
+        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets(8, 15, False)), 
+                         [
+                             E5_3,
+                             E5_4,
+                          ])
+        self.assertEqual(GuitarPosition.from_chromatic(E5, strings = strings_interval), 
+                         [
+                             E5_4,
+                             E5_5,
+                             E5_6,
+                          ])
+        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets(8, 15, True), strings = strings_interval), 
+                         [
+                             E5_4,
+                             E5_6,
+                          ])
+        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets(8, 15, False), strings = strings_interval), 
+                         [
+                             E5_4,
+                          ])
+        
+    def test_add(self):
+        C5 = GuitarPosition(strings[0], Fret(20))
+        third_major = ChromaticInterval(4)
+        self.assertEqual(C5.add(third_major, strings=SAME_STRING_ONLY),
+                         [E5_1,])
+        self.assertEqual(C5.add(third_major, strings=NEXT_STRING_ONLY),
+                         [E5_2,])
+        self.assertEqual(C5.add(third_major, strings=SAME_OR_NEXT_STRING),
+                         [E5_1, E5_2,])
+        self.assertEqual(C5.add(third_major, strings=SAME_STRING_OR_GREATER),
+                         [E5_1, E5_2, E5_3, E5_4, E5_5, E5_6])
+        self.assertEqual(C5.add(third_major, strings=NEXT_STRING_OR_GREATER),
+                         [E5_2, E5_3, E5_4, E5_5, E5_6])
+        self.assertEqual(C5.add(third_major, frets=Frets(1, 5)),
+                         [E5_5, E5_6])
+        self.assertEqual(C5.add(third_major, frets=Frets(1, 5, False)),
+                         [E5_5])
+        self.assertEqual(C5.add(third_major, frets=Frets().restrict_around(C5.fret)),
+                         [E5_1, E5_2, E5_6])
+        self.assertEqual(C5.add(third_major, frets=Frets().restrict_around(C5.fret).disallow_open()),
+                         [E5_1, E5_2])
+        

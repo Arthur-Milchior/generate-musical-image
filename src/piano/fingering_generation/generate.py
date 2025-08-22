@@ -25,7 +25,7 @@ from utils.util import ensure_folder, delete_file_if_exists
 lilyProgram = "lilypond "
 
 
-@dataclass
+@dataclass(frozen=True, eq=True)
 class BestPenaltyMelody:
     penalty: PenaltyForScale
     fingerings: List[List[PianoNote]]
@@ -104,7 +104,7 @@ def generate_best_fingering_for_melody(notes_to_finger: List[Note],
                                    potential_finger_for_next_note=potential_finger_for_next_note)
 
 
-@dataclass
+@dataclass(frozen=True, eq=True)
 class BestPenaltyScale:
     penalty: PenaltyForScale
     fingerings: List[Tuple[List[PianoNote], Fingering]]

@@ -1,1 +1,1 @@
-from . import chord, pair, position, scale, solo
+#from . import chord, pair, position, scale, solo
