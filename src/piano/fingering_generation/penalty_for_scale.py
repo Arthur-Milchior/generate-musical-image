@@ -5,7 +5,7 @@ from typing import Optional, Dict, TypeVar, Any, Tuple, List
 
 from piano.piano_note import PianoNote
 from piano.scales.fingering import Fingering
-from solfege.note.abstract import pinky_and_thumb_side
+from solfege.note.abstract_note import pinky_and_thumb_side
 
 FingerNumbers = int  # 1 to 5
 
@@ -302,8 +302,8 @@ class PenaltyForScale:
         if pinky_side_note.finger == thumb_side_note.finger:
             # Same finger for two different note is not possible
             return None
-        diatonic_distance = abs(thumb_side_note.canonize(for_sharp=for_right_hand).get_diatonic().get_number() -
-                                pinky_side_note.canonize(for_sharp=for_right_hand).get_diatonic().get_number())
+        diatonic_distance = abs(thumb_side_note.canonize(for_sharp=for_right_hand).get_diatonic().value -
+                                pinky_side_note.canonize(for_sharp=for_right_hand).get_diatonic().value)
         if pinky_side_note.finger == 4 and thumb_side_note.finger == 3:
             return self.add_three_and_four_non_adjacent(diatonic_distance)
         if pinky_side_note.finger != 1:

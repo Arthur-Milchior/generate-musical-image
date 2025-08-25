@@ -5,7 +5,7 @@ from typing import Optional, List, Union
 from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.interval.interval import Interval
 from solfege.interval.set_of_intervals import SetOfIntervals
-from solfege.note import Note
+from solfege.note.note import Note
 
 
 class SetOfNotes(LocalLilyable):
@@ -28,7 +28,7 @@ class SetOfNotes(LocalLilyable):
 
     def __sub__(self, other: Union[Note, Interval]):
         if isinstance(other, Note):
-            return SetOfIntervals([note - other for note in self.notes])
+            return SetOfIntervals.make([note - other for note in self.notes])
         return SetOfNotes([note - other for note in self.notes], self.tonic - other if self.tonic else None)
 
     def __iter__(self):

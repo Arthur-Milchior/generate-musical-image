@@ -1,5 +1,5 @@
 from utils import util
-from .generate import generate_scores
+from piano.scales.generate import generate_scores
 import solfege.scale.scale_pattern #Ensure that the arpeggios are generated from the scales
 from consts import generate_root_folder
 

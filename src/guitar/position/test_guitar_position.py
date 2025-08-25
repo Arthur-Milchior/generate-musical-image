@@ -9,7 +9,7 @@ from guitar.position.string_deltas import *
 from guitar.position.strings import StringsInterval
 
 empty_first_string = GuitarPosition(strings[0], Fret(0))
-E5 = Note("E5")
+E5 = Note.from_name("E5")
 
 E5_1 = GuitarPosition(strings[0], Fret(24))
 E5_2 = GuitarPosition(strings[1], Fret(19))

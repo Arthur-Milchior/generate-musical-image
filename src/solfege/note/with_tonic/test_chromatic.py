@@ -15,7 +15,7 @@ class TestChromaticNoteWithTonic(unittest.TestCase):
 
     def test_eq(self):
         zero = ChromaticNoteWithTonic(value =0, tonic=True)
-        self.assertEqual(zero.get_number(), 0)
+        self.assertEqual(zero.value, 0)
         self.assertEqual(zero.get_tonic(), zero)
 
     def test_add_octave(self):
@@ -25,11 +25,11 @@ class TestChromaticNoteWithTonic(unittest.TestCase):
         self.assertEqual(self.C3.add_octave(2), self.C5)
 
     def test_same_note_in_base_octave(self):
-        self.assertEqual(self.C5.get_in_base_octave(), self.C4)
-        self.assertEqual(self.C3.get_in_base_octave(), self.C4)
-        self.assertEqual(self.C4.get_in_base_octave(), self.C4)
-        self.assertEqual(self.D4.get_in_base_octave(), self.D4)
-        self.assertEqual(self.B3.get_in_base_octave(), self.B4)
+        self.assertEqual(self.C5.in_base_octave(), self.C4)
+        self.assertEqual(self.C3.in_base_octave(), self.C4)
+        self.assertEqual(self.C4.in_base_octave(), self.C4)
+        self.assertEqual(self.D4.in_base_octave(), self.D4)
+        self.assertEqual(self.B3.in_base_octave(), self.B4)
 
     def test_same_note_in_different_octaves(self):
         self.assertFalse(self.D4.equals_modulo_octave(self.C4))
@@ -44,7 +44,7 @@ class TestChromaticNoteWithTonic(unittest.TestCase):
     # def get_diatonic(self):
     #     """Assuming no base is used"""
     #     if "diatonic" not in self.dic:
-    #         if self.get_number() is None:
+    #         if self.value is None:
     #             diatonic = None
     #         elif self.get_tonic() is None:
     #             raise Exception("Diatonic asked when the current note %s has no base" % self)
@@ -57,7 +57,7 @@ class TestChromaticNoteWithTonic(unittest.TestCase):
     #             role = self.get_role()
     #             diatonicNumber = {"unison": 0, "third": 2, "fifth": 4, "interval": 6}[role]
     #             diatonicIntervalBaseOctave = DiatonicInterval(diatonic=diatonicNumber)
-    #             octave = self.get_interval().get_octave()
+    #             octave = self.get_interval().octave()
     #             diatonicInterval = diatonicIntervalBaseOctave.add_octave(octave)
     #             diatonic = self.base.get_diatonic() + diatonicInterval
     #             diatonic.set_tonic(self.base.get_diatonic())

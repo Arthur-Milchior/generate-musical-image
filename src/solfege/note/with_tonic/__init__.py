@@ -1,7 +1,0 @@
-from solfege.note.with_tonic.chromatic import ChromaticNoteWithTonic
-from solfege.note.with_tonic.diatonic import DiatonicNoteWithTonic
-from solfege.note.with_tonic.note import NoteWithTonic
-
-ChromaticNoteWithTonic.RelatedDiatonicClass = DiatonicNoteWithTonic
-DiatonicNoteWithTonic.RelatedChromaticClass = ChromaticNoteWithTonic
-ChromaticNoteWithTonic.RelatedSolfegeClass = NoteWithTonic

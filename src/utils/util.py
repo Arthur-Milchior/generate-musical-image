@@ -61,7 +61,7 @@ def assert_all_same_class(it: Iterable):
 
 def assert_typing(value, type):
     assert value is not None
-    assert isinstance(value, type), f"{value=} is not of {type=}"
+    assert isinstance(value, type), f"{value=}:{value.__class__} is not of {type=}"
 
 def assert_optional_type(value, type):
     if value is not None:

@@ -1,1 +1,1 @@
-from . import overtone
+from saxophone.fingering.overtone import overtone

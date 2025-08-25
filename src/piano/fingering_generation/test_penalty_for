@@ -23,20 +23,20 @@ class TestPenalty(unittest.TestCase):
         self.assertEqual(two_thumbover, expected_two)
 
     def test_add_transition_thumb_over(self):
-        one_thumbover = self.empty.add_penalty_for_note_transition(PianoNote("C", 1), PianoNote("D", 2),
+        one_thumbover = self.empty.add_penalty_for_note_transition(PianoNote.from_name("C", 1), PianoNote.from_name("D", 2),
                                                                    for_right_hand=False)
         expected = PenaltyForScale(nb_same_color_after_thumb_at_distance_diatonic={1: {2: 1}})
         self.assertEqual(one_thumbover, expected)
 
     def test_from_scale(self):
         scale = [
-            PianoNote("A", finger=5),
-            PianoNote("G", finger=4),
-            PianoNote("E", finger=3),
-            PianoNote("D#", finger=2),
-            PianoNote("D", finger=1),
-            PianoNote("C", finger=3),
-            PianoNote("A3", finger=1),
+            PianoNote.from_name("A", finger=5),
+            PianoNote.from_name("G", finger=4),
+            PianoNote.from_name("E", finger=3),
+            PianoNote.from_name("D#", finger=2),
+            PianoNote.from_name("D", finger=1),
+            PianoNote.from_name("C", finger=3),
+            PianoNote.from_name("A3", finger=1),
         ]
         penalty = PenaltyForScale.from_scale(scale, for_right_hand=True)
         print(penalty)

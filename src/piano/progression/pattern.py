@@ -6,7 +6,7 @@
 # from lily.lily import compile_
 # from lily.svg import display_svg_file
 # from solfege.interval.set_of_intervals import SetOfIntervals
-# from solfege.note import Note
+# from solfege.note.note import Note
 # from utils.constants import test_folder
 #
 #

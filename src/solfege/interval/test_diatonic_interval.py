@@ -1,5 +1,5 @@
 import unittest
-from .diatonic import *
+from .diatonic_interval import *
 
 class TestDiatonicInterval(unittest.TestCase):
     unison = DiatonicInterval(0)
@@ -15,17 +15,14 @@ class TestDiatonicInterval(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        from solfege.interval.chromatic import ChromaticInterval
-        DiatonicInterval.RelatedChromaticClass = ChromaticInterval
+        from solfege.interval.chromatic_interval import ChromaticInterval
+        DiatonicInterval.ChromaticClass = ChromaticInterval
 
     def test_is_note(self):
         self.assertFalse(self.unison.is_note())
-
-    def test_has_number(self):
-        self.assertTrue(self.unison.has_number())
-
+        
     def test_get_number(self):
-        self.assertEqual(self.unison.get_number(), 0)
+        self.assertEqual(self.unison.value, 0)
 
     def test_equal(self):
         self.assertEqual(self.unison, self.unison)
@@ -49,13 +46,13 @@ class TestDiatonicInterval(unittest.TestCase):
     def test_repr(self):
         self.assertEqual(repr(self.second), "DiatonicInterval(value=1)")
 
-    def test_get_octave(self):
-        self.assertEqual(self.unison.get_octave(), 0)
-        self.assertEqual(self.seventh.get_octave(), 0)
-        self.assertEqual(self.seventh_descending.get_octave(), -1)
-        self.assertEqual(self.octave_descending.get_octave(), -1)
-        self.assertEqual(self.second_twice_descending.get_octave(), -2)
-        self.assertEqual(self.octave.get_octave(), 1)
+    def test_octave(self):
+        self.assertEqual(self.unison.octave(), 0)
+        self.assertEqual(self.seventh.octave(), 0)
+        self.assertEqual(self.seventh_descending.octave(), -1)
+        self.assertEqual(self.octave_descending.octave(), -1)
+        self.assertEqual(self.second_twice_descending.octave(), -2)
+        self.assertEqual(self.octave.octave(), 1)
 
     def test_add_octave(self):
         self.assertEqual(self.octave.add_octave(-1), self.unison)
@@ -64,11 +61,11 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertEqual(self.octave_descending.add_octave(2), self.octave)
 
     def test_same_interval_in_base_octave(self):
-        self.assertEqual(self.octave.get_in_base_octave(), self.unison)
-        self.assertEqual(self.octave_descending.get_in_base_octave(), self.unison)
-        self.assertEqual(self.unison.get_in_base_octave(), self.unison)
-        self.assertEqual(self.second.get_in_base_octave(), self.second)
-        self.assertEqual(self.second_descending.get_in_base_octave(), self.seventh)
+        self.assertEqual(self.octave.in_base_octave(), self.unison)
+        self.assertEqual(self.octave_descending.in_base_octave(), self.unison)
+        self.assertEqual(self.unison.in_base_octave(), self.unison)
+        self.assertEqual(self.second.in_base_octave(), self.second)
+        self.assertEqual(self.second_descending.in_base_octave(), self.seventh)
 
     def test_same_interval_in_different_octaves(self):
         self.assertFalse(self.second.equals_modulo_octave(self.unison))
@@ -81,7 +78,7 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertTrue(self.octave.equals_modulo_octave(self.octave_descending))
 
     def test_get_chromatic(self):
-        from solfege.interval.chromatic import ChromaticInterval
+        from solfege.interval.chromatic_interval import ChromaticInterval
         self.assertEqual(DiatonicInterval(0).get_chromatic(), ChromaticInterval(0))
         self.assertEqual(DiatonicInterval(1).get_chromatic(), ChromaticInterval(2))
         self.assertEqual(DiatonicInterval(2).get_chromatic(), ChromaticInterval(4))

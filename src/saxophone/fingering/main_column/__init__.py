@@ -6,21 +6,21 @@ from saxophone.fingering.fingering import *
 
 # Without octave button
 
-c_sharp5 = Fingering("c#5", {}) # no button is pressed
+c_sharp5 = Fingering.make("c#5", {}) # no button is pressed
 
 c5 = c_sharp5.remove_semi_tone(a) # A touch alone
 
 b4 = c_sharp5.remove_tone(b)
-b_flat4_b = Fingering("b♭4", {b_flat}, FINGERING_B)
+b_flat4_b = Fingering.make("b♭4", {b_flat}, FingeringSymbol.B)
 
 a4 = b4.remove_tone(a)
 
 g4 = a4.remove_tone(g)
 
 g_sharp4 = g4.add_semi_tone(g_sharp)
-g_sharp4_2 = g4.add_semi_tone(jay_2, FINGERING_2)
-g_sharp4_5 = g4.add_semi_tone(jay_5, FINGERING_5)
-g_sharp4_6 = g4.add_semi_tone(jay_6, FINGERING_6)
+g_sharp4_2 = g4.add_semi_tone(jay_2, FingeringSymbol.TWO)
+g_sharp4_5 = g4.add_semi_tone(jay_5, FingeringSymbol.FIVE)
+g_sharp4_6 = g4.add_semi_tone(jay_6, FingeringSymbol.SIX)
 
 g_flat4 = g4.remove_semi_tone(e)
 
@@ -55,16 +55,16 @@ d_sharp5 = d_sharp4.add_octave()
 
 
 
-f7 = Fingering("f7", {octave, f, g, b})
-e7 = Fingering("e7", {octave, e, f, a})
-c7_c = Fingering("c7", {octave, f, b}, FINGERING_C)
-b6_c = Fingering("b6", {octave,d, e, f, g, a, b}, FINGERING_C)
-a_sharp6_v = Fingering("a#6", {octave, g}, FINGERING_V)
-a6_v = a_sharp6_v.remove_semi_tone(a, FINGERING_V)
-a6_tw = a_sharp6_v.remove_semi_tone(d, FINGERING_TW)
-g_sharp6_n = a_sharp6_v.remove_tone(b, FINGERING_N_COMPLETLY_EXPOSED)
+f7 = Fingering.make("f7", {octave, f, g, b})
+e7 = Fingering.make("e7", {octave, e, f, a})
+c7_c = Fingering.make("c7", {octave, f, b}, FingeringSymbol.C)
+b6_c = Fingering.make("b6", {octave,d, e, f, g, a, b}, FingeringSymbol.C)
+a_sharp6_v = Fingering.make("a#6", {octave, g}, FingeringSymbol.V)
+a6_v = a_sharp6_v.remove_semi_tone(a, FingeringSymbol.V)
+a6_tw = a_sharp6_v.remove_semi_tone(d, FingeringSymbol.TW)
+g_sharp6_n = a_sharp6_v.remove_tone(b, FingeringSymbol.N_COMPLETLY_EXPOSED)
 g6_n = g_sharp6_n.remove_semi_tone(d)
-f_sharp6 = Fingering("f#6", {b, g, f}, FINGERING_N_COMPLETLY_EXPOSED)
-f_sharp6_d = f_sharp6.silent_button(d, e, FINGERING_D)
-f6_d = f_sharp6_d.remove_semi_tone(jay_k3, FINGERING_D)
-e6_d = f6_d.remove_semi_tone(a, FINGERING_D)
+f_sharp6 = Fingering.make("f#6", {b, g, f}, FingeringSymbol.N_COMPLETLY_EXPOSED)
+f_sharp6_d = f_sharp6.silent_button(d, e, FingeringSymbol.D)
+f6_d = f_sharp6_d.remove_semi_tone(jay_k3, FingeringSymbol.D)
+e6_d = f6_d.remove_semi_tone(a, FingeringSymbol.D)

@@ -17,7 +17,7 @@ folder_path = "/home/milchior/generate-musical-image/generated/piano/scales_half
 ensure_folder(folder_path)
 
 for scale_pattern in scale_patterns:
-    pattern_name = scale_pattern.get_the_first_of_the_name()
+    pattern_name = scale_pattern.first_of_the_names()
     pattern_name_ = pattern_name.replace(' ', '_')
     scale_folder = f"{folder_path}/{pattern_name_}"
     ensure_folder(scale_folder)
@@ -26,13 +26,13 @@ for scale_pattern in scale_patterns:
         increasing_first_scale = scale_pattern.generate(first_key.note)
         decreasing_first_scale = Scale(list(reversed(increasing_first_scale.notes)), increasing_first_scale.pattern)
         for second_key_note in [
-            first_key.note + Interval(chromatic=1, diatonic=1),
-            first_key.note + Interval(chromatic=-1, diatonic=-1),
+            first_key.note + Interval.make(chromatic=1, diatonic=1),
+            first_key.note + Interval.make(chromatic=-1, diatonic=-1),
         ]:
             second_key = Key.from_note(second_key_note)
             interval_correction_second_key = second_key.note - second_key_note
-            assert interval_correction_second_key.get_in_base_octave() == Interval(0, 0)
-            nb_octave_correction = interval_correction_second_key.get_octave()
+            assert interval_correction_second_key.in_base_octave() == Interval.make(0, 0)
+            nb_octave_correction = interval_correction_second_key.octave()
             second_key_note = second_key.simplest_enharmonic_major().note.add_octave(-nb_octave_correction)
             increasing_second_scale = scale_pattern.generate(second_key_note)
             decreasing_second_scale = Scale(list(reversed(increasing_second_scale.notes)),
@@ -49,9 +49,9 @@ for scale_pattern in scale_patterns:
                 assert right_penalty is not None
                 left_to_lily = left_penalty.fingerings[0]
                 right_to_lily = right_penalty.fingerings[0]
-                length = scale_pattern.number_of_intervals() + 1
-                first_part = LiteralPianoLilyable.factory(first_key.note, left_to_lily[:length], right_to_lily[:length])
-                second_part = LiteralPianoLilyable.factory(second_key_note, left_to_lily[length:],
+                length = len(scale_pattern) + 1
+                first_part = LiteralPianoLilyable.make(first_key.note, left_to_lily[:length], right_to_lily[:length])
+                second_part = LiteralPianoLilyable.make(second_key_note, left_to_lily[length:],
                                                            right_to_lily[length:])
                 two_scales = ListPianoLilyable([first_part, second_part])
                 file_prefix = f"{pattern_name_}_{first_key.note.get_name_with_octave(

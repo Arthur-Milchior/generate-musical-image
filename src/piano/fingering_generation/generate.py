@@ -17,7 +17,7 @@ from piano.piano_note import PianoNote
 from piano.fingering_generation.penalty_for_scale import PenaltyForScale
 from piano.scales.fingering import Fingering
 from solfege.chord.chord_pattern import minor_seven, augmented_major_seventh_chord
-from solfege.note import Note
+from solfege.note.note import Note
 from solfege.scale.scale_pattern import ScalePattern, blues, pentatonic_major, minor_melodic
 from utils.constants import test_folder
 from utils.util import ensure_folder, delete_file_if_exists
@@ -74,7 +74,7 @@ def generate_best_fingering(fingered_notes: List[PianoNote], penalty_for_fingere
             potential_finger_for_next_note = list(range(1, 6))
 
     for finger in potential_finger_for_next_note:
-        next_piano_note = PianoNote(chromatic=next_note.get_chromatic().value,
+        next_piano_note = PianoNote.make(chromatic=next_note.get_chromatic().value,
                                     diatonic=next_note.get_diatonic().value, finger=finger)
         penalty_with_note = penalty_for_fingered_notes.add_penalty_for_note(next_piano_note)
         if fingered_notes:
@@ -117,10 +117,10 @@ def generate_best_fingering_for_scale(scale: List[Note], for_right_hand: bool) -
     """Returns the best penalty that could be generated for this scale.
      scale: the list of note, from low to high, with last note an octave above the first one
      """
-    assert scale[0].get_in_base_octave() == scale[-1].get_in_base_octave()
+    assert scale[0].in_base_octave() == scale[-1].in_base_octave()
 
     def penalty_scale(notes: List[PianoNote], penalty: PenaltyForScale) -> Optional[PenaltyForScale]:
-        fingering = Fingering.from_scale(notes, for_right_hand)
+        fingering = FingeringSymbol.from_scale(notes, for_right_hand)
         if fingering is None:
             return None
         if for_right_hand:
@@ -131,7 +131,7 @@ def generate_best_fingering_for_scale(scale: List[Note], for_right_hand: bool) -
             pinky_side_note = notes[0]
             second_to_pinky_side_note = notes[1]
             thumb_side_note = notes[-1]
-        repetition_note = PianoNote(chromatic=pinky_side_note.get_chromatic().value,
+        repetition_note = PianoNote.make(chromatic=pinky_side_note.get_chromatic().value,
                                     diatonic=pinky_side_note.get_diatonic().value, finger=thumb_side_note.finger)
         penalty = penalty.add_penalty_for_note_transition(repetition_note, second_to_pinky_side_note, for_right_hand)
         if penalty:
@@ -143,7 +143,7 @@ def generate_best_fingering_for_scale(scale: List[Note], for_right_hand: bool) -
                                            for_right_hand=for_right_hand, add_penalty_for_whole=penalty_scale)
     if best_penalty is None:
         return None
-    fingerings = [(fingering, Fingering.from_scale(fingering, for_right_hand)) for fingering in best_penalty.fingerings]
+    fingerings = [(fingering, FingeringSymbol.from_scale(fingering, for_right_hand)) for fingering in best_penalty.fingerings]
     return BestPenaltyScale(best_penalty.penalty, fingerings)
 
 

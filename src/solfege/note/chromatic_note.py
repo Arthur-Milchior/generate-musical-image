@@ -1,11 +1,14 @@
-from typing import Optional
-from solfege.note.abstract import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
-from solfege.interval.chromatic import ChromaticInterval
+from dataclasses import dataclass
+from typing import ClassVar, Optional, Type
+from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.interval.chromatic_interval import ChromaticInterval
+from solfege.value.chromatic import Chromatic
+from solfege.note.singleton_note import AbstractSingletonNote
 
 
-class ChromaticNote(AbstractNote, ChromaticInterval):
-    IntervalClass = ChromaticInterval
-
+@dataclass(frozen=True)
+class ChromaticNote(AbstractSingletonNote, Chromatic):
+    AlterationClass: ClassVar[Type[Chromatic]]
     @staticmethod
     def from_name(name) -> "ChromaticNote":
         from solfege.note.note import Note
@@ -27,9 +30,8 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
         if cls is None:
             from solfege.note.note import Note
             cls = Note
-        diatonic = diatonic.get_number()
-        chromatic = self.get_number()
-        return cls(diatonic=diatonic, chromatic=chromatic)
+        diatonic = diatonic
+        return cls(diatonic=diatonic, chromatic=self)
 
     def file_name(self, clef: Optional[str] = None):
         """Return the file name without extension nor folder"""
@@ -58,4 +60,6 @@ class ChromaticNote(AbstractNote, ChromaticInterval):
     def is_black_key_on_piano(self):
         """Whether this note corresponds to a black note of the keyboard"""
         blacks = {1, 3, 6, 8, 10}
-        return (self.get_chromatic().get_number() % 12) in blacks
+        return (self.get_chromatic().value % 12) in blacks
+    
+ChromaticNote.ChromaticClass = ChromaticNote

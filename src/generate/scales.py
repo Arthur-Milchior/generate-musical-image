@@ -1,6 +1,6 @@
 from enum import Enum
-from solfege.note.chromatic import ChromaticNote
-from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.note.chromatic_note import ChromaticNote
+from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
 from solfege.key import Key, sets_of_enharmonic_keys
 from typing import Optional, Dict, List, assert_never
@@ -10,7 +10,7 @@ from lily.lily import compile_
 from dataclasses import dataclass
 from solfege.chord.chord_pattern import ChordPattern
 from solfege.interval.interval import Interval
-from solfege.note import Note
+from solfege.note.note import Note
 from consts import generate_root_folder
 
 
@@ -33,7 +33,7 @@ class Instrument:
     name: str
     lowest_instrument_note: Note
     highest_instrument_note: Note
-    transposition: Interval = Interval(0, 0)
+    transposition: Interval = Interval.make(0, 0)
     show_fingering: bool = True
     image_extension: str = "png"
 
@@ -52,28 +52,28 @@ class ChromaticInstrumentWithDifficultNote(Instrument):
         super().__init__(name, lowest, highest)
         self.difficulty_notes = dict()
         for note, value in difficulty_notes.items():
-            note = Note(note).get_chromatic().get_in_base_octave()
+            note = Note(note).get_chromatic().in_base_octave()
             self.difficulty_notes[note] = max(value, self.difficulty_notes.get(note, 0))
 
     def difficulty(self, note: Note):
-        return self.difficulty_notes.get(note.get_chromatic().get_in_base_octave(), super().difficulty(note))
+        return self.difficulty_notes.get(note.get_chromatic().in_base_octave(), super().difficulty(note))
 
     """
-    transposition: Interval = Interval(0, 0)
+    transposition: Interval = Interval.make(0, 0)
     note_difficulties: Optional[Dict[str, int]] = None
     simple_notes: Optional[List[str]]"""
 
 
-ocarina_harmorny_double = ChromaticInstrumentWithDifficultNote("ocarina_pendant", Note("C4"), Note("E5"),
+ocarina_harmorny_double = ChromaticInstrumentWithDifficultNote("ocarina_pendant", Note.from_name("C4"), Note.from_name("E5"),
                              {"C4#":1, "E♭4":1, })
-ocarina_pendant = ChromaticInstrumentWithDifficultNote("ocarina_pendant", Note("C4"), Note("E5"),
+ocarina_pendant = ChromaticInstrumentWithDifficultNote("ocarina_pendant", Note.from_name("C4"), Note.from_name("E5"),
                              {"C4#":1, "E♭4":1, })
 
-ocarina_harmorny_triple = Instrument("ocarina_harmony_triple", Note("A4"), Note("E♭6"))
-ocarina_transverse = Instrument("ocarina_transverse", Note("C4"), Note("C6"))
-mv_ocarina = Instrument("mv_ocarina", Note("B3"), Note("E5"))
-saxophone = Instrument("saxophone", Note("B♭3"), Note("A6"))
-tin_whistle = ChromaticInstrumentWithDifficultNote("tin_whistle", Note("D4"), Note("D6"), 
+ocarina_harmorny_triple = Instrument("ocarina_harmony_triple", Note.from_name("A4"), Note.from_name("E♭6"))
+ocarina_transverse = Instrument("ocarina_transverse", Note.from_name("C4"), Note.from_name("C6"))
+mv_ocarina = Instrument("mv_ocarina", Note.from_name("B3"), Note.from_name("E5"))
+saxophone = Instrument("saxophone", Note.from_name("B♭3"), Note.from_name("A6"))
+tin_whistle = ChromaticInstrumentWithDifficultNote("tin_whistle", Note.from_name("D4"), Note.from_name("D6"), 
                                                    {
                                                     "D4#":2,
                                                     "F4":2,
@@ -81,8 +81,8 @@ tin_whistle = ChromaticInstrumentWithDifficultNote("tin_whistle", Note("D4"), No
                                                     "B♭4":1,
                                                     "A#4":1,
                                                     "C5":1,
-                                                   }, Interval(chromatic=2, diatonic=1),)
-recorder = ChromaticInstrumentWithDifficultNote("recorder", Note("C4"), Note("D6"),
+                                                   }, Interval.make(chromatic=2, diatonic=1),)
+recorder = ChromaticInstrumentWithDifficultNote("recorder", Note.from_name("C4"), Note.from_name("D6"),
                                                    {
                                                        "C4#": 2,
                                                        "E4♭": 2,
@@ -93,7 +93,7 @@ recorder = ChromaticInstrumentWithDifficultNote("recorder", Note("C4"), Note("D6
                                                        "C5#": 2,
                                                        "D5": 1,
                                                    })
-harmonica_diatonic = ChromaticInstrumentWithDifficultNote("harmonica_diatonic", Note("C3"), Note("C6"), {
+harmonica_diatonic = ChromaticInstrumentWithDifficultNote("harmonica_diatonic", Note.from_name("C3"), Note.from_name("C6"), {
     "D3♭": 1,
     "F#3": 1,
     "F3": 2,
@@ -107,7 +107,7 @@ harmonica_diatonic = ChromaticInstrumentWithDifficultNote("harmonica_diatonic", 
     "B6": 2,
     "B6♭": 3,
 })
-haromnica_chromatic = Instrument("harmonica_chromatic", Note("C3"), Note("C7#"))
+haromnica_chromatic = Instrument("harmonica_chromatic", Note.from_name("C3"), Note.from_name("C7#"))
 
 instruments: List[Instrument] = [
 #    ocarina_harmorny_double,

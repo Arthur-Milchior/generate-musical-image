@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from typing import Union, TypeVar, Tuple, assert_never
+from dataclasses import dataclass
+from typing import ClassVar, Type, Union, TypeVar, Tuple, assert_never
 from enum import Enum
 
-from solfege.interval.abstract import AbstractInterval
+from solfege.interval.abstract_interval import AbstractInterval
+from solfege.value.abstract import Abstract
+from solfege.value.singleton import Singleton
+from utils.util import assert_typing
 
 class AlterationOutput(Enum):
     ASCII = "ASCII"
@@ -28,8 +32,9 @@ class FixedLengthOutput(Enum):
     UNDERSCORE_SIMPLE = "SIMPLE" # If we only deal with at moste one alteration
     NO = "NO"
 
-class AbstractNote(AbstractInterval):
-    IntervalClass = AbstractInterval
+@dataclass(frozen=True)
+class AbstractNote(Abstract):
+    make_instance_of_selfs_class: ClassVar[Type["AbstractNote"]]
     """A note. Similar to an interval.
 
     -To a note may be added or subtracted an interval, but not to a note
@@ -43,39 +48,41 @@ class AbstractNote(AbstractInterval):
     def __neg__(self):
         raise Exception("Trying to negate a note makes no sens.")
 
-    def __sub__(self, other: Union[AbstractInterval, AbstractNote]):
-        if isinstance(other, AbstractNote):
-            return self.sub_note(other)
-        else:
-            return self.sub_interval(other)
+    def __neg__(self):
+        raise Exception("Trying to multiply a note makes no sens.")
 
-    def sub_interval(self, other: AbstractInterval):
+    def __sub__(self, other: Union[AbstractInterval, AbstractNote]) -> Abstract:
+        if isinstance(other, AbstractNote):
+            return self._sub_note(other)
+        else:
+            return self._sub_interval(other)
+
+    def _sub_interval(self, other: AbstractInterval):
         return self + (-other)
 
-    def sub_note(self, other: AbstractNote):
-        return self.IntervalClass(self.get_number() - other.get_number())
+    def _sub_note(self, other: AbstractNote):
+        return NotImplemented
 
     def __radd__(self, other: AbstractInterval):
         # called as other + self
         return self + other
 
     def __add__(self, other: AbstractInterval):
-        if isinstance(other, AbstractNote):
-            raise Exception("Adding two note")
-        sum_ = super().__add__(
-            other)  # Super still makes sens because a class inheriting _Note also inherits some other class.
-        return sum_
+        assert_typing(self, AbstractNote)
+        assert_typing(other, self.IntervalClass)
+        # Super still makes sens because a class inheriting AbstractNote also inherits some other class.
+        return super().__add__(other)
 
     def get_octave_name(self, octave_notation: OctaveOutput) -> str:
         """The octave.  By default, starting at middle c. If scientific_notation, starting at C0"""
         if octave_notation == OctaveOutput.MIDDLE_IS_4:
-            return str(self.get_octave() + 4)
+            return str(self.octave() + 4)
         elif octave_notation == OctaveOutput.MIDDLE_IS_0:
-            return str(self.get_octave())
+            return str(self.octave())
         elif octave_notation == OctaveOutput.LILY:
-            if self.get_octave() >= 0:
-                return "'" * (self.get_octave() + 1)
-            return "," * (-self.get_octave() - 1)
+            if self.octave() >= 0:
+                return "'" * (self.octave() + 1)
+            return "," * (-self.octave() - 1)
         raise assert_never(octave_notation)
 
     def get_name_up_to_octave(self,
@@ -86,6 +93,7 @@ class AbstractNote(AbstractInterval):
 
     def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs):
         return f"{self.get_name_up_to_octave(**kwargs)}{str(self.get_octave_name(octave_notation=octave_notation))}"
+
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)
 

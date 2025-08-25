@@ -5,12 +5,12 @@ from .pattern import *
 #
 #     def test_add_chord(self):
 #         from piano.progression.chord_progression import ProgressionTest
-#         s = (ProgressionTest.d_min_7-Note("C4")) + Note("C4")
+#         s = (ProgressionTest.d_min_7-Note.from_name("C4")) + Note.from_name("C4")
 #         self.assertEqual(s, ProgressionTest.d_min_7)
 #
 #     def test_add_progression(self):
 #         from piano.progression.chord_progression import ProgressionTest
-#         s = (ProgressionTest.three_five_c - Note("C4")) + Note("C")
+#         s = (ProgressionTest.three_five_c - Note.from_name("C4")) + Note.from_name("C")
 #         self.assertEqual(s, ProgressionTest.three_five_c)
 #
 #     def test_see_all(self):

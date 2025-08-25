@@ -1,16 +1,18 @@
 
-from typing import Union
-from solfege.note import ChromaticNote
-from solfege.note.with_tonic.base import AbstractNoteWithTonic
+from dataclasses import dataclass
+from typing import ClassVar, List, Optional, Union
+from solfege.note.chromatic_note import ChromaticNote
+from solfege.note.with_tonic.singleton import AbstractSingletonNoteWithTonic
 
-
-class ChromaticNoteWithTonic(AbstractNoteWithTonic, ChromaticNote):
+@dataclass(frozen=True, eq=False)
+class ChromaticNoteWithTonic(AbstractSingletonNoteWithTonic, ChromaticNote):
     # The role this note is most likely to play in the standard chords
     # Especially used for guitar cards
-    role = ["unison", None, None, "third", "third", "third", "fifth", "fifth", "fifth", "interval", "interval",
+    role: ClassVar[List[Optional[str]]] = ["unison", None, None, "third", "third", "third", "fifth", "fifth", "fifth", "interval", "interval",
             "interval"]
 
     def get_color(self, color=True):
+        """Coloring for guitar dots."""
         if color:
             dic = {"unison": "black", "third": "violet", "fifth": "red", "interval": "green", None: None}
             return dic[self.get_role()]

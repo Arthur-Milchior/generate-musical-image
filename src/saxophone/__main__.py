@@ -1,3 +1,3 @@
-from . import generate
+from saxophone. import generate
 
 print("generated")

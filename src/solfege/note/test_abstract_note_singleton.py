@@ -1,21 +1,26 @@
-from solfege.interval.test_abstract import TestBaseInterval
-from .abstract import *
+import unittest
 
-class TestBaseNote(TestBaseInterval):
-    C4 = AbstractNote(0)
-    D4 = AbstractNote(1)
-    B3 = AbstractNote(-1)
-    E4 = AbstractNote(2)
-    F4 = AbstractNote(3)
+from solfege.interval.test_abstract_interval_singleton import *
+from solfege.note.singleton_note import AbstractSingletonNote
+from .abstract_note import *
+
+class TestBaseNoteSingleton(unittest.TestCase):
+    zero = AbstractSingletonInterval(0)
+    un = AbstractSingletonInterval(1)
+    moins_un = AbstractSingletonInterval(-1)
+    deux = AbstractSingletonInterval(2)
+    trois = AbstractSingletonInterval(3)
+    C4 = AbstractSingletonNote(0)
+    D4 = AbstractSingletonNote(1)
+    B3 = AbstractSingletonNote(-1)
+    E4 = AbstractSingletonNote(2)
+    F4 = AbstractSingletonNote(3)
 
     def test_is_note(self):
         self.assertTrue(self.C4.is_note())
 
-    def test_has_number(self):
-        self.assertTrue(self.C4.has_number())
-
     def test_get_number(self):
-        self.assertEqual(self.C4.get_number(), 0)
+        self.assertEqual(self.C4.value, 0)
 
     def test_equal(self):
         self.assertEqual(self.C4, self.C4)
@@ -37,12 +42,12 @@ class TestBaseNote(TestBaseInterval):
         self.assertEqual(self.F4 - self.D4, self.deux)
 
     def test_lt(self):
-        self.assertLess(self.D4, self.deux)
-        self.assertLessEqual(self.D4, self.deux)
+        self.assertLess(self.C4, self.D4)
+        self.assertLessEqual(self.C4, self.D4)
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
-        self.assertEqual(repr(self.D4), "AbstractNote(value=1)")
+        self.assertEqual(repr(self.D4), "AbstractNoteSingleton(value=1)")
 
     def test_low_and_high(self):
         self.assertEqual(low_and_high(self.C4, self.C4), (self.C4, self.C4))

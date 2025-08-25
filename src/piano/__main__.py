@@ -1,7 +1,7 @@
-from .progression import main
-from .scale_variant import main
-from .scales import main
-from .fingering_generation import main
-from .chord_successions import main
+from piano.progression import main
+from piano.scale_variant import main
+from piano.scales import main
+from piano.fingering_generation import main
+from piano.chord_successions import main
 
 

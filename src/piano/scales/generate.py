@@ -5,7 +5,7 @@ from typing import List, Union, Optional
 from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
 from piano.fingering_generation.generate import generate_best_fingering_for_scale, BestPenaltyScale
 from piano.fingering_generation.penalty_for_scale import PenaltyForScale
-from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
 from lily.lily import compile_
 from piano.piano_note import PianoNote
@@ -13,7 +13,7 @@ from piano.scales.fingering import Fingering
 from solfege.chord.chord_pattern import add_arpeggios_to_scales
 from solfege.scale.scale_pattern import ScalePattern
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
-from solfege.note import Note
+from solfege.note.note import Note
 
 add_arpeggios_to_scales()
 
@@ -170,7 +170,7 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
                 scale_lowest_note=right_hand_lowest_note,
                 left_scales_fingering=left_scales_fingering,
                 right_scales_fingering=right_scales_fingering,
-                scale_name=scale_pattern.get_the_first_of_the_name().replace(" ", "_"),
+                scale_name=scale_pattern.first_of_the_names().replace(" ", "_"),
                 # this replace is uselessly costly, as iterated many time. But this is not a bottleneck compared to lily, so never mind
                 folder_path=folder_path,
                 number_of_octaves=number_of_octaves,
@@ -201,7 +201,7 @@ class MissingFingering:
     for_right_hand: bool
 
     def __str__(self):
-        return f"""Missing {"right" if self.for_right_hand else "left"} {self.note} {self.scale_pattern.get_the_first_of_the_name()}"""
+        return f"""Missing {"right" if self.for_right_hand else "left"} {self.note} {self.scale_pattern.first_of_the_names()}"""
 
 
 def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right_hand: bool) -> Optional[
@@ -237,7 +237,7 @@ def generate_score_fixed_pattern_first_note(key: str,
         return missing_scales
     left_fingerings = [fingering for _, fingering in left_penalty.fingerings]
     right_fingerings = [fingering for _, fingering in right_penalty.fingerings]
-    anki_fields_for_this_scale_pattern_and_lowest_note = [scale_pattern.get_the_first_of_the_name(),
+    anki_fields_for_this_scale_pattern_and_lowest_note = [scale_pattern.first_of_the_names(),
                                                           right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )]
     html_lines = []
     # if not right_penalty.acceptable():
@@ -268,13 +268,13 @@ def generate_score_fixed_pattern_first_note(key: str,
 <html>
   <head>
     <title>
-      Fingerings of {right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )} {scale_pattern.get_the_first_of_the_name()}
+      Fingerings of {right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )} {scale_pattern.first_of_the_names()}
     </title>
   </head>
   <body>
     <header>
       <h1>
-        Fingerings of {right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )} {scale_pattern.get_the_first_of_the_name()}
+        Fingerings of {right_hand_lowest_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, ascii=False, )} {scale_pattern.first_of_the_names()}
       </h1>
     </header>
     <ul>
@@ -320,7 +320,7 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
     for set_of_enharmonic_keys in sets_of_enharmonic_keys:
         fundamental = set_of_enharmonic_keys[0]
         starting_note = fundamental.note - scale_pattern.interval_for_signature
-        while starting_note >= Note("F4"):
+        while starting_note >= Note.from_name("F4"):
             starting_note = starting_note.add_octave(-1)
         note_folder = f"{folder_path}/{starting_note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4)}"
         pathlib.Path(note_folder).mkdir(exist_ok=True)
@@ -346,13 +346,13 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
 <html>
   <head>
     <title>
-      Fingerings of {scale_pattern.get_the_first_of_the_name()}
+      Fingerings of {scale_pattern.first_of_the_names()}
     </title>
   </head>
   <body>
     <header>
       <h1>
-        Fingerings of {scale_pattern.get_the_first_of_the_name()}
+        Fingerings of {scale_pattern.first_of_the_names()}
       </h1>
     </header>
     <ul>
@@ -367,7 +367,7 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
 </html>""")
         return ScoreFixedPattern(
             missing_scores=missing,
-            html_link_for_this_scale_pattern=f"""<li><a href='{scale_pattern.get_the_first_of_the_name().replace(" ", "_")}'>{scale_pattern.get_the_first_of_the_name()}</a></li>""",
+            html_link_for_this_scale_pattern=f"""<li><a href='{scale_pattern.first_of_the_names().replace(" ", "_")}'>{scale_pattern.first_of_the_names()}</a></li>""",
             anki_notes_as_csv=anki_notes_as_csv,
             too_big_alterations=too_big_alterations,
         )

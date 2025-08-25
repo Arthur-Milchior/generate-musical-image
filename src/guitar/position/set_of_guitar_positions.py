@@ -2,12 +2,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from pickle import EMPTY_SET
-from typing import List, Iterator, Optional
+from typing import Generator, List, Iterator, Optional
 
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
 from guitar.position.consts import *
 from guitar.position.strings import ALL_STRINGS
+from solfege.interval.chromatic_interval import ChromaticInterval
 from utils.util import assert_typing
 from guitar.position.string import strings
 
@@ -41,7 +42,6 @@ class SetOfGuitarPositions:
 
     """The set of positions"""
     positions: frozenset[GuitarPosition] = frozenset()
-
 
     def __post_init__(self):
         assert_typing(self.positions, frozenset)
@@ -84,7 +84,23 @@ class SetOfGuitarPositions:
         yield from max_fret.all_frets_up_to_here(include_open=absolute).svg(absolute)
         for pos in self:
             yield pos.svg()
+
+    def lowest_note(self):
+        return min(self.notes())
     
+    def notes(self):
+        """return the set of note (i.e. no repetition)"""
+        for pos in self:
+            yield pos.get_chromatic()
+
+    def intervals_frow_lowest_note(self) -> Generator[ChromaticInterval]:
+        lowest_note = self.lowest_note()
+        for note in self.notes():
+            yield note - lowest_note
+    
+
+
+
 
     def svg(self, absolute:bool, nbFretMin: Fret=OPEN_FRET) -> str:
         new_line = "\n"

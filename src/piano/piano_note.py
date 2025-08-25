@@ -1,28 +1,39 @@
-from typing import Optional, List
+from dataclasses import dataclass
+from typing import Optional, List, Union
 
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
-from solfege.note import Note
-from solfege.note.abstract import NoteOutput
+from solfege.note.chromatic_note import ChromaticNote
+from solfege.note.diatonic_note import DiatonicNote
+from solfege.note.note import Note
+from solfege.note.abstract_note import NoteOutput
 
 
+@dataclass(frozen=True)
 class PianoNote(Note):
     """Represents a note played on the keyboard."""
     finger: int
-    ClassToTransposeTo = Note
 
-    def __init__(self, name: Optional[str] = None, finger: Optional[int] = None, *args, **kwargs):
-        # none used for default argument
-        assert finger is not None
-        super().__init__(name, *args, **kwargs)
-        self.finger = finger
+    @classmethod
+    def make_instance_of_selfs_class(cls, chromatic, diatonic):
+        return Note(chromatic, diatonic)
+
+    def __post_init__(self):
+        super().__post_init__()
+        assert 1<=self.finger<=5
+
+    @classmethod
+    def make(cls, chromatic: Union[ChromaticNote, int], diatonic: Union[DiatonicNote, int], finger=int):
+        note = Note.make(chromatic=chromatic, diatonic=diatonic)
+        assert 1<=finger<=5
+        return cls.from_note_and_finger(note=note, finger=finger)
 
     @staticmethod
     def from_note_and_finger(note: Note, finger: int):
-        return PianoNote(chromatic=note.get_chromatic().value, diatonic=note.get_diatonic().value, finger=finger)
+        return PianoNote(chromatic=note.get_chromatic(), diatonic=note.get_diatonic(), finger=finger)
 
     @staticmethod
     def from_name(name: str, finger: int):
-        PianoNote.from_note_and_finger(Note(name), finger)
+        return PianoNote.from_note_and_finger(Note.from_name(name), finger)
 
     def __eq__(self, other):
         if isinstance(other, PianoNote):
@@ -47,7 +58,7 @@ class PianoNote(Note):
             raise
 
     def __repr__(self):
-        return f"""PianoNote(chromatic={self.get_number()}, diatonic={self.get_diatonic().value}, finger={self.finger})"""
+        return f"""PianoNote.make(chromatic={self.value}, diatonic={self.get_diatonic().value}, finger={self.finger})"""
 
     def valid_next_fingers(self, next_note: Note, for_right_hand: bool):
         if self == next_note:

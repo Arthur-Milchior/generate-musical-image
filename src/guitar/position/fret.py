@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Generator, List, Optional, Union
 
-from solfege.interval.chromatic import ChromaticInterval
+from solfege.interval.chromatic_interval import ChromaticInterval
 from utils.util import assert_optional_type, assert_typing
 from guitar.position.consts import *
 
@@ -23,8 +23,15 @@ class Fret(ChromaticInterval):
         assert self.value is not None
         assert_typing(self.value, int)
         return self.value
+    
+    def name(self):
+        if self.value is None:
+            return "x"
+        return str(self.value)
 
     def __post_init__(self):
+        # not calling super because we accept None value
+        #super().__post_init__()
         assert_optional_type(self.value, int)
 
     def __add__(self, other: Union[ChromaticInterval, int]):

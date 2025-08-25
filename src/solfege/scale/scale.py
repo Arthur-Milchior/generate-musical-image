@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, Generic
 from lily.Lilyable.lilyable import Lilyable
 from typing import Optional, List, Iterable
-from solfege.note.abstract import NoteType
+from solfege.note.abstract_note import NoteType
 from utils.util import indent
 # from solfege.scale.scale_pattern import ScalePattern
 

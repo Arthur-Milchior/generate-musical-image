@@ -1,1 +1,1 @@
-from . import generate
+from guitar.pair import generate

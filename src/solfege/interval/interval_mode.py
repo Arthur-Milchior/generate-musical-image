@@ -1,10 +1,12 @@
+from dataclasses import dataclass
 from solfege.interval.too_big_alterations_exception import TooBigAlterationException
-from solfege.interval.chromatic import ChromaticInterval
+from solfege.interval.chromatic_interval import ChromaticInterval
 
 
 # The usage of name of the alternations
 
 
+@dataclass(frozen=True)
 class IntervalMode(ChromaticInterval):
     """Represents either bb, b, flat, #, or 𝄪.
 
@@ -12,16 +14,18 @@ class IntervalMode(ChromaticInterval):
 
     def printable(self):
         """Whether the alteration is at most 2 halftone, and thus printable with at most 2 symbols."""
-        number = self.get_number()
+        number = self.value
         return number is not None and abs(number) <= 2
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __post_init__(self):
+        super().__post_init__()
         if not self.printable():
-            raise TooBigAlterationException(self.get_number())
+            raise TooBigAlterationException(self.value)
 
     def __add__(self, other):
         raise Exception("Adding alteration ?")
 
-    def get_in_base_octave(self):
+    def in_base_octave(self):
         raise Exception("Alteration has no base octave")
+
+ChromaticInterval.AlterationClass = IntervalMode

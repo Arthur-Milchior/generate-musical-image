@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from guitar.position.fret import HIGHEST_FRET, Fret
-from solfege.interval.chromatic import ChromaticInterval
-from solfege.note.chromatic import ChromaticNote
+from solfege.interval.chromatic_interval import ChromaticInterval
+from solfege.note.chromatic_note import ChromaticNote
 from solfege.note.note import Note
 from utils.util import assert_typing
 from guitar.position.consts import *
@@ -79,11 +79,11 @@ class String:
 
         
     
-String.E3 = String(1, Note("E3").get_chromatic())
-String.A3 = String(2, Note("A3").get_chromatic())
-String.D4 = String(3, Note("D4").get_chromatic())
-String.G4 = String(4, Note("G4").get_chromatic())
-String.B4 = String(5, Note("B4").get_chromatic())
-String.E5 = String(6, Note("E5").get_chromatic())
+String.E3 = String(1, Note.from_name("E3").get_chromatic())
+String.A3 = String(2, Note.from_name("A3").get_chromatic())
+String.D4 = String(3, Note.from_name("D4").get_chromatic())
+String.G4 = String(4, Note.from_name("G4").get_chromatic())
+String.B4 = String(5, Note.from_name("B4").get_chromatic())
+String.E5 = String(6, Note.from_name("E5").get_chromatic())
 
 strings = [String.E3, String.A3, String.D4, String.G4, String.B4, String.E5]

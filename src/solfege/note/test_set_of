@@ -1,14 +1,14 @@
 class TestSetOfNotes(unittest.TestCase):
     C_minor = SetOfNotes(
-        [Note("C"),
-         Note("E♭"),
-         Note("G"),
+        [Note.from_name("C"),
+         Note.from_name("E♭"),
+         Note.from_name("G"),
          ])
 
     F_minor = SetOfNotes(
-        [Note("F"),
-         Note("A♭"),
-         Note("C5"),
+        [Note.from_name("F"),
+         Note.from_name("A♭"),
+         Note.from_name("C5"),
          ])
 
     def test_eq(self):
@@ -16,4 +16,4 @@ class TestSetOfNotes(unittest.TestCase):
         self.assertEqual(self.C_minor, self.C_minor)
 
     def test_add(self):
-        self.assertEqual(self.C_minor + Interval(diatonic=3, chromatic=5), self.F_minor)
+        self.assertEqual(self.C_minor + Interval.make(diatonic=3, chromatic=5), self.F_minor)

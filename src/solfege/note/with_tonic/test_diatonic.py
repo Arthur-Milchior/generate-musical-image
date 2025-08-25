@@ -1,4 +1,6 @@
 import unittest
+
+from solfege.interval.diatonic_interval import DiatonicInterval
 from .diatonic import *
 
 class TestDiatonicNoteWithTonic(unittest.TestCase):
@@ -16,7 +18,9 @@ class TestDiatonicNoteWithTonic(unittest.TestCase):
     def test_eq(self):
         n1_1 = DiatonicNoteWithTonic(value=1, tonic=True)
         n1_1_ = DiatonicNoteWithTonic(value=1, tonic=True)
+        n1_2 = DiatonicNoteWithTonic(value=1, tonic=n1_1)
         self.assertEqual(n1_1, n1_1_)
+        self.assertEqual(n1_1, n1_2)
 
     def test_ne(self):
         n1_1 = DiatonicNoteWithTonic(value=1, tonic=True)
@@ -34,11 +38,11 @@ class TestDiatonicNoteWithTonic(unittest.TestCase):
         n = DiatonicNoteWithTonic(value=1, tonic=False)
         self.assertIsNone(n.get_tonic())
 
-    def test_self_set_tonic(self):
-        n1 = DiatonicNoteWithTonic(value=1, tonic=True)
-        n2 = DiatonicNoteWithTonic(value=2, tonic=False)
-        n2.set_tonic(n1)
-        self.assertEqual(n2.get_tonic(), n1)
+    # def test_self_set_tonic(self):
+    #     n1 = DiatonicNoteWithTonic(value=1, tonic=True)
+    #     n2 = DiatonicNoteWithTonic(value=2, tonic=False)
+    #     n2.set_tonic(n1)
+    #     self.assertEqual(n2.get_tonic(), n1)
 
     def test_self_init_tonic(self):
         n1 = DiatonicNoteWithTonic(value=1, tonic=True)
@@ -57,7 +61,7 @@ class TestDiatonicNoteWithTonic(unittest.TestCase):
         n1 = DiatonicNoteWithTonic(value=1, tonic=True)
         n2 = n1 + DiatonicInterval(value=2)
         self.assertEqual(n2.get_tonic(), n1)
-        self.assertEqual(n2.get_number(), 3)
+        self.assertEqual(n2.value, 3)
 
     def test_sub_note(self):
         n1 = DiatonicNoteWithTonic(value=1, tonic=True)
@@ -81,13 +85,13 @@ class TestDiatonicNoteWithTonic(unittest.TestCase):
         self.assertEqual(DiatonicNoteWithTonic(value=-6, tonic=D4).get_role(), "tonic")
         self.assertEqual(DiatonicNoteWithTonic(value=-7, tonic=D4).get_role(), "leading")
 
-    def test_get_octave(self):
-        self.assertEqual(self.C4.get_octave(), 0)
-        self.assertEqual(self.B4.get_octave(), 0)
-        self.assertEqual(self.D3.get_octave(), -1)
-        self.assertEqual(self.C3.get_octave(), -1)
-        self.assertEqual(self.B2.get_octave(), -2)
-        self.assertEqual(self.C5.get_octave(), 1)
+    def test_octave(self):
+        self.assertEqual(self.C4.octave(), 0)
+        self.assertEqual(self.B4.octave(), 0)
+        self.assertEqual(self.D3.octave(), -1)
+        self.assertEqual(self.C3.octave(), -1)
+        self.assertEqual(self.B2.octave(), -2)
+        self.assertEqual(self.C5.octave(), 1)
 
     def test_add_octave(self):
         self.assertEqual(self.C5.add_octave(-1), self.C4)
@@ -96,11 +100,13 @@ class TestDiatonicNoteWithTonic(unittest.TestCase):
         self.assertEqual(self.C3.add_octave(2), self.C5)
 
     def test_same_note_in_base_octave(self):
-        self.assertEqual(self.C5.get_in_base_octave(), self.C4)
-        self.assertEqual(self.C3.get_in_base_octave(), self.C4)
-        self.assertEqual(self.C4.get_in_base_octave(), self.C4)
-        self.assertEqual(self.D4.get_in_base_octave(), self.D4)
-        self.assertEqual(self.B3.get_in_base_octave(), self.B4)
+        actual = self.C5.in_base_octave()
+        print(f"{actual=}")
+        self.assertEqual(actual, self.C4)
+        self.assertEqual(self.C3.in_base_octave(), self.C4)
+        self.assertEqual(self.C4.in_base_octave(), self.C4)
+        self.assertEqual(self.D4.in_base_octave(), self.D4)
+        self.assertEqual(self.B3.in_base_octave(), self.B4)
 
     def test_same_note_in_different_octaves(self):
         self.assertFalse(self.D4.equals_modulo_octave(self.C4))

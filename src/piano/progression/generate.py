@@ -5,8 +5,8 @@ from lily.svg import display_svg_file
 from piano.progression.chord_progression import ChordProgression, TwoHandsChord
 from piano.progression.progressions_in_C import patterns_in_C, ii_v_i_third_and_seventh
 from solfege.key import sets_of_enharmonic_keys
-from solfege.note import Note
-from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.note.note import Note
+from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils.constants import test_folder
 from utils.util import ensure_folder
 
@@ -17,7 +17,7 @@ def progression_for_pattern_tonic(folder_path: str, pattern: ChordProgression, t
     pattern: the chord progression in C"""
 
     first_chord_pattern: TwoHandsChord = pattern.chords[0]
-    progression = pattern + (tonic - Note("C4"))
+    progression = pattern + (tonic - Note.from_name("C4"))
     first_chord = progression.first_chord()
     tonic_note_name_for_file = tonic.get_name_up_to_octave(alteration_output=AlterationOutput.ASCII, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.UNDERSCORE_SIMPLE)
     first_chord_prefix = f"""first_chord_progression_{tonic_note_name_for_file}_{first_chord_pattern.name}_{pattern.disambiguation.replace(" ", "_")}"""

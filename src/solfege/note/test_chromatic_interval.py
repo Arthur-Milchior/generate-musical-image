@@ -1,8 +1,11 @@
-from solfege.interval.test_chromatic import TestChromaticInterval
-from solfege.note.abstract import OctaveOutput
-from .chromatic import *
+import unittest
 
-class TestChromaticNote(TestChromaticInterval):
+from solfege.interval.test_chromatic_interval import TestChromaticInterval
+from solfege.note.abstract_note import OctaveOutput
+from solfege.note.alteration import Alteration
+from .chromatic_note import *
+
+class TestChromaticNote(unittest.TestCase):
     C4 = ChromaticNote(0)
     D4 = ChromaticNote(2)
     B3 = ChromaticNote(-1)
@@ -14,23 +17,37 @@ class TestChromaticNote(TestChromaticInterval):
     C3 = ChromaticNote(-12)
     B2 = ChromaticNote(-13)
 
+
+    unison = ChromaticInterval(0)
+    second_minor = ChromaticInterval(1)
+    second_minor_descending = ChromaticInterval(-1)
+    second_major = ChromaticInterval(2)
+    third_minor = ChromaticInterval(3)
+    sept = ChromaticInterval(7)
+    six = ChromaticInterval(6)
+    seventh = ChromaticInterval(11)
+    octave = ChromaticInterval(12)
+    fourth_augmented_descending = ChromaticInterval(-6)
+    fourth_descending = ChromaticInterval(-7)
+    fifth_augmented_descending = ChromaticInterval(-8)
+    seventh_descending = ChromaticInterval(-11)
+    octave_descending = ChromaticInterval(-12)
+    eighth_descending = ChromaticInterval(-13)
+
     def setUp(self):
         super().setUp()
-        from solfege.note.diatonic import DiatonicNote
+        from solfege.note.diatonic_note import DiatonicNote
         from solfege.note.note import Note
         from solfege.note.alteration import Alteration
-        ChromaticNote.RelatedDiatonicClass = DiatonicNote
-        ChromaticNote.RelatedSolfegeClass = Note
+        ChromaticNote.DiatonicClass = DiatonicNote
+        ChromaticNote.PairClass = Note
         ChromaticNote.AlterationClass = Alteration
 
     def test_is_note(self):
         self.assertTrue(self.C4.is_note())
 
-    def test_has_number(self):
-        self.assertTrue(self.C4.has_number())
-
     def test_get_number(self):
-        self.assertEqual(self.C4.get_number(), 0)
+        self.assertEqual(self.C4.value, 0)
 
     def test_equal(self):
         self.assertEqual(self.C4, self.C4)
@@ -61,13 +78,16 @@ class TestChromaticNote(TestChromaticInterval):
     def test_repr(self):
         self.assertEqual(repr(self.D4), "ChromaticNote(value=2)")
 
-    def test_get_octave(self):
-        self.assertEqual(self.C4.get_octave(), 0)
-        self.assertEqual(self.B4.get_octave(), 0)
-        self.assertEqual(self.D3.get_octave(), -1)
-        self.assertEqual(self.C3.get_octave(), -1)
-        self.assertEqual(self.B2.get_octave(), -2)
-        self.assertEqual(self.C5.get_octave(), 1)
+    def test_one_octave(self):
+        self.assertEqual(ChromaticNote.get_one_octave(), ChromaticNote(12))
+
+    def test_octave(self):
+        self.assertEqual(self.C4.octave(), 0)
+        self.assertEqual(self.B4.octave(), 0)
+        self.assertEqual(self.D3.octave(), -1)
+        self.assertEqual(self.C3.octave(), -1)
+        self.assertEqual(self.B2.octave(), -2)
+        self.assertEqual(self.C5.octave(), 1)
 
     def test_add_octave(self):
         self.assertEqual(self.C5.add_octave(-1), self.C4)
@@ -76,11 +96,11 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertEqual(self.C3.add_octave(2), self.C5)
 
     def test_same_note_in_base_octave(self):
-        self.assertEqual(self.C5.get_in_base_octave(), self.C4)
-        self.assertEqual(self.C3.get_in_base_octave(), self.C4)
-        self.assertEqual(self.C4.get_in_base_octave(), self.C4)
-        self.assertEqual(self.D4.get_in_base_octave(), self.D4)
-        self.assertEqual(self.B3.get_in_base_octave(), self.B4)
+        self.assertEqual(self.C5.in_base_octave(), self.C4)
+        self.assertEqual(self.C3.in_base_octave(), self.C4)
+        self.assertEqual(self.C4.in_base_octave(), self.C4)
+        self.assertEqual(self.D4.in_base_octave(), self.D4)
+        self.assertEqual(self.B3.in_base_octave(), self.B4)
 
     def test_same_note_in_different_octaves(self):
         self.assertFalse(self.D4.equals_modulo_octave(self.C4))
@@ -154,37 +174,37 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertEqual(ChromaticNote(-13).get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO), "B2")
         self.assertEqual(ChromaticNote(-14).get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO), "B♭2")
 
-    def test_get_solfege(self):
+    def test_get_pair(self):
         from solfege.note.note import Note
-        self.assertEqual(ChromaticNote(0).get_solfege(), Note(chromatic=0, diatonic=0))
-        self.assertEqual(ChromaticNote(1).get_solfege(), Note(chromatic=1, diatonic=0))
-        self.assertEqual(ChromaticNote(2).get_solfege(), Note(chromatic=2, diatonic=1))
-        self.assertEqual(ChromaticNote(3).get_solfege(), Note(chromatic=3, diatonic=2))
-        self.assertEqual(ChromaticNote(4).get_solfege(), Note(chromatic=4, diatonic=2))
-        self.assertEqual(ChromaticNote(5).get_solfege(), Note(chromatic=5, diatonic=3))
-        self.assertEqual(ChromaticNote(6).get_solfege(), Note(chromatic=6, diatonic=3))
-        self.assertEqual(ChromaticNote(7).get_solfege(), Note(chromatic=7, diatonic=4))
-        self.assertEqual(ChromaticNote(8).get_solfege(), Note(chromatic=8, diatonic=5))
-        self.assertEqual(ChromaticNote(9).get_solfege(), Note(chromatic=9, diatonic=5))
-        self.assertEqual(ChromaticNote(10).get_solfege(), Note(chromatic=10, diatonic=6))
-        self.assertEqual(ChromaticNote(11).get_solfege(), Note(chromatic=11, diatonic=6))
-        self.assertEqual(ChromaticNote(12).get_solfege(), Note(chromatic=12, diatonic=7))
-        self.assertEqual(ChromaticNote(13).get_solfege(), Note(chromatic=13, diatonic=7))
-        self.assertEqual(ChromaticNote(14).get_solfege(), Note(chromatic=14, diatonic=8))
-        self.assertEqual(ChromaticNote(-1).get_solfege(), Note(chromatic=-1, diatonic=-1))
-        self.assertEqual(ChromaticNote(-2).get_solfege(), Note(chromatic=-2, diatonic=-1))
-        self.assertEqual(ChromaticNote(-3).get_solfege(), Note(chromatic=-3, diatonic=-2))
-        self.assertEqual(ChromaticNote(-4).get_solfege(), Note(chromatic=-4, diatonic=-2))
-        self.assertEqual(ChromaticNote(-5).get_solfege(), Note(chromatic=-5, diatonic=-3))
-        self.assertEqual(ChromaticNote(-6).get_solfege(), Note(chromatic=-6, diatonic=-4))
-        self.assertEqual(ChromaticNote(-7).get_solfege(), Note(chromatic=-7, diatonic=-4))
-        self.assertEqual(ChromaticNote(-8).get_solfege(), Note(chromatic=-8, diatonic=-5))
-        self.assertEqual(ChromaticNote(-9).get_solfege(), Note(chromatic=-9, diatonic=-5))
-        self.assertEqual(ChromaticNote(-10).get_solfege(), Note(chromatic=-10, diatonic=-6))
-        self.assertEqual(ChromaticNote(-11).get_solfege(), Note(chromatic=-11, diatonic=-7))
-        self.assertEqual(ChromaticNote(-12).get_solfege(), Note(chromatic=-12, diatonic=-7))
-        self.assertEqual(ChromaticNote(-13).get_solfege(), Note(chromatic=-13, diatonic=-8))
-        self.assertEqual(ChromaticNote(-14).get_solfege(), Note(chromatic=-14, diatonic=-8))
+        self.assertEqual(ChromaticNote(0).get_pair(), Note.make(0, 0))
+        self.assertEqual(ChromaticNote(1).get_pair(), Note.make(1, 0))
+        self.assertEqual(ChromaticNote(2).get_pair(), Note.make(2, 1))
+        self.assertEqual(ChromaticNote(3).get_pair(), Note.make(3, 2))
+        self.assertEqual(ChromaticNote(4).get_pair(), Note.make(4, 2))
+        self.assertEqual(ChromaticNote(5).get_pair(), Note.make(5, 3))
+        self.assertEqual(ChromaticNote(6).get_pair(), Note.make(6, 3))
+        self.assertEqual(ChromaticNote(7).get_pair(), Note.make(7, 4))
+        self.assertEqual(ChromaticNote(8).get_pair(), Note.make(8, 5))
+        self.assertEqual(ChromaticNote(9).get_pair(), Note.make(9, 5))
+        self.assertEqual(ChromaticNote(10).get_pair(), Note.make(10, 6))
+        self.assertEqual(ChromaticNote(11).get_pair(), Note.make(11, 6))
+        self.assertEqual(ChromaticNote(12).get_pair(), Note.make(12, 7))
+        self.assertEqual(ChromaticNote(13).get_pair(), Note.make(13, 7))
+        self.assertEqual(ChromaticNote(14).get_pair(), Note.make(14, 8))
+        self.assertEqual(ChromaticNote(-1).get_pair(), Note.make(-1, -1))
+        self.assertEqual(ChromaticNote(-2).get_pair(), Note.make(-2, -1))
+        self.assertEqual(ChromaticNote(-3).get_pair(), Note.make(-3, -2))
+        self.assertEqual(ChromaticNote(-4).get_pair(), Note.make(-4, -2))
+        self.assertEqual(ChromaticNote(-5).get_pair(), Note.make(-5, -3))
+        self.assertEqual(ChromaticNote(-6).get_pair(), Note.make(-6, -4))
+        self.assertEqual(ChromaticNote(-7).get_pair(), Note.make(-7, -4))
+        self.assertEqual(ChromaticNote(-8).get_pair(), Note.make(-8, -5))
+        self.assertEqual(ChromaticNote(-9).get_pair(), Note.make(-9, -5))
+        self.assertEqual(ChromaticNote(-10).get_pair(), Note.make(-10, -6))
+        self.assertEqual(ChromaticNote(-11).get_pair(), Note.make(-11, -7))
+        self.assertEqual(ChromaticNote(-12).get_pair(), Note.make(-12, -7))
+        self.assertEqual(ChromaticNote(-13).get_pair(), Note.make(-13, -8))
+        self.assertEqual(ChromaticNote(-14).get_pair(), Note.make(-14, -8))
 
     def test_mul(self):
         with self.assertRaises(Exception):

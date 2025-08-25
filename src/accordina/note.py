@@ -1,7 +1,7 @@
 from math import sqrt
 from typing import Optional
-from solfege.note.chromatic import ChromaticNote
-from solfege.interval.chromatic import ChromaticInterval
+from solfege.note.chromatic_note import ChromaticNote
+from solfege.interval.chromatic_interval import ChromaticInterval
 from solfege.note.note import Note
 
 radius = 7
@@ -95,5 +95,5 @@ class AccordinaNote(ChromaticNote):
 accordina_lowest_note = AccordinaNote(-5, selected = False, absolute=True) #G3
 accordina_highest_note = AccordinaNote(accordina_lowest_note.value + 12*3, selected = False, absolute=True) #G6
 
-min_accordina_note = AccordinaNote(Note("G3").get_chromatic().value, selected=False, absolute=True)
-max_accordina_note = AccordinaNote(Note("G6").get_chromatic().value, selected=False, absolute=True)
+min_accordina_note = AccordinaNote(Note.from_name("G3").get_chromatic().value, selected=False, absolute=True)
+max_accordina_note = AccordinaNote(Note.from_name("G6").get_chromatic().value, selected=False, absolute=True)

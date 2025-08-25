@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
-from .utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
+from solfege.solfege_pattern import SolfegePattern
+from guitar.scale.utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
 from utils.util import *
 from solfege.scale.scale_pattern import ScalePattern
 import guitar.util
@@ -25,11 +26,11 @@ It is assumed that, there is never more than {increase_fret_limit} fret from the
 
 @dataclass(frozen=True)
 class AnkiNote:
-    scale: ScalePattern
+    scale: SolfegePattern
 
 
 for scale in ScalePattern.class_to_patterns[ScalePattern]:
-    name = scale.get_the_first_of_the_name()
+    name = scale.first_of_the_names()
     intervals = scale.get_intervals()
     folder_scale = imageFolder + name
     ensure_folder(folder_scale)

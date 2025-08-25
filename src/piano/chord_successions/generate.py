@@ -3,11 +3,11 @@ from typing import List
 
 from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
 from solfege.key import sets_of_enharmonic_keys
-from solfege.note import Note
+from solfege.note.note import Note
 from solfege.note.set_of_notes import SetOfNotes
 from solfege.scale.scale import Scale
 from solfege.scale.scale_pattern import major_scale
-from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 
 
 @dataclass(frozen=True, eq=True)
@@ -139,7 +139,7 @@ def successions_for_pattern(
         key = set_of_enharmonic_keys[0].note
         scale = major_scale.generate(key, 2)
         right_succession_increasing = chord_succession_from_scale_pattern_and_position_key(
-            scale, chord_pattern, nb_of_chords=major_scale.number_of_intervals() + 1
+            scale, chord_pattern, nb_of_chords=len(major_scale) + 1
         )
 
         successions_all_hands_direction = succession_for_key_pattern(folder_path, key, right_succession_increasing,

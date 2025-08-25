@@ -16,8 +16,8 @@ ensure_folder(accordina_folder)
 interval_folder = f"{accordina_folder}/intervals"
 ensure_folder(interval_folder)
 anki_interval_notes = []
-for interval in intervals_up_to_octave + [IntervalPattern("two octave", Interval(chromatic=24, diatonic=14))]:
-    interval_name = interval.get_the_first_of_the_name(True)
+for interval in intervals_up_to_octave + [IntervalPattern("two octave", Interval.make(chromatic=24, diatonic=14))]:
+    interval_name = interval.first_of_the_names(True)
     anki_note =["""<img src="accordina.png"/>""", interval_name]
     for low_note in [AccordinaNote(0), AccordinaNote(1), AccordinaNote(2),]:
         notes = interval.get_notes(low_note)
@@ -39,7 +39,7 @@ scales_folder = f"{accordina_folder}/scales"
 ensure_folder(scales_folder)
 anki_scale_notes = []
 for pattern in scale_patterns_I_practice:
-    pattern_name = pattern.get_the_first_of_the_name(True)
+    pattern_name = pattern.first_of_the_names(True)
     anki_note =["""<img src="accordina.png"/>""", pattern_name]
     for number_of_octave in [1, 2]:
         for low_note in [AccordinaNote(0), AccordinaNote(1), AccordinaNote(2),]:
@@ -77,7 +77,7 @@ for value in range(accordina_lowest_note.value, accordina_highest_note.value+1):
         "Accordina",
         degree,#degree
         alteration, #alteration
-        str(fingered_note.get_octave(scientific_notation=True)), #octave
+        str(fingered_note.octave(scientific_notation=True)), #octave
         "", # function
         f"""<img src="{svg_name}"/>"""
         ]

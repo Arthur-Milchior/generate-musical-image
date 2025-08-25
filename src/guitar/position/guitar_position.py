@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
 
-from solfege.interval import ChromaticInterval
-from solfege.note import ChromaticNote
+from solfege.interval.chromatic_interval import ChromaticInterval
+from solfege.note.chromatic_note import ChromaticNote
 from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
 from guitar.position.string import String
 from guitar.position.consts import *
@@ -110,5 +110,5 @@ class GuitarPosition:
 
     def singleton_diagram_svg(self):
         """The svg for a diagram with only this note"""
-        from .set_of_guitar_positions import SetOfGuitarPositions
+        from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
         return SetOfGuitarPositions(frozenset({self})).svg(absolute=True)

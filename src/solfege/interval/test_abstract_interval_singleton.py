@@ -1,21 +1,19 @@
 import unittest
-from .abstract import *
 
-class TestBaseInterval(unittest.TestCase):
-    zero = AbstractInterval(0)
-    un = AbstractInterval(1)
-    moins_un = AbstractInterval(-1)
-    deux = AbstractInterval(2)
-    trois = AbstractInterval(3)
+from solfege.interval.singleton_interval import AbstractSingletonInterval
+
+class TestBaseIntervalSingleton(unittest.TestCase):
+    zero = AbstractSingletonInterval(0)
+    un = AbstractSingletonInterval(1)
+    moins_un = AbstractSingletonInterval(-1)
+    deux = AbstractSingletonInterval(2)
+    trois = AbstractSingletonInterval(3)
 
     def test_is_note(self):
         self.assertFalse(self.zero.is_note())
 
-    def test_has_number(self):
-        self.assertTrue(self.zero.has_number())
-
     def test_get_number(self):
-        self.assertEqual(self.zero.get_number(), 0)
+        self.assertEqual(self.zero.value, 0)
 
     def test_equal(self):
         self.assertEqual(self.zero, self.zero)
@@ -37,7 +35,7 @@ class TestBaseInterval(unittest.TestCase):
         self.assertLessEqual(self.un, self.un)
 
     def test_repr(self):
-        self.assertEqual(repr(self.un), "AbstractInterval(value=1)")
+        self.assertEqual(repr(self.un), "AbstractSingletonInterval(value=1)")
 
     def test_mul(self):
         self.assertEqual(self.zero * 4, self.zero)

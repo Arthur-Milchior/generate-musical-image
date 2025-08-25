@@ -1,5 +1,5 @@
 print("main progression")
 
-from . import main
+from piano. import main
 
 

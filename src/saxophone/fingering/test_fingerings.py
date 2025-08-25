@@ -18,6 +18,6 @@ class TestFingerings(unittest.TestCase):
         ordered_fingerings = list(fingerings.e6)
         expected_fingerings = [cn.e6_k, overtone.e6_A, cn.e6_t, main_column.e6_d]
         self.assertEqual(ordered_fingerings, expected_fingerings)
-        expect_e6_k = Fingering("e6", {jay_H1, jay_H2, octave, jay_k4}, test=True)
+        expect_e6_k = Fingering.make("e6", {jay_H1, jay_H2, octave, jay_k4}, test=True)
         self.assertEqual(expect_e6_k, cn.e6_k)
         print(cn.e6_k.svg())

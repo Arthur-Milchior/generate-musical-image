@@ -1,0 +1,1 @@
+from guitar.scale import generate

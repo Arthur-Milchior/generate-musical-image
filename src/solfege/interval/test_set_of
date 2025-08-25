@@ -1,4 +1,4 @@
-class TestSetOfIntervals(unittest.TestCase):
+class TestSetOfIntervals.make(unittest.TestCase):
     soi = SetOfIntervals[DiatonicInterval]([
         DiatonicInterval(value=0),
         DiatonicInterval(value=3),

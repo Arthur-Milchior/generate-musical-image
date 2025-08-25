@@ -2,75 +2,75 @@ class ProgressionTest(unittest.TestCase):
     maxDiff = None
     d_min_7 = TwoHandsChord("ii",
                             left_hand=SetOfNotes([
-                                Note("D3"),
+                                Note.from_name("D3"),
                             ]),
                             right_hand=SetOfNotes([
-                                Note("F4"),
-                                Note("C5"),
+                                Note.from_name("F4"),
+                                Note.from_name("C5"),
                             ]),
-                            tonic=Note("C")
+                            tonic=Note.from_name("C")
                             )
     e_min_7 = TwoHandsChord("ii",
                             left_hand=SetOfNotes([
-                                Note("E3"),
+                                Note.from_name("E3"),
                             ]),
                             right_hand=SetOfNotes([
-                                Note("G4"),
-                                Note("D5"),
+                                Note.from_name("G4"),
+                                Note.from_name("D5"),
                             ]),
-                            tonic=Note("D")
+                            tonic=Note.from_name("D")
                             )
     three_five_c = ChordProgression(
         progression_name="ii V I", disambiguation="ii V I",
-        key=Note("C"),
+        key=Note.from_name("C"),
         chords=[
             d_min_7,
             TwoHandsChord("V",
                           left_hand=SetOfNotes([
-                              Note("G3"),
+                              Note.from_name("G3"),
                           ]),
                           right_hand=SetOfNotes([
-                              Note("F4"),
-                              Note("B4"),
+                              Note.from_name("F4"),
+                              Note.from_name("B4"),
                           ]),
-                          tonic=Note("C")
+                          tonic=Note.from_name("C")
                           ),
             TwoHandsChord("I",
                           left_hand=SetOfNotes([
-                              Note("C3"),
+                              Note.from_name("C3"),
                           ]),
                           right_hand=SetOfNotes([
-                              Note("E4"),
-                              Note("B4"),
+                              Note.from_name("E4"),
+                              Note.from_name("B4"),
                           ]),
-                          tonic=Note("C")
+                          tonic=Note.from_name("C")
                           ),
         ]
     )
     three_five_d = ChordProgression(
         progression_name="ii V I", disambiguation="ii V I",
-        key=Note("D"),
+        key=Note.from_name("D"),
         chords=[
             e_min_7,
             TwoHandsChord("V",
                           left_hand=SetOfNotes([
-                              Note("A3"),
+                              Note.from_name("A3"),
                           ]),
                           right_hand=SetOfNotes([
-                              Note("G4"),
-                              Note("C#5"),
+                              Note.from_name("G4"),
+                              Note.from_name("C#5"),
                           ]),
-                          tonic=Note("D")
+                          tonic=Note.from_name("D")
                           ),
             TwoHandsChord("I",
                           left_hand=SetOfNotes([
-                              Note("D3"),
+                              Note.from_name("D3"),
                           ]),
                           right_hand=SetOfNotes([
-                              Note("F#4"),
-                              Note("C#5"),
+                              Note.from_name("F#4"),
+                              Note.from_name("C#5"),
                           ]),
-                          tonic=Note("D")
+                          tonic=Note.from_name("D")
                           ),
         ]
     )
@@ -134,9 +134,9 @@ class ProgressionTest(unittest.TestCase):
         compile_(self.mini, prefix, wav=False, force_recompile=True)()
 
     def test_add(self):
-        s = self.d_min_7 + Interval(chromatic=2, diatonic=1)
+        s = self.d_min_7 + Interval.make(chromatic=2, diatonic=1)
         self.assertEqual(s, self.e_min_7)
-        s = self.three_five_c + Interval(chromatic=2, diatonic=1)
+        s = self.three_five_c + Interval.make(chromatic=2, diatonic=1)
         print(s)
         print(self.three_five_d)
         self.assertEqual(s, self.three_five_d)

@@ -8,7 +8,7 @@ from lily.Lilyable.piano_lilyable import PianoLilyable
 from lily.lily import compile_
 # from piano.progression.pattern import NamedIntervalsPattern, ChordProgressionPattern
 from solfege.interval.interval import Interval
-from solfege.note import Note
+from solfege.note.note import Note
 from solfege.note.set_of_notes import SetOfNotes
 from utils.constants import test_folder
 from utils.util import indent
@@ -19,7 +19,7 @@ class TwoHandsChord(PianoLilyable):
     name: str
     left_hand: SetOfNotes
     right_hand: SetOfNotes
-    tonic: Note = Note("C4")
+    tonic: Note = Note.from_name("C4")
 
     def left_lily(self):
         return self.left_hand.lily_in_scale()

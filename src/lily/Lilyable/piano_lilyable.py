@@ -6,8 +6,8 @@ from typing import Optional, List, Iterable
 from lily.Lilyable.lilyable import Lilyable
 from lily.Lilyable.local_lilyable import LocalLilyable
 from lily.lily import compile_
-from solfege.note import Note
-from solfege.note.abstract import NoteOutput
+from solfege.note.note import Note
+from solfege.note.abstract_note import NoteOutput
 from utils.constants import test_folder
 from utils.util import indent
 
@@ -100,7 +100,7 @@ class LiteralPianoLilyable(PianoLilyable):
     _annotation: Optional[str] = None
 
     @staticmethod
-    def factory(key: Note, left_hand: Optional[Iterable[LocalLilyable]] = None,
+    def make(key: Note, left_hand: Optional[Iterable[LocalLilyable]] = None,
                 right_hand: Optional[Iterable[LocalLilyable]] = None) -> LiteralPianoLilyable:
         return LiteralPianoLilyable(key.lily_key(),
                                     (" ".join(l.lily_in_scale() for l in left_hand) if (

@@ -20,11 +20,11 @@ class Fingerings():
         value_to_fingerings[value] = self
         for i in range (len(fingerings)):
             first = fingerings[i]
-            first.added_to_some_fingerings = True
+            first.fingerings.append(self)
             for j in range(i+1, len(fingerings)):
                 second = fingerings[j]
                 assert first != second, f"""{first.get_name_with_octave()}: {first} and {second} have the same buttons"""
-                if first.fingering_symbol != FINGERING_RASCHER:
+                if first.fingering_symbol != FingeringSymbol.RASCHER:
                     assert first.fingering_symbol != second.fingering_symbol, f"""{first.get_name_with_octave()}: {first} and {second} have the same symbols"""
 
     def add_octave(self, *fingerings: Fingering):
@@ -149,4 +149,4 @@ c8 = Fingerings(rascher.c8)
 
 for fingerings in value_to_fingering.values():
     for fingering in fingerings:
-        assert fingering.added_to_some_fingerings, f"""{fingering} was not added to a Fingerings.\n {"\n".join(fingering.stack)}"""
+        assert fingering.fingerings, f"""{fingering} was not added to a Fingerings.\n {"\n".join(fingering.stack)}"""

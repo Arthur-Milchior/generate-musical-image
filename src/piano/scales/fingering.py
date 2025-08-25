@@ -4,8 +4,9 @@ from typing import Dict, Optional, Union, List
 
 from piano.piano_note import PianoNote
 from solfege.interval.interval import Interval
-from solfege.note import Note
+from solfege.note.note import Note
 from solfege.scale.scale_pattern import ScalePattern, minor_melodic
+from utils.util import assert_typing
 
 THUMB_TO_PINKY = -1
 FOUR_TO_FOUR = 0
@@ -71,14 +72,15 @@ class Fingering:
 
     def __contains__(self, note: Note) -> bool:
         assert not isinstance(note, PianoNote)
-        note = note.get_in_base_octave()
+        note = note.in_base_octave()
         return note in self._dic
 
     def add_pinky_side(self, note: PianoNote) -> Fingering:
+        assert_typing(note, PianoNote)
         assert self.pinky_side_tonic_finger is None
         assert note.finger != 1
         nex = self._copy()
-        note_in_base_octave = note.get_in_base_octave()
+        note_in_base_octave = note.in_base_octave()
         nex.pinky_side_tonic_finger = note.finger
         nex.tonic = note_in_base_octave
         return nex
@@ -93,7 +95,7 @@ class Fingering:
             """
         # assert self.pinky_side_tonic_finger is not None  # scales generation starts with pinky side.
         nex = self._copy()
-        note_in_base_octave = note.get_in_base_octave()
+        note_in_base_octave = note.in_base_octave()
         assert not isinstance(note_in_base_octave, PianoNote)
         if note_in_base_octave in nex._dic:
             return nex._dic[note_in_base_octave] == note.finger
@@ -142,7 +144,7 @@ class Fingering:
     def get_finger(self, note: Note, pinky_side_finger=False) -> Optional[int]:
         """Get the finger for `note`.
         If `note` is the tonic and `starting_finger` holds, get the starting finger"""
-        note = note.get_in_base_octave()
+        note = note.in_base_octave()
         if pinky_side_finger:
             assert note.equals_modulo_octave(self.tonic)
             return self.pinky_side_tonic_finger
@@ -152,18 +154,18 @@ class Fingering:
     def __repr__(self):
         text = f"""scales(for_right_hand={self.for_right_hand})"""
         if self.tonic:
-            text += f""".\n  add_pinky_side(PianoNote(chromatic={self.tonic.get_chromatic().value}, diatonic={self.tonic.get_diatonic().value}, finger={self.pinky_side_tonic_finger}))"""
+            text += f""".\n  add_pinky_side(PianoNote.make(chromatic={self.tonic.get_chromatic().value}, diatonic={self.tonic.get_diatonic().value}, finger={self.pinky_side_tonic_finger}))"""
         for note, finger in self._dic.items():
-            text += f""".\n  add(PianoNote(chromatic={note.get_chromatic().value}, diatonic={note.get_diatonic().value}, finger={finger}))"""
+            text += f""".\n  add(PianoNote.make(chromatic={note.get_chromatic().value}, diatonic={note.get_diatonic().value}, finger={finger}))"""
         return text
 
-    def generate(self, first_played_note: Note, scale_pattern: ScalePattern[Interval], number_of_octaves: int = 1) -> \
+    def generate(self, first_played_note: Note, scale_pattern: ScalePattern, number_of_octaves: int = 1) -> \
             List[PianoNote]:
         assert first_played_note.equals_modulo_octave(self.tonic)
         assert number_of_octaves != 0
         scale = scale_pattern.generate(first_played_note, number_of_octaves=number_of_octaves)
         fingered_scale = [
-            PianoNote(chromatic=note.get_chromatic().get_number(), diatonic=note.get_diatonic().get_number(),
+            PianoNote.make(chromatic=note.get_chromatic().value, diatonic=note.get_diatonic().value,
                       finger=self.get_finger(note)) for note in scale.notes]
         pos_of_pinky_side_extremity = -1 if (self.for_right_hand and number_of_octaves > 0) or (
                 not self.for_right_hand and number_of_octaves < 0) else 0

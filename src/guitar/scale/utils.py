@@ -1,6 +1,6 @@
 from typing import List, Optional
 from guitar.position.guitar_position import GuitarPosition
-from solfege.interval.chromatic import ChromaticInterval
+from solfege.interval.chromatic_interval import ChromaticInterval
 
 
 increase_fret_limit = 4  # The maximal distance between two note played on the same string.

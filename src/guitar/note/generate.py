@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from guitar.position.fret import HIGHEST_FRET, OPEN_FRET
 from guitar.position.string import String, strings
 from guitar.position.guitar_position import GuitarPosition
-from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
-from solfege.note.chromatic import ChromaticNote
+from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.note.chromatic_note import ChromaticNote
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
-from solfege.interval.chromatic import ChromaticInterval
+from solfege.interval.chromatic_interval import ChromaticInterval
 from solfege.note.alteration import Alteration
-from solfege.note.diatonic import DiatonicNote
+from solfege.note.diatonic_note import DiatonicNote
 from solfege.note.note import Note
 from utils.util import assert_typing
 from consts import generate_root_folder
@@ -24,6 +24,7 @@ class AnkiNote:
     note: ChromaticNote
 
     def __post_init__(self):
+        super().__post_init__()
         assert_typing(self.note, ChromaticNote)
         assert lowest_guitar_note <= self.note <= highest_guitar_note
         positions = GuitarPosition.from_chromatic(self.note)

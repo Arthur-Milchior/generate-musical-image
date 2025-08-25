@@ -97,7 +97,7 @@ if __name__ == '__main__':
 #             folder_path=self.test_chord_folder,
 #             execute_lily=True,
 #             wav=True,
-#             key=Note("C"),
+#             key=Note.from_name("C"),
 #         )
 #         self.check_compiled_file_exists()
 #         self.assertEqual(output, f"Play the triads in the C   major scale,<img src='triad_in_C_____.svg'>")

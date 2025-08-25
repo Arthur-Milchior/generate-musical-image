@@ -1,8 +1,8 @@
 import unittest
-from solfege.interval.intervalmode import IntervalMode
+from solfege.interval.interval_mode import IntervalMode
 from solfege.interval.interval import Interval
-from solfege.interval.diatonic import DiatonicInterval
-from .chromatic import *
+from solfege.interval.diatonic_interval import DiatonicInterval
+from .chromatic_interval import *
 
 class TestChromaticInterval(unittest.TestCase):
     unison = ChromaticInterval(0)
@@ -23,21 +23,25 @@ class TestChromaticInterval(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        from solfege.interval.diatonic import DiatonicInterval
+        from solfege.interval.diatonic_interval import DiatonicInterval
         from solfege.interval.interval import Interval
-        from solfege.interval.intervalmode import IntervalMode
-        ChromaticInterval.RelatedDiatonicClass = DiatonicInterval
-        ChromaticInterval.RelatedSolfegeClass = Interval
+        from solfege.interval.interval_mode import IntervalMode
+        ChromaticInterval.DiatonicClass = DiatonicInterval
+        ChromaticInterval.PairClass = Interval
         ChromaticInterval.AlterationClass = IntervalMode
+
+    def test_classes(self):
+        self.assertEqual(ChromaticInterval.IntervalClass, ChromaticInterval)
+        self.assertEqual(ChromaticInterval.ChromaticClass, ChromaticInterval)
+        self.assertEqual(ChromaticInterval.make_instance_of_selfs_class(0), ChromaticInterval(0))
+        self.assertEqual(ChromaticInterval.PairClass, Interval)
+        self.assertEqual(ChromaticInterval.DiatonicClass, DiatonicInterval)
 
     def test_is_note(self):
         self.assertFalse(self.unison.is_note())
 
-    def test_has_number(self):
-        self.assertTrue(self.unison.has_number())
-
     def test_get_number(self):
-        self.assertEqual(self.unison.get_number(), 0)
+        self.assertEqual(self.unison.value, 0)
 
     def test_equal(self):
         self.assertEqual(self.unison, self.unison)
@@ -61,13 +65,13 @@ class TestChromaticInterval(unittest.TestCase):
     def test_repr(self):
         self.assertEqual(repr(self.second_minor), "ChromaticInterval(value=1)")
 
-    def test_get_octave(self):
-        self.assertEqual(self.unison.get_octave(), 0)
-        self.assertEqual(self.six.get_octave(), 0)
-        self.assertEqual(self.seventh_descending.get_octave(), -1)
-        self.assertEqual(self.octave_descending.get_octave(), -1)
-        self.assertEqual(self.eighth_descending.get_octave(), -2)
-        self.assertEqual(self.octave.get_octave(), 1)
+    def test_octave(self):
+        self.assertEqual(self.unison.octave(), 0)
+        self.assertEqual(self.six.octave(), 0)
+        self.assertEqual(self.seventh_descending.octave(), -1)
+        self.assertEqual(self.octave_descending.octave(), -1)
+        self.assertEqual(self.eighth_descending.octave(), -2)
+        self.assertEqual(self.octave.octave(), 1)
 
     def test_add_octave(self):
         self.assertEqual(self.octave.add_octave(-1), self.unison)
@@ -76,11 +80,11 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(self.octave_descending.add_octave(2), self.octave)
 
     def test_same_interval_in_base_octave(self):
-        self.assertEqual(self.octave.get_in_base_octave(), self.unison)
-        self.assertEqual(self.octave_descending.get_in_base_octave(), self.unison)
-        self.assertEqual(self.unison.get_in_base_octave(), self.unison)
-        self.assertEqual(self.second_minor.get_in_base_octave(), self.second_minor)
-        self.assertEqual(self.second_minor_descending.get_in_base_octave(), self.seventh)
+        self.assertEqual(self.octave.in_base_octave(), self.unison)
+        self.assertEqual(self.octave_descending.in_base_octave(), self.unison)
+        self.assertEqual(self.unison.in_base_octave(), self.unison)
+        self.assertEqual(self.second_minor.in_base_octave(), self.second_minor)
+        self.assertEqual(self.second_minor_descending.in_base_octave(), self.seventh)
 
     def test_same_interval_in_different_octave(self):
         self.assertFalse(self.second_minor.equals_modulo_octave(self.unison))
@@ -123,67 +127,67 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval(-13).get_diatonic(), DiatonicInterval(-8))
         self.assertEqual(ChromaticInterval(-14).get_diatonic(), DiatonicInterval(-8))
 
-    def test_get_solfege(self):
-        self.assertEqual(ChromaticInterval(0).get_solfege(), Interval(0, 0))
-        self.assertEqual(ChromaticInterval(1).get_solfege(), Interval(1, 0))
-        self.assertEqual(ChromaticInterval(2).get_solfege(), Interval(2, 1))
-        self.assertEqual(ChromaticInterval(3).get_solfege(), Interval(3, 2))
-        self.assertEqual(ChromaticInterval(4).get_solfege(), Interval(4, 2))
-        self.assertEqual(ChromaticInterval(5).get_solfege(), Interval(5, 3))
-        self.assertEqual(ChromaticInterval(6).get_solfege(), Interval(6, 3))
-        self.assertEqual(ChromaticInterval(7).get_solfege(), Interval(7, 4))
-        self.assertEqual(ChromaticInterval(8).get_solfege(), Interval(8, 5))
-        self.assertEqual(ChromaticInterval(9).get_solfege(), Interval(9, 5))
-        self.assertEqual(ChromaticInterval(10).get_solfege(), Interval(10, 6))
-        self.assertEqual(ChromaticInterval(11).get_solfege(), Interval(11, 6))
-        self.assertEqual(ChromaticInterval(12).get_solfege(), Interval(12, 7))
-        self.assertEqual(ChromaticInterval(13).get_solfege(), Interval(13, 7))
-        self.assertEqual(ChromaticInterval(14).get_solfege(), Interval(14, 8))
-        self.assertEqual(ChromaticInterval(-1).get_solfege(), Interval(-1, -1))
-        self.assertEqual(ChromaticInterval(-2).get_solfege(), Interval(-2, -1))
-        self.assertEqual(ChromaticInterval(-3).get_solfege(), Interval(-3, -2))
-        self.assertEqual(ChromaticInterval(-4).get_solfege(), Interval(-4, -2))
-        self.assertEqual(ChromaticInterval(-5).get_solfege(), Interval(-5, -3))
-        self.assertEqual(ChromaticInterval(-6).get_solfege(), Interval(-6, -4))
-        self.assertEqual(ChromaticInterval(-7).get_solfege(), Interval(-7, -4))
-        self.assertEqual(ChromaticInterval(-8).get_solfege(), Interval(-8, -5))
-        self.assertEqual(ChromaticInterval(-9).get_solfege(), Interval(-9, -5))
-        self.assertEqual(ChromaticInterval(-10).get_solfege(), Interval(-10, -6))
-        self.assertEqual(ChromaticInterval(-11).get_solfege(), Interval(-11, -7))
-        self.assertEqual(ChromaticInterval(-12).get_solfege(), Interval(-12, -7))
-        self.assertEqual(ChromaticInterval(-13).get_solfege(), Interval(-13, -8))
-        self.assertEqual(ChromaticInterval(-14).get_solfege(), Interval(-14, -8))
+    def test_get_pair(self):
+        self.assertEqual(ChromaticInterval(0).get_pair(), Interval.make(0, 0))
+        self.assertEqual(ChromaticInterval(1).get_pair(), Interval.make(1, 0))
+        self.assertEqual(ChromaticInterval(2).get_pair(), Interval.make(2, 1))
+        self.assertEqual(ChromaticInterval(3).get_pair(), Interval.make(3, 2))
+        self.assertEqual(ChromaticInterval(4).get_pair(), Interval.make(4, 2))
+        self.assertEqual(ChromaticInterval(5).get_pair(), Interval.make(5, 3))
+        self.assertEqual(ChromaticInterval(6).get_pair(), Interval.make(6, 3))
+        self.assertEqual(ChromaticInterval(7).get_pair(), Interval.make(7, 4))
+        self.assertEqual(ChromaticInterval(8).get_pair(), Interval.make(8, 5))
+        self.assertEqual(ChromaticInterval(9).get_pair(), Interval.make(9, 5))
+        self.assertEqual(ChromaticInterval(10).get_pair(), Interval.make(10, 6))
+        self.assertEqual(ChromaticInterval(11).get_pair(), Interval.make(11, 6))
+        self.assertEqual(ChromaticInterval(12).get_pair(), Interval.make(12, 7))
+        self.assertEqual(ChromaticInterval(13).get_pair(), Interval.make(13, 7))
+        self.assertEqual(ChromaticInterval(14).get_pair(), Interval.make(14, 8))
+        self.assertEqual(ChromaticInterval(-1).get_pair(), Interval.make(-1, -1))
+        self.assertEqual(ChromaticInterval(-2).get_pair(), Interval.make(-2, -1))
+        self.assertEqual(ChromaticInterval(-3).get_pair(), Interval.make(-3, -2))
+        self.assertEqual(ChromaticInterval(-4).get_pair(), Interval.make(-4, -2))
+        self.assertEqual(ChromaticInterval(-5).get_pair(), Interval.make(-5, -3))
+        self.assertEqual(ChromaticInterval(-6).get_pair(), Interval.make(-6, -4))
+        self.assertEqual(ChromaticInterval(-7).get_pair(), Interval.make(-7, -4))
+        self.assertEqual(ChromaticInterval(-8).get_pair(), Interval.make(-8, -5))
+        self.assertEqual(ChromaticInterval(-9).get_pair(), Interval.make(-9, -5))
+        self.assertEqual(ChromaticInterval(-10).get_pair(), Interval.make(-10, -6))
+        self.assertEqual(ChromaticInterval(-11).get_pair(), Interval.make(-11, -7))
+        self.assertEqual(ChromaticInterval(-12).get_pair(), Interval.make(-12, -7))
+        self.assertEqual(ChromaticInterval(-13).get_pair(), Interval.make(-13, -8))
+        self.assertEqual(ChromaticInterval(-14).get_pair(), Interval.make(-14, -8))
 
-    def test_get_alteration(self):
-        self.assertEqual(ChromaticInterval(0).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(1).get_alteration(), IntervalMode(1))
-        self.assertEqual(ChromaticInterval(2).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(3).get_alteration(), IntervalMode(-1))
-        self.assertEqual(ChromaticInterval(4).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(5).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(6).get_alteration(), IntervalMode(1))
-        self.assertEqual(ChromaticInterval(7).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(8).get_alteration(), IntervalMode(-1))
-        self.assertEqual(ChromaticInterval(9).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(10).get_alteration(), IntervalMode(-1))
-        self.assertEqual(ChromaticInterval(11).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(12).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(13).get_alteration(), IntervalMode(1))
-        self.assertEqual(ChromaticInterval(14).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-1).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-2).get_alteration(), IntervalMode(-1))
-        self.assertEqual(ChromaticInterval(-3).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-4).get_alteration(), IntervalMode(-1))
-        self.assertEqual(ChromaticInterval(-5).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-6).get_alteration(), IntervalMode(1))
-        self.assertEqual(ChromaticInterval(-7).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-8).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-9).get_alteration(), IntervalMode(-1))
-        self.assertEqual(ChromaticInterval(-10).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-11).get_alteration(), IntervalMode(1))
-        self.assertEqual(ChromaticInterval(-12).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-13).get_alteration(), IntervalMode(0))
-        self.assertEqual(ChromaticInterval(-14).get_alteration(), IntervalMode(-1))
+    # def test_get_alteration(self):
+    #     self.assertEqual(ChromaticInterval(0).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(1).get_alteration(), IntervalMode(1))
+    #     self.assertEqual(ChromaticInterval(2).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(3).get_alteration(), IntervalMode(-1))
+    #     self.assertEqual(ChromaticInterval(4).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(5).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(6).get_alteration(), IntervalMode(1))
+    #     self.assertEqual(ChromaticInterval(7).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(8).get_alteration(), IntervalMode(-1))
+    #     self.assertEqual(ChromaticInterval(9).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(10).get_alteration(), IntervalMode(-1))
+    #     self.assertEqual(ChromaticInterval(11).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(12).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(13).get_alteration(), IntervalMode(1))
+    #     self.assertEqual(ChromaticInterval(14).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-1).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-2).get_alteration(), IntervalMode(-1))
+    #     self.assertEqual(ChromaticInterval(-3).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-4).get_alteration(), IntervalMode(-1))
+    #     self.assertEqual(ChromaticInterval(-5).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-6).get_alteration(), IntervalMode(1))
+    #     self.assertEqual(ChromaticInterval(-7).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-8).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-9).get_alteration(), IntervalMode(-1))
+    #     self.assertEqual(ChromaticInterval(-10).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-11).get_alteration(), IntervalMode(1))
+    #     self.assertEqual(ChromaticInterval(-12).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-13).get_alteration(), IntervalMode(0))
+    #     self.assertEqual(ChromaticInterval(-14).get_alteration(), IntervalMode(-1))
 
     def test_get_interval_name_octave_NEVER_side(self):
         self.assertEqual(ChromaticInterval(0).get_interval_name(), "unison")
@@ -249,7 +253,7 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval(24).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves")
         self.assertEqual(ChromaticInterval(25).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves and second minor")
         self.assertEqual(ChromaticInterval(-1).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "second minor decreasing")
-        self.gassertEqual(ChromaticInterval(-12).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "octave decreasing")
+        self.assertEqual(ChromaticInterval(-12).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "octave decreasing")
         self.assertEqual(ChromaticInterval(-13).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "octave and second minor decreasing")
         self.assertEqual(ChromaticInterval(-24).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves decreasing")
         self.assertEqual(ChromaticInterval(-25).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves and second minor decreasing")
