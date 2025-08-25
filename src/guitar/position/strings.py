@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Generator, List
 
 from guitar.position.string import String, strings
+from guitar.position.fret import OPEN_FRET, Fret
 from utils.util import assert_typing
 
 @dataclass(frozen=True, eq=True)
@@ -23,6 +24,16 @@ class Strings:
     def __eq__(self, other: "Strings"):
         assert_typing(other, Strings)
         return self.strings == other.strings
+    
+    def svg(self, lowest_fret: Fret, show_open_fret: bool) ->Generator[str]:
+        """
+        The svg to display the strings.
+        If `show_open_fret`, a margin at the top represents the top of the board.
+        Otherwise the fret goes over the entire height.
+        The fret ends below `lowest_fret` so that it also cover the margin at the bottom.
+        """
+        for string in self:
+            yield string.svg(lowest_fret, show_open_fret)
     
 
 class StringsInterval(Strings):

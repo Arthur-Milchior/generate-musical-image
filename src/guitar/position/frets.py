@@ -21,7 +21,6 @@ class Frets:
         assert_typing(self.max_fret, int)
         assert_typing(self.allow_open, int)
 
-
     def disallow_open(self):
         return Frets(self.min_fret, self.max_fret, False)
     
@@ -48,3 +47,10 @@ class Frets:
         if fret.value is None:
             return self
         return self.limit_max(fret.value + interval_size).limit_min(fret.value - interval_size)
+    
+    def svg(self, absolute: bool):
+        """
+        The svg to display current frets.
+        """
+        for fret in self:
+            yield from fret.svg(absolute)

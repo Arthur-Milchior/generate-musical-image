@@ -8,6 +8,7 @@ from solfege.interval import ChromaticInterval
 from solfege.note import ChromaticNote
 from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
 from guitar.position.string import String
+from guitar.position.consts import *
 from guitar.position.frets import Frets
 from guitar.position.string_deltas import ANY_STRING, StringDeltas
 from guitar.position.strings import ALL_STRINGS, Strings
@@ -22,11 +23,6 @@ string_number_to_note_played_when_free = {
     5: ChromaticNote(11),
     6: ChromaticNote(16),
 }
-
-# Constants used in SVG
-fret_distance = 50
-string_distance = 30
-circle_radius = 11
 
 
 @dataclass(frozen=True, eq=True)
@@ -72,17 +68,11 @@ class GuitarPosition:
     def svg(self):
         """Draw this position, assuming that f already contains the svg for the fret"""
         fill_color = "white" if self.fret == OPEN_FRET else "black"
-        cx = string_distance * (self.string.value - 0.5)
+        x = self.string.x()
         if self.fret is NOT_PLAYED:
-            return f"""
-    <text x="{int(cx)}" y="{int(fret_distance / 3)}" font-size="30">x</text>"""
-        else:
-            if self.fret == OPEN_FRET:
-                cy = fret_distance / 2
-            else:
-                cy = self.fret.value * fret_distance
-            return f"""
-    <circle cx="{int(cx)}" cy="{int(cy)}" r="{int(circle_radius)}" fill="{fill_color}" stroke="{self.get_stroke_color()}" stroke-width="3"/>"""
+            return f"""<text x="{int(x)}" y="{int(MARGIN)}" font-size="30">x</text><!-- string {self.string.value}, not played-->"""
+        y = self.fret.y_dots()
+        return f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{fill_color}" stroke="{self.get_stroke_color()}" stroke-width="3"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""
 
     def __eq__(self, other: GuitarPosition):
         assert_typing(other, GuitarPosition)
@@ -121,4 +111,4 @@ class GuitarPosition:
     def singleton_diagram_svg(self):
         """The svg for a diagram with only this note"""
         from .set_of_guitar_positions import SetOfGuitarPositions
-        return SetOfGuitarPositions(frozenset({self})).svg()
+        return SetOfGuitarPositions(frozenset({self})).svg(absolute=True)

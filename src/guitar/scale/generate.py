@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
 from .utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
@@ -21,6 +22,11 @@ It is assumed that, there is never more than {increase_fret_limit} fret from the
 </li><li> Furthermore, there is never more than {decreasing_fret_limit} fret in distance from the the highest note played on a string, and the lowest note played on the following string. </li></lu>
 <ul>
 """
+
+@dataclass(frozen=True)
+class AnkiNote:
+    scale: ScalePattern
+
 
 for scale in ScalePattern.class_to_patterns[ScalePattern]:
     name = scale.get_the_first_of_the_name()

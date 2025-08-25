@@ -6,8 +6,9 @@ from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutpu
 from solfege.note.chromatic import ChromaticNote
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
 from solfege.interval.chromatic import ChromaticInterval
-from src.solfege.note.diatonic import DiatonicNote
-from src.solfege.note.note import Note
+from solfege.note.alteration import Alteration
+from solfege.note.diatonic import DiatonicNote
+from solfege.note.note import Note
 from utils.util import assert_typing
 from consts import generate_root_folder
 from utils.util import ensure_folder
@@ -49,13 +50,25 @@ class AnkiNote:
         return f"""<img src="{pos.singleton_diagram_svg_name()}"/>"""
     
     def svg(self):
-        return SetOfGuitarPositions(frozenset(self.positions())).svg()
+        return SetOfGuitarPositions(frozenset(self.positions())).svg(absolute=True)
     
     def all_notes_field(self):
         return f"""<img src="{self.svg_name_for_all_positions()}"/>"""
     
     def _note(self) -> Note:
         return self.note.get_note()
+    
+    def diatonic_note(self)->DiatonicNote:
+        return self._note().get_diatonic()
+    
+    def degree(self):
+        return self.diatonic_note().get_name_up_to_octave(note_output=NoteOutput.NUMBER, fixed_length=FixedLengthOutput.NO)
+    
+    def alteration(self) -> Alteration:
+        return self._note().get_alteration()
+    
+    def height(self):
+        return str(self._note().get_octave_name(octave_notation=OctaveOutput.MIDDLE_IS_4))
     
     def anki_fields(self):
         return [
@@ -67,7 +80,9 @@ class AnkiNote:
             self.field_for_string(strings[3]),
             self.field_for_string(strings[4]),
             self.field_for_string(strings[5]),
-            self._note().get_in_base_octave().get_diatonic().value
+            self.degree(),
+            self.alteration().get_name(alteration_output=AlterationOutput.SYMBOL, fixed_length=FixedLengthOutput.NO),
+            self.height(),
         ]
     
     def anki_csv(self):

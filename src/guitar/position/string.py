@@ -6,7 +6,9 @@ from solfege.interval.chromatic import ChromaticInterval
 from solfege.note.chromatic import ChromaticNote
 from solfege.note.note import Note
 from utils.util import assert_typing
+from guitar.position.consts import *
 
+STRING_THICKNESS = 5
 
 @dataclass(frozen=True, eq=True)
 class String:
@@ -33,7 +35,7 @@ class String:
     def __sub__(self, other: int):
         return self + (-other)
     
-    def fret_for_note(self, note: ChromaticNote):
+    def fret_for_note(self, note: ChromaticNote) -> Optional[Fret]:
         if note < self.note_open:
             return None
         interval = note-self.note_open
@@ -58,6 +60,23 @@ class String:
     
     def __repr__(self):
         return f"strings[{self.value - 1}]"
+    
+    def x(self):
+        return MARGIN + (self.value-1) * DISTANCE_BETWEEN_STRING
+    
+    def svg(self, lowest_fret: Fret, show_open_fret: bool):
+        """
+        The svg to display current string.
+        If `show_open_fret`, a margin at the top represents the top of the board.
+        Otherwise the fret goes over the entire height.
+        The fret ends below `lowest_fret` so that it also cover the margin at the bottom.
+        """
+        y1 = int(MARGIN) if show_open_fret else 0
+        y2 = int(lowest_fret.y_fret())
+        x = int(self.x())
+        return f"""<line x1="{self.x()}" y1="{y1}" x2="{x}" y2="{y2}" stroke-width="{STRING_THICKNESS}" stroke="black" /><!-- Fret {self.value}-->"""
+
+
         
     
 String.E3 = String(1, Note("E3").get_chromatic())

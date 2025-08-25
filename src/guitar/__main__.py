@@ -1,19 +1,4 @@
-print("Running Guitar")
-
-print("Running scale")
-
-print("scale ended")
-
-print("Running chord")
-
-print("chord ended")
-
-print("Running solo")
-
-print("solo ended")
-
-print("Running pair")
-
-print("pair ended")
-
-print("guitar ended")
+from guitar.position import generate
+from guitar.note import generate
+from guitar.pair import generate
+from guitar.scale import generate

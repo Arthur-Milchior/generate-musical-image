@@ -11,6 +11,7 @@ from guitar.position.fret import Fret
 from guitar.position.string import String, strings
 from solfege.interval.chromatic import ChromaticInterval, IntervalNameCreasing
 from utils.util import *
+from guitar.position.fret import OPEN_FRET
 from consts import generate_root_folder
 
 """
@@ -72,13 +73,14 @@ class AnkiNote:
         return ",".join(self.anki_fields())
     
     def svg(self):
-        return SetOfGuitarPositions(frozenset({self.pos1, self.pos2})).svg()
+        absolute = self.pos1.fret == OPEN_FRET or self.pos2.fret == OPEN_FRET
+        return SetOfGuitarPositions(frozenset({self.pos1, self.pos2})).svg(absolute=absolute)
 
 def pairs_of_frets_values(last_fret: int):
     return (
-    [(low_fret, high_fret) for low_fret in range(0, 2) for high_fret in range (0, last_fret + 1)] +
-    [(low_fret, high_fret) for low_fret in range(2, last_fret+1) for high_fret in range (0, 2)]
-)
+        [(low_fret, high_fret) for low_fret in range(0, 2) for high_fret in range(0, last_fret + 1)] +
+        [(low_fret, high_fret) for low_fret in range(2, last_fret + 1) for high_fret in range(0, 2)]
+    )
 
 def pair_of_frets(last_fret: int):
     return [(Fret(low_fret), Fret(high_fret)) for (low_fret, high_fret) in pairs_of_frets_values(last_fret)]

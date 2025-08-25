@@ -4,27 +4,30 @@ from dataclasses import dataclass
 from pickle import EMPTY_SET
 from typing import List, Iterator, Optional
 
-from guitar.position.guitar_position import GuitarPosition, string_distance, fret_distance
+from guitar.position.guitar_position import GuitarPosition
 from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
+from guitar.position.consts import *
+from guitar.position.strings import ALL_STRINGS
 from utils.util import assert_typing
+from guitar.position.string import strings
 
 
-def fret_svg(last_fret: Fret) -> List[str]:
-    """The svg for the guitar, with `nb_frets` frets"""
-    svg_lines = []
-    for i in range(1, 7):
-        # columns
-        x = string_distance * (i - .5)
-        y1 = fret_distance / 2
-        y2 = fret_distance * (last_fret.value + .5)
-        svg_lines.append(f"""<line x1="{int(x)}" y1="{int(y1)}" x2="{int(x)}" y2="{int(y2)}" stroke-width="4" stroke="black" />""")
-    for i in range(1, last_fret.value + 2):
-        # lines
-        x1 = string_distance / 2
-        x2 = string_distance * 5.5
-        y = fret_distance * (i - .5)
-        svg_lines.append(f"""<line x1="{int(x1)}" y1="{int(y)}" x2="{int(x2)}" y2="{int(y)}" stroke-width="4" stroke="black" />""")
-    return svg_lines
+# def fret_svg(last_fret: Fret) -> List[str]:
+#     """The svg for the guitar, with `nb_frets` frets"""
+#     svg_lines = []
+#     for string in range(1, 7):
+#         # columns
+#         x = string_distance * (string - .5)
+#         y1 = fret_distance / 2
+#         y2 = fret_distance * (last_fret.value + .5)
+#         svg_lines.append(f"""<line x1="{int(x)}" y1="{int(y1)}" x2="{int(x)}" y2="{int(y2)}" stroke-width="4" stroke="black" />""")
+#     for fret in range(1, last_fret.value + 2):
+#         # lines
+#         x1 = string_distance / 2
+#         x2 = string_distance * 5.5
+#         y = fret_distance * (fret - .5)
+#         svg_lines.append(f"""<line x1="{int(x1)}" y1="{int(y)}" x2="{int(x2)}" y2="{int(y)}" stroke-width="4" stroke="black" />""")
+#     return svg_lines
 
 
 @dataclass(frozen=True)
@@ -63,18 +66,31 @@ class SetOfGuitarPositions:
     def _max_fret(self) -> Fret :
         """The greatest fret used."""
         return max(position.fret for position in self.positions) if self.positions else NOT_PLAYED
+    
+    def last_shown_fret(self, add_one: bool = True):
+        mf = self._max_fret()
+        if add_one:
+            return mf.below()
+        return mf
+    
+    def height(self, add_one: bool = True):
+        assert self.positions
+        return self.last_shown_fret(add_one).y_fret() + MARGIN
+    
+    def svg_content(self, absolute: bool, nbFretMin: Fret =OPEN_FRET, add_empty_fret: bool = True):
+        max_fret = max(self.last_shown_fret(add_empty_fret ), nbFretMin).below()
+        yield """<rect width="100%" height="100%" fill="white" />"""
+        yield from ALL_STRINGS.svg(lowest_fret=max_fret, show_open_fret=absolute)
+        yield from max_fret.all_frets_up_to_here(include_open=absolute).svg(absolute)
+        for pos in self:
+            yield pos.svg()
+    
 
-    def svg(self, nbFretMin: Fret =OPEN_FRET) -> str:
-        # Creating a fret from the (value+1) allows to create a fret HIGHEST_FRET +1 that otherwise could not exists.
-        nb_frets_needed = Fret(self._max_fret().value + 1)
-        nb_frets = max(nb_frets_needed, nbFretMin)
-        height = (nb_frets.value+1) * fret_distance
-        width = string_distance * 6
+    def svg(self, absolute:bool, nbFretMin: Fret=OPEN_FRET) -> str:
         new_line = "\n"
         return f"""\
-<svg xmlns="http://www.w3.org/2000/svg" width="{int(width)}" height="{int(height)}" version="1.1">
-  <rect width="100%" height="100%" fill="white" />
-{f"{new_line}  ".join([position.svg() for position in self] + fret_svg(nb_frets))}
+<svg xmlns="http://www.w3.org/2000/svg" width="{int(WIDTH)}" height="{int(self.height(add_one=True))}" version="1.1">
+{new_line.join(("  "+ content) for content in self.svg_content(absolute, nbFretMin, add_empty_fret=True))}
 </svg>"""
     
     def __lt__(self, other: SetOfGuitarPositions):

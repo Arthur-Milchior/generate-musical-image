@@ -1,9 +1,10 @@
+from enum import Enum
 from solfege.note.chromatic import ChromaticNote
 from solfege.note.abstract import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
-from solfege.key import sets_of_enharmonic_keys
-from typing import Optional, Dict, List
-from solfege.scale.scale_pattern import scale_patterns_I_practice, scale_patterns, minor_melodic
+from solfege.key import Key, sets_of_enharmonic_keys
+from typing import Optional, Dict, List, assert_never
+from solfege.scale.scale_pattern import ScalePattern, scale_patterns_I_practice, scale_patterns, minor_melodic
 from operator import itemgetter
 from lily.lily import compile_
 from dataclasses import dataclass
@@ -17,10 +18,11 @@ folder_path = f"{generate_root_folder}/solfege/scales"
 util.ensure_folder(folder_path)
 
 
-INCREASING = "increasing"
-DECREASING = "decreasing"
-TOTAL = "total"
-REVERSE = "reverse"
+class Direction(Enum):
+    INCREASING = "increasing"
+    DECREASING = "decreasing"
+    TOTAL = "total"
+    REVERSE = "reverse"
 
 chords = [ chord.to_arpeggio_pattern()  for chord in  ChordPattern.class_to_patterns[ChordPattern]]
 
@@ -150,6 +152,174 @@ class Difficulties:
     def __str__(self):
         return str(self.difficulties)
 
+@dataclass
+class AnkiNote:
+    instrument: Instrument
+    scale_pattern: ScalePattern
+    specific: str
+    set_of_enharmonic_keys: List[Key]
+
+    def csv_path(self):
+        return f"{folder_path}/{self.instrument}.csv"
+
+    def instrument_image(self):
+        return f"""<img src="{self.instrument}.png"/>"""
+
+    def interval(self):
+        return self.instrument.transposition - self.scale_pattern.interval_for_signature
+
+    def scale_name(self):
+        return self.scale_pattern.names[0]
+    
+    def scale_notation(self):
+        return self.scale_pattern.notation or ""
+
+    def bass_note(self):
+        bass_note = self.set_of_enharmonic_keys[0].note + self.interval()
+        while bass_note < instrument.lowest_instrument_note:
+            bass_note = bass_note.add_octave(1)
+        while bass_note >= instrument.lowest_instrument_note.add_octave(1):
+            bass_note = bass_note.add_octave(-1)
+        return bass_note
+    
+    def scale_for_difficulty(self):
+        return self.scale_pattern.generate(
+                        tonic=bass_note,
+                        number_of_octaves=1,
+                        )
+
+    def difficulties(self):
+        """None if not playable"""
+        difficulties = Difficulties()
+        for note in self.scale_for_difficulty().notes:
+            difficulty = instrument.difficulty(note)
+            if difficulty is None:
+                return None
+            difficulties = difficulties.add(difficulty)
+        return difficulties
+    
+    def tonic_name(self):
+        return self.bass_note().get_name_with_octave(
+                    octave_notation=OctaveOutput.MIDDLE_IS_4,
+                    alteration_output = AlterationOutput.SYMBOL,
+                    note_output= NoteOutput.LETTER,
+                    fixed_length = FixedLengthOutput.NO,
+                )
+    
+    def key(self):
+        "A value uniquely identifiying this anki note"
+        return f"""\"{self.instrument} {self.scale_name().replace(",", "")} {self.tonic_name()} difficulty {self.difficulties()}\""""
+    
+    def anki_fields(self):
+        bass_note = self.bass_note()
+        fields = [
+            self.key(),
+            self.instrument_image(),
+            "", #hide single octave
+            "",#practice single direction
+            "", #signature
+            "", #position
+            self.tonic_name(),
+            self.scale_name(),
+            self.scale_notation(),
+            self.specific(),
+            bass_note.image_html(),
+            bass_note.add_octave(1).image_html(),
+            bass_note.add_octave(2).image_html(),
+            bass_note.add_octave(3).image_html(),
+        ]
+        for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2), (2,1), (1,2), (0,3)]:
+            for direction in [Direction.INCREASING, Direction.DECREASING, Direction.TOTAL, Direction.REVERSE]:
+                anki_field = AnkiField(self, start_octave, number_of_octaves, direction)
+                fields.append(anki_field.field())
+                anki_field.generate_and_compile_lily()
+        return fields
+    
+    def anki_csv(self):
+        return ",".join(self.anki_fields())
+        
+
+@dataclass
+class AnkiField:
+    """Represents a field in anki"""
+    anki_note: AnkiNote
+    start_octave: int
+    number_of_octaves: int
+    direction: Direction
+
+    def scale_lowest_note(self):
+        return self.anki_note.bass_note().add_octave(self.start_octave)
+
+    def scale(self):
+        increasing = self.anki_note.scale_pattern.generate(
+            tonic=self.scale_lowest_note(),
+            number_of_octaves=self.number_of_octaves,
+            )
+        decreasing = self.anki_note.scale_pattern.descending.generate(
+            tonic=self.scale_lowest_note(),
+            number_of_octaves=self.number_of_octaves,
+            ).reverse()
+        if self.direction is Direction.INCREASING:
+            return increasing
+        elif self.direction is Direction.DECREASING:
+            return decreasing
+        elif self.direction is Direction.TOTAL:
+            return increasing.concatenate(decreasing)
+        elif self.direction is Direction.REVERSE:
+            return decreasing.concatenate(increasing)
+        assert_never(self.direction)
+
+    def playable(self):
+        return self.anki_note.bass_note() <= self.anki_note.instrument.highest_instrument_note
+    
+    def scale_note_name(self):
+        return self.scale_lowest_note.get_name_with_octave(
+                                octave_notation=OctaveOutput.MIDDLE_IS_4,
+                                alteration_output = AlterationOutput.ASCII, 
+                                note_output = NoteOutput.LETTER, 
+                                fixed_length = FixedLengthOutput.NO)
+    
+
+    def svg_scale_file_name(self):
+        """The file name without extension."""
+        return f"""{self.anki_note.scale_name()}-{self.scale_note_name()}-{self.number_of_octaves}-{self.direction}"""
+    
+    def path(self):
+        return f"{folder_path}/{self.svg_scale_file_name}"
+    
+    def lily(self):
+        return self.scale.lily()
+    
+    def generate_and_compile_lily(self):
+        compile_(self.lily(), file_prefix=self.path(), wav = False)
+    
+    def svg_scale_html(self):
+        return f"""<img src="{self.svg_scale_file_name()}.svg"/>"""
+    
+    def fingerings_html(self):
+        field_parts = []
+        for note_in_scale in self.notes():
+            chromatic_note: ChromaticNote = note_in_scale.get_chromatic()
+            note_name = chromatic_note.get_name_with_octave(
+                octave_notation=OctaveOutput.MIDDLE_IS_4,
+                alteration_output = AlterationOutput.ASCII, 
+                note_output = NoteOutput.LETTER, 
+                fixed_length = FixedLengthOutput.NO
+            )
+            field_parts.append(f"""<img src="{self.anki_note.instrument}_{note_name}.{self.anki_note.instrument.image_extension}"/>""")
+        return field_parts            
+
+
+    def field(self):
+        if not self.playable():
+            return ""
+        field_parts = [self.svg_scale_html()]
+        if self.anki_note.instrument.show_fingering:
+            field_parts.append("<br/>")
+            field_parts += self.fingerings_html()
+        return "".join(field_parts)
+            
+
 all_csv = []
 for instrument in instruments:
     instrument_image = f"""<img src="{instrument}.png"/>"""
@@ -157,137 +327,15 @@ for instrument in instruments:
     anki_notes: List[str] = []
     for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
         for scale_pattern in patterns:
-            scale_name = scale_pattern.names[0]
-            scale_notation = scale_pattern.notation or ""
             anki_notes_in_scale = []
             for set_of_enharmonic_keys in sets_of_enharmonic_keys:
-                interval = instrument.transposition - scale_pattern.interval_for_signature
-                bass_note = set_of_enharmonic_keys[0].note + interval
-                while bass_note < instrument.lowest_instrument_note:
-                    bass_note = bass_note.add_octave(1)
-                while bass_note >= instrument.lowest_instrument_note.add_octave(1):
-                    bass_note = bass_note.add_octave(-1)
-                scale = scale_pattern.generate(
-                        tonic=bass_note,
-                        number_of_octaves=1,
-                        )
-                difficulties = [instrument.difficulty(note) for note in scale.notes]
-                if None in difficulties: 
-                    continue
-                difficulty = Difficulties()
-                for d in difficulties:
-                    difficulty.add(d)
-
-                tonic_name = bass_note.get_name_with_octave(
-                    octave_notation=OctaveOutput.MIDDLE_IS_4,
-                    alteration_output = AlterationOutput.SYMBOL,
-                    note_output= NoteOutput.LETTER,
-                    fixed_length = FixedLengthOutput.NO,
-                )
-                anki_note = []
-                first_field = f"""\"{instrument} {scale_name.replace(",", "")} {tonic_name} difficulty {difficulty}\""""
-                anki_note.append(first_field) # key
-                anki_note.append(instrument_image)
-                anki_note.append("") # Hide single octave
-                anki_note.append("") # Practice single direction
-                anki_note.append("") #signature
-                anki_note.append("") #position
-                anki_note.append(tonic_name)  #tonic
-                anki_note.append(scale_name) # Mode Name
-                anki_note.append(scale_notation) # Mode Notation
-                anki_note.append(specific) # specific
-                anki_note.append(bass_note.image_html())#0
-                anki_note.append(bass_note.add_octave(1).image_html()) # 1
-                anki_note.append(bass_note.add_octave(2).image_html()) # 2
-                anki_note.append(bass_note.add_octave(3).image_html()) # 3
-
-                for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2), (2,1), (1,2), (0,3)]:
-                    scale_lowest_note = bass_note.add_octave(start_octave)
-                    scale = scale_pattern.generate(
-                            tonic=bass_note.add_octave(start_octave),
-                            number_of_octaves=number_of_octaves,
-                            add_an_extra_note=True
-                            )
-                    increasing = scale.notes
-                    decreasing = list(reversed(scale.notes))
-                    for direction, notes in [
-                        (INCREASING, scale.notes),
-                        (DECREASING, decreasing),
-                        (TOTAL, increasing[:-1] + decreasing),
-                        (REVERSE, decreasing+increasing[1:])
-                    ]:
-                        if bass_note.add_octave(start_octave+number_of_octaves) > instrument.highest_instrument_note:
-                            anki_note.append("")
-                        else:
-                            scale_note_name = scale_lowest_note.get_name_with_octave(
-                    octave_notation=OctaveOutput.MIDDLE_IS_4,
-                    alteration_output = AlterationOutput.ASCII, 
-                    note_output = NoteOutput.LETTER, 
-                    fixed_length = FixedLengthOutput.NO)
-                            file_name = f"""{scale_name}-{scale_note_name}-{number_of_octaves}-{direction}"""
-                            field_parts = [f"""<img src="{file_name}.svg"/>"""]
-                            if instrument.show_fingering:
-                                field_parts.append("<br/>")
-                                for note_in_scale in notes:
-                                    # Necessary because the fingenirg is the same for enharmonic notes, so we need the canonical name for the enharmonic set.
-                                    chromatic_note: ChromaticNote = note_in_scale.get_chromatic()
-                                    note_name = chromatic_note.get_name_with_octave(
-                    octave_notation=OctaveOutput.MIDDLE_IS_4,
-                    alteration_output = AlterationOutput.ASCII, 
-                    note_output = NoteOutput.LETTER, 
-                    fixed_length = FixedLengthOutput.NO
-                    )
-                                    field_parts.append(f"""<img src="{instrument}_{note_name}.{instrument.image_extension}"/>""")
-                            field = "".join(field_parts)
-                            anki_note.append(field)
-                anki_notes_in_scale.append((difficulty, anki_note))
+                anki_note = AnkiNote(instrument, scale_pattern, specific, set_of_enharmonic_keys)
+                anki_notes_in_scale.append((anki_note.difficulties(), anki_note.anki_csv()))
 
             anki_notes_in_scale.sort(key=itemgetter(0))
-            for _, anki_note in anki_notes_in_scale:
-                anki_notes.append(",".join(anki_note))
+            for _, anki_note_csv in anki_notes_in_scale:
+                anki_notes.append(anki_note_csv)
     csv = "\n".join(anki_notes)
-    all_csv += anki_notes
-    print(f"{csv_path=}")
     with open(csv_path, "w") as f:
         f.write(csv)
 
-
-all_csv_path = f"{folder_path}/all.csv"
-csv = "\n".join(",".join(note) for note in all_csv)
-with open(all_csv_path, "w") as f:
-    f.write(csv)
-
-
-for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
-    for scale_pattern in patterns:
-        scale_name = scale_pattern.names[0]
-        for set_of_enharmonic_keys in sets_of_enharmonic_keys:
-            bass_key = set_of_enharmonic_keys[0]
-            bass_note = bass_key.note
-
-            for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2)]:
-                    scale_lowest_note = bass_note.add_octave(start_octave)
-                    increasing = scale_pattern.generate(
-                        tonic=scale_lowest_note,
-                        number_of_octaves=number_of_octaves
-                        )
-                    decreasing = scale_pattern.descending.generate(
-                        tonic=scale_lowest_note,
-                        number_of_octaves=number_of_octaves
-                        ).reverse()
-                    total = increasing.concatenate(decreasing)
-                    reverse = decreasing.concatenate(increasing)
-                    for direction, scale in [
-                        (INCREASING, increasing),
-                        (DECREASING, decreasing),
-                        (TOTAL, total),
-                        (REVERSE, reverse)
-                    ]:
-                        file_name = f"""{scale_name}-{scale_lowest_note.get_name_with_octave(alteration_output = AlterationOutput.ASCII, note_output = NoteOutput.LETTER, fixed_length=False, octave_notation=OctaveOutput.MIDDLE_IS_4)}-{number_of_octaves}-{direction}"""
-                        code = scale.lily()
-                        path = f"{folder_path}/{file_name}"
-                        compile_(
-                            code,
-                            file_prefix=path,
-                            wav=False,
-                            )
