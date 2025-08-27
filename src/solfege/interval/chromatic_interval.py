@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, TypeVar
+from typing import ClassVar, TypeVar, Union
 from enum import Enum
-from solfege.value.chromatic import Chromatic
+from solfege.value.chromatic import Chromatic, ChromaticGetter
 from solfege.interval.singleton_interval import AbstractSingletonInterval
 from utils.util import assert_typing
 
@@ -23,9 +23,9 @@ class ChromaticInterval(AbstractSingletonInterval, Chromatic):
     # DiatonicClass = solfege.Interval.diatonic.DiatonicInterval
     # moved to init because cyclic dependencies
     
-    def __add__(self, other):
-        assert_typing(other, Chromatic)
-        return super().__add__(other)
+    def _add(self, other: ChromaticGetter):
+        assert_typing(other, ChromaticGetter)
+        return super()._add(other.get_chromatic())
 
     def get_interval_name(self, octave=True, side: IntervalNameCreasing=IntervalNameCreasing.NEVER):
         """The name of the interval.
@@ -35,7 +35,7 @@ class ChromaticInterval(AbstractSingletonInterval, Chromatic):
 
         side -- Whether to add "increasing" or "decreasing"
         """
-        if self < unison:
+        if self < self.unison():
             name = (-self).get_interval_name(octave=octave, side=False)
             if side != IntervalNameCreasing.NEVER:
                 return name + " decreasing"
@@ -61,12 +61,11 @@ class ChromaticInterval(AbstractSingletonInterval, Chromatic):
                 name += " increasing"
             return name
         return NotImplemented
+        
 
 
 Chromatic.IntervalClass = ChromaticInterval
 ChromaticInterval.ChromaticClass = ChromaticInterval
-
-unison = ChromaticInterval(0)
 
 
 ChromaticIntervalType = TypeVar('ChromaticIntervalType', bound=ChromaticInterval)

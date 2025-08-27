@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from itertools import pairwise
 from typing import Optional, Dict, TypeVar, Any, Tuple, List
 
 from piano.piano_note import PianoNote
@@ -332,8 +333,8 @@ class PenaltyForScale:
         penalty = cls()
         for note in notes:
             penalty = penalty.add_penalty_for_note(note)
-        for i in range(len(notes) - 1):
-            penalty = penalty.add_penalty_for_note_transition(notes[i], notes[i + 1], for_right_hand)
+        for lower, higher in pairwise(notes):
+            penalty = penalty.add_penalty_for_note_transition(lower, higher, for_right_hand)
         return penalty
 
 

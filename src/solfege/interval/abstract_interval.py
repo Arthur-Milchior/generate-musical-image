@@ -24,5 +24,13 @@ class AbstractInterval(Abstract):
 
     def __rmul__(self, other) -> Self:
         return self.__mul__(other)
+    
+    @classmethod
+    def unison(cls):
+        return NotImplemented
+    
+    @classmethod
+    def one_octave(cls) -> Self:
+        return NotImplemented
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)

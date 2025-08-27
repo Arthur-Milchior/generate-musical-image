@@ -78,9 +78,6 @@ class TestChromaticNote(unittest.TestCase):
     def test_repr(self):
         self.assertEqual(repr(self.D4), "ChromaticNote(value=2)")
 
-    def test_one_octave(self):
-        self.assertEqual(ChromaticNote.get_one_octave(), ChromaticNote(12))
-
     def test_octave(self):
         self.assertEqual(self.C4.octave(), 0)
         self.assertEqual(self.B4.octave(), 0)

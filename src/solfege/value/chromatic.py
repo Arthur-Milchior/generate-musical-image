@@ -2,15 +2,24 @@ from dataclasses import dataclass
 from typing import ClassVar, Optional
 
 from solfege.value.singleton import Singleton
+from utils.util import assert_typing
 
+class ChromaticGetter:
+    """Protocol for class alowing to get a chromatic value."""
+    def get_chromatic()-> "Chromatic":
+        return NotImplemented
 
 @dataclass(frozen=True)
-class Chromatic(Singleton):
+class Chromatic(Singleton, ChromaticGetter):
     IntervalClass: ClassVar[type]
     number_of_interval_in_an_octave: ClassVar[int] = 12
     
     def get_chromatic(self):
         return self
+
+    def _add(self, other: ChromaticGetter):
+        assert_typing(other, ChromaticGetter)
+        return super()._add(other.get_chromatic())
     
     def get_diatonic(self):
         """If this note belong to the diatonic scale, give it.

@@ -35,12 +35,12 @@ class ChromaticNote(AbstractSingletonNote, Chromatic):
 
     def file_name(self, clef: Optional[str] = None):
         """Return the file name without extension nor folder"""
-        name = f"_{self.get_name_with_octave(
+        name = f"""_{self.get_name_with_octave(
                     octave_notation=OctaveOutput.MIDDLE_IS_4,
                     alteration_output = AlterationOutput.ASCII, 
                     note_output = NoteOutput.LETTER, 
                     fixed_length = FixedLengthOutput.NO
-                   )}"
+                   )}"""
         if clef is not None:
             return f"_{clef}_{name}"
         return name

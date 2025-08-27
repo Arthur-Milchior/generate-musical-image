@@ -37,8 +37,8 @@ class NoteWithTonic(AbstractNoteWithTonic, Note):
     # def correctAlteration(self):
     #     return self.get_alteration().printable()
 
-    def __add__(self, other: Interval) -> Self:
-        sum: Note = super().__add__(other)
+    def _add(self, other: Interval) -> Self:
+        sum: Note = super()._add(other)
         tonic = self.get_tonic()
         return self.__class__(chromatic = sum.chromatic, diatonic=sum.diatonic, tonic=tonic)
 

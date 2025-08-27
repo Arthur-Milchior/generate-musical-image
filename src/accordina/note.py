@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from math import sqrt
 from typing import Optional
 from solfege.note.chromatic_note import ChromaticNote
@@ -17,21 +18,25 @@ def y(row: int, column:int =0) -> int:
     """The center of the y coordinator of the button at row `row`. Row 0 is C4, row 1 is C#4, row 2 is D4 and D#4..."""
     return y_distance_between_rows * row + margin
 
+@dataclass(frozen=True)
 class AccordinaNote(ChromaticNote):
     """
-    selected: whether the note should be displayed as selected.
-    absolute: whether the note represents an absolute place on the instrument, and thus should be shown is black or white if not selected
+    whether the note should be displayed as selected.
     """
-    def __init__(self, *args, selected: bool=True, absolute=False, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.selected = selected
-        self.absolute = absolute
+    selected: bool
+    """
+    whether the note represents an absolute place on the instrument, and thus should be shown is black or white if not selected
+    """
+    absolute: bool = False
 
     def __repr__(self):
         return f"""AccordinaNote(value={self.value}, selected={self.selected}, absolute={self.absolute})"""
 
     def _nunber_of_semitone_from_c(self):
         return self.value
+
+    def make_instance_of_selfs_class(self, value: int):
+        return AccordinaNote(value, selected=self.selected, absolute = self.absolute)
 
     def _column(self):
         return self._nunber_of_semitone_from_c() % 3
@@ -54,11 +59,9 @@ class AccordinaNote(ChromaticNote):
                               absolute=absolute if absolute is not None else self.absolute
                               )
 
-    def __add__(self, other):
-        note = super().__add__(other)
-        note.selected = self.selected
-        note.absolute = self.absolute
-        return note
+    def _add(self, other):
+        note = super()._add(other)
+        return AccordinaNote(note.value, selected=self.selected, absolute = self.absolute)
     
     def fill_color(self):
         if self.absolute:

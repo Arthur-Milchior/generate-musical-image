@@ -17,10 +17,7 @@ class TestNote(unittest.TestCase):
     E4 = Note.make(4, 2)
     F4 = Note.make(5, 3)
     C5 = Note.make(12, 7)
-
-    def test_one_octave(self):
-        self.assertEqual(Note.get_one_octave(), Note.make(12, 7))
-
+    
     def test_lily(self):
         self.assertEqual(self.C4.lily_in_scale(), "c'")
         self.assertEqual(self.F4.lily_in_scale(), "f'")
@@ -37,8 +34,11 @@ class TestNote(unittest.TestCase):
         with self.assertRaises(Exception):
             _ = self.D4 + self.C4
         self.assertEqual(self.D4 + third_minor, self.F4)
-        sum_ = third_minor + self.D4
-        self.assertEqual(sum_, self.F4)
+        self.assertEqual(third_minor + self.D4, self.F4)
+        self.assertEqual(self.D4 + ChromaticInterval(1), ChromaticNote(3))
+        self.assertEqual(ChromaticInterval(1) + self.D4, ChromaticNote(3))
+        self.assertEqual(self.D4 + DiatonicInterval(1), DiatonicNote(2))
+        self.assertEqual(DiatonicInterval(1) + self.D4, DiatonicNote(2))
 
     def test_neg(self):
         with self.assertRaises(Exception):

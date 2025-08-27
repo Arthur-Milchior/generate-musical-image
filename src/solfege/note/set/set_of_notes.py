@@ -4,7 +4,7 @@ from typing import Optional, List, Union
 
 from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.interval.interval import Interval
-from solfege.interval.set_of_intervals import SetOfIntervals
+from solfege.interval.set.set_of_intervals import SetOfIntervals
 from solfege.note.note import Note
 
 

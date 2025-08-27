@@ -7,10 +7,19 @@ from solfege.value.chromatic import Chromatic
 from utils.util import assert_typing
 
 
+class DiatonicGetter:
+    """Protocol for class alowing to get a chromatic value."""
+    def get_diatonic()-> "Diatonic":
+        return NotImplemented
+
 @dataclass(frozen=True)
-class Diatonic(Singleton):
+class Diatonic(Singleton, DiatonicGetter):
     IntervalClass: ClassVar[type]
     number_of_interval_in_an_octave: ClassVar[int] = 7
+
+    def _add(self, other: DiatonicGetter):
+        assert_typing(other, DiatonicGetter)
+        return super()._add(other.get_diatonic())
 
     def get_chromatic(self, scale="Major") -> Chromatic:
         """

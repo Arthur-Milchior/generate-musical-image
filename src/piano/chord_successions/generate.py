@@ -2,11 +2,11 @@ from dataclasses import dataclass
 from typing import List
 
 from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
-from solfege.key import sets_of_enharmonic_keys
+from solfege.key.key import sets_of_enharmonic_keys
 from solfege.note.note import Note
-from solfege.note.set_of_notes import SetOfNotes
+from solfege.note.set.set_of_notes import SetOfNotes
 from solfege.scale.scale import Scale
-from solfege.scale.scale_pattern import major_scale
+from solfege.scale.scale_patterns import major_scale
 from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 
 
@@ -137,7 +137,7 @@ def successions_for_pattern(
     notes: List[ChordSuccessionNote] = []
     for set_of_enharmonic_keys in sets_of_enharmonic_keys:
         key = set_of_enharmonic_keys[0].note
-        scale = major_scale.generate(key, 2)
+        scale = major_scale.from_note(key, 2)
         right_succession_increasing = chord_succession_from_scale_pattern_and_position_key(
             scale, chord_pattern, nb_of_chords=len(major_scale) + 1
         )

@@ -1,5 +1,6 @@
+from itertools import pairwise
 import unittest
-from solfege.key import *
+from solfege.key.key import *
 
 
 class TestClef(unittest.TestCase):
@@ -13,8 +14,8 @@ class TestClef(unittest.TestCase):
             for key in enharmonic_key:
                 chromatic_of_key = key.note.get_chromatic()
                 self.assertTrue(chromatic_of_first_key.equals_modulo_octave(chromatic_of_key))
-            for i in range(len(enharmonic_key) - 1):
-                self.assertLessEqual(enharmonic_key[i], enharmonic_key[i + 1])
+            for lower, higher in pairwise(enharmonic_key):
+                self.assertLessEqual(lower, higher)
 
     def test_simplest_major(self):
         self.assertEqual(key_of_C, key_of_C.simplest_enharmonic_major())

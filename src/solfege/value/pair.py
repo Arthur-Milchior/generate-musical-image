@@ -3,13 +3,13 @@ from dataclasses import dataclass
 from typing import Callable, ClassVar, Self, Tuple, Type, Union
 
 from solfege.value.abstract import Abstract
-from solfege.value.chromatic import Chromatic
-from solfege.value.diatonic import Diatonic
+from solfege.value.chromatic import Chromatic, ChromaticGetter
+from solfege.value.diatonic import Diatonic, DiatonicGetter
 from utils.util import assert_typing
 
 
 @dataclass(frozen=True)
-class Pair(Abstract):
+class Pair(Abstract, ChromaticGetter, DiatonicGetter):
 
     """How to generate a new Pair, from chromatic and diatonic"""
     make_instance_of_selfs_class: ClassVar[Callable[[int, int], "Pair"]]
@@ -77,10 +77,12 @@ class Pair(Abstract):
     def __repr__(self):
         return f"{self.__class__.__name__}(chromatic = {self.chromatic.value}, diatonic = {self.diatonic.value})"
 
-    def __add__(self, other: "Pair") -> Self:
+    def _add(self, other: "Pair") -> Self:
+        if not isinstance(other, Pair):
+            return other._add(self)
         from solfege.interval.interval import Interval
         from solfege.note.note import Note
-        assert self.IntervalClass == other.IntervalClass
+        assert self.IntervalClass == other.IntervalClass, f"{self.IntervalClass} != {other.IntervalClass}"
         diatonic = self.diatonic + other.diatonic
         chromatic = self.chromatic + other.chromatic
         if isinstance(other, Note):
@@ -100,10 +102,6 @@ class Pair(Abstract):
         if self.chromatic == other.chromatic:
             return self.diatonic < other.diatonic
         return self.chromatic < other.chromatic
-
-    @classmethod
-    def get_one_octave(cls):
-        return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.get_one_octave(), diatonic=cls.DiatonicClass.get_one_octave())
 
     def octave(self):
         return self.diatonic.octave()

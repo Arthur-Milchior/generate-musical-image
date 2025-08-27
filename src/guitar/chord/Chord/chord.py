@@ -117,7 +117,7 @@ class GuitarChord(SetOfGuitarPositions):
 
     def in_chords_list(self):
         """Whether the chord played by this set of guitar position belongs to """
-        return True if ChordPattern.getFromChromaticInterval(self.intervals_frow_lowest_note()) else False
+        return True if ChordPattern.get_pattern_from_chromatic_interval(self.intervals_frow_lowest_note()) else False
 
     def lily_in_scale(self):
         return lily.lily.chord(self.notes())
@@ -171,7 +171,7 @@ class GuitarChord(SetOfGuitarPositions):
     #     return True
 
     def get_pattern_name(self):
-        chord = ChordPattern.getFromChromaticInterval(self.intervals_frow_lowest_note())
+        chord = ChordPattern.get_pattern_from_chromatic_interval(self.intervals_frow_lowest_note())
         if chord is None:
             return None
         else:

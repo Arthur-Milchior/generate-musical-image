@@ -93,7 +93,7 @@ class SetOfGuitarPositions:
         for pos in self:
             yield pos.get_chromatic()
 
-    def intervals_frow_lowest_note(self) -> Generator[ChromaticInterval]:
+    def intervals_frow_lowest_note(self) -> Generator[ChromaticInterval, None, None]:
         lowest_note = self.lowest_note()
         for note in self.notes():
             yield note - lowest_note

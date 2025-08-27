@@ -33,7 +33,15 @@ class Interval(AbstractInterval, Pair):
         chromatic = self.chromatic * other
         assert_typing(diatonic, diatonic.__class__)
         assert_typing(chromatic, chromatic.__class__)
-        return self.make_instance_of_selfs_class(chromatic=chromatic, diatonic=diatonic)
+        return self.make_instance_of_selfs_class(chromatic=chromatic, diatonic=diatonic)    
+
+    @classmethod
+    def unison(cls):
+        return cls.make(0, 0)
+    
+    @classmethod
+    def one_octave(cls)-> Self:
+        return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.one_octave(), diatonic=cls.DiatonicClass.one_octave())
 
 
 Interval.PairClass = Interval

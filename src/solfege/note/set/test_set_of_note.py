@@ -1,3 +1,9 @@
+import unittest
+from solfege.interval.interval import Interval
+from solfege.note.note import Note
+from solfege.note.set.set_of_notes import SetOfNotes
+
+
 class TestSetOfNotes(unittest.TestCase):
     C_minor = SetOfNotes(
         [Note.from_name("C"),

@@ -47,7 +47,7 @@ class TestBaseNoteSingleton(unittest.TestCase):
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
-        self.assertEqual(repr(self.D4), "AbstractNoteSingleton(value=1)")
+        self.assertEqual(repr(self.D4), "AbstractSingletonNote(value=1)")
 
     def test_low_and_high(self):
         self.assertEqual(low_and_high(self.C4, self.C4), (self.C4, self.C4))

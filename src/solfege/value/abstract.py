@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, Self
+from typing import ClassVar, Self, Tuple, Union
 
 from utils.util import assert_typing
 
@@ -22,6 +22,15 @@ class Abstract:
         """True if it's a note. False if it's an interval"""
         return False
     
+    def _add(self, other: "Abstract")->"Abstract":
+        return NotImplemented
+    
+    def __add__(self, other:"Abstract"):
+        try:
+            return self._add(other)
+        except:
+            return other._add(self)
+    
     def __sub__(self, other: "Abstract") -> Self:
         """This interval minus the other one. Class of `self`"""
         from solfege.interval.abstract_interval import AbstractInterval
@@ -33,7 +42,7 @@ class Abstract:
 
     def add_octave(self, nb: int) -> Self:
         """Same note with nb more octave"""
-        return self + (self.IntervalClass.get_one_octave() * nb)
+        return self + (self.IntervalClass.one_octave() * nb)
 
     def in_base_octave(self) -> Self:
         """Same note in the base octave"""
@@ -46,6 +55,5 @@ class Abstract:
     def octave(self) -> int:
         return NotImplemented
     
-    @classmethod
-    def get_one_octave(cls) -> Self:
+    def make_single_argument(cls, value: Union[int, "Abstract", Tuple[int, int]]):
         return NotImplemented

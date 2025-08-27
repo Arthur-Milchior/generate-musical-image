@@ -2,7 +2,7 @@ from enum import Enum
 from solfege.note.chromatic_note import ChromaticNote
 from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
-from solfege.key import Key, sets_of_enharmonic_keys
+from solfege.key.key import Key, sets_of_enharmonic_keys
 from typing import Optional, Dict, List, assert_never
 from solfege.scale.scale_pattern import ScalePattern, scale_patterns_I_practice, scale_patterns, minor_melodic
 from operator import itemgetter
@@ -183,7 +183,7 @@ class AnkiNote:
         return bass_note
     
     def scale_for_difficulty(self):
-        return self.scale_pattern.generate(
+        return self.scale_pattern.from_note(
                         tonic=bass_note,
                         number_of_octaves=1,
                         )
@@ -251,11 +251,11 @@ class AnkiField:
         return self.anki_note.bass_note().add_octave(self.start_octave)
 
     def scale(self):
-        increasing = self.anki_note.scale_pattern.generate(
+        increasing = self.anki_note.scale_pattern.from_note(
             tonic=self.scale_lowest_note(),
             number_of_octaves=self.number_of_octaves,
             )
-        decreasing = self.anki_note.scale_pattern.descending.generate(
+        decreasing = self.anki_note.scale_pattern.descending.from_note(
             tonic=self.scale_lowest_note(),
             number_of_octaves=self.number_of_octaves,
             ).reverse()

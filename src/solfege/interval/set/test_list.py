@@ -2,6 +2,7 @@ import unittest
 
 from solfege.interval.chromatic_interval import ChromaticInterval
 from solfege.interval.diatonic_interval import DiatonicInterval
+from solfege.interval.test_chromatic_interval import TestChromaticInterval
 from solfege.note.chromatic_note import ChromaticNote
 from .list import *
 
@@ -43,3 +44,5 @@ class TestIntervalList(unittest.TestCase):
     def test_from_note(self):
         self.assertEqual(list(major_triad_absolute.from_note(Note.make(0, 0))), [Note.make(0, 0), Note.make(4, 2), Note.make(7, 4)])
         
+    def test_chromatic(self):
+        self.assertEqual(major_triad_absolute.get_chromatic(), ChromaticIntervalList.make_relative([4, 3]))

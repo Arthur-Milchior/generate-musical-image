@@ -19,4 +19,12 @@ class AbstractSingletonInterval(AbstractInterval, Singleton):
         """Inverse interval"""
         return self.make_instance_of_selfs_class(value=-self.value)
     
+    @classmethod
+    def unison(cls):
+        return cls(0)
+
+    @classmethod
+    def one_octave(cls) -> Self:
+        return cls.make_instance_of_selfs_class(value=cls.number_of_interval_in_an_octave)
+
 Singleton.IntervalClass = AbstractSingletonInterval

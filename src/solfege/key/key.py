@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Dict, List
+from dataclasses import dataclass
+from typing import ClassVar, Dict, List
 
 from solfege.interval.interval import Interval
 from solfege.note.note import Note
@@ -8,21 +9,32 @@ from solfege.note.abstract_note import OctaveOutput
 from utils.util import assert_typing
 
 
+@dataclass(frozen=True)
 class Key:
+    """Represents a key for the partition. 
+    
+    Smaller key is the one with less alteration, or in case of equivalence the smallest note."""
     note: Note
     number_of_flats: int = 0
     number_of_sharps: int = 0
-    _from_note = dict()
-    _key_to_simplest_enharmonic: Dict[Note, Note] = {}
 
-    def __init__(self, note: Note, number_of_flats: int = 0, number_of_sharps: int = 0):
-        assert_typing(note, Note)
-        assert_typing(number_of_flats, int)
-        assert_typing(number_of_sharps, int)
-        self.note = note
-        self.number_of_flats = number_of_flats
-        self.number_of_sharps = number_of_sharps
-        self._from_note[note.in_base_octave()] = self
+    """Maps note to its key"""
+    _from_note: ClassVar[Dict[Note, "Key"]] = dict()
+
+    """Map each note to the simplest enharmonic of this note."""
+    _key_to_simplest_enharmonic: ClassVar[Dict[Note, Note]] = {}
+
+    def __post_init__(self):
+        assert_typing(self.note, Note)
+        assert_typing(self.number_of_flats, int)
+        assert_typing(self.number_of_sharps, int)
+        assert(self.note, self.note.in_base_octave())
+        self._from_note[self.note.in_base_octave()] = self
+
+    @classmethod
+    def make(cls, note: Note, *args, **kwargs):
+        note = note.in_base_octave()
+        return cls(note, *args, **kwargs)
 
     def simplest_enharmonic_major(self):
         return self.from_note(self._key_to_simplest_enharmonic[self.note.in_base_octave()])
@@ -43,6 +55,7 @@ class Key:
 
     @classmethod
     def from_note(cls, note: Note) -> Key:
+        """Assume a key with this note was already added."""
         return cls._from_note[note.in_base_octave()]
 
     def __eq__(self, other):
@@ -62,64 +75,64 @@ class Key:
             f" with {self.number_of_sharps} #" if self.number_of_sharps else "")
 
 
-key_of_C = Key(Note.from_name("C"))
-key_of_A = Key(Note.from_name("A3"), number_of_sharps=3)
+key_of_C = Key.make(Note.from_name("C"))
+key_of_A = Key.make(Note.from_name("A3"), number_of_sharps=3)
 
 """All keys, grouped by enharmonic, sorted by minimal number of alteration"""
 sets_of_enharmonic_keys = [
     [
         key_of_C,
-        Key(Note.from_name("D♭♭"), number_of_flats=12),
-        Key(Note.from_name("B#3"), number_of_flats=12),
+        Key.make(Note.from_name("D♭♭"), number_of_flats=12),
+        Key.make(Note.from_name("B#3"), number_of_flats=12),
     ],
     [
-        Key(Note.from_name("F3"), number_of_flats=1),
-        Key(Note.from_name("E#"), number_of_sharps=11),
-        Key(Note.from_name("G♭♭3"), number_of_flats=13),
+        Key.make(Note.from_name("F3"), number_of_flats=1),
+        Key.make(Note.from_name("E#"), number_of_sharps=11),
+        Key.make(Note.from_name("G♭♭3"), number_of_flats=13),
     ],
     [
-        Key(Note.from_name("G"), number_of_sharps=1),
-        Key(Note.from_name("A♭♭3"), number_of_flats=11),
-        Key(Note.from_name("F𝄪3"), number_of_flats=13),
+        Key.make(Note.from_name("G"), number_of_sharps=1),
+        Key.make(Note.from_name("A♭♭3"), number_of_flats=11),
+        Key.make(Note.from_name("F𝄪3"), number_of_flats=13),
     ],
     [
-        Key(Note.from_name("B♭3"), number_of_flats=2),
-        Key(Note.from_name("A#3"), number_of_sharps=10),
-        Key(Note.from_name("C♭♭"), number_of_flats=14),
+        Key.make(Note.from_name("B♭3"), number_of_flats=2),
+        Key.make(Note.from_name("A#3"), number_of_sharps=10),
+        Key.make(Note.from_name("C♭♭"), number_of_flats=14),
     ],
     [
-        Key(Note.from_name("D"), number_of_sharps=2),
-        Key(Note.from_name("E♭♭"), number_of_flats=10),
-        Key(Note.from_name("C𝄪"), number_of_flats=14),
+        Key.make(Note.from_name("D"), number_of_sharps=2),
+        Key.make(Note.from_name("E♭♭"), number_of_flats=10),
+        Key.make(Note.from_name("C𝄪"), number_of_flats=14),
     ],
     [
-        Key(Note.from_name("E♭"), number_of_flats=3),
-        Key(Note.from_name("D#"), number_of_sharps=9),
+        Key.make(Note.from_name("E♭"), number_of_flats=3),
+        Key.make(Note.from_name("D#"), number_of_sharps=9),
     ],
     [
         key_of_A,
-        Key(Note.from_name("B♭♭3"), number_of_flats=9),
+        Key.make(Note.from_name("B♭♭3"), number_of_flats=9),
     ],
     [
-        Key(Note.from_name("A♭3"), number_of_flats=4),
-        Key(Note.from_name("G#3"), number_of_sharps=8),
+        Key.make(Note.from_name("A♭3"), number_of_flats=4),
+        Key.make(Note.from_name("G#3"), number_of_sharps=8),
     ],
     [
-        Key(Note.from_name("E"), number_of_sharps=4),
-        Key(Note.from_name("F♭"), number_of_flats=8),
+        Key.make(Note.from_name("E"), number_of_sharps=4),
+        Key.make(Note.from_name("F♭"), number_of_flats=8),
     ],
     [
-        Key(Note.from_name("D♭"), number_of_flats=5),
-        Key(Note.from_name("C#"), number_of_sharps=7),
+        Key.make(Note.from_name("D♭"), number_of_flats=5),
+        Key.make(Note.from_name("C#"), number_of_sharps=7),
     ],
     [
-        Key(Note.from_name("B3"), number_of_sharps=5),
-        Key(Note.from_name("C♭"), number_of_flats=7),
-        Key(Note.from_name("A𝄪3"), number_of_sharps=7),
+        Key.make(Note.from_name("B3"), number_of_sharps=5),
+        Key.make(Note.from_name("C♭"), number_of_flats=7),
+        Key.make(Note.from_name("A𝄪3"), number_of_sharps=7),
     ],
     [
-        Key(Note.from_name("F#3"), number_of_flats=6),
-        Key(Note.from_name("G♭3"), number_of_sharps=6),
+        Key.make(Note.from_name("F#3"), number_of_flats=6),
+        Key.make(Note.from_name("G♭3"), number_of_sharps=6),
     ],
 ]
 

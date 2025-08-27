@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import Callable, ClassVar, Self, Type
+from typing import Callable, ClassVar, Self, Type, Union
 
 from solfege.value.abstract import Abstract
 from utils.util import assert_typing
@@ -26,10 +26,6 @@ class Singleton(Abstract):
         if self.__class__ != other.__class__:
             raise Exception(f"Comparison of two distinct classes: {self.__class__} and {other.__class__}")
         return self.value == other.value
-
-    @classmethod
-    def get_one_octave(cls) -> Self:
-        return cls.make_instance_of_selfs_class(value=cls.number_of_interval_in_an_octave)
     
     def __hash__(self):
         return self.value
@@ -45,10 +41,10 @@ class Singleton(Abstract):
     def __repr__(self):
         return f"{self.__class__.__name__}(value={self.value})"
     
-    def __add__(self, other: "Singleton"):
+    def _add(self, other: "Singleton"):
         from solfege.note.abstract_note import AbstractNote
         from solfege.interval.abstract_interval import AbstractInterval
-        assert self.IntervalClass == other.IntervalClass
+        assert (self.IntervalClass == other.IntervalClass, f"{self.IntervalClass} != {other.IntervalClass}")
         if isinstance(other, AbstractNote):
             assert_typing(self, AbstractInterval)
             return other.make_instance_of_selfs_class(self.value + other.value)
@@ -58,3 +54,10 @@ class Singleton(Abstract):
     def octave(self):
         """The octave number. 0 for unison/central C up to seventh/C one octave above."""
         return math.floor(self.value / self.__class__.number_of_interval_in_an_octave)
+
+    @classmethod
+    def make_single_argument(cls, value: Union[int, "Singleton"]):
+        if isinstance(value, int):
+            return cls.make_instance_of_selfs_class(value)
+        assert_typing(value, cls)
+        return value

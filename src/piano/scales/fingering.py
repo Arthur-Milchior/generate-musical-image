@@ -163,7 +163,7 @@ class Fingering:
             List[PianoNote]:
         assert first_played_note.equals_modulo_octave(self.tonic)
         assert number_of_octaves != 0
-        scale = scale_pattern.generate(first_played_note, number_of_octaves=number_of_octaves)
+        scale = scale_pattern.from_note(first_played_note, number_of_octaves=number_of_octaves)
         fingered_scale = [
             PianoNote.make(chromatic=note.get_chromatic().value, diatonic=note.get_diatonic().value,
                       finger=self.get_finger(note)) for note in scale.notes]

@@ -2,10 +2,10 @@ from dataclasses import dataclass
 import sys
 from typing import ClassVar, Dict, List, Optional, Self, Tuple, Union
 
-from solfege.interval.interval import Interval, octave, unison
-from solfege.interval.list.list import IntervalList
+from solfege.interval.interval import Interval, octave
+from solfege.interval.set.list import IntervalList
 from utils.util import assert_typing
-from solfege.key import nor_flat_nor_sharp
+from solfege.key.key import nor_flat_nor_sharp
 
 
 @dataclass(frozen=True)
@@ -40,7 +40,7 @@ class SolfegePattern(IntervalList):
         if cls not in self.class_to_name_to_pattern:
             self.class_to_name_to_pattern[cls] = dict()
         for name in self.names:
-            assert name not in self.class_to_name_to_pattern[cls]
+            assert name not in self.class_to_name_to_pattern[cls], f"{name} added twice."
             self.class_to_name_to_pattern[cls][name] = self
 
     def first_of_the_names(self, for_file= False) -> str:

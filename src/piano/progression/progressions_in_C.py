@@ -4,7 +4,7 @@ from lily.lily import compile_
 from lily.svg import display_svg_file
 from piano.progression.chord_progression import TwoHandsChord, ChordProgression
 from solfege.note.note import Note
-from solfege.note.set_of_notes import SetOfNotes
+from solfege.note.set.set_of_notes import SetOfNotes
 from utils.constants import test_folder
 
 C4 = Note.from_name("C4")

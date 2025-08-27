@@ -162,4 +162,4 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertEqual(4 * self.unison, self.unison)
 
     def test_one_octave(self):
-        self.assertEqual(DiatonicInterval.get_one_octave(), DiatonicInterval(value=7))
+        self.assertEqual(DiatonicInterval.one_octave(), DiatonicInterval(value=7))

@@ -20,7 +20,7 @@ for interval in intervals_up_to_octave + [IntervalPattern("two octave", Interval
     interval_name = interval.first_of_the_names(True)
     anki_note =["""<img src="accordina.png"/>""", interval_name]
     for low_note in [AccordinaNote(0), AccordinaNote(1), AccordinaNote(2),]:
-        notes = interval.get_notes(low_note)
+        notes = interval.from_note(low_note)
         set = SetOfAccordinaNote(notes)
         svg = set.svg()
         file_name = f"""accordina_{interval_name}_position_{low_note.value}.svg"""
@@ -43,7 +43,7 @@ for pattern in scale_patterns_I_practice:
     anki_note =["""<img src="accordina.png"/>""", pattern_name]
     for number_of_octave in [1, 2]:
         for low_note in [AccordinaNote(0), AccordinaNote(1), AccordinaNote(2),]:
-            scale = pattern.generate(low_note, number_of_octaves=number_of_octave)
+            scale = pattern.from_note(low_note, number_of_octaves=number_of_octave)
             notes = scale.notes
             set = SetOfAccordinaNote(notes)
             svg = set.svg()

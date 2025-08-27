@@ -64,7 +64,7 @@ class SetOfIntervals(Generic[ChromaticIntervalType]): # type: ignore
 
     def __add__(self, other: Interval):
         from solfege.note.note import Note
-        from solfege.note.set_of_notes import SetOfNotes
+        from solfege.note.set.set_of_notes import SetOfNotes
         if isinstance(other, Note):
             return SetOfNotes([interval + other for interval in self.intervals])
         return SetOfIntervals.make([interval + other for interval in self.intervals])
@@ -174,7 +174,7 @@ class SetOfIntervals(Generic[ChromaticIntervalType]): # type: ignore
 
     def get_pattern(self):
         from solfege.chord.chord_pattern import ChordPattern
-        return ChordPattern.getFromChromaticInterval(self.intervals)
+        return ChordPattern.get_pattern_from_chromatic_interval(self.intervals)
     
     def get_pattern_name(self):
         chord = self.get_pattern()

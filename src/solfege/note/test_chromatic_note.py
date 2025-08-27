@@ -1,3 +1,4 @@
+from solfege.interval.interval import Interval
 from solfege.interval.test_chromatic_interval import TestChromaticInterval
 from solfege.note.abstract_note import OctaveOutput
 from solfege.note.diatonic_note import DiatonicNote
@@ -46,6 +47,8 @@ class TestChromaticNote(TestChromaticInterval):
     def test_add(self):
         self.assertEqual(self.D4 + self.third_minor, self.F4)
         self.assertEqual(self.third_minor + self.D4, self.F4)
+        self.assertEqual(self.D4 + Interval.make(3, 2), self.F4)
+        self.assertEqual(Interval.make(3, 2) + self.D4, self.F4)
         with self.assertRaises(Exception):
             _ = self.D4 + self.D4
 
@@ -66,9 +69,6 @@ class TestChromaticNote(TestChromaticInterval):
 
     def test_repr(self):
         self.assertEqual(repr(self.D4), "ChromaticNote(value=2)")
-
-    def test_one_octave(self):
-        self.assertEqual(ChromaticNote.get_one_octave(), ChromaticNote(12))
 
     def test_octave(self):
         self.assertEqual(self.C4.octave(), 0)

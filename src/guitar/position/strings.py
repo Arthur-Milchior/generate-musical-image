@@ -25,7 +25,7 @@ class Strings:
         assert_typing(other, Strings)
         return self.strings == other.strings
     
-    def svg(self, lowest_fret: Fret, show_open_fret: bool) ->Generator[str]:
+    def svg(self, lowest_fret: Fret, show_open_fret: bool) ->Generator[str, None, None]:
         """
         The svg to display the strings.
         If `show_open_fret`, a margin at the top represents the top of the board.

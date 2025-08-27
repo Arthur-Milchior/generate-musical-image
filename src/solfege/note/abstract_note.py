@@ -67,12 +67,6 @@ class AbstractNote(Abstract):
         # called as other + self
         return self + other
 
-    def __add__(self, other: AbstractInterval):
-        assert_typing(self, AbstractNote)
-        assert_typing(other, self.IntervalClass)
-        # Super still makes sens because a class inheriting AbstractNote also inherits some other class.
-        return super().__add__(other)
-
     def get_octave_name(self, octave_notation: OctaveOutput) -> str:
         """The octave.  By default, starting at middle c. If scientific_notation, starting at C0"""
         if octave_notation == OctaveOutput.MIDDLE_IS_4:

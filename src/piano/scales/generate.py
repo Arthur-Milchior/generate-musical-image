@@ -206,7 +206,7 @@ class MissingFingering:
 
 def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right_hand: bool) -> Optional[
     BestPenaltyScale]:
-    scale = scale_pattern.generate(fundamental)
+    scale = scale_pattern.from_note(fundamental)
     return generate_best_fingering_for_scale(scale.notes, for_right_hand)
 
 

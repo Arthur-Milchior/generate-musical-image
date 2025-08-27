@@ -3,7 +3,7 @@ from lily.Lilyable.piano_lilyable import LiteralPianoLilyable
 from lily.lily import compile_
 from piano.fingering_generation.generate import generate_best_fingering_for_melody
 from solfege.interval.interval import Interval
-from solfege.key import sets_of_enharmonic_keys, Key
+from solfege.key.key import sets_of_enharmonic_keys, Key
 from solfege.scale.scale import Scale
 from solfege.scale.scale_pattern import major_scale, scale_patterns
 from utils.util import ensure_folder
@@ -23,7 +23,7 @@ for scale_pattern in scale_patterns:
     ensure_folder(scale_folder)
     for set_of_enharmonic_keys in sets_of_enharmonic_keys:
         first_key = set_of_enharmonic_keys[0]
-        increasing_first_scale = scale_pattern.generate(first_key.note)
+        increasing_first_scale = scale_pattern.from_note(first_key.note)
         decreasing_first_scale = Scale(list(reversed(increasing_first_scale.notes)), increasing_first_scale.pattern)
         for second_key_note in [
             first_key.note + Interval.make(chromatic=1, diatonic=1),
@@ -34,7 +34,7 @@ for scale_pattern in scale_patterns:
             assert interval_correction_second_key.in_base_octave() == Interval.make(0, 0)
             nb_octave_correction = interval_correction_second_key.octave()
             second_key_note = second_key.simplest_enharmonic_major().note.add_octave(-nb_octave_correction)
-            increasing_second_scale = scale_pattern.generate(second_key_note)
+            increasing_second_scale = scale_pattern.from_note(second_key_note)
             decreasing_second_scale = Scale(list(reversed(increasing_second_scale.notes)),
                                             increasing_second_scale.pattern)
             for (first_scale, second_scale, first_direction, second_direction) in [

@@ -22,7 +22,7 @@ class IntervalMode(ChromaticInterval):
         if not self.printable():
             raise TooBigAlterationException(self.value)
 
-    def __add__(self, other):
+    def _add(self, other):
         raise Exception("Adding alteration ?")
 
     def in_base_octave(self):

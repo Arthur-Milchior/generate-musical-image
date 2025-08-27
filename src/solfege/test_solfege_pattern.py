@@ -12,8 +12,8 @@ class TestSolfegePattern(unittest.TestCase):
     class PatternDeux(SolfegePattern):
         pass
 
-    instance_1 = PatternDeux.make_relative([], ["1a", "1b"])
-    instance_2 = PatternDeux.make_relative([], ["2a"])
+    instance_1 = PatternDeux.make_relative([], names=["1a", "1b"])
+    instance_2 = PatternDeux.make_relative([], names=["2a"])
 
     def test_empty_set(self):
         self.assertEqual(self.PatternEmpty.get_all_instances(), [])

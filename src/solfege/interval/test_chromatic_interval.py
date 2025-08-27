@@ -265,4 +265,4 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(4 * self.unison, self.unison)
 
     def test_one_octave(self):
-        self.assertEqual(ChromaticInterval.get_one_octave(), ChromaticInterval(value=12))
+        self.assertEqual(ChromaticInterval.one_octave(), ChromaticInterval(value=12))

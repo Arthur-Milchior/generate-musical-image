@@ -7,6 +7,7 @@ from solfege.note.diatonic_note import DiatonicNote
 from solfege.note.singleton_note import AbstractSingletonNote
 from solfege.note.with_tonic.abstract import AbstractNoteWithTonic
 from solfege.value.abstract import Abstract
+from utils.util import assert_typing
 
 
 @dataclass(frozen=True, eq=False)
@@ -19,7 +20,8 @@ class AbstractSingletonNoteWithTonic(AbstractNoteWithTonic, AbstractSingletonNot
             value = value.value 
         return cls(value=value, tonic=tonic)
 
-    def __add__(self, other: AbstractSingletonInterval) -> Self:
-        sum = super().__add__(other)
+    def _add(self, other: AbstractSingletonInterval) -> Self:
+        assert_typing(other, AbstractSingletonInterval)
+        sum = super()._add(other)
         tonic = self.get_tonic()
         return self.__class__(value = sum.value, tonic=tonic)

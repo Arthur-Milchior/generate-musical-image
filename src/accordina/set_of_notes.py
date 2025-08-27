@@ -28,7 +28,7 @@ class SetOfAccordinaNote():
     def _max_pictured_note(self) -> AccordinaNote:
         return self.notes[-1].last_note_of_diagonal()
 
-    def pictured_notes(self) -> Generator[AccordinaNote]:
+    def pictured_notes(self) -> Generator[AccordinaNote, None, None]:
         current_note = self.min
         next_note_index = 0
         while current_note <= self.max:

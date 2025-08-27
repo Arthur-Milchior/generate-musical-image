@@ -94,11 +94,11 @@ class Fret(ChromaticInterval):
     def dot_svg(self, x:float):
         return f"""<circle cx="{int(x)}" cy="{int(self.y_dots())}" r="{int(CIRCLE_RADIUS)}" fill="grey" stroke="black" stroke-width="4"/>"""
     
-    def dots_svg(self) -> Generator[str]:
+    def dots_svg(self) -> Generator[str, None, None]:
         for x in self.x_dots():
             yield self.dot_svg(x)
 
-    def svg(self, absolute: bool) -> Generator[str]:
+    def svg(self, absolute: bool) -> Generator[str, None, None]:
         """The SVG tag for the fret itself. 
         Also, if absolute is true, for the dot that indicate which line it is."""
         yield self.fret_svg(absolute) 

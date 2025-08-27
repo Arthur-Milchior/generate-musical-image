@@ -4,7 +4,7 @@ from lily.lily import compile_
 from lily.svg import display_svg_file
 from piano.progression.chord_progression import ChordProgression, TwoHandsChord
 from piano.progression.progressions_in_C import patterns_in_C, ii_v_i_third_and_seventh
-from solfege.key import sets_of_enharmonic_keys
+from solfege.key.key import sets_of_enharmonic_keys
 from solfege.note.note import Note
 from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils.constants import test_folder

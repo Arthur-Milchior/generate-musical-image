@@ -9,7 +9,7 @@ from lily.lily import compile_
 # from piano.progression.pattern import NamedIntervalsPattern, ChordProgressionPattern
 from solfege.interval.interval import Interval
 from solfege.note.note import Note
-from solfege.note.set_of_notes import SetOfNotes
+from solfege.note.set.set_of_notes import *
 from utils.constants import test_folder
 from utils.util import indent
 

@@ -149,4 +149,4 @@ c8 = Fingerings(rascher.c8)
 
 for fingerings in value_to_fingering.values():
     for fingering in fingerings:
-        assert fingering.fingerings, f"""{fingering} was not added to a Fingerings.\n {"\n".join(fingering.stack)}"""
+        assert fingering.fingerings, f"""{fingering} was not added to a Fingerings."""
