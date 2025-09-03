@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ClassVar, List, Optional
+from typing import ClassVar, List, Optional, Self
 
 from utils.util import assert_typing
 
@@ -14,18 +14,22 @@ class SaxophoneButton:
     name:Optional[str]=None
     jay_name: Optional[str]= None
 
-    @staticmethod
-    def make(svg_unfilled:str, jay_name: Optional[str], londeix: str, name: Optional[str] = None):
+    @classmethod
+    def make(cls,
+             svg_unfilled:str,
+             jay_name: Optional[str],
+             londeix: str,
+             name: Optional[str] = None) -> Self:
         index = SaxophoneButton.first_free_index
         SaxophoneButton.first_free_index += 1
-        return SaxophoneButton(svg_unfilled=svg_unfilled, jay_name=jay_name, londeix=londeix, name=name, index=index)
+        return cls(svg_unfilled=svg_unfilled, jay_name=jay_name, londeix=londeix, name=name, index=index)
     
     def __post_init__(self):
         buttons.append(self)
 
     def svg(self, selected: bool):
         color = "000000" if selected else "ffffff"
-        svg = self._svg.replace("fill:none", f"fill:#{color}")
+        svg = self.svg_unfilled.replace("fill:none", f"fill:#{color}")
         return f"{svg}<!-- {self.name} -->"
 
     def __repr__(self):

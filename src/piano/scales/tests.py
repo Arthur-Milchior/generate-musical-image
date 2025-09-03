@@ -12,8 +12,8 @@
 #     generate_score_fixed_pattern_first_note_number_of_octaves, generate_score_fixed_pattern_first_note, \
 #     ScoreFixedPatternFirstNote, generate_score_fixed_pattern
 # from piano.scales.fingering import Fingering
-# from solfege.chord.chord_pattern import minor_triad
-# from solfege.note.note import Note
+# from solfege.pattern.chord.chord_pattern import minor_triad
+# from solfege.value.note.note import Note
 # from sh import shell
 # from utils import util
 # from utils.constants import test_folder

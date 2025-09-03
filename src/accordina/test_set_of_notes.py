@@ -2,7 +2,7 @@ import unittest
 
 from accordina.set_of_notes import SetOfAccordinaNote
 from accordina.test_note import *
-from .note import *
+from accordina.note import *
 
 class TestSetOfAccordinaNote(unittest.TestCase):
     set_c_dsharp = SetOfAccordinaNote({C4, D4_sharp})

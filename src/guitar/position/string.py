@@ -2,15 +2,15 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from guitar.position.fret import HIGHEST_FRET, Fret
-from solfege.interval.chromatic_interval import ChromaticInterval
-from solfege.note.chromatic_note import ChromaticNote
-from solfege.note.note import Note
+from solfege.value.interval.chromatic_interval import ChromaticInterval
+from solfege.value.note.chromatic_note import ChromaticNote
+from solfege.value.note.note import Note
 from utils.util import assert_typing
 from guitar.position.consts import *
 
 STRING_THICKNESS = 5
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class String:
     """Represents one of the string of the Guitar."""
 
@@ -36,6 +36,7 @@ class String:
         return self + (-other)
     
     def fret_for_note(self, note: ChromaticNote) -> Optional[Fret]:
+        assert_typing(note, ChromaticNote)
         if note < self.note_open:
             return None
         interval = note-self.note_open

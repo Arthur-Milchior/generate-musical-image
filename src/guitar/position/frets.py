@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from guitar.position.fret import OPEN_FRET, Fret, HIGHEST_FRET
+from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret, HIGHEST_FRET
 from utils.util import assert_typing
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class Frets:
     """Represents a set of allowed frets.
 
@@ -15,14 +15,19 @@ class Frets:
     min_fret: int=1
     max_fret: int=HIGHEST_FRET.value
     allow_open: bool = True
+    allow_not_played: bool = False
     
     def __post_init__(self):
         assert_typing(self.min_fret, int)
         assert_typing(self.max_fret, int)
         assert_typing(self.allow_open, int)
+        assert_typing(self.allow_not_played, bool)
 
     def disallow_open(self):
-        return Frets(self.min_fret, self.max_fret, False)
+        return Frets(self.min_fret, self.max_fret, allow_not_played=self.allow_not_played, allow_open=False)
+
+    def force_played(self):
+        return Frets(self.min_fret, self.max_fret, allow_not_played=False, allow_open=self.allow_open)
     
     def limit_min(self, min_fret):
         """Restrict interval to fret at least min_fret. If self.min_fret >= min_fret, the returned value equals self."""
@@ -35,13 +40,19 @@ class Frets:
         return Frets(self.min_fret, max_fret, self.allow_open)
     
     def is_empty(self):
+        """Whether no note can be played"""
         return not self.allow_open and self.min_fret>self.max_fret
     
+    def is_contradiction(self):
+        """Whether no Fret oject satisfies this."""
+        return self.is_empty() and not self.allow_not_played
+    
     def __iter__(self):
-        if self.allow_open: 
+        if self.allow_not_played:
+            yield NOT_PLAYED
+        if self.allow_open:
             yield OPEN_FRET
-        for fret in range(max(self.min_fret, 1), self.max_fret + 1):
-            yield Fret(fret)
+        yield from [Fret(fret) for fret in range(max(self.min_fret, 1), self.max_fret + 1)]
 
     def restrict_around(self, fret: Fret, interval_size: int = 4):
         if fret.value is None:
@@ -52,5 +63,4 @@ class Frets:
         """
         The svg to display current frets.
         """
-        for fret in self:
-            yield from fret.svg(absolute)
+        return [svg for fret in self for svg in fret.svg(absolute)]

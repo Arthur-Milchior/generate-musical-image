@@ -2,9 +2,9 @@ import unittest
 
 from guitar.position.fret import Fret
 from guitar.position.strings import ALL_STRINGS
-from .string_deltas import *
-from .strings import *
-from .string import String, strings
+from guitar.position.string_deltas import *
+from guitar.position.strings import *
+from guitar.position.string import String, strings
 
 empty_first_string = strings[0]
 empty_fourth_string = strings[3]

@@ -6,8 +6,8 @@ from typing import Optional, List, Iterable
 from lily.Lilyable.lilyable import Lilyable
 from lily.Lilyable.local_lilyable import LocalLilyable
 from lily.lily import compile_
-from solfege.note.note import Note
-from solfege.note.abstract_note import NoteOutput
+from solfege.value.note.note import Note
+from solfege.value.note.abstract_note import NoteOutput
 from utils.constants import test_folder
 from utils.util import indent
 
@@ -92,7 +92,7 @@ class PianoLilyable(Lilyable):
 }}"""
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class LiteralPianoLilyable(PianoLilyable):
     _first_key: str
     _left_lily: Optional[str] = None

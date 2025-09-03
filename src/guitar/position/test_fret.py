@@ -1,5 +1,5 @@
 import unittest
-from .fret import *
+from guitar.position.fret import *
 
 class TestGuitarAddString(unittest.TestCase):
     def test_eq(self):

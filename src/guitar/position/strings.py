@@ -5,7 +5,7 @@ from guitar.position.string import String, strings
 from guitar.position.fret import OPEN_FRET, Fret
 from utils.util import assert_typing
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class Strings:
     """Represents a set of string of the guitar."""
     strings: List[String]
@@ -25,15 +25,22 @@ class Strings:
         assert_typing(other, Strings)
         return self.strings == other.strings
     
-    def svg(self, lowest_fret: Fret, show_open_fret: bool) ->Generator[str, None, None]:
+    def svg(self, lowest_fret: Fret, show_open_fret: bool) ->List[str]:
         """
         The svg to display the strings.
         If `show_open_fret`, a margin at the top represents the top of the board.
         Otherwise the fret goes over the entire height.
         The fret ends below `lowest_fret` so that it also cover the margin at the bottom.
         """
-        for string in self:
-            yield string.svg(lowest_fret, show_open_fret)
+        return [string.svg(lowest_fret, show_open_fret) for string in self]
+
+    def pop(self):
+        """Returns the first string, the set of strings without this element. Or None if the set is empty."""
+        if not self.strings:
+            return None
+        string = self.strings[0]
+        strings = Strings(self.strings[1:])
+        return (string, strings)
     
 
 class StringsInterval(Strings):

@@ -1,5 +1,5 @@
 import unittest
-from .lily import *
+from lily.lily import *
 
 from sh import shell
 
@@ -183,7 +183,7 @@ class TestLily(unittest.TestCase):
     #         )
     #
     #     def test_lilypond_chords_generate(self):
-    #         from solfege.note.set_of_notes import TestSetOfNotes
+    #         from solfege.value.note.set_of_notes import TestSetOfNotes
     #         chords = [TestSetOfNotes.C_minor, TestSetOfNotes.F_minor]
     #         generated = lilypond_code_for_one_hand(key="ees", notes_or_chords=chords,
     #                                                for_right_hand=False, midi=True)

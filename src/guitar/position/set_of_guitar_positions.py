@@ -8,7 +8,8 @@ from guitar.position.guitar_position import GuitarPosition
 from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
 from guitar.position.consts import *
 from guitar.position.strings import ALL_STRINGS
-from solfege.interval.chromatic_interval import ChromaticInterval
+from solfege.value.interval.chromatic_interval import ChromaticInterval
+from solfege.value.interval.set.list import ChromaticIntervalList, IntervalList
 from utils.util import assert_typing
 from guitar.position.string import strings
 
@@ -48,13 +49,13 @@ class SetOfGuitarPositions:
         for position in self.positions:
             assert_typing(position, GuitarPosition)
 
-    def get_lowest_note(self) -> Optional[GuitarPosition]:
+    def get_most_grave_note(self) -> Optional[GuitarPosition]:
         """The guitar position of the lowest note"""
         return min(self.positions) if self.positions else None
 
     def add(self, position: GuitarPosition):
         """A set similar to `self`, with `position`"""
-        return SetOfGuitarPositions(self.positions | frozenset({position}))
+        return self.__class__(self.positions | frozenset({position}))
 
     def __iter__(self) -> Iterator[GuitarPosition]:
         return iter(sorted(self.positions))
@@ -66,6 +67,16 @@ class SetOfGuitarPositions:
     def _max_fret(self) -> Fret :
         """The greatest fret used."""
         return max(position.fret for position in self.positions) if self.positions else NOT_PLAYED
+    
+    def _min_fret(self) -> Fret :
+        """The lowest fret used."""
+        return min(position.fret for position in self.positions) if self.positions else NOT_PLAYED
+    
+    def _min_non_empty_fret(self) -> Fret :
+        """The lowest fret used."""
+        frets = [position.fret for position in self.positions]
+        closed_strings = [fret for fret in frets if fret not in (NOT_PLAYED, OPEN_FRET)]
+        return min(closed_strings) if closed_strings else NOT_PLAYED
     
     def last_shown_fret(self, add_one: bool = True):
         mf = self._max_fret()
@@ -79,28 +90,22 @@ class SetOfGuitarPositions:
     
     def svg_content(self, absolute: bool, nbFretMin: Fret =OPEN_FRET, add_empty_fret: bool = True):
         max_fret = max(self.last_shown_fret(add_empty_fret ), nbFretMin).below()
-        yield """<rect width="100%" height="100%" fill="white" />"""
-        yield from ALL_STRINGS.svg(lowest_fret=max_fret, show_open_fret=absolute)
-        yield from max_fret.all_frets_up_to_here(include_open=absolute).svg(absolute)
-        for pos in self:
-            yield pos.svg()
+        l = ["""<rect width="100%" height="100%" fill="white" />"""]
+        l += ALL_STRINGS.svg(lowest_fret=max_fret, show_open_fret=absolute)
+        l += max_fret.all_frets_up_to_here(include_open=absolute).svg(absolute)
+        l += [pos.svg() for pos in self]
+        return l
 
-    def lowest_note(self):
-        return min(self.notes())
-    
     def notes(self):
         """return the set of note (i.e. no repetition)"""
-        for pos in self:
-            yield pos.get_chromatic()
+        return [pos.get_chromatic() for pos in self]
 
-    def intervals_frow_lowest_note(self) -> Generator[ChromaticInterval, None, None]:
-        lowest_note = self.lowest_note()
-        for note in self.notes():
-            yield note - lowest_note
-    
+    def intervals_frow_lowest_note(self):
+        lowest_note = self.get_most_grave_note()
+        return IntervalList.make_absolute([note - lowest_note for note in self.notes()])
 
-
-
+    def intervals_frow_lowest_note_in_base_octave(self):
+        return ChromaticIntervalList.make_absolute([interval.in_base_octave() for interval in self.intervals_frow_lowest_note()])
 
     def svg(self, absolute:bool, nbFretMin: Fret=OPEN_FRET) -> str:
         new_line = "\n"

@@ -2,14 +2,14 @@
 import unittest
 
 from guitar.position import strings
-from solfege.note.note import Note
-from .guitar_position import *
+from solfege.value.note.note import Note
+from guitar.position.guitar_position import *
 from guitar.position.string import strings
 from guitar.position.string_deltas import *
 from guitar.position.strings import StringsInterval
 
 empty_first_string = GuitarPosition(strings[0], Fret(0))
-E5 = Note.from_name("E5")
+E5 = ChromaticNote.from_name("E5")
 
 E5_1 = GuitarPosition(strings[0], Fret(24))
 E5_2 = GuitarPosition(strings[1], Fret(19))

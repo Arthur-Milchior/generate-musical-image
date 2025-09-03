@@ -16,16 +16,16 @@ from piano.fingering_generation.penalty import Penalty
 from piano.piano_note import PianoNote
 from piano.fingering_generation.penalty_for_scale import PenaltyForScale
 from piano.scales.fingering import Fingering
-from solfege.chord.chord_pattern import minor_seven, augmented_major_seventh_chord
-from solfege.note.note import Note
-from solfege.scale.scale_pattern import ScalePattern, blues, pentatonic_major, minor_melodic
+from solfege.pattern.chord.chord_pattern import minor_seven, augmented_major_seventh_chord
+from solfege.value.note.note import Note
+from solfege.pattern.scale.scale_pattern import ScalePattern, blues, pentatonic_major, minor_melodic
 from utils.constants import test_folder
 from utils.util import ensure_folder, delete_file_if_exists
 
 lilyProgram = "lilypond "
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class BestPenaltyMelody:
     penalty: PenaltyForScale
     fingerings: List[List[PianoNote]]
@@ -104,7 +104,7 @@ def generate_best_fingering_for_melody(notes_to_finger: List[Note],
                                    potential_finger_for_next_note=potential_finger_for_next_note)
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class BestPenaltyScale:
     penalty: PenaltyForScale
     fingerings: List[Tuple[List[PianoNote], Fingering]]

@@ -5,12 +5,12 @@
 #
 # from lily.lily import compile_
 # from lily.svg import display_svg_file
-# from solfege.interval.set_of_intervals import SetOfIntervals
-# from solfege.note.note import Note
+# from solfege.value.interval.set_of_intervals import SetOfIntervals
+# from solfege.value.note.note import Note
 # from utils.constants import test_folder
 #
 #
-# @dataclass(frozen=True, eq=True)
+# @dataclass(frozen=True)
 # class NamedIntervalsPattern:
 #     role: str
 #     left_hand: SetOfIntervals
@@ -21,7 +21,7 @@
 #         return TwoHandsChord(self.role, self.left_hand + other, self.right_hand + other)
 #
 #
-# @dataclass(frozen=True, eq=True)
+# @dataclass(frozen=True)
 # class ChordProgressionPattern:
 #     name: str
 #     chords: List[NamedIntervalsPattern]

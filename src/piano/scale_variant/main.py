@@ -2,10 +2,10 @@ from lily.Lilyable.list_piano_lilyable import ListPianoLilyable
 from lily.Lilyable.piano_lilyable import LiteralPianoLilyable
 from lily.lily import compile_
 from piano.fingering_generation.generate import generate_best_fingering_for_melody
-from solfege.interval.interval import Interval
-from solfege.key.key import sets_of_enharmonic_keys, Key
-from solfege.scale.scale import Scale
-from solfege.scale.scale_pattern import major_scale, scale_patterns
+from solfege.value.interval.interval import Interval
+from solfege.value.key.key import sets_of_enharmonic_keys, Key
+from solfege.pattern.scale.scale import Scale
+from solfege.pattern.scale.scale_pattern import major_scale, scale_patterns
 from utils.util import ensure_folder
 
 """

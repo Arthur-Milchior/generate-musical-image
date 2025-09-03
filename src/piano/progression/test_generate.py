@@ -1,9 +1,9 @@
 import unittest
-from .generate import *
+from piano.progression.generate import *
 
-from .generate import *
+from piano.progression.generate import *
 
-from .generate import *
+from piano.progression.generate import *
 
 class TestGenerate(unittest.TestCase):
     def test_one(self):

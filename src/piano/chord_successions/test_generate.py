@@ -1,5 +1,5 @@
 # import unittest
-# from .generate import *
+# from piano.chord_successions.generate import *
 
 # class TestChordSuccession(unittest.TestCase):
 #     maxDiff = None

@@ -1,4 +1,4 @@
-from .pattern import *
+from piano.progression.pattern import *
 
 # class ProgressionPatternTest(unittest.TestCase):
 #     maxDiff = None

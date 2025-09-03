@@ -7,14 +7,14 @@ from lily.Lilyable.list_piano_lilyable import ListPianoLilyable
 from lily.Lilyable.piano_lilyable import PianoLilyable
 from lily.lily import compile_
 # from piano.progression.pattern import NamedIntervalsPattern, ChordProgressionPattern
-from solfege.interval.interval import Interval
-from solfege.note.note import Note
-from solfege.note.set.set_of_notes import *
+from solfege.value.interval.interval import Interval
+from solfege.value.note.note import Note
+from solfege.value.note.set.set_of_notes import *
 from utils.constants import test_folder
 from utils.util import indent
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class TwoHandsChord(PianoLilyable):
     name: str
     left_hand: SetOfNotes

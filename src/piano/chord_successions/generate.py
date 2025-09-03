@@ -2,15 +2,15 @@ from dataclasses import dataclass
 from typing import List
 
 from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
-from solfege.key.key import sets_of_enharmonic_keys
-from solfege.note.note import Note
-from solfege.note.set.set_of_notes import SetOfNotes
-from solfege.scale.scale import Scale
-from solfege.scale.scale_patterns import major_scale
-from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.value.key.key import sets_of_enharmonic_keys
+from solfege.value.note.note import Note
+from solfege.value.note.set.set_of_notes import SetOfNotes
+from solfege.pattern.scale.scale import Scale
+from solfege.pattern.scale.scale_patterns import major_scale
+from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class ChordPattern:
     name: str
     intervals: List[int]
@@ -32,7 +32,7 @@ def chord_from_scale_pattern_and_position_key(scale: Scale, chord_pattern: Chord
     return SetOfNotes(chord, tonic=chord[0])
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class NamedSuccessionForScaleKey:
     successions: Succession
     name: str
@@ -44,7 +44,7 @@ def chord_succession_from_scale_pattern_and_position_key(scale: Scale, chord_pat
             range(nb_of_chords)]
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class CardContent:
     name_prefix: str
     filepath: str
@@ -98,7 +98,7 @@ def succession_for_key_pattern_direction(
     return cards
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class ChordSuccessionNote:
     successions: List[CardContent]
     key: Note

@@ -6,7 +6,7 @@ from typing import Optional, Dict, TypeVar, Any, Tuple, List
 
 from piano.piano_note import PianoNote
 from piano.scales.fingering import Fingering
-from solfege.note.abstract_note import pinky_and_thumb_side
+from solfege.value.note.abstract_note import pinky_and_thumb_side
 
 FingerNumbers = int  # 1 to 5
 

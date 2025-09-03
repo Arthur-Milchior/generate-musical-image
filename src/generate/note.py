@@ -1,4 +1,4 @@
-from solfege.note.note import Note
+from solfege.value.note.note import Note
 from lily.lily import compile_
 from utils import util
 from consts import generate_root_folder

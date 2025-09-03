@@ -1,4 +1,4 @@
-from .frozenlist import *
+from utils.frozenlist import *
 import unittest
 
 class TestFrozenList(unittest.TestCase):
@@ -15,6 +15,9 @@ class TestFrozenList(unittest.TestCase):
 
     def test_iter(self):
         self.assertEqual(list(FrozenList([1])), [1])
+
+    def test_len(self):
+        self.assertEqual(len(FrozenList([1])), 1)
 
     def test_repr(self):
         self.assertEqual(repr(FrozenList([1])), "FrozenList([1])")

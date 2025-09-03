@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
 
-from solfege.interval.chromatic_interval import ChromaticInterval
-from solfege.note.chromatic_note import ChromaticNote
+from solfege.value.interval.chromatic_interval import ChromaticInterval
+from solfege.value.note.chromatic_note import ChromaticNote
 from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
 from guitar.position.string import String
 from guitar.position.consts import *
@@ -25,7 +25,7 @@ string_number_to_note_played_when_free = {
 }
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class GuitarPosition:
     """A position on the guitar, that is, a string and a fret.
     Fret 0 is open. Fret None is not played.
@@ -41,6 +41,7 @@ class GuitarPosition:
     @staticmethod
     def from_chromatic(note:ChromaticNote, strings: Strings = ALL_STRINGS, frets: Frets = Frets()):
         """Return all the position for `note` in `frets` and `strings`"""
+        assert_typing(note, ChromaticNote)
         positions: List[GuitarPosition] = []
         for string in strings:
             fret = string.fret_for_note(note)
@@ -83,9 +84,7 @@ class GuitarPosition:
             return False
         if other.get_chromatic() is None:
             return True
-        if self.get_chromatic() == other.get_chromatic():
-            return self.string < other.string
-        return self.get_chromatic() < other.get_chromatic()
+        return (self.get_chromatic(), self.string) < (other.get_chromatic(), other.string)
     
     def __le__(self, other: GuitarPosition):
         return self == other or self<other

@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Dict, Optional, Union, List
 
 from piano.piano_note import PianoNote
-from solfege.interval.interval import Interval
-from solfege.note.note import Note
-from solfege.scale.scale_pattern import ScalePattern, minor_melodic
+from solfege.value.interval.interval import Interval
+from solfege.value.note.note import Note
+from solfege.pattern.scale.scale_pattern import ScalePattern, minor_melodic
 from utils.util import assert_typing
 
 THUMB_TO_PINKY = -1

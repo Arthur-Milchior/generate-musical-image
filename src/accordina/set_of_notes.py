@@ -1,6 +1,6 @@
 from typing import Generator, List, Set
 from accordina.note import *
-from solfege.interval.chromatic_interval import ChromaticInterval
+from solfege.value.interval.chromatic_interval import ChromaticInterval
 
 width = 2 * margin + 2 * x_distance_between_columns
 
@@ -28,18 +28,20 @@ class SetOfAccordinaNote():
     def _max_pictured_note(self) -> AccordinaNote:
         return self.notes[-1].last_note_of_diagonal()
 
-    def pictured_notes(self) -> Generator[AccordinaNote, None, None]:
+    def pictured_notes(self) -> List[AccordinaNote]:
         current_note = self.min
         next_note_index = 0
+        l = []
         while current_note <= self.max:
             if next_note_index < len(self.notes) and current_note.value == self.notes[next_note_index].value:
-                yield self.notes[next_note_index]
+                l.append(self.notes[next_note_index])
                 next_note_index += 1
             else:
-                yield current_note
+                l.append(current_note)
             current_note += ChromaticInterval(1)
                 
-        yield self.notes[-1]
+        l.append(self.notes[-1])
+        return l
 
     def __repr__(self):
         return f"{self.__class__.__name__}(value={self.value}, selected={self.selected})"

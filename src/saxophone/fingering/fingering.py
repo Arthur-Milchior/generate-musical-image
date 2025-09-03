@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Iterable, Iterator, Union
-from solfege.note.chromatic_note import ChromaticNote
+from solfege.value.note.chromatic_note import ChromaticNote
 from saxophone.buttons import *
-from solfege.note.note import Note
+from solfege.value.note.note import Note
 from utils.util import assert_typing
 
 class FingeringSymbol(Enum):
@@ -122,7 +122,13 @@ class Fingering(ChromaticNote):
     fingerings: List
 
     @classmethod
-    def make(cls, chromatic_note_description: Union[str, int], buttons: Iterable[SaxophoneButton], fingering_symbol: str = FingeringSymbol.N_COMPLETLY_EXPOSED, *, authors: Union[None, str, Iterator[str]] = None, test: bool = False):
+    def make(cls, 
+            chromatic_note_description: Union[str, int], 
+            buttons: Iterable[SaxophoneButton],
+            fingering_symbol: str = FingeringSymbol.N_COMPLETLY_EXPOSED,
+            *, 
+            authors: Union[None, str, Iterator[str]] = None, 
+            test: bool = False) -> Self:
         buttons = frozenset(list(sorted(buttons)))
         if authors is None:
             authors = {}

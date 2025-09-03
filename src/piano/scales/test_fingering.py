@@ -1,5 +1,5 @@
 # import unittest
-# from .fingering import *
+# from piano.scales.fingering import *
 
 # class TestFingering(unittest.TestCase):
 #     maxDiff = None

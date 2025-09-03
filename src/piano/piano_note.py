@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional, List, Union
+from typing import Optional, List, Self, Union
 
-from solfege.interval.too_big_alterations_exception import TooBigAlterationException
-from solfege.note.chromatic_note import ChromaticNote
-from solfege.note.diatonic_note import DiatonicNote
-from solfege.note.note import Note
-from solfege.note.abstract_note import NoteOutput
+from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
+from solfege.value.note.chromatic_note import ChromaticNote
+from solfege.value.note.diatonic_note import DiatonicNote
+from solfege.value.note.note import Note
+from solfege.value.note.abstract_note import NoteOutput
 
 
 @dataclass(frozen=True)
@@ -22,7 +22,10 @@ class PianoNote(Note):
         assert 1<=self.finger<=5
 
     @classmethod
-    def make(cls, chromatic: Union[ChromaticNote, int], diatonic: Union[DiatonicNote, int], finger=int):
+    def make(cls,
+             chromatic: Union[ChromaticNote, int],
+             diatonic: Union[DiatonicNote, int],
+             finger=int) -> Self:
         note = Note.make(chromatic=chromatic, diatonic=diatonic)
         assert 1<=finger<=5
         return cls.from_note_and_finger(note=note, finger=finger)

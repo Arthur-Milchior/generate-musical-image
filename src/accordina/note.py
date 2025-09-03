@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from math import sqrt
 from typing import Optional
-from solfege.note.chromatic_note import ChromaticNote
-from solfege.interval.chromatic_interval import ChromaticInterval
-from solfege.note.note import Note
+from solfege.value.note.chromatic_note import ChromaticNote
+from solfege.value.interval.chromatic_interval import ChromaticInterval
+from solfege.value.note.note import Note
 
 radius = 7
 button_distance = 20

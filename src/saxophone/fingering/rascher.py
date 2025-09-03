@@ -8,7 +8,12 @@ rascher_authors = frozenset({"Rascher"})
 class RascherFingering(Fingering):
 
     @classmethod
-    def make(cls, chromatic_note_description: str, buttons: Iterator[SaxophoneButton], fingering_symbol: FingeringSymbol = FingeringSymbol.RASCHER, test:bool = False, authors = rascher_authors):
+    def make(cls,
+             chromatic_note_description: str,
+            buttons: Iterator[SaxophoneButton],
+            fingering_symbol: FingeringSymbol = FingeringSymbol.RASCHER,
+            test:bool = False,
+            authors = rascher_authors) -> Self:
         """The two last argument allows to use the same constructor"""
         assert authors == rascher_authors, f"Unexpected author {authors}"
         assert fingering_symbol == FingeringSymbol.RASCHER, f"{fingering_symbol=}"

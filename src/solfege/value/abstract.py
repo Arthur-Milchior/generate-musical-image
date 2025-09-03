@@ -5,7 +5,7 @@ from typing import ClassVar, Self, Tuple, Union
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, unsafe_hash=True)
 class Abstract:
     """The class of interval similar to the current class"""
     IntervalClass: ClassVar[type] #abstract interval
@@ -33,7 +33,7 @@ class Abstract:
     
     def __sub__(self, other: "Abstract") -> Self:
         """This interval minus the other one. Class of `self`"""
-        from solfege.interval.abstract_interval import AbstractInterval
+        from solfege.value.interval.abstract_interval import AbstractInterval
         assert_typing(other, AbstractInterval)
         neg = -other
         if neg.is_note():

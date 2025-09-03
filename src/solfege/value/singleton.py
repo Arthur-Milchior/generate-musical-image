@@ -42,8 +42,8 @@ class Singleton(Abstract):
         return f"{self.__class__.__name__}(value={self.value})"
     
     def _add(self, other: "Singleton"):
-        from solfege.note.abstract_note import AbstractNote
-        from solfege.interval.abstract_interval import AbstractInterval
+        from solfege.value.note.abstract_note import AbstractNote
+        from solfege.value.interval.abstract_interval import AbstractInterval
         assert (self.IntervalClass == other.IntervalClass, f"{self.IntervalClass} != {other.IntervalClass}")
         if isinstance(other, AbstractNote):
             assert_typing(self, AbstractInterval)

@@ -8,9 +8,8 @@ from solfege.value.diatonic import Diatonic, DiatonicGetter
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, unsafe_hash=True)
 class Pair(Abstract, ChromaticGetter, DiatonicGetter):
-
     """How to generate a new Pair, from chromatic and diatonic"""
     make_instance_of_selfs_class: ClassVar[Callable[[int, int], "Pair"]]
     DiatonicClass: ClassVar[Type[Diatonic]] = Diatonic
@@ -30,7 +29,9 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
         return cls(chromatic, diatonic)
 
     @classmethod
-    def make(cls, chromatic: Union[Chromatic, int], diatonic: Union[Diatonic, int]):
+    def make(cls,
+             chromatic: Union[Chromatic, int],
+             diatonic: Union[Diatonic, int]) -> Self:
         if isinstance(chromatic, int):
             chromatic = cls.ChromaticClass(chromatic)
         if isinstance(diatonic, int):
@@ -54,9 +55,6 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
         chromaticEq = self.chromatic == other.chromatic
         return diatonicEq and chromaticEq
 
-    def __hash__(self):
-        return hash((self.chromatic, self.diatonic))
-
     def get_chromatic(self):
         return self.chromatic
 
@@ -65,7 +63,7 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
 
     def get_alteration(self) -> "Chromatic":
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
-        from solfege.interval.too_big_alterations_exception import TooBigAlterationException
+        from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
         diatonic = self.get_diatonic()
         chromatic_from_diatonic = diatonic.get_chromatic()
         try:
@@ -80,8 +78,8 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
     def _add(self, other: "Pair") -> Self:
         if not isinstance(other, Pair):
             return other._add(self)
-        from solfege.interval.interval import Interval
-        from solfege.note.note import Note
+        from solfege.value.interval.interval import Interval
+        from solfege.value.note.note import Note
         assert self.IntervalClass == other.IntervalClass, f"{self.IntervalClass} != {other.IntervalClass}"
         diatonic = self.diatonic + other.diatonic
         chromatic = self.chromatic + other.chromatic
@@ -93,15 +91,11 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
 
     def __le__(self, other: "Pair"):
         assert_typing(other, self.__class__)
-        if self.chromatic == other.chromatic:
-            return self.diatonic <= other.diatonic
-        return self.chromatic <= other.chromatic
+        return (self.chromatic, self.diatonic) <= (other.chromatic, other.diatonic)
 
     def __lt__(self, other: "Pair"):
         assert_typing(other, self.__class__)
-        if self.chromatic == other.chromatic:
-            return self.diatonic < other.diatonic
-        return self.chromatic < other.chromatic
+        return (self.chromatic, self.diatonic) < (other.chromatic, other.diatonic)
 
     def octave(self):
         return self.diatonic.octave()

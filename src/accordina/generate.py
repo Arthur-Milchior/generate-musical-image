@@ -1,12 +1,12 @@
 from accordina.note import *
-from solfege.scale.scale_pattern import major_scale
+from solfege.pattern.scale.scale_pattern import major_scale
 from accordina.set_of_notes import SetOfAccordinaNote
 from lily.svg import display_svg_file
-from solfege.scale.scale_pattern import scale_patterns_I_practice
+from solfege.pattern.scale.scale_pattern import scale_patterns_I_practice
 from consts import generate_root_folder
-from solfege.interval.interval import Interval
+from solfege.value.interval.interval import Interval
 from utils.util import ensure_folder
-from solfege.interval.interval_pattern import IntervalPattern, intervals_up_to_octave
+from solfege.value.interval.interval_pattern import IntervalPattern, intervals_up_to_octave
 
 accordina_folder = f"{generate_root_folder}/accordina"
 ensure_folder(accordina_folder)

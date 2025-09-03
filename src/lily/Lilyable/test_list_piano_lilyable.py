@@ -1,7 +1,7 @@
 import unittest
 
 from lily.Lilyable.test_piano_lilyable import TestPianoLilyable
-from .list_piano_lilyable import *
+from lily.Lilyable.list_piano_lilyable import *
 
 class TestList(unittest.TestCase):
     maxDiff = None

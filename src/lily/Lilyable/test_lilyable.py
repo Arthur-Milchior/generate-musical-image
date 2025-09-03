@@ -1,5 +1,5 @@
 import unittest
-from .lilyable import *
+from lily.Lilyable.lilyable import *
 
 
 class TestLilyable(unittest.TestCase):

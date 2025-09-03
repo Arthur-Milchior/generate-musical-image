@@ -1,5 +1,5 @@
 import unittest
-from .note import *
+from accordina.note import *
 
 half_tone = ChromaticInterval(1)
 C4 = AccordinaNote(0, selected=False)

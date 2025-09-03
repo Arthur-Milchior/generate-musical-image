@@ -1,6 +1,6 @@
 import unittest
-from .svg import *
-from .svg import *
+from lily.svg import *
+from lily.svg import *
 
 
 class TestSvg(unittest.TestCase):

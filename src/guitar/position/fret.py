@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Generator, List, Optional, Union
+from typing import Generator, List, Optional, Self, Union
 
-from solfege.interval.chromatic_interval import ChromaticInterval
-from utils.util import assert_optional_type, assert_typing
+from solfege.value.interval.chromatic_interval import ChromaticInterval
+from utils.util import assert_optional_typing, assert_typing
 from guitar.position.consts import *
 
 from math import pow
@@ -10,7 +10,7 @@ from math import pow
 FRET_THICKNESS = 7
 TOP_FRET_THICKNESS = FRET_THICKNESS*1.4
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class Fret(ChromaticInterval):
     """
     Represents one of the fret of the guitar.
@@ -28,11 +28,19 @@ class Fret(ChromaticInterval):
         if self.value is None:
             return "x"
         return str(self.value)
+    
+    @classmethod
+    def make(cls, fret: Union["Fret", int, None]) -> Self:
+        if isinstance(fret, Fret):
+            return fret
+        if fret is None:
+            return NOT_PLAYED
+        return cls(fret)
 
     def __post_init__(self):
         # not calling super because we accept None value
         #super().__post_init__()
-        assert_optional_type(self.value, int)
+        assert_optional_typing(self.value, int)
 
     def __add__(self, other: Union[ChromaticInterval, int]):
         if self.value is None:
@@ -94,16 +102,16 @@ class Fret(ChromaticInterval):
     def dot_svg(self, x:float):
         return f"""<circle cx="{int(x)}" cy="{int(self.y_dots())}" r="{int(CIRCLE_RADIUS)}" fill="grey" stroke="black" stroke-width="4"/>"""
     
-    def dots_svg(self) -> Generator[str, None, None]:
-        for x in self.x_dots():
-            yield self.dot_svg(x)
+    def dots_svg(self) -> List[str]:
+        return [self.dot_svg(x) for x in self.x_dots()]
 
-    def svg(self, absolute: bool) -> Generator[str, None, None]:
+    def svg(self, absolute: bool) -> List[str]:
         """The SVG tag for the fret itself. 
         Also, if absolute is true, for the dot that indicate which line it is."""
-        yield self.fret_svg(absolute) 
+        l = [self.fret_svg(absolute)]
         if absolute:
-            yield from self.dots_svg()
+            l += self.dots_svg()
+        return l
 
     def all_frets_up_to_here(self, include_open: bool):
         """The set of all frets up to here."""

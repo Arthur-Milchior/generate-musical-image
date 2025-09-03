@@ -3,7 +3,7 @@ from typing import Callable, List
 from sh import assertNotUnitTest, shell
 
 from lily.svg import clean_svg, display_svg_file
-from solfege.note.note import Note
+from solfege.value.note.note import Note
 from utils.util import indent
 
 lilyHeader = """"""

@@ -1,16 +1,16 @@
 from enum import Enum
-from solfege.note.chromatic_note import ChromaticNote
-from solfege.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.value.note.chromatic_note import ChromaticNote
+from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
-from solfege.key.key import Key, sets_of_enharmonic_keys
+from solfege.value.key.key import Key, sets_of_enharmonic_keys
 from typing import Optional, Dict, List, assert_never
-from solfege.scale.scale_pattern import ScalePattern, scale_patterns_I_practice, scale_patterns, minor_melodic
+from solfege.pattern.scale.scale_pattern import ScalePattern, scale_patterns_I_practice, scale_patterns, minor_melodic
 from operator import itemgetter
 from lily.lily import compile_
 from dataclasses import dataclass
-from solfege.chord.chord_pattern import ChordPattern
-from solfege.interval.interval import Interval
-from solfege.note.note import Note
+from solfege.pattern.chord.chord_pattern import ChordPattern
+from solfege.value.interval.interval import Interval
+from solfege.value.note.note import Note
 from consts import generate_root_folder
 
 
@@ -27,7 +27,7 @@ class Direction(Enum):
 chords = [ chord.to_arpeggio_pattern()  for chord in  ChordPattern.class_to_patterns[ChordPattern]]
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class Instrument:
     """Represents the information needed to generate scales"""
     name: str

@@ -5,18 +5,18 @@ from typing import Optional
 from guitar.position import strings
 from guitar.position.string import String, strings
 from guitar.position.strings import Strings, NO_STRINGS, StringsInterval
-from utils.util import assert_optional_type
+from utils.util import assert_optional_typing
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class StringDeltas:
     """Represents a way to compute strings given a current string. For example, restricting a search of position to the current note, or string not far away, or only a different string."""
     min_string_delta: Optional[int]= None
     max_string_delta: Optional[int]= None
 
     def __post_init__(self):
-        assert_optional_type(self.min_string_delta, int)
-        assert_optional_type(self.max_string_delta, int)
+        assert_optional_typing(self.min_string_delta, int)
+        assert_optional_typing(self.max_string_delta, int)
 
     def min_string(self, string: String) -> Optional[String]:
         if self.min_string_delta is None:

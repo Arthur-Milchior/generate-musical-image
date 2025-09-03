@@ -1,6 +1,7 @@
 import os
-from typing import Iterable, List
+from typing import Dict, Iterable, List, Type
 import unittest
+import traceback
 
 imageFolder = "../image/"
 ankiFolder = "../image/"
@@ -63,6 +64,23 @@ def assert_typing(value, type):
     assert value is not None
     assert isinstance(value, type), f"{value=}:{value.__class__} is not of {type=}"
 
-def assert_optional_type(value, type):
+def assert_list_typing(l: List, type):
+    assert l is not None
+    for elt in l:
+        assert_typing(elt, type)
+
+def assert_dict_typing(d:Dict, type_key: Type, type_value:Type):
+    assert d is not None
+    for key, value in d.items():
+        assert_typing(key, type_key)
+        assert_typing(value, type_value)
+
+def assert_optional_typing(value, type):
     if value is not None:
         assert_typing(value, type)
+
+def traceback_str():
+    try:
+        raise Exception()
+    except Exception as e:
+        return "".join(traceback.format_list(traceback.extract_stack()))

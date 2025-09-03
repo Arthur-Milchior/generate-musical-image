@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
-from solfege.solfege_pattern import SolfegePattern
+from solfege.pattern.pattern import SolfegePattern
 from guitar.scale.utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
 from utils.util import *
-from solfege.scale.scale_pattern import ScalePattern
+from solfege.pattern.scale.scale_pattern import ScalePattern
 import guitar.util
 
-leafFolder = "scale/"
+leafFolder = "scale"
 imageFolder = guitar.util.imageFolder + leafFolder
 ankiFolder = guitar.util.ankiFolder + leafFolder
 
@@ -29,22 +29,21 @@ class AnkiNote:
     scale: SolfegePattern
 
 
-for scale in ScalePattern.class_to_patterns[ScalePattern]:
-    name = scale.first_of_the_names()
-    intervals = scale.get_intervals()
-    folder_scale = imageFolder + name
+for scale in ScalePattern.all_patterns:
+    scale_name = scale.first_of_the_names()
+    intervals = scale.absolute_intervals()
+    folder_scale = f"{imageFolder}/{scale_name}"
     ensure_folder(folder_scale)
-    web = """<html><head><title>All transposable %s on a standard guitar</title></head><body>Each transposable version of the scale %s.<br/> Successive note are separated by %s half-note
-<hr/>""" % (name, name, str(intervals))
+    web = """<html><head><title>All transposable {scale_name} on a standard guitar</title></head><body>Each transposable version of the scale {scale_name}.<br/> Successive note are separated by {str(intervals)} half-note
+<hr/>"""
     for string in range(1, 7):
         for fret in range(1, 5):
-            print("""considering %s %d-%d""" % (name, string, fret))
             basePos = GuitarPosition(string, fret)
             poss = scale2Pos(intervals, basePos)
             if poss is False:
                 print("poss is false:continue")
                 continue
-            file = "%d-%d-%s.svg" % (string, fret, name)
+            file = "%d-%d-%s.svg" % (string, fret, scale_name)
             path = "%s/%s" % (folder_scale, file)
             sop = SetOfGuitarPositions(poss)
             if not sop.is_lowest_fret_one():
@@ -54,9 +53,9 @@ for scale in ScalePattern.class_to_patterns[ScalePattern]:
                 sop.draw(f)
             web += """<img src="%s"/>\n""" % file
     web += """</body></html>"""
-    index += """<li><a href="%s">""" % name
-    for name in scale.get_names():
-        index += "%s, " % name
+    index += """<li><a href="%s">""" % scale_name
+    for scale_name in scale.get_names():
+        index += "%s, " % scale_name
     index += """</a></li>"""
     with open("%s/index.html" % folder_scale, "w") as f:
         f.write(web)

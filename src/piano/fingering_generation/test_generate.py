@@ -1,8 +1,8 @@
 # import unittest
 
-# from solfege.note.abstract_note import AlterationOutput, NoteOutput
+# from solfege.value.note.abstract_note import AlterationOutput, NoteOutput
 # from piano.scales.test_fingering import TestFingering
-# from .generate import *
+# from pi.generate import *
 
 # class TestScalesGenerate(unittest.TestCase):
 #     maxDiff = None

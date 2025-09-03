@@ -14,7 +14,7 @@ class Lilyable:
         return self.lily() == other.lily()
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class LiteralLilyable(Lilyable):
     """A class representing a lilyable explicitly given. 
     

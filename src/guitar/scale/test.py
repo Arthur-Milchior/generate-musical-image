@@ -1,9 +1,9 @@
 # from solfege.solfege_pattern import SolfegePattern
-# from solfege.scale.scale_pattern import ScalePattern
+# from solfege.pattern.scale.scale_pattern import ScalePattern
 # from guitar.position.guitar_position import GuitarPosition
 # from guitar.position.string import strings
 # from guitar.position.fret import Fret
-# from .utils import scale2Pos
+# from guitar.scale.utils import scale2Pos
 # import unittest
 
 # majorScale = SolfegePattern.class_to_name_to_pattern[ScalePattern].get("Major")
