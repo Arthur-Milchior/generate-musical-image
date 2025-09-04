@@ -1,12 +1,10 @@
 from dataclasses import dataclass, field
 from itertools import pairwise
-from typing import ClassVar, Dict, Iterable, List, Optional
+from typing import ClassVar, Dict, List
 
-from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from solfege.pattern.pattern import SolfegePattern
-from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.frozenlist import FrozenList
 from utils.util import assert_all_same_class, assert_typing
 
@@ -32,10 +30,17 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     set_of_interval_to_pattern: ClassVar[Dict[IntervalList, "ChordPattern"]] = dict()
     "associate to a set of chromatic interval the chord it represents."
     set_of_chromatic_interval_to_pattern: ClassVar[Dict[ChromaticIntervalList, "ChordPattern"]] = dict()
+    _record_keeper: ClassVar[List]
 
     """Whether the 5th is optional"""
     optional_fifth: bool
     inversions: List["InversionPattern"] = field(hash=False, compare=False, default_factory=list)
+
+
+    @classmethod
+    def _new_record_keeper(cls):
+        from solfege.pattern.chord.interval_list_to_chord_pattern import IntervalListToChordPattern
+        return IntervalListToChordPattern.make()
     
     @classmethod
     def _default_arguments_for_constructor(cls):
@@ -48,7 +53,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
         args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "optional_fifth")
         args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "inversions")
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        return args, kwargs
+        return super()._clean_arguments_for_constructor(args, kwargs)
 
     def _index_of_fifth(self):
         index = None

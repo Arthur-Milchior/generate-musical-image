@@ -2,12 +2,12 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, List
 from solfege.pattern.chord.inversion_pattern import InversionPattern
-from solfege.pattern.pattern_with_interval_list import PatternWithIntervalListList
 from solfege.value.interval.set.list import ChromaticIntervalList, IntervalList
+from utils.recordable import RecordedContainer
 
 
 @dataclass(frozen=True)
-class ChromaticIntervalsAndItsInversions(PatternWithIntervalListList):
+class ChromaticIntervalsAndItsInversions(RecordedContainer[InversionPattern]):
     chromatic_intervals: ChromaticIntervalList
     inversions: List[InversionPattern] = field(default_factory=list)
     

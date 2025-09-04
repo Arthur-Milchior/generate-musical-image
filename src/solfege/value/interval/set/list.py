@@ -109,7 +109,7 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
         unison = cls.interval_type.unison()
         if first_interval != unison and add_implicit_zero:
             absolute_intervals = [unison] + absolute_intervals
-        return cls.make(_absolute_intervals=absolute_intervals, *args, **kwargs)
+        return cls.make(*args, _absolute_intervals=FrozenList(absolute_intervals), **kwargs)
 
     @classmethod
     def make_relative(cls, relative_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]],  *args,  **kwargs):
@@ -118,7 +118,7 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
         for relative_interval in relative_intervals:
             relative_interval = cls.interval_type.make_single_argument(relative_interval)
             absolute_intervals.append(absolute_intervals[-1] + relative_interval)
-        return cls.make(*args, _absolute_intervals=absolute_intervals, **kwargs)
+        return cls.make(*args, _absolute_intervals=FrozenList(absolute_intervals), **kwargs)
 
     def absolute_intervals(self) -> FrozenList[Interval]:
         return self._absolute_intervals

@@ -1,10 +1,12 @@
 from dataclasses import dataclass
-from typing import ClassVar, Dict, List
+from typing import ClassVar, Dict, List, Type
 import unittest
 
 from solfege.pattern.pattern import SolfegePattern
 from solfege.value.interval.set.list import ChromaticIntervalList, IntervalList
 from utils.frozenlist import FrozenList
+from utils.recordable import RecordKeeper
+
 
 @dataclass(frozen=True, unsafe_hash=True)
 class PatternEmpty(SolfegePattern):
@@ -12,11 +14,48 @@ class PatternEmpty(SolfegePattern):
     name_to_pattern: ClassVar[Dict[str, "PatternEmpty"]] = dict()
     all_patterns: ClassVar[List['PatternEmpty']] = list()
 
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        kwargs["record"] = False
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    @classmethod
+    def _new_record_keeper(cls):
+        return RecordKeeperForPatternEmpty.make()
+
+class RecordKeeperForPatternEmpty(RecordKeeper[IntervalList, PatternEmpty, List]):
+    """Same as RecordedType"""
+    _recorded_type: ClassVar[Type] = PatternEmpty
+    """Same as KeyType"""
+    _key_type: ClassVar[Type] = IntervalList
+    """Same as RecordedContainerType"""
+    _recorded_container_type: ClassVar[Type] = List
+
+PatternEmpty._record_keeper_type = RecordKeeperForPatternEmpty
+
 @dataclass(frozen=True, unsafe_hash=True)
 class PatternDeux(SolfegePattern):
     """See SoflegePattern"""
     name_to_pattern: ClassVar[Dict[str, "PatternDeux"]] = dict()
     all_patterns: ClassVar[List['PatternDeux']] = list()
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    @classmethod
+    def _new_record_keeper(cls):
+        return RecordKeeperForPatternDeux.make()
+
+class RecordKeeperForPatternDeux(RecordKeeper[IntervalList, PatternDeux, List]):
+    """Same as RecordedType"""
+    _recorded_type: ClassVar[Type] = PatternDeux
+    """Same as KeyType"""
+    _key_type: ClassVar[Type] = IntervalList
+    """Same as RecordedContainerType"""
+    _recorded_container_type: ClassVar[Type] = List
+
+PatternDeux._record_keeper_type = RecordKeeperForPatternDeux
 
 class TestSolfegePattern(unittest.TestCase):
 

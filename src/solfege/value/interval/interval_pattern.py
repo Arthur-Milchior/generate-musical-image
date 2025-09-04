@@ -14,7 +14,11 @@ class IntervalPattern(SolfegePattern):
     """See SoflegePattern"""
     name_to_pattern: ClassVar[Dict[str, "IntervalPattern"]] = dict()
     all_patterns: ClassVar[List['IntervalPattern']] = list()
-    
+
+    @classmethod
+    def _new_record_keeper(cls):
+        # we won't record interval
+        return NotImplemented
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
@@ -22,6 +26,7 @@ class IntervalPattern(SolfegePattern):
             return [x]
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "name", singleton)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "interval", lambda interval: [Interval.make(0,0), Interval.make_single_argument(interval)])
+        kwargs["record"] = False
         kwargs["names"] = kwargs["name"]
         kwargs["_absolute_intervals"] = kwargs["interval"]
         del kwargs["name"]

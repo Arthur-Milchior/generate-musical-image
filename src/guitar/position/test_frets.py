@@ -28,13 +28,13 @@ class TestGuitarFrets(unittest.TestCase):
     def test_is_empty(self):
         self.assertFalse(ALL_PLAYED.is_empty())
         self.assertFalse(ONLY_OPEN.is_empty())
-        self.assertTrue(NOT_PLAYED.is_empty())
+        self.assertTrue(NOT_PLAYED_FRETS.is_empty())
         self.assertTrue(CONTRADICTION.is_empty())
 
     def test_is_contradiction(self):
         self.assertFalse(ALL_PLAYED.is_contradiction())
         self.assertFalse(ONLY_OPEN.is_contradiction())
-        self.assertFalse(NOT_PLAYED.is_contradiction())
+        self.assertFalse(NOT_PLAYED_FRETS.is_contradiction())
         self.assertTrue(CONTRADICTION.is_contradiction())
 
     def test_frets(self):

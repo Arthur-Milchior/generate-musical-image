@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Generic, Self, Union, Tuple, Optional
 
-from solfege.value.interval.set.list import ChromaticIntervalList, IntervalList
 from solfege.value.key.key import *
 from solfege.pattern.scale.scale import Scale
 from solfege.value.interval.abstract_interval import IntervalType
@@ -36,6 +35,12 @@ class ScalePattern(SolfegePattern):
     descending: Optional["ScalePattern"] = None
     """If True, add a warning if the result is not a perfect octave"""
     suppress_warning: bool = field(compare = False, default=False)
+
+
+    @classmethod
+    def _new_record_keeper(cls):
+        from solfege.pattern.scale.interval_list_to_scale_pattern import IntervalListToScalePattern
+        return IntervalListToScalePattern.make()
 
     def __post_init__(self):
         assert_optional_typing(self.descending, ScalePattern)

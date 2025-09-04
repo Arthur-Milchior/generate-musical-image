@@ -17,6 +17,11 @@ class InversionPattern(PatternWithIntervalList, DataClassWithDefaultArgument):
     fifth_omitted: bool
 
     @classmethod
+    def _new_record_keeper(cls):
+        from solfege.pattern.chord.interval_list_to_inversion_pattern import IntervalListToInversion
+        return IntervalListToInversion.make()
+
+    @classmethod
     def _default_arguments_for_constructor(cls):
         default_dict = super()._default_arguments_for_constructor()
         default_dict["fifth_omitted"] = False

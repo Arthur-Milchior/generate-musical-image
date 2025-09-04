@@ -1,19 +1,17 @@
-from typing import Optional
+from typing import ClassVar, Optional, Type
 from solfege.pattern.chord.chord_pattern import ChordPattern
+from solfege.pattern.chord.interval_list_to_chord_pattern import IntervalListToChordPattern
+from solfege.pattern.chord.interval_list_to_inversion_pattern import IntervalListToInversion
 from solfege.pattern.chord.inversion_pattern import InversionPattern
-from solfege.pattern.interval_to_pattern import IntervalToPattern, PatternType
+from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
+from solfege.pattern.interval_list_to_patterns import IntervalListToPatterns, PatternType
 from solfege.value.interval.set.list import IntervalList
 from solfege.pattern.chord.chord_patterns import dominant_seventh_chord
 
-class FakeIntervalToPattern(IntervalToPattern[InversionPattern]):
-    def register(self, pattern: InversionPattern, interval_list: Optional[IntervalList] = None):
-        super().register(pattern, interval_list)
+interval_to_inversion = IntervalListToInversion.make()
+interval_to_chord = IntervalListToChordPattern.make()
 
-
-interval_to_inversion = FakeIntervalToPattern(InversionPattern)
-interval_to_chord = IntervalToPattern[ChordPattern](ChordPattern)
-
-dominant_seventh_chord._associate_intervals_to_self(interval_to_pattern=interval_to_chord)
+dominant_seventh_chord._associate_keys_to_self(record_keeper=interval_to_chord)
 
 def make_inversion(inversion: int, interval_list: IntervalList, base: ChordPattern, fifth_omitted:bool = False):
     inversion_pattern = InversionPattern.make(inversion=inversion,
@@ -72,4 +70,4 @@ inversions = [dominant_seventh_chord_zeroth_inversion,
               ]
 
 for inversion in inversions:
-    inversion._associate_intervals_to_self(interval_to_pattern=interval_to_inversion)
+    inversion._associate_keys_to_self(record_keeper=interval_to_inversion)

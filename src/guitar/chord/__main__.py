@@ -1,0 +1,1 @@
+from guitar.chord import generate
