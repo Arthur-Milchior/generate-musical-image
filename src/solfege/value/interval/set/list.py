@@ -156,5 +156,5 @@ class IntervalList(AbstractIntervalList[Interval]):
         absolute_chromatic = self.absolute_chromatic()
         return ChromaticIntervalList.make_absolute([interval.get_chromatic() for interval in absolute_chromatic], increasing=self.increasing)
 
-    def get_interval_list(self) -> Self:
-        return self
+    def get_interval_list(self) -> "IntervalList":
+        return IntervalList(self._absolute_intervals, self.increasing)

@@ -5,6 +5,7 @@ from typing import ClassVar, Dict, List
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
+from utils.util import assert_typing
 
 
 @dataclass(frozen=True)
@@ -38,7 +39,9 @@ class InversionPattern(PatternWithIntervalList, DataClassWithDefaultArgument):
         return ChromaticIntervalsAndItsInversions(self.interval_list.get_chromatic())
     
     def get_interval_list(self) -> IntervalList:
-        return self.interval_list
+        iv = self.interval_list
+        assert_typing(iv, IntervalList, exact=True)
+        return iv
     
     def name(self):
         if self.inversion == 0:

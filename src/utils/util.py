@@ -60,14 +60,17 @@ def assert_all_same_class(it: Iterable):
         assert e.__class__ == elt.__class__, "{it=}"
             
 
-def assert_typing(value, type):
+def assert_typing(value, type, exact:bool=False):
     assert value is not None
-    assert isinstance(value, type), f"{value=}:{value.__class__} is not of {type=}"
+    if exact:
+        assert value.__class__ == type, f"{value=}:{value.__class__} is not exactly {type=}"
+    else:
+        assert isinstance(value, type), f"{value=}:{value.__class__} is not of {type=}"
 
-def assert_list_typing(l: List, type):
+def assert_list_typing(l: List, type, exact:bool = False):
     assert l is not None
     for elt in l:
-        assert_typing(elt, type)
+        assert_typing(elt, type, exact=exact)
 
 def assert_dict_typing(d:Dict, type_key: Type, type_value:Type):
     assert d is not None
@@ -75,9 +78,9 @@ def assert_dict_typing(d:Dict, type_key: Type, type_value:Type):
         assert_typing(key, type_key)
         assert_typing(value, type_value)
 
-def assert_optional_typing(value, type):
+def assert_optional_typing(value, type, exact:bool = False):
     if value is not None:
-        assert_typing(value, type)
+        assert_typing(value, type, exact=exact)
 
 def traceback_str():
     try:

@@ -3,7 +3,7 @@ from typing import Generator, List
 
 from guitar.position.string import String, strings
 from guitar.position.fret import OPEN_FRET, Fret
-from utils.util import assert_typing
+from utils.util import assert_list_typing, assert_typing
 
 @dataclass(frozen=True)
 class Strings:
@@ -12,8 +12,7 @@ class Strings:
 
     def __post_init__(self):
         assert_typing(self.strings, list)
-        for string in strings:
-            assert_typing(string, String)
+        assert_list_typing(strings, String)
 
     def __iter__(self):
         yield from self.strings
