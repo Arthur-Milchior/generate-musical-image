@@ -29,7 +29,7 @@ class IntervalToPattern(Generic[PatternType]):
     def newPatternWithChromaticIntervalListList(self) -> PatternWithIntervalListList:
         return list()
     
-    def register(self, pattern: PatternType, interval_list: Optional[IntervalList] = None):
+    def register(self, pattern: PatternType, interval_list: IntervalList):
         assert_typing(pattern, self._pattern_type, exact=True)
         intervals = interval_list if interval_list is not None else pattern.get_interval_list()
         assert_typing(intervals, IntervalList, exact=True)
@@ -60,6 +60,7 @@ class IntervalToPattern(Generic[PatternType]):
         if chromatic_intervals in self._chromatic_interval_to_patterns:
             pattern = self._chromatic_interval_to_patterns[chromatic_intervals]
             assert_list_typing(pattern, self._pattern_type)
+            return pattern
         return self.newPatternWithChromaticIntervalListList()    
     
     def get_easiest_pattern_from_chromatic_interval(self, chromatic_intervals: ChromaticIntervalList) -> Optional[PatternType]:

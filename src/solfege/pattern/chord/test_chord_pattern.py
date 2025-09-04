@@ -21,7 +21,6 @@ class TestChordPattern(unittest.TestCase):
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_patterns_from_interval(il))
 
     def test_il_chromatic_found(self):
-        il = IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)])
         il_chromatic = ChromaticIntervalList.make_absolute([4, 7, 10])
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_patterns_from_chromatic_interval(il_chromatic))
 

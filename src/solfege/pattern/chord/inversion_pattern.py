@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import ClassVar, Dict, List
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
-from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
+from solfege.value.interval.set.list import DataClassWithDefaultArgument, IntervalList
 from utils.util import assert_typing
 
 

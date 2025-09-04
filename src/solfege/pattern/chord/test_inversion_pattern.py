@@ -24,26 +24,25 @@ class TestInversionPattern(unittest.TestCase):
 
     def test_il_found(self):
         il = IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)])
-        iv = inversion(0, il, dominant_seventh_chord)
-        self.assertEqual([iv], interval_to_inversion.get_patterns_from_interval(il), 
-                         #f"{iv} not in {InversionPattern.interval_to_patterns}"
-                         )
+        iv = make_inversion(0, il, dominant_seventh_chord)
+        actual = interval_to_inversion.get_patterns_from_interval(il)
+        self.assertEqual([iv], actual)
 
     def test_il_no_fifth_found(self):
         il = IntervalList.make_absolute([(4, 2), (10, 6)])
         actual = interval_to_inversion.get_patterns_from_interval(il)
         self.assertEqual(len(actual), 1)
-        self.check_inversion_equal(inversion(0, il, dominant_seventh_chord, fifth_omitted=True), actual[0])
+        self.check_inversion_equal(make_inversion(0, il, dominant_seventh_chord, fifth_omitted=True), actual[0])
 
     def test_il_chromatic_found(self):
         il = IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)])
         il_chromatic = ChromaticIntervalList.make_absolute([4, 7, 10])
-        self.assertEqual([inversion(0, il, dominant_seventh_chord)], interval_to_inversion.get_patterns_from_chromatic_interval(il_chromatic))
+        self.assertEqual([make_inversion(0, il, dominant_seventh_chord)], interval_to_inversion.get_patterns_from_chromatic_interval(il_chromatic))
 
     def test_il_no_fifth_chromatic_found(self):
         il = IntervalList.make_absolute([(4, 2), (10, 6)])
         il_chromatic = ChromaticIntervalList.make_absolute([4, 10])
-        self.assertEqual([inversion(0, il, dominant_seventh_chord, fifth_omitted=True)], interval_to_inversion.get_patterns_from_chromatic_interval(il_chromatic))
+        self.assertEqual([make_inversion(0, il, dominant_seventh_chord, fifth_omitted=True)], interval_to_inversion.get_patterns_from_chromatic_interval(il_chromatic))
 
     def test_inversion_found(self):
         for inversion in inversions:
