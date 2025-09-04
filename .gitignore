@@ -97,6 +97,9 @@ ENV/
 # mkdocs documentation
 /site
 
+.idea
+.vscode
+
 # mypy
 .mypy_cache/
 /_tmp/
@@ -105,6 +108,7 @@ ENV/
 solo/
 *svg
 *png
+*pdf
 *pye
 piano/scales
 guitar/scale/images
