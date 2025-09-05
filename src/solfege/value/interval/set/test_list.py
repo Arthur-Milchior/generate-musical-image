@@ -45,4 +45,8 @@ class TestIntervalList(unittest.TestCase):
         self.assertEqual(list(major_triad_absolute.from_note(Note.make(0, 0))), [Note.make(0, 0), Note.make(4, 2), Note.make(7, 4)])
         
     def test_chromatic(self):
-        self.assertEqual(major_triad_absolute.get_chromatic(), ChromaticIntervalList.make_relative([4, 3]))
+        self.assertEqual(major_triad_absolute.get_chromatic_interval_list(), ChromaticIntervalList.make_relative([4, 3]))
+
+    def test_repr(self):
+        self.assertEqual(repr(major_triad_absolute), "IntervalList.make_absolute([(0, 0), (4, 2), (7, 4)])")
+        self.assertEqual(repr(major_triad_absolute.get_chromatic_interval_list()), "ChromaticIntervalList.make_absolute([0, 4, 7])")

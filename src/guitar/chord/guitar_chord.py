@@ -11,7 +11,7 @@ from utils.util import assert_typing
 
 class GuitarChord(SetOfGuitarPositions):
     @classmethod
-    def make(cls, frets: List[Union[Fret, int]]) -> Self:
+    def make(cls, frets: List[Union[Fret, int, None]]) -> Self:
         assert len(frets) == len(strings)
         frets = [Fret.make(fret) for fret in frets]
         guitar_positions = [GuitarPosition(string, fret) for string, fret in itertools.zip_longest(strings, frets)]
@@ -26,6 +26,12 @@ class GuitarChord(SetOfGuitarPositions):
                 assert fret is None
                 fret = pos.fret
         return fret
+    
+    def get_frets(self):
+        return [self.get_fret(string) for string in strings]
+    
+    def __repr__(self):
+        return f"""GuitarChord.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
 
     def chord_pattern_is_redundant(self):
         """Whether the same fingering pattern can be played higher on the guitar"""
@@ -40,6 +46,20 @@ class GuitarChord(SetOfGuitarPositions):
             return False
         return len([1 for position in self.positions if position.fret == min_fret]) > 1
     
+    def has_not_played_in_middle(self):
+        # Status can be not_played_start, then played, then not_played_end
+        played_encountered = False
+        not_played_after_played_encountered = False
+        for fret in self.get_frets():
+            if fret == NOT_PLAYED:
+                if played_encountered:
+                    not_played_after_played_encountered = True
+            else:
+                played_encountered = True
+                if not_played_after_played_encountered:
+                    return True
+        return False
+    
     def is_playable(self):
         """ Whether at most 4 fingers must be used
         
@@ -47,13 +67,18 @@ class GuitarChord(SetOfGuitarPositions):
         
         TODO: deal with finger on the first string.
         """
+        if self.has_not_played_in_middle():
+            return False
         min_fret = self._min_fret()
         if self.is_barred():
             assert min_fret not in (NOT_PLAYED, OPEN_FRET)
             return len([1 for position in self.positions if position.fret > min_fret])<=3
-        return len([1 for position in self.positions if position.fret not in (OPEN_FRET, NOT_PLAYED)])<=4
-        
-    def get_inversions(self):
-        return InversionPattern.get_patterns_from_chromatic_interval(self.intervals_frow_lowest_note_in_base_octave())
+        return len([1 for position in self.positions if position.fret not in (OPEN_FRET, NOT_PLAYED)]) <= 4
+    
+    def file_name(self, stroke_colored: bool):
+        frets = "".join(str(fret.value) for fret in self.get_frets())
+        if stroke_colored:
+            return f"guitar_chord_{frets}_colored.svg"
+        return f"guitar_chord_{frets}_all_black.svg"
 
 intervals_in_base_octave_to_guitar_chord: Dict[ChromaticIntervalList, List[GuitarChord]] = dict()

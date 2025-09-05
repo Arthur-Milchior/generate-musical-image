@@ -15,6 +15,7 @@ AROUND_FIVE_SEVEN = AROUND_SEVEN.restrict_around(Fret(5))
 NOT_PLAYED_FRETS = Frets(5, 4, False, True)
 CONTRADICTION = Frets(5, 4, False, False)
 ONLY_OPEN = Frets(5, 4, allow_open=True, allow_not_played=False)
+FOR_TRANSPOSABLE_CHORD = Frets(min_fret=1, max_fret=5, allow_not_played=True, allow_open=False)
 
 class TestGuitarFrets(unittest.TestCase):
     def test_eq(self):
@@ -38,11 +39,12 @@ class TestGuitarFrets(unittest.TestCase):
         self.assertTrue(CONTRADICTION.is_contradiction())
 
     def test_frets(self):
-        self.assertEqual(list(ALL_PLAYED), [] + [Fret(fret) for fret in range(0, 25)])
-        self.assertEqual(list(ALL_CLOSED), [] + [Fret(fret) for fret in range(1, 25)])
-        self.assertEqual(list(FIRST_FOUR), [] + [Fret(fret) for fret in range(0, 5)])
+        self.assertEqual(list(ALL_PLAYED), [Fret(fret) for fret in range(0, 25)])
+        self.assertEqual(list(ALL_CLOSED), [Fret(fret) for fret in range(1, 25)])
+        self.assertEqual(list(FIRST_FOUR), [Fret(fret) for fret in range(0, 5)])
         self.assertEqual(list(AROUND_SEVEN), [OPEN_FRET] + [Fret(fret) for fret in range(3, 12)])
         self.assertEqual(list(AROUND_FIVE_SEVEN), [OPEN_FRET] + [Fret(fret) for fret in range(3, 10)])
         self.assertEqual(list(CONTRADICTION), [])
         self.assertEqual(list(NOT_PLAYED_FRETS), [NOT_PLAYED])
         self.assertEqual(list(ONLY_OPEN), [OPEN_FRET])
+        self.assertEqual(list(FOR_TRANSPOSABLE_CHORD), [NOT_PLAYED, Fret(1), Fret(2), Fret(3), Fret(4), Fret(5)])

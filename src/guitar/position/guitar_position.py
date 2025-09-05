@@ -23,7 +23,13 @@ string_number_to_note_played_when_free = {
     5: ChromaticNote(11),
     6: ChromaticNote(16),
 }
+# COLOR_TONIC = "red"
+# COLOR_THIRD = "blue"
+# COLOR_FIFTH = "grey"
+# COLOR_QUALITY = "green"
+# COLOR_OTHER = "purple"
 
+# colors = [COLOR_TONIC, COLOR_OTHER, COLOR_OTHER, COLOR_THIRD, COLOR_THIRD, ]
 
 @dataclass(frozen=True)
 class GuitarPosition:
@@ -63,17 +69,14 @@ class GuitarPosition:
             return None
         return self.string.note_open + ChromaticInterval(self.fret.value)
 
-    def get_stroke_color(self):
-        return "black"
-
-    def svg(self):
+    def svg(self, stroke_color: str= "black"):
         """Draw this position, assuming that f already contains the svg for the fret"""
         fill_color = "white" if self.fret == OPEN_FRET else "black"
         x = self.string.x()
         if self.fret is NOT_PLAYED:
             return f"""<text x="{int(x)}" y="{int(MARGIN)}" font-size="30">x</text><!-- string {self.string.value}, not played-->"""
         y = self.fret.y_dots()
-        return f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{fill_color}" stroke="{self.get_stroke_color()}" stroke-width="3"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""
+        return f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{fill_color}" stroke="{stroke_color}" stroke-width="3"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""
 
     def __eq__(self, other: GuitarPosition):
         assert_typing(other, GuitarPosition)

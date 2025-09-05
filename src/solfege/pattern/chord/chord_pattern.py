@@ -34,7 +34,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
 
     """Whether the 5th is optional"""
     optional_fifth: bool
-    inversions: List["InversionPattern"] = field(hash=False, compare=False, default_factory=list)
+    inversions: List["InversionPattern"] = field(hash=False, compare=False, default_factory=list, repr=False)
 
 
     @classmethod
@@ -50,8 +50,8 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "optional_fifth")
-        args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "inversions")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "optional_fifth")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "inversions")
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         return super()._clean_arguments_for_constructor(args, kwargs)
 

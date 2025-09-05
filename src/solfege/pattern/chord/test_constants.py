@@ -1,14 +1,14 @@
 from typing import ClassVar, Optional, Type
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.chord.interval_list_to_chord_pattern import IntervalListToChordPattern
-from solfege.pattern.chord.interval_list_to_inversion_pattern import IntervalListToInversion
+from solfege.pattern.chord.interval_list_to_inversion_pattern import IntervalListToInversionPattern
 from solfege.pattern.chord.inversion_pattern import InversionPattern
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
 from solfege.pattern.interval_list_to_patterns import IntervalListToPatterns, PatternType
 from solfege.value.interval.set.list import IntervalList
 from solfege.pattern.chord.chord_patterns import dominant_seventh_chord
 
-interval_to_inversion = IntervalListToInversion.make()
+interval_to_inversion = IntervalListToInversionPattern.make()
 interval_to_chord = IntervalListToChordPattern.make()
 
 dominant_seventh_chord._associate_keys_to_self(record_keeper=interval_to_chord)

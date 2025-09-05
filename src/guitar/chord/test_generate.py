@@ -3,7 +3,7 @@ import unittest
 from guitar.position.fret import Fret
 from guitar.position.string import strings
 
-from guitar.chord.utils import *
+from guitar.chord.chord_utils import *
 
 no_strings = Strings([])
 last_string = Strings([strings[5]])

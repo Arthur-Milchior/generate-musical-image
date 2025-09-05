@@ -11,7 +11,7 @@ second_major = IntervalList.make_relative([(2, 1)])
 tone = ChromaticIntervalList.make_relative([2])
 
 @dataclass(frozen=True, eq = True)
-class FakePattern(PatternWithIntervalList):
+class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
     _relative_intervals: FrozenList[IntervalList]
 
     @classmethod
@@ -23,23 +23,34 @@ class FakePattern(PatternWithIntervalList):
         def clean_intervals(intervals):
             return FrozenList([Interval.make_single_argument(interval) for interval in intervals])
         
-        args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "_relative_intervals", clean_intervals)
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_relative_intervals", clean_intervals)
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def get_interval_list(self) -> IntervalList:
         return IntervalList.make_relative(self._relative_intervals)
     
-class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[FakePattern]):
+class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[FakePattern, List]):
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = FakePattern
+    _recorded_container_type: ClassVar[Type] = list
+    
+    @classmethod
+    def _new_container(self, key: IntervalList) -> List[FakePattern]:
+        return list()
 
-class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern]):
+class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, List]):
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = FakePattern
+    _recorded_container_type: ClassVar[Type] = list
+    _chromatic_recorded_container_type: ClassVar[Type] = list
     
     @classmethod
     def make_chromatic_container(self):
         return FakeChromaticIntervalListToFakePatterns.make()
+    
+    @classmethod
+    def _new_container(self, key: IntervalList) -> List[FakePattern]:
+        return list()
 
     
 fake_pattern_second_major = FakePattern.make([(2,1)])

@@ -73,7 +73,7 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
             raise
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(chromatic = {self.chromatic.value}, diatonic = {self.diatonic.value})"
+        return f"{self.__class__.__name__}.make({self.chromatic.value}, {self.diatonic.value})"
 
     def _add(self, other: "Pair") -> Self:
         if not isinstance(other, Pair):

@@ -48,7 +48,7 @@ class DataClassWithDefaultArgument:
         return (args, kwargs)
     
     @staticmethod
-    def maybe_arg_to_kwargs(args, kwargs, name, clean: Callable = lambda x:x):
+    def _maybe_arg_to_kwargs(args, kwargs, name, clean: Callable = lambda x:x):
         """Clean the value associated to name, by default the first of args, if it exists. Otherwise do nothing."""
         if not args and name not in kwargs:
             return (args, kwargs)
@@ -87,7 +87,7 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
                 return FrozenList(intervals)
             return intervals
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "_absolute_intervals", clean_absolute_intervals)
-        args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "increasing")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "increasing")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
@@ -97,15 +97,15 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
             assert_typing(interval, self.interval_type)
         for first, second in pairwise(self._absolute_intervals):
             if self.increasing:
-                assert first < second
+                assert first < second, self._absolute_intervals
             else:
-                assert first > second
+                assert first > second, self._absolute_intervals
         super().__post_init__()
 
     @classmethod
     def make_absolute(cls, absolute_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]], *args, add_implicit_zero: bool = True, **kwargs):
         absolute_intervals = [cls.interval_type.make_single_argument(absolute_interval) for absolute_interval in absolute_intervals]
-        first_interval = absolute_intervals[0]
+        first_interval = absolute_intervals[0] if absolute_intervals else None
         unison = cls.interval_type.unison()
         if first_interval != unison and add_implicit_zero:
             absolute_intervals = [unison] + absolute_intervals
@@ -120,10 +120,10 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
             absolute_intervals.append(absolute_intervals[-1] + relative_interval)
         return cls.make(*args, _absolute_intervals=FrozenList(absolute_intervals), **kwargs)
 
-    def absolute_intervals(self) -> FrozenList[Interval]:
+    def absolute_intervals(self) -> FrozenList[IntervalType]:
         return self._absolute_intervals
 
-    def relative_intervals(self, assume_implicit_zero=True) -> FrozenList[Interval]:
+    def relative_intervals(self, assume_implicit_zero=True) -> FrozenList[IntervalType]:
         """Generator of the difference of intervals"""
         unison = self.interval_type.unison()
         assert self._absolute_intervals[0] == unison
@@ -143,18 +143,43 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
 
     def absolute_diatonic(self) -> FrozenList[DiatonicInterval]:
         return FrozenList([interval.get_diatonic() for interval in self.absolute_intervals()])
+    
+    def __repr__(self):
+        l = [f"{self.__class__.__name__}.make_absolute(["""]
+        l.append(", ".join(self.interval_repr(chromatic_interval) for chromatic_interval in self.absolute_intervals()))
+        if self.increasing is not True:
+            l.append(f", {str(self.increasing)}")
+        l.append("])")
+        return "".join(l)
+    
+    @staticmethod
+    def interval_repr(interval: IntervalType) -> str:
+        "How to display the interval in make."
+        return NotImplemented
 
-@dataclass(frozen=True, unsafe_hash=True)
+@dataclass(frozen=True, unsafe_hash=True, repr=False)
 class ChromaticIntervalList(AbstractIntervalList[ChromaticInterval]):
     interval_type: ClassVar[Type[ChromaticInterval]] = ChromaticInterval
+    
+    @staticmethod
+    def interval_repr(interval: ChromaticInterval) -> str:
+        "How to display the interval in make."
+        return str(interval.value)
 
-@dataclass(frozen=True, unsafe_hash=True)
+@dataclass(frozen=True, unsafe_hash=True, repr=False)
 class IntervalList(AbstractIntervalList[Interval]):
     interval_type: ClassVar[Type[Interval]] = Interval
+    
+    @staticmethod
+    def interval_repr(interval: Interval) -> str:
+        "How to display the interval in make."
+        return f"""({interval.chromatic.value}, {interval.diatonic.value})"""
 
-    def get_chromatic(self) -> ChromaticIntervalList:
+    def get_chromatic_interval_list(self) -> ChromaticIntervalList:
         absolute_chromatic = self.absolute_chromatic()
-        return ChromaticIntervalList.make_absolute([interval.get_chromatic() for interval in absolute_chromatic], increasing=self.increasing)
+        chromatic_interval_list = ChromaticIntervalList.make_absolute([interval.get_chromatic() for interval in absolute_chromatic], increasing=self.increasing)
+        assert_typing(chromatic_interval_list, ChromaticIntervalList)
+        return chromatic_interval_list
 
     def get_interval_list(self) -> "IntervalList":
         return IntervalList(self._absolute_intervals, self.increasing)

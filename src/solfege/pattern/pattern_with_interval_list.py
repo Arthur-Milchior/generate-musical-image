@@ -4,13 +4,13 @@ from typing import ClassVar, Dict, Generic, List, Optional, Self, Type, TypeVar,
 
 from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from utils.recordable import RecordKeeperType, Recordable
-from utils.util import assert_list_typing, assert_typing
+from utils.util import assert_iterable_typing, assert_typing
 from solfege.value.key.key import nor_flat_nor_sharp
 
 
 
 @dataclass(frozen=True)
-class PatternWithIntervalList(Recordable[IntervalList, "IntervalToPattern"], DataClassWithDefaultArgument):
+class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], Generic[RecordKeeperType], DataClassWithDefaultArgument):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
@@ -29,7 +29,7 @@ class PatternWithIntervalList(Recordable[IntervalList, "IntervalToPattern"], Dat
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "record")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "record")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
@@ -45,4 +45,4 @@ class PatternWithIntervalList(Recordable[IntervalList, "IntervalToPattern"], Dat
         return [self.get_interval_list()]
     
     def chromatic_interval_lists(self) -> ChromaticIntervalList:
-        return [interval.get_chromatic() for interval in self.interval_lists()]
+        return [interval.get_chromatic_interval_list() for interval in self.interval_lists()]

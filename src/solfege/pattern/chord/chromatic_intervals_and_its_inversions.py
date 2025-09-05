@@ -7,12 +7,9 @@ from utils.recordable import RecordedContainer
 
 
 @dataclass(frozen=True)
-class ChromaticIntervalsAndItsInversions(RecordedContainer[InversionPattern]):
+class ChromaticIntervalListAndItsInversions(RecordedContainer[InversionPattern]):
     chromatic_intervals: ChromaticIntervalList
     inversions: List[InversionPattern] = field(default_factory=list)
-    
-    """See PatternWithIntervalList"""
-    chromatic_interval_to_patterns: ClassVar[Dict[ChromaticIntervalList, "ChromaticIntervalsAndItsInversions"]] = dict()
 
     def append(self, inversion):
         self.inversions.append(inversion)
@@ -26,3 +23,5 @@ class ChromaticIntervalsAndItsInversions(RecordedContainer[InversionPattern]):
     def alternative_names(self):
         return ",".join(inversion.name() for inversion in self.inversions[1:])
     
+    def __iter__(self):
+        return iter(self.inversions)

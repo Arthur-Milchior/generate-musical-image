@@ -23,13 +23,16 @@ class PatternEmpty(SolfegePattern):
     def _new_record_keeper(cls):
         return RecordKeeperForPatternEmpty.make()
 
-class RecordKeeperForPatternEmpty(RecordKeeper[IntervalList, PatternEmpty, List]):
+class RecordKeeperForPatternEmpty(RecordKeeper[IntervalList, PatternEmpty, List[PatternEmpty]]):
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = PatternEmpty
     """Same as KeyType"""
     _key_type: ClassVar[Type] = IntervalList
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = List
+    
+    def _new_container(self, key: IntervalList) -> List[IntervalList]:
+        return list()
 
 PatternEmpty._record_keeper_type = RecordKeeperForPatternEmpty
 
@@ -47,13 +50,16 @@ class PatternDeux(SolfegePattern):
     def _new_record_keeper(cls):
         return RecordKeeperForPatternDeux.make()
 
-class RecordKeeperForPatternDeux(RecordKeeper[IntervalList, PatternDeux, List]):
+class RecordKeeperForPatternDeux(RecordKeeper[IntervalList, PatternDeux, List[PatternDeux]]):
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = PatternDeux
     """Same as KeyType"""
     _key_type: ClassVar[Type] = IntervalList
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = List
+    
+    def _new_container(self, key: IntervalList) -> List[IntervalList]:
+        return list()
 
 PatternDeux._record_keeper_type = RecordKeeperForPatternDeux
 

@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import Generic, Iterable, List, TypeVar
 
-from utils.util import assert_all_same_class, assert_list_typing, assert_typing
+from utils.util import assert_all_same_class, assert_iterable_typing, assert_typing
 
 
 T = TypeVar('T')
@@ -10,7 +10,7 @@ T = TypeVar('T')
 class FrozenList(Generic[T]):
     _l: List[T]
 
-    def __init__(self, arg):
+    def __init__(self, arg: Iterable[T]):
         # make a copy of the list
         l = list(arg)
         assert_all_same_class(l)
@@ -38,7 +38,7 @@ class FrozenList(Generic[T]):
     def __add__(self, other: Iterable[T]):
         other = list(other)
         if self._l:
-            assert_list_typing(other, self._l[0].__class__)
+            assert_iterable_typing(other, self._l[0].__class__)
         else:
             assert_all_same_class(other)
         return FrozenList(self._l + other)

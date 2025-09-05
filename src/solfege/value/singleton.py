@@ -56,7 +56,7 @@ class Singleton(Abstract):
         return math.floor(self.value / self.__class__.number_of_interval_in_an_octave)
 
     @classmethod
-    def make_single_argument(cls, value: Union[int, "Singleton"]):
+    def make_single_argument(cls, value: Union[int, "Singleton"]) -> Self:
         if isinstance(value, int):
             return cls.make_instance_of_selfs_class(value)
         assert_typing(value, cls)

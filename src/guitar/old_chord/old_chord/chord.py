@@ -1,7 +1,6 @@
 # from enum import Enum
 # from typing import Dict, Optional, Tuple
 # import lily.lily
-# from solfege.value.interval.set_of_intervals import intervals
 # from solfege.value.interval import ChromaticInterval
 # from solfege.value.note.note import Note
 # from solfege.value.note.with_tonic import ChromaticNoteWithTonic

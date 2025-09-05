@@ -5,20 +5,21 @@ from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns, PatternType
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.set.list import ChromaticIntervalList, IntervalList
-from utils.recordable import RecordKeeper
-from utils.util import assert_dict_typing, assert_typing, assert_list_typing
+from utils.recordable import ChromaticRecordedContainerType, RecordKeeper, RecordedContainerType
+from utils.util import assert_dict_typing, assert_optional_typing, assert_typing, assert_iterable_typing
 
 
 @dataclass(frozen=True)
-class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, List[PatternType]], Generic[PatternType]):
+class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, RecordedContainerType], Generic[PatternType, RecordedContainerType, ChromaticRecordedContainerType]):
     """Same but for chromatic interval as key"""
-    chromatic: ChromaticIntervalListToPatterns[PatternType]
+    chromatic: ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]
     """Same as KeyType"""
     _key_type: ClassVar[Type] = IntervalList
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type]
     """Same as RecordedContainerType"""
-    _recorded_container_type: ClassVar[Type] = List
+    _recorded_container_type: ClassVar[Type]
+    _chromatic_recorded_container_type: ClassVar[Type]
 
 
     @classmethod
@@ -39,13 +40,18 @@ class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, List[Patter
     
     def register(self, key: IntervalList, recorded: PatternType):
         super().register(key, recorded)
-        self.chromatic.register(key.get_chromatic(), recorded)
+        self.chromatic.register(key.get_chromatic_interval_list(), recorded)
 
-    def get_from_interval_list(self, key: IntervalList):
-        return self.get_recorded_container(key)
+    def get_from_interval_list(self, key: IntervalList) -> Optional[RecordedContainerType]:
+        container = self.get_recorded_container(key)
+        assert_optional_typing(container, self._recorded_container_type)
+        return container
 
-    def get_from_chromatic_interval_list(self, key: ChromaticIntervalList):
-        return self.chromatic.get_recorded_container(key)
+    def get_from_chromatic_interval_list(self, key: ChromaticIntervalList) -> Optional[ChromaticRecordedContainerType]:
+        assert_typing(key, ChromaticIntervalList)
+        container = self.chromatic.get_recorded_container(key)
+        assert_optional_typing(container, self._chromatic_recorded_container_type)
+        return container
 
 
 PatternWithIntervalList._record_keeper_type = IntervalListToPatterns

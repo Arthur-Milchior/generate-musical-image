@@ -47,4 +47,4 @@ class TestInversionPattern(unittest.TestCase):
     def test_inversion_found(self):
         for inversion in inversions:
             self.assertEqual([inversion], interval_to_inversion.get_recorded_container(inversion.interval_list))
-            self.assertEqual([inversion], interval_to_inversion.get_from_chromatic_interval_list(inversion.interval_list.get_chromatic()))
+            self.assertEqual([inversion], interval_to_inversion.get_from_chromatic_interval_list(inversion.interval_list.get_chromatic_interval_list()))

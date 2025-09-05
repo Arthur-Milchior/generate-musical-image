@@ -5,7 +5,7 @@ from typing import ClassVar, Dict, List, Optional, Self, Tuple, Union
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from utils.frozenlist import FrozenList
-from utils.util import assert_all_same_class, assert_list_typing, assert_optional_typing, assert_typing, traceback_str
+from utils.util import assert_all_same_class, assert_iterable_typing, assert_optional_typing, assert_typing, traceback_str
 from solfege.value.key.key import nor_flat_nor_sharp
 
 
@@ -35,8 +35,8 @@ class PatternWithName(DataClassWithDefaultArgument):
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "names", FrozenList)
-        args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "notation")
-        args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "record")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "notation")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "record")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
@@ -44,7 +44,7 @@ class PatternWithName(DataClassWithDefaultArgument):
         assert_typing(self.names, FrozenList)
         assert_typing(self.record, bool)
         assert_optional_typing(self.notation, str)
-        assert_list_typing(self.names, str)
+        assert_iterable_typing(self.names, str)
         if not self.record:
             return
         cls = self.__class__

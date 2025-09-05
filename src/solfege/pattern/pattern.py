@@ -28,7 +28,7 @@ class SolfegePattern(IntervalList, PatternWithName, PatternWithIntervalList, Dat
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.maybe_arg_to_kwargs(args, kwargs, "interval_for_signature")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "interval_for_signature")
         return super()._clean_arguments_for_constructor(args, kwargs)
     
     def __post_init__(self):

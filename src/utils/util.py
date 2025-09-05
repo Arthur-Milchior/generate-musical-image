@@ -1,3 +1,4 @@
+import itertools
 import os
 from typing import Dict, Iterable, List, Type
 import unittest
@@ -67,10 +68,20 @@ def assert_typing(value, type, exact:bool=False):
     else:
         assert isinstance(value, type), f"{value=}:{value.__class__} is not of {type=}"
 
-def assert_list_typing(l: List, type, exact:bool = False):
-    assert l is not None
-    for elt in l:
+def assert_iterable_typing(it: Iterable, type, exact:bool = False):
+    """Assert that each element of `it` has type `type`. Note that it consumes the iterable if it's a generator."""
+    assert it is not None
+    try:
+        iterator= iter(it)
+    except:
+        print(f"{it=} is not iterable")
+        raise
+    for elt in iterator:
         assert_typing(elt, type, exact=exact)
+
+def assert_increasing(it: Iterable):
+    for first, second in itertools.pairwise(it):
+        assert first < second
 
 def assert_dict_typing(d:Dict, type_key: Type, type_value:Type):
     assert d is not None
@@ -87,3 +98,9 @@ def traceback_str():
         raise Exception()
     except Exception as e:
         return "".join(traceback.format_list(traceback.extract_stack()))
+    
+def sorted_unique(it: Iterable):
+    s = frozenset(it)
+    l = list(s)
+    l.sort()
+    return l
