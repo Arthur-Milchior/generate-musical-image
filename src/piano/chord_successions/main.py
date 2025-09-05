@@ -17,8 +17,7 @@ if __name__ == '__main__':
     for note in notes:
         for succession in note.successions:
             compile_(succession.lily_code, file_prefix=succession.filepath, wav=False)
-    with open(f"{folder_path}/anki.csv", "w") as f:
-        f.write(anki_csv)
+    save_file(f"{folder_path}/anki.csv", anki_csv)
 
 #
 #

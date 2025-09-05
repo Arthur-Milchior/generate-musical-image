@@ -32,8 +32,7 @@ def clean_svg(svg_input_path: str, svg_output_path: str, background_color: str):
         svg = f.read()
     svg = add_background(svg, background_color)
     svg = remove_xlink(svg)
-    with open(svg_output_path, "w") as f:
-        f.write(svg)
+    save_file(svg_output_path, svg)
 
 
 def remove_xlink(input: str):

@@ -69,5 +69,4 @@ for scale_pattern in scale_patterns:
                 anki_entries.append(
                     f"""<img src="{file_prefix}.svg"/>|{pattern_name} in {first_key.note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )} and {second_key_note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )}""")
 
-with open(f"{folder_path}/anki.csv", "w") as f:
-    f.write("\n".join(anki_entries))
+save_file(f"{folder_path}/anki.csv", "\n".join(anki_entries))

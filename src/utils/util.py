@@ -104,3 +104,7 @@ def sorted_unique(it: Iterable):
     l = list(s)
     l.sort()
     return l
+
+def save_file(file_path: str, file_content: str):
+    with open(file_path, "w") as f:
+        f.write(file_content)

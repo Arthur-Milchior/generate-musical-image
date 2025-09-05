@@ -581,8 +581,7 @@ c0 -74 18 -133 36 -194c80 97 146 198 146 324z" fill="currentColor"/>
     example_output_path = "example_output.svg"
 
     def test_file(self):
-        with open(self.example_input_path, "w") as f:
-            f.write(self.example_input)
+        save_file(self.example_input_path, self.example_input)
         clean_svg(self.example_input_path, self.example_output_path, "white")
         with open(self.example_output_path, "r") as f:
             self.assertEqual(f.read(), self.expected_clean)

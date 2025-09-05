@@ -12,5 +12,4 @@ ensure_folder(folder_path)
 for fret_value in range(0, HIGHEST_FRET.value + 1):
     for string in strings:
         pos = GuitarPosition(string, Fret(fret_value))
-        with open(f"{folder_path}/{pos.singleton_diagram_svg_name()}", "w") as f:
-            f.write(pos.singleton_diagram_svg())
+        save_file(f"{folder_path}/{pos.singleton_diagram_svg_name()}", pos.singleton_diagram_svg())

@@ -5,7 +5,7 @@ from lily.svg import display_svg_file
 from solfege.pattern.scale.scale_pattern import scale_patterns_I_practice
 from consts import generate_root_folder
 from solfege.value.interval.interval import Interval
-from utils.util import ensure_folder
+from utils.util import ensure_folder, save_file
 from solfege.value.interval.interval_pattern import IntervalPattern, intervals_up_to_octave
 
 accordina_folder = f"{generate_root_folder}/accordina"
@@ -25,13 +25,11 @@ for interval in intervals_up_to_octave + [IntervalPattern("two octave", Interval
         svg = set.svg()
         file_name = f"""accordina_{interval_name}_position_{low_note.value}.svg"""
         path = f"{interval_folder}/{file_name}"
-        with open(path, "w") as f:
-            f.write(svg)
+        save_file(path, svg)
         anki_note.append(f"""<img src="{file_name}"/>""")
     anki_interval_notes.append(",".join(anki_note))
 anki_file_path = f"""{accordina_folder}/accordina_intervals.csv"""
-with open(anki_file_path, "w") as f:
-    f.write("\n".join(anki_interval_notes))
+save_file(anki_file_path, "\n".join(anki_interval_notes))
 
 # generating scales and arpeggios
 
@@ -49,13 +47,11 @@ for pattern in scale_patterns_I_practice:
             svg = set.svg()
             file_name = f"""accordina_{pattern_name}_position_{low_note.value}_{"one_octave" if number_of_octave == 1 else "two_octaves"}.svg"""
             path = f"{scales_folder}/{file_name}"
-            with open(path, "w") as f:
-                f.write(svg)
+            save_file(path, svg)
             anki_note.append(f"""<img src="{file_name}"/>""")
     anki_scale_notes.append(",".join(anki_note))
 anki_file_path = f"""{accordina_folder}/accordina_scale.csv"""
-with open(anki_file_path, "w") as f:
-    f.write("\n".join(anki_scale_notes))
+save_file(anki_file_path, "\n".join(anki_scale_notes))
 
 # Generating fingerings
 
@@ -71,8 +67,7 @@ for value in range(accordina_lowest_note.value, accordina_highest_note.value+1):
     path = f"{notes_folder}/{svg_name}"
     degree = fingered_note.get_degree()
     alteration = "♭" if "♭" in degree else ("#" if "#" in degree else "")
-    with open(path, "w") as f:
-        f.write(svg)
+    save_file(path, svg)
     anki_fingering = [
         "Accordina",
         degree,#degree
@@ -84,5 +79,4 @@ for value in range(accordina_lowest_note.value, accordina_highest_note.value+1):
     anki_fingering_notes.append(",".join(anki_fingering))
 
 anki_file_path = f"""{accordina_folder}/accordina_fingering.csv"""
-with open(anki_file_path, "w") as f:
-    f.write("\n".join(anki_fingering_notes))
+save_file(anki_file_path, "\n".join(anki_fingering_notes))

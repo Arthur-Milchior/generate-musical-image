@@ -263,8 +263,7 @@ def generate_score_fixed_pattern_first_note(key: str,
         anki_fields_for_this_scale_pattern_and_lowest_note += output.image_tags
         html_lines += output.html_lines
 
-    with open(f"{folder_path}/index.html", "w") as scale_note_file:
-        scale_note_file.write(f"""\
+    save_file(f"{folder_path}/index.html", f"""\
 <html>
   <head>
     <title>
@@ -339,10 +338,8 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
         else:
             missing += output
             continue
-    with open(f"{folder_path}/anki.csv", "w") as anki_scale_file:
-        anki_scale_file.write("\n".join(anki_notes_as_csv))
-    with open(f"{folder_path}/index.html", "w") as html_scale_file:
-        html_scale_file.write(f"""\
+    save_file(f"{folder_path}/anki.csv", "\n".join(anki_notes_as_csv))
+    save_file(f"{folder_path}/index.html", f"""\
 <html>
   <head>
     <title>
@@ -438,8 +435,7 @@ def generate_scores(folder_path: str, execute_lily: bool, wav: bool) -> Generate
         html_main_index_lines.append(output.html_link_for_this_scale_pattern)
         anki_every_notes_as_csv += output.anki_notes_as_csv
         too_big_alterations += output.too_big_alterations
-    with open(f"{folder_path}/index.html", "w") as html_file:
-        html_file.write(f"""
+    save_file(f"{folder_path}/index.html", f"""
 <html>
   <head>
     <title>
@@ -458,12 +454,9 @@ def generate_scores(folder_path: str, execute_lily: bool, wav: bool) -> Generate
     <footer><a href="about.html"/>About</a></footer>
   </body>
 </html>""")
-    with open(f"{folder_path}/about.html", "w") as html_file:
-        html_file.write(about_page_content)
+    save_file(f"{folder_path}/about.html", about_page_content)
     with open(f"""{folder_path}/anki.csv""", "w") as anki_file:
-        anki_file.write("\n".join(anki_every_notes_as_csv))
-    with open(f"""{folder_path}/scales_the_algo_failed_to_compute.txt""", "w") as cant:
+    save_file(f"""{folder_path}/anki.csv""", "\n".join(anki_every_notes_as_csv)compute.txt""", "w") as cant:
         cant.write("\n".join(str(missing_fingering) for missing_fingering in missing_fingerings))
-    with open(f"""{folder_path}/too_big_alterations.txt""", "w") as tba_file:
-        tba_file.write("\n".join(repr(tba) for tba in too_big_alterations))
+    save_file(f"""{folder_path}/too_big_alterations.txt""", "\n".join(repr(tba) for tba in too_big_alterations))
     return GenerateScoreOutput(missing_scores=missing_fingerings, too_big_alterations=too_big_alterations)

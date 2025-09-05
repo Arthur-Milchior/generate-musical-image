@@ -57,10 +57,8 @@ for scale in ScalePattern.all_patterns:
     for scale_name in scale.get_names():
         index += "%s, " % scale_name
     index += """</a></li>"""
-    with open("%s/index.html" % folder_scale, "w") as f:
-        f.write(web)
+    save_file("%s/index.html" % folder_scale, web)
 
 index += """</ul></body>
 </html>"""
-with open(imageFolder + "/index.html", "w") as f:
-    f.write(index)
+save_file(imageFolder + "/index.html", index)

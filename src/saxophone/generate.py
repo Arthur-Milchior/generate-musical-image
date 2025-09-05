@@ -21,12 +21,10 @@ for value in notes:
         path = f"{folder}/{file_name}"
         anki_field = f"""<img src="saxo_{name}_{entry}.svg"/>{fingering.anki_comment()}"""
         anki_note.append(anki_field)
-        with open(path, "w") as f:
-            f.write(fingering.svg())
+        save_file(path, fingering.svg())
     while len(anki_note) <= max_number_of_fingering:
         anki_note.append("")
     anki_notes.append(",".join(anki_note))
 
 csv_path = f"{folder}/saxophone.csv"
-with open(csv_path, "w") as f:
-    f.write("\n".join(anki_notes))
+save_file(csv_path, "\n".join(anki_notes))

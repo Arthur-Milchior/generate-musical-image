@@ -93,9 +93,7 @@ anki_notes = []
 note = lowest_guitar_note
 while note <= highest_guitar_note:
     anki_note = AnkiNote(note)
-    with open(f"{folder_path}/{anki_note.svg_name_for_all_positions()}", "w") as f:
-        f.write(anki_note.svg())
+    save_file(f"{folder_path}/{anki_note.svg_name_for_all_positions()}", anki_note.svg())
     anki_notes.append(anki_note.anki_csv())
     note += ChromaticInterval(1)
-with open(f"{folder_path}/anki.csv", "w") as f:
-    f.write("\n".join(anki_notes))
+save_file(f"{folder_path}/anki.csv", "\n".join(anki_notes))

@@ -41,12 +41,9 @@ anki_notes = []
 for interval_list, anki_note_content in interval_to_chord:
     anki_notes.append(anki_note_content.csv())
     for guitard_chord in anki_note_content.maximals():
-        with open(f"{transposable_folder}/{guitar_chord.file_name(stroke_colored=False)}", "w") as f:
-            f.write(guitar_chord.svg(absolute=False, stroke_colored=False))
-        with open(f"{transposable_folder}/{guitar_chord.file_name(stroke_colored=True)}", "w") as f:
-            f.write(guitar_chord.svg(absolute=False, stroke_colored=True))
-with open(f"{transposable_folder}/anki.csv", "w") as f:
-    f.write("\n".join(anki_notes))
+        save_file(f"{transposable_folder}/{guitar_chord.file_name(stroke_colored=False)}", guitar_chord.svg(absolute=False, stroke_colored=False))
+        save_file(f"{transposable_folder}/{guitar_chord.file_name(stroke_colored=True)}", guitar_chord.svg(absolute=False, stroke_colored=True))
+save_file(f"{transposable_folder}/anki.csv", "\n".join(anki_notes))
 
 
 

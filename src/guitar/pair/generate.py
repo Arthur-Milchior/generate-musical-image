@@ -96,9 +96,7 @@ for low_string in range(1, 6):
     for high_string in range(low_string + 1, 7):
         for (low_fret, high_fret) in pair_of_frets(LAST_FRET):
             anki_note = anki_note_(low_string, high_string, low_fret, high_fret)
-            with open(f"{folder_path}/{anki_note.svg_name()}", "w") as f:
-                f.write(anki_note.svg())
+            save_file(f"{folder_path}/{anki_note.svg_name()}", anki_note.svg())
             anki_notes.append(anki_note.anki_csv())
 
-with open(f"{folder_path}/anki.csv", "w") as f:
-    f.write("\n".join(anki_notes))
+save_file(f"{folder_path}/anki.csv", "\n".join(anki_notes))

@@ -336,6 +336,5 @@ for instrument in instruments:
             for _, anki_note_csv in anki_notes_in_scale:
                 anki_notes.append(anki_note_csv)
     csv = "\n".join(anki_notes)
-    with open(csv_path, "w") as f:
-        f.write(csv)
+    save_file(csv_path, csv)
 

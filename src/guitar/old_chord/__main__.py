@@ -77,9 +77,7 @@ ensure_folder(imageFolder + "transposable/")
 ensure_folder(imageFolder + "open/")
 for kind in anki:
     # index[kind] += "</ul></body></hmtl>"
-    with open(ankiFolder + "anki_" + kind + ".csv", "w") as f:
-        for line in anki[kind]:
-            f.write(line)
+    save_file(ankiFolder + "anki_" + kind + ".csv", "\n".join(anki[kind]))
     # with open(imageFolder+kind+"/index.html","w") as f:
     #     f.write(index[kind])
 
