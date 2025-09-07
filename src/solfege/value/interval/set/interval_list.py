@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from itertools import pairwise
-from typing import Callable, ClassVar, Generic, Iterable, List, Optional, Self, Tuple, Type, Union
+from typing import Callable, ClassVar, Generic, Iterable, List, Optional, Self, Tuple, Type, TypeVar, Union
 
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
 from solfege.value.interval.chromatic_interval import ChromaticInterval
@@ -11,61 +11,9 @@ from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
 from solfege.value.chromatic import ChromaticGetter
 from solfege.value.key.key import *
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
-from utils.util import assert_typing
-
-@dataclass(frozen=True)
-class DataClassWithDefaultArgument:
-    """Must always be added as last ancestor."""
-
-    @classmethod
-    def make(cls, *args, **kwargs) -> Self:
-        args, kwargs = cls._clean_arguments_for_constructor(args, kwargs)
-        default_args = cls._default_arguments_for_constructor()
-        default_args.update(kwargs)
-        return cls(*args, **default_args)
-
-    def __post_init__(self):
-        hash(self) #check that hash can be computed
-    
-    @staticmethod
-    def arg_to_kwargs(args, kwargs, name, clean: Callable = lambda x: x):
-        """If there is args, the first value is assumed to be name, not in kwargs, and is added in kwargs.
-        Otherwise check that name in `kwargs`.
-
-        Also clean the value with `clean`.
-
-        Value is moved from args to kwargs.
-        """
-        if args:
-            assert name not in kwargs
-            arg = args[0]
-            args = args[1:]
-        else:
-            assert name in kwargs
-            arg = kwargs[name]
-        kwargs[name] = clean(arg)
-        return (args, kwargs)
-    
-    @staticmethod
-    def _maybe_arg_to_kwargs(args, kwargs, name, clean: Callable = lambda x:x):
-        """Clean the value associated to name, by default the first of args, if it exists. Otherwise do nothing."""
-        if not args and name not in kwargs:
-            return (args, kwargs)
-        return DataClassWithDefaultArgument.arg_to_kwargs(args, kwargs, name, clean)
-
-    @classmethod
-    def _default_arguments_for_constructor(cls):
-        """Returns the association from argument name to default argument value.
-        Class inheriting must call super."""
-        return dict()
-    
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        """Ensure that any value is changed so that it gets the correct type. E.g. transform list in frozenlist
-        and pair of int in interval.
-        Class inheriting must call super."""
-        return (args, kwargs)
+from utils.util import assert_iterable_typing, assert_typing, sorted_unique
 
 @dataclass(frozen=True, unsafe_hash=True)
 class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
@@ -93,8 +41,7 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
     def __post_init__(self):
         assert self._absolute_intervals[0] == self.interval_type.unison()
         assert_typing(self._absolute_intervals, FrozenList)
-        for interval in self._absolute_intervals:
-            assert_typing(interval, self.interval_type)
+        assert_iterable_typing(self._absolute_intervals, self.interval_type)
         for first, second in pairwise(self._absolute_intervals):
             if self.increasing:
                 assert first < second, self._absolute_intervals
@@ -129,8 +76,15 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
         assert self._absolute_intervals[0] == unison
         return FrozenList([higher - lower for lower, higher in pairwise(self._absolute_intervals)])
 
-    def from_note(self, note: NoteType) -> FrozenList[NoteType]:
+    @classmethod
+    def _note_list_constructor(cls) -> Callable[[NoteType], "AbstractNoteList"]:
+        return NotImplemented
+
+    def _from_note(self, note: NoteType) -> FrozenList[NoteType]:
         return FrozenList([note + absolute_interval for absolute_interval in self._absolute_intervals])
+    
+    def from_note(self, note: NoteType) -> "NoteList":
+        return self._note_list_constructor().make(self._from_note(note))
 
     def relative_chromatic(self) -> FrozenList[ChromaticInterval]:
         return FrozenList([interval.get_chromatic() for interval in self.relative_intervals()])
@@ -156,10 +110,27 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
     def interval_repr(interval: IntervalType) -> str:
         "How to display the interval in make."
         return NotImplemented
+    
+    def in_base_octave(self) -> Self:
+        intervals_in_base_octave = sorted_unique(interval.in_base_octave() for interval in self._absolute_intervals)
+        return self.__class__.make(intervals_in_base_octave)
+    
+    def assert_in_base_octave(self, accepting_octave: bool = False):
+        for interval in self._absolute_intervals:
+            interval.assert_in_base_octave(accepting_octave)
+
+    
+IntervalListType = TypeVar("IntervalListType", bound=AbstractIntervalList)
 
 @dataclass(frozen=True, unsafe_hash=True, repr=False)
 class ChromaticIntervalList(AbstractIntervalList[ChromaticInterval]):
     interval_type: ClassVar[Type[ChromaticInterval]] = ChromaticInterval
+    note_list_type: ClassVar[Type]
+
+    @classmethod
+    def _note_list_constructor(cls):
+        from solfege.value.note.set.note_list import ChromaticNoteList
+        return ChromaticNoteList
     
     @staticmethod
     def interval_repr(interval: ChromaticInterval) -> str:
@@ -169,6 +140,11 @@ class ChromaticIntervalList(AbstractIntervalList[ChromaticInterval]):
 @dataclass(frozen=True, unsafe_hash=True, repr=False)
 class IntervalList(AbstractIntervalList[Interval]):
     interval_type: ClassVar[Type[Interval]] = Interval
+
+    @classmethod
+    def _note_list_constructor(cls):
+        from solfege.value.note.set.note_list import NoteList
+        return NoteList
     
     @staticmethod
     def interval_repr(interval: Interval) -> str:

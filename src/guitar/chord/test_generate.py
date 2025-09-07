@@ -31,7 +31,7 @@ class TestGenerate(unittest.TestCase):
         self.assertEqual(
             frozenset(enumerate_frets(Strings([strings[5]]), Frets(min_fret=1, max_fret=1, allow_not_played=False, allow_open=False))),
             frozenset({
-                SetOfGuitarPositions(frozenset({GuitarPosition(strings[5], Fret(1))})),
+                SetOfGuitarPositions.make({(5, 1)}),
             })
         )
 
@@ -39,10 +39,10 @@ class TestGenerate(unittest.TestCase):
         self.assertEqual(
             frozenset(enumerate_frets(Strings([strings[4], strings[5]]), Frets(min_fret=1, max_fret=2, allow_not_played=False, allow_open=False))),
             frozenset({
-                SetOfGuitarPositions(frozenset({GuitarPosition(strings[4], Fret(1)), GuitarPosition(strings[5], Fret(1))})),
-                SetOfGuitarPositions(frozenset({GuitarPosition(strings[4], Fret(1)), GuitarPosition(strings[5], Fret(2))})),
-                SetOfGuitarPositions(frozenset({GuitarPosition(strings[4], Fret(2)), GuitarPosition(strings[5], Fret(1))})),
-                SetOfGuitarPositions(frozenset({GuitarPosition(strings[4], Fret(2)), GuitarPosition(strings[5], Fret(2))})),
+                SetOfGuitarPositions.make({(4, 1), (5, 1)}),
+                SetOfGuitarPositions.make({(4, 1), (5, 2)}),
+                SetOfGuitarPositions.make({(4, 2), (5, 1)}),
+                SetOfGuitarPositions.make({(4, 2), (5, 2)}),
             })
         )
     

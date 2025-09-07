@@ -5,7 +5,7 @@ from typing import ClassVar, Dict, List, Optional, Self, Tuple, Union
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.pattern.pattern_with_name import PatternWithName
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from utils.frozenlist import FrozenList
 from utils.util import assert_all_same_class, assert_typing
 from solfege.value.key.key import nor_flat_nor_sharp

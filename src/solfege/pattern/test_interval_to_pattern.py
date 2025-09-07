@@ -2,7 +2,7 @@ from typing import Tuple
 import unittest
 
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.list import ChromaticIntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList
 from utils.frozenlist import FrozenList
 
 from solfege.pattern.interval_list_to_patterns import *

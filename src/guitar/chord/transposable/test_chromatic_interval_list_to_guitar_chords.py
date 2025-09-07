@@ -1,14 +1,15 @@
 import unittest
 
 from .chromatic_interval_list_to_guitar_chords import * 
-from .test_constants import *
+from ..test_constants import *
 from solfege.pattern.chord.chord_patterns import major_triad
 
 
 class TestChromaticIntervalListToGuitarChord(unittest.TestCase):
     def test_iter(self):
         itv_to_chord = ChromaticIntervalListToGuitarChords.make()
-        itv_to_chord.maybe_register(F)
+        chromatic_intervals = F.intervals_frow_lowest_note_in_base_octave()
+        itv_to_chord.register(chromatic_intervals, F)
         all_interval_and_its_inversions = list(itv_to_chord)
         self.assertEqual(len(all_interval_and_its_inversions), 1) 
         interval_list, chromatic_interval_list_and_its_guitar_chords = all_interval_and_its_inversions[0]

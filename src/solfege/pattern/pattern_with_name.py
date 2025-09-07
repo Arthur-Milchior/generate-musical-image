@@ -3,7 +3,7 @@ import sys
 from typing import ClassVar, Dict, List, Optional, Self, Tuple, Union
 
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from utils.frozenlist import FrozenList
 from utils.util import assert_all_same_class, assert_iterable_typing, assert_optional_typing, assert_typing, traceback_str
 from solfege.value.key.key import nor_flat_nor_sharp
@@ -16,7 +16,6 @@ class PatternWithName(DataClassWithDefaultArgument):
 
     """Associate a name to its pattern"""
     name_to_pattern: ClassVar[Dict[str, "PatternWithName"]]
-    name_to_stacktrace: ClassVar[Dict[str, str]] = dict()
     """associate to each class the list of all instances of this class"""
     all_patterns: ClassVar[List['PatternWithName']]
 
@@ -52,7 +51,6 @@ class PatternWithName(DataClassWithDefaultArgument):
         for name in self.names:
             assert name not in cls.name_to_pattern, f""" "{name}" added twice in {cls}. Check for error above that would cause the definition of {name} to be imported twice."""
             cls.name_to_pattern[name] = self
-            cls.name_to_stacktrace[name] = traceback_str()
         super().__post_init__()
 
 

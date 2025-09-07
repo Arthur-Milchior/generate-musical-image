@@ -2,8 +2,9 @@ from dataclasses import dataclass, field
 from itertools import pairwise
 from typing import ClassVar, Dict, List
 
+from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from solfege.pattern.pattern import SolfegePattern
 from utils.frozenlist import FrozenList
 from utils.util import assert_all_same_class, assert_typing
@@ -96,7 +97,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
         from solfege.pattern.chord.inversion_pattern import InversionPattern
         assert 0<= inversion_number<len(self._absolute_intervals)
         assert self.increasing
-        new_lower = self._absolute_intervals[inversion_number]
+        new_lower: Interval = self._absolute_intervals[inversion_number]
         absolute_intervals = [(interval - new_lower).add_octave(1 if index < inversion_number else 0) for index, interval in enumerate(self._absolute_intervals)]
         absolute_intervals = absolute_intervals[inversion_number:] + absolute_intervals[:inversion_number]
         if omit_fifth:
@@ -105,7 +106,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
             assert new_index_of_fifth > 0 # don't remove the lowest note of the inversion
             absolute_intervals.pop(new_index_of_fifth)
         inversion_interval_list = IntervalList.make_absolute(absolute_intervals, increasing=self.increasing)
-        return InversionPattern.make(inversion=inversion_number, interval_list=inversion_interval_list, base=self, fifth_omitted = omit_fifth, record=record)
+        return InversionPattern.make(inversion=inversion_number, interval_list=inversion_interval_list, base=self, fifth_omitted = omit_fifth, record=record, position_of_lowest_interval_in_base_octave=new_lower)
     
     def compute_all_inversions(self, record=False):
         l = []

@@ -163,7 +163,7 @@ class AnkiNote:
         return f"{folder_path}/{self.instrument}.csv"
 
     def instrument_image(self):
-        return f"""<img src="{self.instrument}.png"/>"""
+        return util.img_tag(f"{self.instrument}.png")
 
     def interval(self):
         return self.instrument.transposition - self.scale_pattern.interval_for_signature
@@ -294,7 +294,7 @@ class AnkiField:
         compile_(self.lily(), file_prefix=self.path(), wav = False)
     
     def svg_scale_html(self):
-        return f"""<img src="{self.svg_scale_file_name()}.svg"/>"""
+        return img_tag(f"{self.svg_scale_file_name()}.svg")
     
     def fingerings_html(self):
         field_parts = []
@@ -306,7 +306,7 @@ class AnkiField:
                 note_output = NoteOutput.LETTER, 
                 fixed_length = FixedLengthOutput.NO
             )
-            field_parts.append(f"""<img src="{self.anki_note.instrument}_{note_name}.{self.anki_note.instrument.image_extension}"/>""")
+            field_parts.append(img_tag(self.anki_note.instrument}_{note_name}.{self.anki_note.instrument.image_extension))
         return field_parts            
 
 
@@ -322,7 +322,7 @@ class AnkiField:
 
 all_csv = []
 for instrument in instruments:
-    instrument_image = f"""<img src="{instrument}.png"/>"""
+    instrument_image = img_tag(f"{instrument}.png")
     csv_path = f"{folder_path}/{instrument}.csv"
     anki_notes: List[str] = []
     for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):

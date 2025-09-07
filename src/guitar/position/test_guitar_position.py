@@ -29,8 +29,8 @@ class TestGuitarPosition(unittest.TestCase):
     #     self.assertEqual(GuitarPosition(strings[0], Fret(3)).svg(), """<circle cx="15" cy="150" r="11" fill="black" stroke="black" stroke-width="3"/>""")
 
     def test_repr(self):
-        self.assertEqual(repr(GuitarPosition(strings[0], fret=NOT_PLAYED)), "GuitarPosition(string=strings[0], fret=Fret(value=None))")
-        self.assertEqual(repr(empty_first_string), "GuitarPosition(string=strings[0], fret=Fret(value=0))")
+        self.assertEqual(repr(GuitarPosition(strings[0], fret=NOT_PLAYED)), "GuitarPosition.make(1, None)")
+        self.assertEqual(repr(empty_first_string), "GuitarPosition.make(1, 0)")
 
     def test_eq(self):
         self.assertEqual(GuitarPosition(strings[0], fret=NOT_PLAYED), GuitarPosition(strings[0], fret=NOT_PLAYED))

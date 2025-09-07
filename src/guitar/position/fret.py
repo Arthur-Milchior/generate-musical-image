@@ -29,6 +29,18 @@ class Fret(ChromaticInterval):
             return "x"
         return str(self.value)
     
+    def is_played(self):
+        return isinstance(self.value, int)
+    
+    def is_open(self):
+        return self.value == 0
+    
+    def is_not_played(self):
+        return self.value == None
+    
+    def is_closed(self):
+        return isinstance(self.value, int) and self.value > 0
+    
     @classmethod
     def make(cls, fret: Union["Fret", int, None]) -> Self:
         if isinstance(fret, Fret):
@@ -60,7 +72,6 @@ class Fret(ChromaticInterval):
         if self.require_value() == 0 and absolute:
             return TOP_FRET_THICKNESS
         return FRET_THICKNESS
-
     
     def __lt__(self, other: "Fret"):
         if self.value is None:
@@ -123,6 +134,14 @@ class Fret(ChromaticInterval):
 
     def above(self):
         return Fret(self.require_value() - 1)
+    
+    def transpose(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
+        if self.is_not_played():
+            assert transpose_not_played
+            return self
+        if not transpose_open and self.is_open():
+            return self
+        return self.__class__(self.require_value() + transpose)
 
 
 NOT_PLAYED = Fret(None)

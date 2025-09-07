@@ -22,6 +22,13 @@ class String:
         assert_typing(self.value, int)
         assert_typing(self.note_open, ChromaticNote)
 
+    @staticmethod
+    def make_single_argument(string: Union["String", int]):
+        if isinstance(string, String):
+            return string
+        assert_typing(string, int)
+        return strings[string-1]
+
     def __add__(self, other: int):
         if self.value is None:
             return self

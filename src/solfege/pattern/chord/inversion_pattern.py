@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from typing import ClassVar, Dict, List
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
-from solfege.value.interval.set.list import DataClassWithDefaultArgument, IntervalList
+from solfege.value.interval.interval import Interval
+from solfege.value.interval.set.interval_list import DataClassWithDefaultArgument, IntervalList
 from utils.util import assert_typing
 
 
@@ -15,6 +16,9 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversion"], DataC
     interval_list: IntervalList
     base: ChordPattern
     fifth_omitted: bool
+
+    """For a scale whose lowest note is n, you get the position of the tonic with n+position_of_lowest_interval_in_base_octave."""
+    position_of_lowest_interval_in_base_octave: Interval
 
     @classmethod
     def _new_record_keeper(cls):
@@ -64,3 +68,4 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversion"], DataC
     
     def __lt__(self, other: "InversionPattern"):
         return (self.inversion, not self.fifth_omitted, self.base) < (other.inversion, not other.fifth_omitted, other.base)
+    

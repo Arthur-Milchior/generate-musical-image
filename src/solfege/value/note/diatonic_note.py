@@ -6,8 +6,10 @@ from typing import assert_never
 from solfege.value.note.abstract_note import FixedLengthOutput, NoteOutput
 from solfege.value.diatonic import Diatonic
 from solfege.value.note.singleton_note import AbstractSingletonNote
+from utils.util import assert_equal_length
 
-
+french_fixed_length_space = ["do ", "re ", "mi ", "fa ", "sol", "la ", "si "]
+assert_equal_length(french_fixed_length_space)
 class DiatonicNote(AbstractSingletonNote, Diatonic):
     """A diatonic note. Implemented as interval from C4"""
 
@@ -18,7 +20,7 @@ class DiatonicNote(AbstractSingletonNote, Diatonic):
             if fixed_length == FixedLengthOutput.NO:
                 return ["do", "re", "mi", "fa", "sol", "la", "si"][self.value % 7]
             else:
-                return ["do ", "re ", "mi ", "fa ", "sol", "la ", "si "][self.value % 7]
+                return french_fixed_length_space[self.value % 7]
         elif note_output == NoteOutput.LETTER:
             return ["C", "D", "E", "F", "G", "A", "B"][self.value % 7]
         elif note_output == NoteOutput.NUMBER:

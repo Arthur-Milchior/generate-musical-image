@@ -4,7 +4,7 @@ from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns, PatternType
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
-from solfege.value.interval.set.list import ChromaticIntervalList, IntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
 from utils.recordable import ChromaticRecordedContainerType, RecordKeeper, RecordedContainerType
 from utils.util import assert_dict_typing, assert_optional_typing, assert_typing, assert_iterable_typing
 
@@ -49,6 +49,7 @@ class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, RecordedCon
 
     def get_from_chromatic_interval_list(self, key: ChromaticIntervalList) -> Optional[ChromaticRecordedContainerType]:
         assert_typing(key, ChromaticIntervalList)
+        key.assert_in_base_octave()
         container = self.chromatic.get_recorded_container(key)
         assert_optional_typing(container, self._chromatic_recorded_container_type)
         return container

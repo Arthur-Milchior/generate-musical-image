@@ -56,7 +56,7 @@ class TestNote(unittest.TestCase):
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
-        self.assertEqual(repr(self.D4), "Note(chromatic=ChromaticNote(value=2), diatonic=DiatonicNote(value=1))")
+        self.assertEqual(repr(self.D4), "Note.make(2, 1)")
 
     def test_octave(self):
         self.assertEqual(self.C4.octave(), 0)
@@ -165,4 +165,8 @@ class TestNote(unittest.TestCase):
         self.assertEqual(Note.from_name("D♭").canonize(for_sharp=False), Note.from_name("D♭"))
         self.assertEqual(Note.from_name("D♭♭").canonize(for_sharp=False), Note.from_name("C"))
 
+
+    def test_change_octave(self):
+        c4 = Note.make(0, 0)
+        self.assertEqual(c4.change_octave_to_be_enharmonic(ChromaticNote(12)), Note.make(12, 7))
     # todo Test wwith color

@@ -4,9 +4,10 @@ from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.chromatic import Chromatic
 from solfege.value.note.singleton_note import AbstractSingletonNote
+from utils.util import img_tag
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class ChromaticNote(AbstractSingletonNote, Chromatic):
     AlterationClass: ClassVar[Type[Chromatic]]
     @staticmethod
@@ -51,7 +52,7 @@ class ChromaticNote(AbstractSingletonNote, Chromatic):
 
     def image_html(self, clef: Optional[str]="treble"):
         """Return the html tag for the image."""
-        return f"""<img src="{self.image_file_name(clef)}"/>"""
+        return img_tag(self.image_file_name(clef))
 
     def is_white_key_on_piano(self):
         """Whether this note corresponds to a black note of the keyboard"""

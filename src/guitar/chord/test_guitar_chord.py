@@ -24,21 +24,29 @@ class TestGuitarChord(unittest.TestCase):
         self.assertTrue(C.is_open())
         self.assertFalse(F.is_open())
         
+    def test_is_transposable(self):
+        self.assertFalse(open.is_transposable())
+        self.assertFalse(diag.is_transposable())
+        self.assertTrue(ones.is_transposable())
+        self.assertTrue(diag_two.is_transposable())
+        self.assertFalse(C.is_transposable())
+        self.assertTrue(F.is_transposable())
+        
     def test_is_barred(self):
-        self.assertFalse(open.is_barred())
-        self.assertFalse(diag.is_barred())
-        self.assertTrue(ones.is_barred())
-        self.assertFalse(diag_two.is_barred())
-        self.assertFalse(C.is_barred())
-        self.assertTrue(F.is_barred())
+        self.assertEqual(open.is_barred(), Barred.NO)
+        self.assertEqual(diag.is_barred(), Barred.NO)
+        self.assertEqual(ones.is_barred(), Barred.FULLY)
+        self.assertEqual(diag_two.is_barred(), Barred.NO)
+        self.assertEqual(C.is_barred(), Barred.NO)
+        self.assertEqual(F.is_barred(), Barred.FULLY)
         
     def test_is_playable(self):
-        self.assertTrue(open.is_playable())
-        self.assertFalse(diag.is_playable())
-        self.assertTrue(ones.is_playable())
-        self.assertFalse(diag_two.is_playable())
-        self.assertTrue(C.is_playable())
-        self.assertTrue(F.is_playable())
+        self.assertEqual(open.playable(), Playable.EASY)
+        self.assertEqual(diag.playable(), Playable.NO)
+        self.assertEqual(ones.playable(), Playable.EASY)
+        self.assertEqual(diag_two.playable(), Playable.NO)
+        self.assertEqual(C.playable(), Playable.EASY)
+        self.assertEqual(F.playable(), Playable.EASY)
         
     def test_chord_pattern_is_redundant(self):
         self.assertFalse(open.chord_pattern_is_redundant())

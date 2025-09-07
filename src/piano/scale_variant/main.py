@@ -6,7 +6,8 @@ from solfege.value.interval.interval import Interval
 from solfege.value.key.key import sets_of_enharmonic_keys, Key
 from solfege.pattern.scale.scale import Scale
 from solfege.pattern.scale.scale_pattern import major_scale, scale_patterns
-from utils.util import ensure_folder
+from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from utils.util import ensure_folder, img_tag, save_file
 
 """
 Generate the scales, followed by the same scale, moved by a semi-tone in the reverse side
@@ -67,6 +68,6 @@ for scale_pattern in scale_patterns:
                     ))}_{second_direction}"
                 compile_(two_scales.lily(False), f"{scale_folder}/{file_prefix}", False)
                 anki_entries.append(
-                    f"""<img src="{file_prefix}.svg"/>|{pattern_name} in {first_key.note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )} and {second_key_note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )}""")
+                    f"""{img_tag("{file_prefix}.svg")}|{pattern_name} in {first_key.note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )} and {second_key_note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )}""")
 
 save_file(f"{folder_path}/anki.csv", "\n".join(anki_entries))

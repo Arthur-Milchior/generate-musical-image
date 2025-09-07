@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, TypeVar
 
 from solfege.value.singleton import Singleton
 from utils.util import assert_typing
@@ -32,3 +32,5 @@ class Chromatic(Singleton, ChromaticGetter):
         if diatonicNumber is None:
             diatonic = self.get_diatonic()
         return self.PairClass(diatonic=diatonic, chromatic=self)
+    
+ChromaticType = TypeVar("ChromaticType", bound=Chromatic)

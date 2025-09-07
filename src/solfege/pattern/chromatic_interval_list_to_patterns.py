@@ -5,7 +5,7 @@ from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.chromatic_interval import ChromaticInterval
-from solfege.value.interval.set.list import ChromaticIntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList
 from utils.recordable import ChromaticRecordedContainerType, RecordKeeper
 from utils.util import assert_dict_typing, assert_typing, assert_iterable_typing
 

@@ -2,12 +2,14 @@ import unittest
 
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.diatonic_interval import DiatonicInterval
+from solfege.value.interval.interval import Interval
+from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
 from solfege.value.interval.test_chromatic_interval import TestChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
-from solfege.value.interval.set.list import *
+from solfege.value.note.note import Note
 
 
-major_triad_absolut_list = [Interval.make(0, 0), Interval.make(4, 2), Interval.make(7, 4)]
+major_triad_absolut_list = [Interval.make(0, 0), Interval.make(4, 2), Interval.make(7, 4)] # pyright: ignore[reportUndefinedVariable]
 major_triad_relative_list = [Interval.make(4, 2), Interval.make(3, 2)]
 minor_triad_relative = IntervalList.make_relative([(3, 2), (4, 2)])
 major_triad_relative = IntervalList.make_relative(major_triad_relative_list)
@@ -39,7 +41,7 @@ class TestIntervalList(unittest.TestCase):
         self.assertEqual(list(major_triad_absolute.relative_diatonic()), [DiatonicInterval(2), DiatonicInterval(2)])
 
     def test_from_chromatic_note(self):
-        self.assertEqual(list(major_triad_absolute.from_note(ChromaticNote(0))), [ChromaticNote(0), ChromaticNote(4), ChromaticNote(7)])
+        self.assertEqual(list(major_triad_absolute.get_chromatic_interval_list().from_note(ChromaticNote(0))), [ChromaticNote(0), ChromaticNote(4), ChromaticNote(7)])
 
     def test_from_note(self):
         self.assertEqual(list(major_triad_absolute.from_note(Note.make(0, 0))), [Note.make(0, 0), Note.make(4, 2), Note.make(7, 4)])

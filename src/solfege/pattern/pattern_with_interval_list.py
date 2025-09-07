@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 import sys
 from typing import ClassVar, Dict, Generic, List, Optional, Self, Type, TypeVar, Union
 
-from solfege.value.interval.set.list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from utils.recordable import RecordKeeperType, Recordable
 from utils.util import assert_iterable_typing, assert_typing
 from solfege.value.key.key import nor_flat_nor_sharp

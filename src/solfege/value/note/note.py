@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Type
+from typing import ClassVar, Optional, Self, Type
 
 from lily.Lilyable.local_lilyable import LocalLilyable
+from solfege.value.chromatic import Chromatic
+from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.interval import Interval
 from solfege.value.note.abstract_note import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput, low_and_high
 #from solfege.value.note.alteration import DOUBLE_FLAT, DOUBLE_SHARP, FLAT, NATURAL, SHARP, Alteration, alteration_symbols
@@ -14,7 +16,7 @@ from solfege.value.note.diatonic_note import DiatonicNote
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class Note(AbstractNote, Pair, LocalLilyable):
     """A note of the scale, as an interval from middle C."""
     DiatonicClass: ClassVar[Type[DiatonicNote]] = DiatonicNote
@@ -41,6 +43,9 @@ class Note(AbstractNote, Pair, LocalLilyable):
 
     def __neg__(self):
         raise Exception("Trying to negate a note makes no sens.")
+    
+    def __repr__(self):
+        return f"Note.make({self.chromatic.value}, {self.diatonic.value})"
 
     def _sub_note(self, other: Note):
         diatonic = self.diatonic - other.diatonic
@@ -143,6 +148,13 @@ class Note(AbstractNote, Pair, LocalLilyable):
     
     def is_white_key_on_piano(self):
         return self.chromatic.is_white_key_on_piano()
+    
+    def change_octave_to_be_enharmonic(self, chromatic_note: ChromaticNote) -> Optional[Self]:
+        chromatic_distance: ChromaticInterval = chromatic_note - self.chromatic 
+        if chromatic_distance.value % Chromatic.number_of_interval_in_an_octave != 0:
+            return None
+        number_octave = chromatic_distance.value // Chromatic.number_of_interval_in_an_octave
+        return self.add_octave(number_octave)
 
 ChromaticNote.PairClass = Note
 DiatonicNote.PairClass = Note

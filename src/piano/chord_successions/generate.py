@@ -51,7 +51,7 @@ class CardContent:
     lily_code: str
 
     def to_html(self) -> str:
-        return f"""<img src="{self.name_prefix}.svg">"""
+        return image_tag"{self.name_prefix}.svg">"""
 
 
 def succession_for_hands_key_pattern_direction(

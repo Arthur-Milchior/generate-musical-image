@@ -1,6 +1,7 @@
+from dataclasses import dataclass
 import itertools
 import os
-from typing import Dict, Iterable, List, Type
+from typing import Callable, Dict, Iterable, List, Optional, Self, Type, TypeVar
 import unittest
 import traceback
 
@@ -83,6 +84,10 @@ def assert_increasing(it: Iterable):
     for first, second in itertools.pairwise(it):
         assert first < second
 
+def assert_decreasing(it: Iterable):
+    for first, second in itertools.pairwise(it):
+        assert first > second
+
 def assert_dict_typing(d:Dict, type_key: Type, type_value:Type):
     assert d is not None
     for key, value in d.items():
@@ -108,3 +113,25 @@ def sorted_unique(it: Iterable):
 def save_file(file_path: str, file_content: str):
     with open(file_path, "w") as f:
         f.write(file_content)
+
+def img_tag(filename:str):
+    return f"""<img src='{filename}'/>"""
+
+T = TypeVar("T")
+def optional_min(it: Iterable[T]) -> Optional[T]:
+    l = list(it)
+    if l:
+        return min(l)
+    return None
+
+def optional_max(it: Iterable[T]) -> Optional[T]:
+    l = list(it)
+    if l:
+        return max(l)
+    return None
+
+
+def assert_equal_length(l: List):
+    length = len(l[0])
+    for elt in l:
+        assert len(elt) == length, f"{l[0]} and {elt} have length {length} and {len(elt)} respectively."

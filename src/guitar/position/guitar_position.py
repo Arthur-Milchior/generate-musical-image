@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
@@ -12,6 +12,7 @@ from guitar.position.consts import *
 from guitar.position.frets import Frets
 from guitar.position.string_deltas import ANY_STRING, StringDeltas
 from guitar.position.strings import ALL_STRINGS, Strings
+from guitar.position.string import strings
 from utils.util import assert_typing
 
 # The 1-th string played free
@@ -31,6 +32,7 @@ string_number_to_note_played_when_free = {
 
 # colors = [COLOR_TONIC, COLOR_OTHER, COLOR_OTHER, COLOR_THIRD, COLOR_THIRD, ]
 
+GuitarPositionMakeSingleArgumentType = Union["GuitarPosition", Tuple[Union[String, int], Union[Fret, Optional[int]]]]
 @dataclass(frozen=True)
 class GuitarPosition:
     """A position on the guitar, that is, a string and a fret.
@@ -43,6 +45,19 @@ class GuitarPosition:
     def __post_init__(self):
         assert_typing(self.fret, Fret)
         assert_typing(self.string, String)
+
+    @classmethod
+    def make(cls, string: Union[String, int], fret: Union[Fret, Optional[int]]):
+        string = String.make_single_argument(string)
+        fret = Fret.make_single_argument(fret)
+        return GuitarPosition(string, fret)
+    
+    @classmethod
+    def make_single_argument(cls, arg: GuitarPositionMakeSingleArgumentType):
+        if isinstance(arg, GuitarPosition):
+            return arg
+        string, fret = arg
+        return cls.make(string, fret)
 
     @staticmethod
     def from_chromatic(note:ChromaticNote, strings: Strings = ALL_STRINGS, frets: Frets = Frets()):
@@ -65,18 +80,20 @@ class GuitarPosition:
         return GuitarPosition.from_chromatic(note, strings, frets)
 
     def get_chromatic(self) -> Optional[ChromaticNote]:
-        if self.fret == NOT_PLAYED:
+        if self.fret.is_not_played():
             return None
         return self.string.note_open + ChromaticInterval(self.fret.value)
 
-    def svg(self, stroke_color: str= "black"):
+    def svg(self, absolute: bool, stroke_color: str= "black"):
         """Draw this position, assuming that f already contains the svg for the fret"""
-        fill_color = "white" if self.fret == OPEN_FRET else "black"
+        fill_color = "white" if self.fret.is_open() else "black"
         x = self.string.x()
-        if self.fret is NOT_PLAYED:
-            return f"""<text x="{int(x)}" y="{int(MARGIN)}" font-size="30">x</text><!-- string {self.string.value}, not played-->"""
+        if self.fret.is_not_played():
+            if absolute:
+                return f"""<text x="{int(x)-15}" y="{int(MARGIN)-10}" font-size="50">x</text><!-- string {self.string.value}, not played-->"""
+            return f"""<!-- string {self.string.value} not played. Not shown as it's transposable-->"""
         y = self.fret.y_dots()
-        return f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{fill_color}" stroke="{stroke_color}" stroke-width="3"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""
+        return f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{stroke_color}" stroke="{stroke_color}" stroke-width="3"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""
 
     def __eq__(self, other: GuitarPosition):
         assert_typing(other, GuitarPosition)
@@ -96,7 +113,7 @@ class GuitarPosition:
         return hash((self.fret, self.string))
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(string={self.string}, fret={self.fret})"
+        return f"{self.__class__.__name__}.make({self.string.value}, {self.fret.value})"
     
     def __sub__(self, other: GuitarPosition) -> ChromaticInterval:
         assert isinstance(other, GuitarPosition)
@@ -114,3 +131,6 @@ class GuitarPosition:
         """The svg for a diagram with only this note"""
         from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
         return SetOfGuitarPositions(frozenset({self})).svg(absolute=True)
+    
+    def transpose_same_fret(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
+        return self.__class__(self.string, self.fret.transpose(transpose, transpose_open, transpose_not_played))

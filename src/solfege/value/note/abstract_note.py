@@ -51,7 +51,7 @@ class AbstractNote(Abstract):
     def __neg__(self):
         raise Exception("Trying to multiply a note makes no sens.")
 
-    def __sub__(self, other: Union[AbstractInterval, AbstractNote]) -> Abstract:
+    def __sub__(self, other: Union[AbstractInterval, AbstractNote]) -> Union[AbstractInterval, AbstractNote]:
         if isinstance(other, AbstractNote):
             return self._sub_note(other)
         else:

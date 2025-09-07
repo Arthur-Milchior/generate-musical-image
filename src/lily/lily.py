@@ -4,7 +4,7 @@ from sh import assertNotUnitTest, shell
 
 from lily.svg import clean_svg, display_svg_file
 from solfege.value.note.note import Note
-from utils.util import indent
+from utils.util import indent, save_file
 
 lilyHeader = """"""
 lowLimit = {"left": -14, "right": -3}
@@ -67,6 +67,7 @@ def compile_(code: str, file_prefix: str, wav: bool, extension="svg", execute_li
         execute_lily = True
     if execute_lily:
         save_file(file_prefix + ".ly", code)
+        
         preview_path = f"{file_prefix}.preview.{extension}"
         if extension == "svg":
             cmd = f"""{lilyProgram} -dpreview -dbackend=svg -o "{file_prefix}"  "{file_prefix}.ly" """

@@ -3,7 +3,7 @@ from typing import ClassVar, Dict, List, Type
 import unittest
 
 from solfege.pattern.pattern import SolfegePattern
-from solfege.value.interval.set.list import ChromaticIntervalList, IntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
 from utils.frozenlist import FrozenList
 from utils.recordable import RecordKeeper
 

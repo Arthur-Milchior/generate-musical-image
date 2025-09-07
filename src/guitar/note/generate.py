@@ -48,13 +48,13 @@ class AnkiNote:
         pos = self.dic.get(string)
         if pos is None:
             return ""
-        return f"""<img src="{pos.singleton_diagram_svg_name()}"/>"""
+        return img_tag(pos.singleton_diagram_svg_name())
     
     def svg(self):
         return SetOfGuitarPositions(frozenset(self.positions())).svg(absolute=True)
     
     def all_notes_field(self):
-        return f"""<img src="{self.svg_name_for_all_positions()}"/>"""
+        return img_tag(self.svg_name_for_all_positions())
     
     def _note(self) -> Note:
         return self.note.get_note()

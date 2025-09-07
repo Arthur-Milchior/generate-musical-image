@@ -51,7 +51,7 @@ for scale in ScalePattern.all_patterns:
                 continue
             with open(path, "w") as f:
                 sop.draw(f)
-            web += """<img src="%s"/>\n""" % file
+            web += img_tag(file) + "\n""" % file
     web += """</body></html>"""
     index += """<li><a href="%s">""" % scale_name
     for scale_name in scale.get_names():

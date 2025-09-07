@@ -2,7 +2,7 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, Generator, Generic, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
-from solfege.value.interval.set.list import DataClassWithDefaultArgument
+from solfege.value.interval.set.interval_list import DataClassWithDefaultArgument
 from utils.util import assert_dict_typing, assert_iterable_typing, assert_typing
 
 

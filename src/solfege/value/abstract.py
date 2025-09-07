@@ -42,6 +42,7 @@ class Abstract:
 
     def add_octave(self, nb: int) -> Self:
         """Same note with nb more octave"""
+        assert_typing(nb, int)
         return self + (self.IntervalClass.one_octave() * nb)
 
     def in_base_octave(self) -> Self:

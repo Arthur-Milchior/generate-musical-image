@@ -1,26 +1,35 @@
 
 from dataclasses import dataclass, field
-from typing import ClassVar, Dict, List
+from typing import ClassVar, Dict, Generic, List
 
 from guitar.chord.guitar_chord import GuitarChord
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
 from solfege.pattern.chord import inversion_pattern
 from solfege.pattern.chord.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
-from solfege.value.interval.set.list import ChromaticIntervalList
+from solfege.value.chromatic import ChromaticType
+from solfege.value.interval.set.interval_list import ChromaticIntervalList
 from utils.csv import CsvGenerator
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
 from utils.recordable import RecordedContainer
-from utils.util import assert_iterable_typing, assert_typing
+from utils.util import assert_iterable_typing, assert_typing, img_tag
 
-@dataclass(frozen=True)
-class ChromaticIntervalListAndItsGuitarChords(RecordedContainer[GuitarChord], CsvGenerator):
+@dataclass(frozen=True, unsafe_hash=True)
+class ChromaticListAndItsGuitarChords(RecordedContainer[GuitarChord], CsvGenerator, Generic[ChromaticType], DataClassWithDefaultArgument):
     interval_and_its_inversions: ChromaticIntervalListAndItsInversions
-    guitar_chords: List[GuitarChord] = field(default_factory=list)
+    guitar_chords: List[GuitarChord] = field(hash=False, compare=False)
+
+    @classmethod
+    def _default_arguments_for_constructor(cls):
+        kwargs = super()._default_arguments_for_constructor()
+        kwargs["guitar_chords"] = list()
+        return kwargs
 
     def __post_init__(self):
         assert_typing(self.interval_and_its_inversions, ChromaticIntervalListAndItsInversions)
         assert_typing(self.guitar_chords, list)
         assert_iterable_typing(self.guitar_chords, GuitarChord)
+        super().__post_init__()
 
     def append(self, guitar_chord: GuitarChord):
         expected_chromatic_intervals = self.interval_and_its_inversions.chromatic_intervals
@@ -48,22 +57,3 @@ class ChromaticIntervalListAndItsGuitarChords(RecordedContainer[GuitarChord], Cs
 
     def __len__(self):
         return len(self.guitar_chords)
-
-    def name(self):
-        return self.interval_and_its_inversions.easiest_name()
-
-    def alternative_name(self):
-        return self.interval_and_its_inversions.alternative_names()
-    
-    def csv_content(self):
-        l = []
-        l.append(self.name())
-        l.append(self.alternative_name())
-        maximals = self.maximals()
-        for guitar_chord in maximals:
-            l.append(guitar_chord.file_name(stroke_colored=False))
-            l.append(guitar_chord.file_name(stroke_colored=True))
-        for _ in range(7- len(maximals)):
-            l.append("")
-            l.append("")
-        return l

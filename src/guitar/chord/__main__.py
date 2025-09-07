@@ -1,1 +1,1 @@
-from guitar.chord import generate_transposable
+from guitar.chord.transposable import generate_transposable

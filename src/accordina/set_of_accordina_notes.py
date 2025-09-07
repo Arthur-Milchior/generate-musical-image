@@ -1,5 +1,5 @@
 from typing import Generator, List, Set
-from accordina.note import *
+from accordina.accordina_note import *
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 
 width = 2 * margin + 2 * x_distance_between_columns

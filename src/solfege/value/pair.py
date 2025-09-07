@@ -47,7 +47,7 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
             return cls.make(chromatic, diatonic)
         if isinstance(arg, int):
             return cls.make(arg, 1)
-        assert_typing(arg, Pair)
+        assert_typing(arg, cls)
         return arg
 
     def __eq__(self, other: "Pair"):

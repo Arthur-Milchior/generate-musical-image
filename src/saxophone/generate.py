@@ -1,7 +1,7 @@
 #from saxophone.fingering.fingering import value_to_fingering
 from saxophone.fingering.fingerings import value_to_fingerings
 from consts import generate_root_folder
-from utils.util import ensure_folder
+from utils.util import ensure_folder, img_tag, save_file
 from saxophone.fingering import fingerings
 
 folder = f"{generate_root_folder}/saxophone"
@@ -19,7 +19,7 @@ for value in notes:
     for entry, fingering in enumerate(fingerings):
         file_name = f"saxo_{name}_{entry}.svg"
         path = f"{folder}/{file_name}"
-        anki_field = f"""<img src="saxo_{name}_{entry}.svg"/>{fingering.anki_comment()}"""
+        anki_field = f"""{img_tag(f"saxo_{name}_{entry}.svg")}/>{fingering.anki_comment()}"""
         anki_note.append(anki_field)
         save_file(path, fingering.svg())
     while len(anki_note) <= max_number_of_fingering:

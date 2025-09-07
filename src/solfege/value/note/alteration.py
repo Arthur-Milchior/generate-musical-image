@@ -3,12 +3,37 @@ from typing import assert_never
 from solfege.value.interval.interval_mode import IntervalMode
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.value.note.chromatic_note import ChromaticNote
+from utils.util import assert_equal_length
 
 LILY = "LILY"
 FILE_NAME = "FILE_NAME"
 FULL_NAME = "TEXT"
 DEBUG = "DEBUG"
 NAME_UP_TO_OCTAVE = "ANKI"
+
+fixed_length_symbol_space_simple =["♭", " ", "#"]
+fixed_length_symbol_space_double =["♭♭", "♭ ", "  ", "# ", "𝄪 "]
+fixed_length_ascii_space_simple  = [
+                    "flat ",
+                    "     ",
+                    "sharp",]
+fixed_length_ascii_space_double  = [
+                    "double flat ",
+                    "flat        ",
+                    "            ",
+                    "sharp       ",
+                    "double_sharp",
+                ]
+assert_equal_length(fixed_length_symbol_space_simple)
+assert_equal_length(fixed_length_symbol_space_double)
+assert_equal_length(fixed_length_ascii_space_simple)
+assert_equal_length(fixed_length_ascii_space_double)
+fixed_length_ascii_underscore_simple = [s.replace(" ", "_") for s in fixed_length_symbol_space_simple]
+fixed_length_ascii_underscore_double = [s.replace(" ", "_") for s in fixed_length_symbol_space_double]
+fixed_length_symbol_underscore_simple = [s.replace(" ", "_") for s in fixed_length_symbol_space_simple]
+fixed_length_symbol_underscore_double = [s.replace(" ", "_") for s in fixed_length_symbol_space_double]
+asciis = [s.replace(" ", "") for s in fixed_length_symbol_space_simple]
+symbols = [s.replace(" ", "") for s in fixed_length_symbol_space_double]
 
 
 @dataclass(frozen=True)
@@ -24,57 +49,35 @@ class Alteration(IntervalMode):
             return ["eses", "es", "", "is", "isis"][self.value + 2]
         elif alteration_output == AlterationOutput.ASCII:
             if fixed_length == FixedLengthOutput.UNDERSCORE_DOUBLE:
-                return [
-                    "double_flat_",
-                    "flat________",
-                    "____________",
-                    "sharp_______",
-                    "double_sharp",
-                ][self.value + 2]
+                return fixed_length_ascii_underscore_double[self.value + 2]
             elif fixed_length == FixedLengthOutput.UNDERSCORE_SIMPLE:
                 return [
                     "double_flat",
-                    "flat_",
-                    "_____",
-                    "sharp",
+                    *fixed_length_ascii_underscore_simple,
                     "double_sharp",
                 ][self.value + 2]
             elif fixed_length == FixedLengthOutput.SPACE_DOUBLE:
-                return [
-                    "double flat ",
-                    "flat        ",
-                    "            ",
-                    "sharp       ",
-                    "double_sharp",
-                ][self.value + 2]
+                return fixed_length_ascii_space_double[self.value + 2]
             elif fixed_length == FixedLengthOutput.SPACE_SIMPLE:
                 return [
                     "double flat",
-                    "flat ",
-                    "     ",
-                    "sharp",
+                    *fixed_length_ascii_space_simple,
                     "double_sharp",
                 ][self.value + 2]
             elif fixed_length == FixedLengthOutput.NO:
-                return [
-                    "double_flat",
-                    "flat",
-                    "",
-                    "sharp",
-                    "double_sharp",
-                ][self.value + 2]
+                return asciis[self.value + 2]
             assert_never(fixed_length)
         elif alteration_output == AlterationOutput.SYMBOL:
             if fixed_length == FixedLengthOutput.SPACE_DOUBLE:
-                return ["♭♭", "♭ ", "  ", "# ", "𝄪 "][self.value + 2]
+                return fixed_length_ascii_space_double[self.value + 2]
             elif fixed_length == FixedLengthOutput.SPACE_SIMPLE:
-                return ["♭♭", "♭", " ", "#", "𝄪"][self.value + 2]
+                return ["♭♭", *fixed_length_symbol_space_simple, "𝄪"][self.value + 2]
             if fixed_length == FixedLengthOutput.UNDERSCORE_DOUBLE:
-                return ["♭♭", "♭_", "__", "#_", "𝄪_"][self.value + 2]
+                return fixed_length_ascii_underscore_double[self.value + 2]
             elif fixed_length == FixedLengthOutput.UNDERSCORE_SIMPLE:
-                return ["♭♭", "♭", "_", "#", "𝄪"][self.value + 2]
+                return ["♭♭", *fixed_length_symbol_underscore_simple, "𝄪"][self.value + 2]
             elif fixed_length == FixedLengthOutput.NO:
-                return ["♭♭", "♭", "", "#", "𝄪"][self.value + 2]
+                return symbols[self.value + 2]
             assert_never(fixed_length)
 
     @staticmethod

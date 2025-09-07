@@ -63,7 +63,7 @@ class AnkiNote:
             self.key(),
             str(self.pos1.string.value),
             str(self.pos2.string.value),
-            f"""<img src="{self.svg_name()}"/>""",
+            img_tag(self.svg_name()),
             self.pos_difference(),
             str(self.interval().value),
             self.difference_name(),
@@ -73,7 +73,7 @@ class AnkiNote:
         return ",".join(self.anki_fields())
     
     def svg(self):
-        absolute = self.pos1.fret == OPEN_FRET or self.pos2.fret == OPEN_FRET
+        absolute = self.pos1.fret.is_open() or self.pos2.fret.is_open()
         return SetOfGuitarPositions(frozenset({self.pos1, self.pos2})).svg(absolute=absolute)
 
 def pairs_of_frets_values(last_fret: int):
