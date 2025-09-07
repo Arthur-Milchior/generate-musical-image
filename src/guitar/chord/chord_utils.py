@@ -11,7 +11,7 @@ from utils.util import assert_typing
 def enumerate_frets(strings: Strings= ALL_STRINGS, frets: Optional[Frets]=None):
     """Generate a maping from each string to one of the fret."""
     assert_typing(strings, Strings)
-    frets = frets if frets else Frets(min_fret=1, max_fret=5, allow_not_played=True, allow_open=True) 
+    frets = frets if frets else Frets.make(closed_fret_interval=(1, 5), allow_not_played=True, allow_open=True) 
     s_ss = strings.pop()
     if s_ss is None:
         """There is no string to play at all. End case of the recursion."""

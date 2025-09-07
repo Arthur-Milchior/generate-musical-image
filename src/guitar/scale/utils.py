@@ -19,7 +19,7 @@ def scale2Pos(intervals: List[ChromaticInterval], lowest_note_position: GuitarPo
     lastPos = lowest_note_position
     firstFret = lowest_note_position.fret
     for interval in intervals:
-        pos = lowest_note_position.add(interval, fret_min=max(lastPos.fret - decreasing_fret_limit, 1),
+        pos = lowest_note_position.positions_for_interval_with_restrictions(interval, fret_min=max(lastPos.fret - decreasing_fret_limit, 1),
                           fret_max=firstFret + increase_fret_limit)
         if pos is None:
             return None

@@ -6,8 +6,8 @@ from guitar.chord.chord_utils import *
 no_strings = Strings([])
 last_string = Strings([strings[5]])
 
-contradiction = Frets(min_fret=5, max_fret=4, allow_not_played=False, allow_open=False)
-empty_fret = Frets(min_fret=5, max_fret=4, allow_not_played=False, allow_open=True)
+contradiction = Frets.make(closed_fret_interval=None, allow_not_played=False, allow_open=False)
+empty_fret = Frets.make(closed_fret_interval=None, allow_not_played=False, allow_open=True)
 
 class TestGenerate(unittest.TestCase):
     def test_empty_set(self):
@@ -27,7 +27,7 @@ class TestGenerate(unittest.TestCase):
 
     def test_one_fret_one_strings(self):
         self.assertEqual(
-            frozenset(enumerate_frets(Strings([strings[5]]), Frets(min_fret=1, max_fret=1, allow_not_played=False, allow_open=False))),
+            frozenset(enumerate_frets(Strings([strings[5]]), Frets.make(closed_fret_interval=(1, 1), allow_not_played=False, allow_open=False))),
             frozenset({
                 SetOfGuitarPositions.make({(6, 1)}),
             })
@@ -35,7 +35,7 @@ class TestGenerate(unittest.TestCase):
 
     def test_two_fret_two_strings(self):
         self.assertEqual(
-            frozenset(enumerate_frets(Strings([strings[4], strings[5]]), Frets(min_fret=1, max_fret=2, allow_not_played=False, allow_open=False))),
+            frozenset(enumerate_frets(Strings([strings[4], strings[5]]), Frets.make(closed_fret_interval=(1, 2), allow_not_played=False, allow_open=False))),
             frozenset({
                 SetOfGuitarPositions.make({(5, 1), (6, 1)}),
                 SetOfGuitarPositions.make({(5, 1), (6, 2)}),

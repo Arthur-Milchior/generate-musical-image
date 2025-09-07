@@ -2,17 +2,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from guitar.position.fret.fret import Fret
+from guitar.position.fret.fret_deltas import FretDelta
 from guitar.position.fret.frets import Frets
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
 from guitar.position.string.strings import ALL_STRINGS, Strings
 from guitar.position.string.string import String
 from guitar.position.consts import *
-from guitar.position.string.string_deltas import ANY_STRING, StringDeltas
+from guitar.position.string.string_deltas import ANY_STRING, StringDelta
 from guitar.position.string.string import strings
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_typing
 
 # The 1-th string played free
@@ -34,7 +36,7 @@ string_number_to_note_played_when_free = {
 
 GuitarPositionMakeSingleArgumentType = Union["GuitarPosition", Tuple[Union[String, int], Union[Fret, Optional[int]]]]
 @dataclass(frozen=True)
-class GuitarPosition:
+class GuitarPosition(DataClassWithDefaultArgument):
     """A position on the guitar, that is, a string and a fret.
     Fret 0 is open. Fret None is not played.
 
@@ -47,10 +49,11 @@ class GuitarPosition:
         assert_typing(self.string, String)
 
     @classmethod
-    def make(cls, string: Union[String, int], fret: Union[Fret, Optional[int]]):
-        string = String.make_single_argument(string)
-        fret = Fret.make_single_argument(fret)
-        return GuitarPosition(string, fret)
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "string", String.make_single_argument)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fret", Fret.make_single_argument)
+        return args, kwargs
     
     @classmethod
     def make_single_argument(cls, arg: GuitarPositionMakeSingleArgumentType):
@@ -60,7 +63,7 @@ class GuitarPosition:
         return cls.make(string, fret)
 
     @staticmethod
-    def from_chromatic(note:ChromaticNote, strings: Strings = ALL_STRINGS, frets: Frets = Frets()):
+    def from_chromatic(note:ChromaticNote, strings: Strings = ALL_STRINGS, frets: Frets = Frets.make()):
         """Return all the position for `note` in `frets` and `strings`"""
         assert_typing(note, ChromaticNote)
         positions: List[GuitarPosition] = []
@@ -73,14 +76,16 @@ class GuitarPosition:
             positions.append(GuitarPosition(string, fret))
         return positions
     
-    def add(self, 
+    def positions_for_interval_with_restrictions(self, 
             interval: ChromaticInterval, 
-            strings: Union[StringDeltas, Strings] = ANY_STRING, 
-            frets: Frets = Frets()):
-        if isinstance(strings, StringDeltas):
+            strings: Union[StringDelta, Strings] = ANY_STRING, 
+            frets: Union[FretDelta, Frets] = Frets.make()) -> List[GuitarPosition]:
+        if isinstance(strings, StringDelta):
             strings = strings.set(self.string)
-        note = self.get_chromatic() + interval
-        return GuitarPosition.from_chromatic(note, strings, frets)
+        if isinstance(frets, FretDelta):
+            frets = frets.set(self.string)
+        chromatic_note = self.get_chromatic() + interval
+        return GuitarPosition.from_chromatic(chromatic_note, strings, frets)
 
     def get_chromatic(self) -> Optional[ChromaticNote]:
         if self.fret.is_not_played():

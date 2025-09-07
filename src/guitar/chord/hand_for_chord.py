@@ -56,7 +56,6 @@ class HandForGuitarChord:
             # Pop 0 is not efficient. But the list has 6 elements so it does not matter.
             open = played_positions_remaining_to_finger.pop(0)
             opens.append(open.string)
-        # there is non zero
         one = played_positions_remaining_to_finger.pop(0)
         if barred != Barred.NO:
             while played_positions_remaining_to_finger and played_positions_remaining_to_finger[0].fret == one.fret:

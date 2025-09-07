@@ -17,7 +17,7 @@ ensure_folder(transposable_folder)
 
 interval_to_chord = ChromaticIntervalListToGuitarChords.make()
 def register_all_chords():
-    for guitar_chord in enumerate_guitar_chords(Frets(min_fret=1, max_fret=4, allow_not_played=True, allow_open=False)):
+    for guitar_chord in enumerate_guitar_chords(Frets.make(closed_fret_interval=(1, 4), allow_not_played=True, allow_open=False)):
         if guitar_chord.number_of_distinct_notes() < 4:
             continue
         if guitar_chord.has_not_played_in_middle():

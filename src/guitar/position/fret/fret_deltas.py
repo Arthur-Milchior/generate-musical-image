@@ -7,7 +7,7 @@ from utils.util import assert_optional_typing
 
 
 @dataclass(frozen=True)
-class FretDeltas(AbstractDelta[Frets, Fret]):
+class FretDelta(AbstractDelta[Frets, Fret]):
     """Represents a way to compute frets given a current fret.
      For example, restricting a search of position to the current note, or fret not far away, or only a different fret."""
     min_t: ClassVar[int] = 1
@@ -18,8 +18,8 @@ class FretDeltas(AbstractDelta[Frets, Fret]):
         return Fret(i)
 
     @classmethod
-    def create_Ts(cls, min_fret: Fret, max_fret: Fret) -> Frets:
-        return Frets(min_fret, max_fret, False, False)
+    def create_Ts(cls, min_t: Fret, max_t: Fret) -> Frets:
+        return Frets.make((min_t, max_t), False, False)
     
     @classmethod
     def create_empty_ts(cls):

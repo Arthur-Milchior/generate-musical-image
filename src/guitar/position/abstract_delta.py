@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import ClassVar, Generic, Optional, TypeVar
+from typing import ClassVar, Generic, Optional, Self, TypeVar
 
 from utils.util import assert_optional_typing
 
@@ -15,8 +15,8 @@ class AbstractDelta(Generic[Ts, T]):
     max_t: ClassVar[int]
 
     def __post_init__(self):
-        assert_optional_typing(self.min_string_delta, int)
-        assert_optional_typing(self.max_string_delta, int)
+        assert_optional_typing(self.min_delta, int)
+        assert_optional_typing(self.max_delta, int)
 
     @classmethod
     def create_T(cls, i: int) -> T:
@@ -44,7 +44,8 @@ class AbstractDelta(Generic[Ts, T]):
         theoretical_max = t.value + self.max_delta
         if theoretical_max < self.min_t:
             return None
-        return self.create_T(min(self.max_delta, theoretical_max))
+        new_max = min(self.max_t, theoretical_max)
+        return self.create_T(new_max)
     
     def set(self, t: T) -> Ts:
         min = self.min(t)
@@ -52,3 +53,6 @@ class AbstractDelta(Generic[Ts, T]):
         if min is None or max is None:
             return self.create_empty_ts()
         return self.create_Ts(min, max)
+    
+    def __neg__(self) -> Self:
+        return self.__class__(-self.max_t, -self.min_t)

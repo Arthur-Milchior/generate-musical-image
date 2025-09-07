@@ -64,13 +64,13 @@ class TestGuitarPosition(unittest.TestCase):
                              E5_5,
                              E5_6,
                           ])
-        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets(8, 15, True)), 
+        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets.make((8, 15), True)), 
                          [
                              E5_3,
                              E5_4,
                              E5_6,
                           ])
-        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets(8, 15, False)), 
+        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets.make((8, 15), False)), 
                          [
                              E5_3,
                              E5_4,
@@ -81,12 +81,12 @@ class TestGuitarPosition(unittest.TestCase):
                              E5_5,
                              E5_6,
                           ])
-        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets(8, 15, True), strings = strings_interval), 
+        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets.make((8, 15), True), strings = strings_interval), 
                          [
                              E5_4,
                              E5_6,
                           ])
-        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets(8, 15, False), strings = strings_interval), 
+        self.assertEqual(GuitarPosition.from_chromatic(E5, frets = Frets.make((8, 15), False), strings = strings_interval), 
                          [
                              E5_4,
                           ])
@@ -94,22 +94,22 @@ class TestGuitarPosition(unittest.TestCase):
     def test_add(self):
         C5 = GuitarPosition(strings[0], Fret(20))
         third_major = ChromaticInterval(4)
-        self.assertEqual(C5.add(third_major, strings=SAME_STRING_ONLY),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=SAME_STRING_ONLY),
                          [E5_1,])
-        self.assertEqual(C5.add(third_major, strings=NEXT_STRING_ONLY),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=NEXT_STRING_ONLY),
                          [E5_2,])
-        self.assertEqual(C5.add(third_major, strings=SAME_OR_NEXT_STRING),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=SAME_OR_NEXT_STRING),
                          [E5_1, E5_2,])
-        self.assertEqual(C5.add(third_major, strings=SAME_STRING_OR_GREATER),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=SAME_STRING_OR_GREATER),
                          [E5_1, E5_2, E5_3, E5_4, E5_5, E5_6])
-        self.assertEqual(C5.add(third_major, strings=NEXT_STRING_OR_GREATER),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=NEXT_STRING_OR_GREATER),
                          [E5_2, E5_3, E5_4, E5_5, E5_6])
-        self.assertEqual(C5.add(third_major, frets=Frets(1, 5)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=Frets.make((1, 5))),
                          [E5_5, E5_6])
-        self.assertEqual(C5.add(third_major, frets=Frets(1, 5, False)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=Frets.make((1, 5), False)),
                          [E5_5])
-        self.assertEqual(C5.add(third_major, frets=Frets().restrict_around(C5.fret)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=Frets.make().restrict_around(C5.fret)),
                          [E5_1, E5_2, E5_6])
-        self.assertEqual(C5.add(third_major, frets=Frets().restrict_around(C5.fret).disallow_open()),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=Frets.make().restrict_around(C5.fret).disallow_open()),
                          [E5_1, E5_2])
         

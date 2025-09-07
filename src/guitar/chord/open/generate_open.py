@@ -18,7 +18,7 @@ ensure_folder(open_folder)
 
 note_to_chord = ChromaticNoteListToGuitarChords.make()
 def register_all_chords():
-    for guitar_chord in enumerate_guitar_chords(Frets(min_fret=1,
+    for guitar_chord in enumerate_guitar_chords(Frets.make(closed_fret_interval=1,
                                                        max_fret=6,
                                                          allow_not_played=True, allow_open=True)):
         if guitar_chord.number_of_distinct_notes() < 4:

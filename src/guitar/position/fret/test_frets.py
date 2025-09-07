@@ -6,25 +6,25 @@ from guitar.position.fret.fret import HIGHEST_FRET, NOT_PLAYED
 from guitar.position.fret.fret import OPEN_FRET, Fret
 from guitar.position.string.string_deltas import *
 
-ALL_PLAYED = Frets()
-ALL = Frets(allow_not_played=True)
+ALL_PLAYED = Frets.make()
+ALL = Frets.make(allow_not_played=True)
 ALL_CLOSED = ALL_PLAYED.disallow_open()
-FIRST_FOUR = Frets(max_fret=(4))
+FIRST_FOUR = Frets.make((1, 4))
 AROUND_SEVEN = ALL_PLAYED.restrict_around(Fret(7))
 AROUND_FIVE_SEVEN = AROUND_SEVEN.restrict_around(Fret(5))
-NOT_PLAYED_FRETS = Frets(5, 4, False, True)
-CONTRADICTION = Frets(5, 4, False, False)
-ONLY_OPEN = Frets(5, 4, allow_open=True, allow_not_played=False)
-FOR_TRANSPOSABLE_CHORD = Frets(min_fret=1, max_fret=5, allow_not_played=True, allow_open=False)
+NOT_PLAYED_FRETS = Frets.make(None, False, True)
+CONTRADICTION = Frets.make(None, False, False)
+ONLY_OPEN = Frets.make(None, allow_open=True, allow_not_played=False)
+FOR_TRANSPOSABLE_CHORD = Frets.make(closed_fret_interval=(1, 5), allow_not_played=True, allow_open=False)
 
 class TestGuitarFrets(unittest.TestCase):
     def test_eq(self):
-        self.assertEqual(ALL_PLAYED, Frets(1, HIGHEST_FRET.value, True))
-        self.assertEqual(ALL_CLOSED, Frets(1, HIGHEST_FRET.value, allow_open=False))
-        self.assertEqual(FIRST_FOUR, Frets(1, 4, True))
-        self.assertEqual(AROUND_SEVEN, Frets(3, 11, True))
-        self.assertEqual(AROUND_FIVE_SEVEN, Frets(3, 9, True))
-        self.assertEqual(AROUND_FIVE_SEVEN, Frets().restrict_around(Fret(5)).restrict_around(Fret(7)))
+        self.assertEqual(ALL_PLAYED, Frets.make((1, HIGHEST_FRET.value), True))
+        self.assertEqual(ALL_CLOSED, Frets.make((1, HIGHEST_FRET.value), allow_open=False))
+        self.assertEqual(FIRST_FOUR, Frets.make((1, 4), True))
+        self.assertEqual(AROUND_SEVEN, Frets.make((3, 11), True))
+        self.assertEqual(AROUND_FIVE_SEVEN, Frets.make((3, 9), True))
+        self.assertEqual(AROUND_FIVE_SEVEN, Frets.make().restrict_around(Fret(5)).restrict_around(Fret(7)))
 
     def test_is_empty(self):
         self.assertFalse(ALL_PLAYED.is_empty())

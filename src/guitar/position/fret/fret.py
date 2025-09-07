@@ -127,7 +127,7 @@ class Fret(ChromaticInterval):
     def all_frets_up_to_here(self, include_open: bool):
         """The set of all frets up to here."""
         from guitar.position.fret.frets import Frets
-        return Frets(1, self.value, True)
+        return Frets.make((1, self.value), True)
 
     def below(self):
         return Fret(self.require_value() + 1)
