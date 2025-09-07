@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from guitar.position.fret import HIGHEST_FRET, OPEN_FRET
-from guitar.position.string import String, strings
+from guitar.position.fret.fret import HIGHEST_FRET, OPEN_FRET
+from guitar.position.string.string import String, strings
 from guitar.position.guitar_position import GuitarPosition
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from solfege.value.note.chromatic_note import ChromaticNote

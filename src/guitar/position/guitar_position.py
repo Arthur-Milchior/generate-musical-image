@@ -4,15 +4,15 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Tuple, Union
 
+from guitar.position.fret.fret import Fret
+from guitar.position.fret.frets import Frets
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
-from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
-from guitar.position.string import String
+from guitar.position.string.strings import ALL_STRINGS, Strings
+from guitar.position.string.string import String
 from guitar.position.consts import *
-from guitar.position.frets import Frets
-from guitar.position.string_deltas import ANY_STRING, StringDeltas
-from guitar.position.strings import ALL_STRINGS, Strings
-from guitar.position.string import strings
+from guitar.position.string.string_deltas import ANY_STRING, StringDeltas
+from guitar.position.string.string import strings
 from utils.util import assert_typing
 
 # The 1-th string played free
@@ -73,9 +73,12 @@ class GuitarPosition:
             positions.append(GuitarPosition(string, fret))
         return positions
     
-    def add(self, interval: ChromaticInterval, strings: Union[StringDeltas, Strings] = ANY_STRING, frets: Frets = Frets()):
+    def add(self, 
+            interval: ChromaticInterval, 
+            strings: Union[StringDeltas, Strings] = ANY_STRING, 
+            frets: Frets = Frets()):
         if isinstance(strings, StringDeltas):
-            strings = strings.strings(self.string)
+            strings = strings.set(self.string)
         note = self.get_chromatic() + interval
         return GuitarPosition.from_chromatic(note, strings, frets)
 

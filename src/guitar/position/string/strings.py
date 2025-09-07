@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Generator, List
 
-from guitar.position.string import String, strings
-from guitar.position.fret import OPEN_FRET, Fret
+from guitar.position.string.string import String, strings
+from guitar.position.fret.fret import OPEN_FRET, Fret
 from utils.util import assert_iterable_typing, assert_typing
 
 @dataclass(frozen=True)

@@ -1,6 +1,6 @@
 import unittest
 
-from guitar.position.strings import *
+from guitar.position.string.strings import *
 
 class TestStrings(unittest.TestCase):
     def test_eq(self):

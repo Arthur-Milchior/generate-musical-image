@@ -7,10 +7,12 @@ from typing import List, Optional, Tuple
 
 from guitar.chord.guitar_chord import Barred, GuitarChord
 from guitar.chord.playable import Playable
-from guitar.position.fret import NOT_PLAYED, Fret
+from guitar.position.fret.fret import NOT_PLAYED, Fret
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
-from guitar.position.string import String, strings
+from guitar.position.string.string import String, strings
+from utils.frozenlist import FrozenList
+from utils.util import assert_typing
 
 
 @dataclass(frozen=True)
@@ -21,41 +23,63 @@ class HandForGuitarChord:
 
     """The index for potentially a barred note. """
     one: Optional[GuitarPosition] = None
-    barred: Barred = False
+    barred: Barred = Barred.NO
     two: Optional[GuitarPosition] = None
     three: Optional[GuitarPosition] = None
     four: Optional[GuitarPosition] = None
+    opens: FrozenList[String] = FrozenList({}) 
 
     @staticmethod
-    def make(guitar_chord: GuitarChord, potential_thumb:bool = False) -> Optional["HandForGuitarChord"]:
+    def make_hand_for_only_zero(guitar_chord: GuitarChord):
+        return HandForGuitarChord(opens =[pos.string for pos in guitar_chord if pos.fret.is_open()])
+
+    @staticmethod
+    def make(guitar_chord: GuitarChord, potential_thumb: bool = False):
+        assert_typing(guitar_chord, GuitarChord)
+        assert not potential_thumb
+        for pos in guitar_chord:
+            if pos.fret.is_closed():
+                return HandForGuitarChord.make_hand_for_closed(guitar_chord=guitar_chord, potential_thumb=potential_thumb)
+        return HandForGuitarChord.make_hand_for_only_zero(guitar_chord)
+
+    @staticmethod
+    def make_hand_for_closed(guitar_chord: GuitarChord, potential_thumb:bool = False) -> Optional["HandForGuitarChord"]:
+        assert_typing(guitar_chord, GuitarChord)
         assert not potential_thumb
         #TODO deal with thumb
         barred = guitar_chord.is_barred()
-        played_positions_to_finger = list(sorted(guitar_chord.played_positions(), key=lambda pos: (pos.fret.value, pos.string.value)))
-        # Pop 0 is not efficient. But the list has 6 elements so it does not matter.
-        one = played_positions_to_finger.pop(0)
+        # Ordered according to fret, and in case of equality string.
+        played_positions_remaining_to_finger = list(sorted(guitar_chord.played_positions(), key=lambda pos: (pos.fret.value, pos.string.value)))
+        # Remove open fret
+        opens = []
+        while played_positions_remaining_to_finger and played_positions_remaining_to_finger[0].fret.is_open():
+            # Pop 0 is not efficient. But the list has 6 elements so it does not matter.
+            open = played_positions_remaining_to_finger.pop(0)
+            opens.append(open.string)
+        # there is non zero
+        one = played_positions_remaining_to_finger.pop(0)
         if barred != Barred.NO:
-            while played_positions_to_finger and played_positions_to_finger[0].fret == one.fret:
+            while played_positions_remaining_to_finger and played_positions_remaining_to_finger[0].fret == one.fret:
                 # covered by the bar.
-                played_positions_to_finger.pop(0)
-        if len(played_positions_to_finger) > 3:
+                played_positions_remaining_to_finger.pop(0)
+        if len(played_positions_remaining_to_finger) > 3:
             return None
-        four = played_positions_to_finger.pop() if played_positions_to_finger else None
-        if len(played_positions_to_finger) == 2:
-            three = played_positions_to_finger.pop()
-            two = played_positions_to_finger.pop()
-        elif not played_positions_to_finger:
+        four = played_positions_remaining_to_finger.pop() if played_positions_remaining_to_finger else None
+        if len(played_positions_remaining_to_finger) == 2:
+            three = played_positions_remaining_to_finger.pop()
+            two = played_positions_remaining_to_finger.pop()
+        elif not played_positions_remaining_to_finger:
             two = three = None  
         else:
-            position = played_positions_to_finger.pop()
+            position = played_positions_remaining_to_finger.pop()
             if position.fret.value <= one.fret.value + 1:
                 two = position
                 three = None
             else:
                 three = position
                 two = None
-        assert not played_positions_to_finger
-        return HandForGuitarChord(zero_fret = None, one=one, barred=barred, two=two, three=three, four=four)
+        assert not played_positions_remaining_to_finger
+        return HandForGuitarChord(zero_fret = None, one=one, barred=barred, two=two, three=three, four=four, opens=FrozenList(opens))
 
     def playable(self) -> Playable:
         easy = True
@@ -87,7 +111,7 @@ class HandForGuitarChord:
                 if fret_delta in hard_frets_distance:
                     easy = False
                 elif fret_delta not in easy_frets_distance:
-                    return False
+                    return Playable.NO
         return Playable.EASY if easy else Playable.YES
 
     def __post_init__(self):

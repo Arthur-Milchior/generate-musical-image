@@ -3,11 +3,8 @@ from dataclasses import dataclass, field
 from typing import ClassVar, Dict, Generic, List
 
 from guitar.chord.guitar_chord import GuitarChord
-from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
-from solfege.pattern.chord import inversion_pattern
 from solfege.pattern.chord.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
 from solfege.value.chromatic import ChromaticType
-from solfege.value.interval.set.interval_list import ChromaticIntervalList
 from utils.csv import CsvGenerator
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
@@ -39,7 +36,7 @@ class ChromaticListAndItsGuitarChords(RecordedContainer[GuitarChord], CsvGenerat
 
     def is_smaller_than_known_chord(self, small_chord: GuitarChord):
         for big_chord in self.guitar_chords:
-            if small_chord<big_chord:
+            if small_chord < big_chord:
                 return True
         return False
 

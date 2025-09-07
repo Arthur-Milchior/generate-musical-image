@@ -59,8 +59,12 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList]):
         """Return a name for the file containing those notes, without extension"""
         notes = list(self)
         notes.sort()
-        notes_str = "_".join(note.get_name_with_octave(alteration_output=AlterationOutput.ASCII,note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.UNDERSCORE_DOUBLE,octave_notation=OctaveOutput.MIDDLE_IS_4) 
-                        for note in self)
+        notes_str = "_".join(note.get_name_with_octave(
+            alteration_output=AlterationOutput.ASCII,
+            note_output=NoteOutput.LETTER, 
+            fixed_length=FixedLengthOutput.UNDERSCORE_DOUBLE,
+            octave_notation=OctaveOutput.MIDDLE_IS_4
+            ) for note in self)
         return f"chord_{notes_str}"
     
     def chromatic(self):

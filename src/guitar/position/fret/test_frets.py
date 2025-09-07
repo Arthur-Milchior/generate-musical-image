@@ -1,10 +1,10 @@
 
 import unittest
 
-from guitar.position.frets import Frets
-from guitar.position.fret import HIGHEST_FRET, NOT_PLAYED 
-from guitar.position.fret import OPEN_FRET, Fret
-from guitar.position.string_deltas import *
+from guitar.position.fret.frets import Frets
+from guitar.position.fret.fret import HIGHEST_FRET, NOT_PLAYED 
+from guitar.position.fret.fret import OPEN_FRET, Fret
+from guitar.position.string.string_deltas import *
 
 ALL_PLAYED = Frets()
 ALL = Frets(allow_not_played=True)

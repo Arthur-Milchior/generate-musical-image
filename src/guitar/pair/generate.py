@@ -7,11 +7,11 @@ from pickletools import string1
 import guitar.util
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
-from guitar.position.fret import Fret
-from guitar.position.string import String, strings
+from guitar.position.fret.fret import Fret
+from guitar.position.string.string import String, strings
 from solfege.value.interval.chromatic_interval import ChromaticInterval, IntervalNameCreasing
 from utils.util import *
-from guitar.position.fret import OPEN_FRET
+from guitar.position.fret.fret import OPEN_FRET
 from consts import generate_root_folder
 
 """

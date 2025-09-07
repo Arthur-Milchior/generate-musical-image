@@ -1,7 +1,7 @@
 from guitar.chord.open.chromatic_note_list_to_guitar_chords import ChromaticNoteListToGuitarChords
 from guitar.chord.chord_utils import enumerate_guitar_chords
 from guitar.chord.playable import Playable
-from guitar.position.frets import Frets
+from guitar.position.fret.frets import Frets
 
 # Ensure that all chords are registered
 from solfege.pattern.chord.chord_patterns import *

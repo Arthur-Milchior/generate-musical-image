@@ -1,7 +1,7 @@
 import unittest
 
 from guitar.position.set_of_guitar_positions import *
-from guitar.position.string import strings
+from guitar.position.string.string import strings
 
 
 CM_ = SetOfGuitarPositions.make([(2, 3), (3, 2), (4, 0), (5, 1)])

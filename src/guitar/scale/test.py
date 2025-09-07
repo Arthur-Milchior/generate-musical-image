@@ -1,8 +1,8 @@
 # from solfege.solfege_pattern import SolfegePattern
 # from solfege.pattern.scale.scale_pattern import ScalePattern
 # from guitar.position.guitar_position import GuitarPosition
-# from guitar.position.string import strings
-# from guitar.position.fret import Fret
+# from guitar.position.string.string import strings
+# from guitar.position.fret.fret import Fret
 # from guitar.scale.utils import scale2Pos
 # import unittest
 

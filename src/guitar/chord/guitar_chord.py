@@ -1,14 +1,13 @@
 from enum import Enum
 from typing import Dict, List, Optional, Self, Union
 from guitar.chord.playable import Playable
-from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
+from guitar.position.fret.fret import Fret
 from guitar.position.guitar_position import GuitarPosition
-from guitar.position.string import String, strings
+from guitar.position.string.string import String, strings
 from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
 import itertools
 
-from solfege.pattern.chord.inversion_pattern import InversionPattern
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList
 from utils.util import assert_typing, optional_max
 
 class Barred(Enum):
@@ -84,11 +83,12 @@ class GuitarChord(SetOfGuitarPositions):
         return False
     
     def hand_for_guitar(self) -> Optional["HandForGuitardChord"]:
-        from .hand_for_chord import HandForGuitarChord
+        from guitar.chord.hand_for_chord import HandForGuitarChord
         return HandForGuitarChord.make(self)
     
     def playable(self) -> Playable:
-        hand = self.hand_for_guitar()
+        from guitar.chord.hand_for_chord import HandForGuitarChord
+        hand: HandForGuitarChord = self.hand_for_guitar()
         if hand is None:
             return Playable.NO
         return hand.playable()

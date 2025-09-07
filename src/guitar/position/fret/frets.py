@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-
-from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret, HIGHEST_FRET
+from guitar.position.fret.fret import HIGHEST_FRET, NOT_PLAYED, OPEN_FRET, Fret
 from utils.util import assert_typing
 
 @dataclass(frozen=True)
@@ -64,3 +63,5 @@ class Frets:
         The svg to display current frets.
         """
         return [svg for fret in self for svg in fret.svg(absolute)]
+    
+EMPTY_FRETS = Frets(3, 2, False, False)

@@ -1,9 +1,11 @@
 
 from consts import generate_root_folder
-from utils.util import ensure_folder
-from guitar.position.fret import HIGHEST_FRET, Fret
+from utils.util import ensure_folder, save_file
+from guitar.position.fret.fret import HIGHEST_FRET, Fret
 from guitar.position.guitar_position import GuitarPosition
-from guitar.position.string import strings
+from guitar.position.string.string import strings
+
+"""Generate a file for each position."""
 
 folder_path = f"{generate_root_folder}/guitar/positions"
 

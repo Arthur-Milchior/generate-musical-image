@@ -1,5 +1,5 @@
 import unittest
-from guitar.position.string import *
+from guitar.position.string.string import *
 
 class TestGuitarAddString(unittest.TestCase):
     def test_eq(self):

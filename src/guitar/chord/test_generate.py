@@ -1,8 +1,6 @@
 import unittest
 
-from guitar.position.fret import Fret
-from guitar.position.string import strings
-
+from guitar.position.string.string import strings
 from guitar.chord.chord_utils import *
 
 no_strings = Strings([])
@@ -31,7 +29,7 @@ class TestGenerate(unittest.TestCase):
         self.assertEqual(
             frozenset(enumerate_frets(Strings([strings[5]]), Frets(min_fret=1, max_fret=1, allow_not_played=False, allow_open=False))),
             frozenset({
-                SetOfGuitarPositions.make({(5, 1)}),
+                SetOfGuitarPositions.make({(6, 1)}),
             })
         )
 
@@ -39,10 +37,10 @@ class TestGenerate(unittest.TestCase):
         self.assertEqual(
             frozenset(enumerate_frets(Strings([strings[4], strings[5]]), Frets(min_fret=1, max_fret=2, allow_not_played=False, allow_open=False))),
             frozenset({
-                SetOfGuitarPositions.make({(4, 1), (5, 1)}),
-                SetOfGuitarPositions.make({(4, 1), (5, 2)}),
-                SetOfGuitarPositions.make({(4, 2), (5, 1)}),
-                SetOfGuitarPositions.make({(4, 2), (5, 2)}),
+                SetOfGuitarPositions.make({(5, 1), (6, 1)}),
+                SetOfGuitarPositions.make({(5, 1), (6, 2)}),
+                SetOfGuitarPositions.make({(5, 2), (6, 1)}),
+                SetOfGuitarPositions.make({(5, 2), (6, 2)}),
             })
         )
     

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from guitar.position.fret import HIGHEST_FRET, Fret
+from guitar.position.fret.fret import HIGHEST_FRET, Fret
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note

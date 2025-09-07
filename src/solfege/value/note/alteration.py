@@ -28,8 +28,8 @@ assert_equal_length(fixed_length_symbol_space_simple)
 assert_equal_length(fixed_length_symbol_space_double)
 assert_equal_length(fixed_length_ascii_space_simple)
 assert_equal_length(fixed_length_ascii_space_double)
-fixed_length_ascii_underscore_simple = [s.replace(" ", "_") for s in fixed_length_symbol_space_simple]
-fixed_length_ascii_underscore_double = [s.replace(" ", "_") for s in fixed_length_symbol_space_double]
+fixed_length_ascii_underscore_simple = [s.replace(" ", "_") for s in fixed_length_ascii_space_simple]
+fixed_length_ascii_underscore_double = [s.replace(" ", "_") for s in fixed_length_ascii_space_double]
 fixed_length_symbol_underscore_simple = [s.replace(" ", "_") for s in fixed_length_symbol_space_simple]
 fixed_length_symbol_underscore_double = [s.replace(" ", "_") for s in fixed_length_symbol_space_double]
 asciis = [s.replace(" ", "") for s in fixed_length_symbol_space_simple]

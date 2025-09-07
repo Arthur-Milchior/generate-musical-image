@@ -6,9 +6,9 @@ from pickle import EMPTY_SET
 from typing import Dict, FrozenSet, Generator, Iterable, List, Iterator, Optional, Self, Tuple, Union
 
 from guitar.position.guitar_position import GuitarPosition, GuitarPositionMakeSingleArgumentType
-from guitar.position.fret import NOT_PLAYED, OPEN_FRET, Fret
+from guitar.position.fret.fret import NOT_PLAYED, OPEN_FRET, Fret
 from guitar.position.consts import *
-from guitar.position.strings import ALL_STRINGS
+from guitar.position.string.strings import ALL_STRINGS
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
 from solfege.value.note.chromatic_note import ChromaticNote
@@ -17,7 +17,7 @@ from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
 from solfege.value.note.set.note_list import NoteList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_dict_typing, assert_increasing, assert_iterable_typing, assert_optional_typing, assert_typing, optional_max, optional_min, sorted_unique
-from guitar.position.string import String, strings
+from guitar.position.string.string import String, strings
 
 COLOR_TONIC = "red"
 COLOR_THIRD = "blue"

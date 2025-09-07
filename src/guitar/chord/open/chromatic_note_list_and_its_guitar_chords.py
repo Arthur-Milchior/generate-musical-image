@@ -9,12 +9,16 @@ from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.set.note_list import NoteList
-from utils.util import img_tag
+from utils.util import assert_typing, img_tag
 
 @dataclass(frozen=True, unsafe_hash=True)
 class ChromaticNoteListAndItsGuitarChords(ChromaticListAndItsGuitarChords[ChromaticNote]):
     """Up to octave"""
     lowest_note: ChromaticNote
+
+    def __post_init__(self):
+        assert_typing(self.lowest_note, ChromaticNote)
+        super().__post_init__()
 
     def chord_names(self):
         return [self.chord_name(inversion) for inversion in self.interval_and_its_inversions.inversions]
@@ -39,7 +43,8 @@ class ChromaticNoteListAndItsGuitarChords(ChromaticListAndItsGuitarChords[Chroma
         
     def append(self, guitar_chord: GuitarChord):
         super().append(guitar_chord)
-        assert guitar_chord.get_most_grave_note().get_chromatic().in_base_octave() == self.lowest_note.in_base_octave()
+        guitar_chord_lowest_note = guitar_chord.get_most_grave_note()
+        assert guitar_chord_lowest_note.get_chromatic().in_base_octave() == self.lowest_note.in_base_octave(), f"""{guitar_chord_lowest_note} is not a octave away from {self.lowest_note}"""
     
     def csv_content(self, lily_folder_path: Optional[str] = None):
         l = []
