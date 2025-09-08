@@ -4,6 +4,9 @@ from guitar.chord.guitar_chord import *
 from guitar.position.fret.fret import NOT_PLAYED
 from .test_constants import *
 
+CM_ = GuitarChord.make([None, 3, 2, 0, 1, None])
+CM = GuitarChord.make([None, 3, 2, 0, 1, 0])
+
 class TestGuitarChord(unittest.TestCase):
     def test_eq(self):
         self.assertEqual(GuitarChord.make([NOT_PLAYED] * 6), GuitarChord.make([NOT_PLAYED] * 6))
@@ -63,3 +66,8 @@ class TestGuitarChord(unittest.TestCase):
         self.assertFalse(GuitarChord.make([None, 3, 3, 4, 1, 1]).has_not_played_in_middle())
         self.assertFalse(GuitarChord.make([None, 3, 3, 4, 1, None]).has_not_played_in_middle())
         self.assertFalse(GuitarChord.make([1, 3, 3, 4, 1, None]).has_not_played_in_middle())
+        
+    def test_lt(self):
+        self.assertLess(CM_, CM)
+        self.assertLessEqual(CM_, CM)
+        self.assertLessEqual(CM_, CM_)

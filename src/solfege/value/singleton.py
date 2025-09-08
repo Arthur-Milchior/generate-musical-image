@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 import math
-from typing import Callable, ClassVar, Self, Type, Union
+from typing import Callable, ClassVar, Self, Type, TypeVar, Union
 
 from solfege.value.abstract import Abstract
+from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
 
 @dataclass(frozen=True, eq=False)
-class Singleton(Abstract):
+class Singleton(Abstract, MakeableWithSingleArgument):
     value: int
     IntervalClass: ClassVar[Type["Singleton"]]
 
@@ -24,7 +25,7 @@ class Singleton(Abstract):
 
     def __eq__(self, other):
         if self.__class__ != other.__class__:
-            raise Exception(f"Comparison of two distinct classes: {self.__class__} and {other.__class__}")
+            raise Exception(f"Comparison of two distinct classes: {self}:{self.__class__} and {other}:{other.__class__}")
         return self.value == other.value
     
     def __hash__(self):
@@ -54,10 +55,14 @@ class Singleton(Abstract):
     def octave(self):
         """The octave number. 0 for unison/central C up to seventh/C one octave above."""
         return math.floor(self.value / self.__class__.number_of_interval_in_an_octave)
+    
+    def repr_single_argument(self) -> str:
+        return f"""{self.value}"""
 
     @classmethod
-    def make_single_argument(cls, value: Union[int, "Singleton"]) -> Self:
-        if isinstance(value, int):
-            return cls.make_instance_of_selfs_class(value)
-        assert_typing(value, cls)
-        return value
+    def _make_single_argument(cls, value: Union[int, "Singleton"]) -> Self:
+        assert_typing(value, int)
+        return cls.make_instance_of_selfs_class(value)
+        
+    
+SingletonType = TypeVar("SingletonType", bound=Singleton)

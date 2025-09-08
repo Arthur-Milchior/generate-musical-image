@@ -2,11 +2,13 @@
 from dataclasses import dataclass
 from typing import ClassVar, Self, Tuple, Union
 
+from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
 
+
 @dataclass(frozen=True, unsafe_hash=True, eq=False)
-class Abstract:
+class Abstract(MakeableWithSingleArgument):
     """The class of interval similar to the current class"""
     IntervalClass: ClassVar[type] #abstract interval
 
@@ -54,7 +56,4 @@ class Abstract:
         return self.in_base_octave() == other.in_base_octave()
     
     def octave(self) -> int:
-        return NotImplemented
-    
-    def make_single_argument(cls, value: Union[int, "Abstract", Tuple[int, int]]):
         return NotImplemented

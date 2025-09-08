@@ -5,13 +5,14 @@ from guitar.position.fret.fret import HIGHEST_FRET, Fret
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
+from utils.frozenlist import FrozenList, MakeableWithSingleArgument
 from utils.util import assert_typing
 from guitar.position.consts import *
 
 STRING_THICKNESS = 5
 
 @dataclass(frozen=True)
-class String:
+class String(MakeableWithSingleArgument):
     """Represents one of the string of the Guitar."""
 
     value: int
@@ -22,10 +23,11 @@ class String:
         assert_typing(self.value, int)
         assert_typing(self.note_open, ChromaticNote)
 
+    def repr_single_argument(self) -> str:
+        return f"""{self.value}"""
+    
     @staticmethod
-    def make_single_argument(string: Union["String", int]):
-        if isinstance(string, String):
-            return string
+    def _make_single_argument(string: Union["String", int]):
         assert_typing(string, int)
         return strings[string-1]
 
@@ -95,3 +97,6 @@ String.B4 = String(5, Note.from_name("B4").get_chromatic())
 String.E5 = String(6, Note.from_name("E5").get_chromatic())
 
 strings = [String.E3, String.A3, String.D4, String.G4, String.B4, String.E5]
+
+class StringFrozenList(FrozenList[String]):
+    type = String

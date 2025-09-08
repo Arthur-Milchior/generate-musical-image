@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, TypeVar
 
 from solfege.value.singleton import Singleton
 from solfege.value.chromatic import Chromatic
@@ -32,3 +32,5 @@ class Diatonic(Singleton, DiatonicGetter):
     
     def get_diatonic(self):
         return self
+    
+DiatonicType = TypeVar("DiatonicType", bound = Diatonic)

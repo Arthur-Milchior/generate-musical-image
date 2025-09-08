@@ -16,6 +16,7 @@ from guitar.position.consts import *
 from guitar.position.string.string_deltas import ANY_STRING, StringDelta
 from guitar.position.string.string import strings
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
 # The 1-th string played free
@@ -37,7 +38,7 @@ string_number_to_note_played_when_free = {
 
 GuitarPositionMakeSingleArgumentType = Union["GuitarPosition", Tuple[Union[String, int], Union[Fret, Optional[int]]]]
 @dataclass(frozen=True)
-class GuitarPosition(DataClassWithDefaultArgument):
+class GuitarPosition(MakeableWithSingleArgument, DataClassWithDefaultArgument):
     """A position on the guitar, that is, a string and a fret.
     Fret 0 is open. Fret None is not played.
 
@@ -56,10 +57,11 @@ class GuitarPosition(DataClassWithDefaultArgument):
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "fret", Fret.make_single_argument)
         return args, kwargs
     
+    def repr_single_argument(self) -> str:
+        return f"""{(self.string.value, self.fret.value)}"""
+
     @classmethod
-    def make_single_argument(cls, arg: GuitarPositionMakeSingleArgumentType):
-        if isinstance(arg, GuitarPosition):
-            return arg
+    def _make_single_argument(cls, arg: GuitarPositionMakeSingleArgumentType):
         string, fret = arg
         return cls.make(string, fret)
 

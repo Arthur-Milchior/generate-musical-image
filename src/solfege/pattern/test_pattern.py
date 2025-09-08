@@ -4,7 +4,7 @@ import unittest
 
 from solfege.pattern.pattern import SolfegePattern
 from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
-from utils.frozenlist import FrozenList
+from utils.frozenlist import FrozenList, StrFrozenList
 from utils.recordable import RecordKeeper
 
 
@@ -81,5 +81,5 @@ class TestSolfegePattern(unittest.TestCase):
         self.assertEqual(PatternDeux.get_from_name("1a"), self.instance_1)
 
     def test_name(self):
-        self.assertEqual(self.instance_1.get_names(), FrozenList(["1a", "1b"]))
+        self.assertEqual(self.instance_1.get_names(), StrFrozenList(["1a", "1b"]))
         self.assertEqual(self.instance_1.first_of_the_names(), "1a")

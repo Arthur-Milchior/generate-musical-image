@@ -1,13 +1,30 @@
 
 from dataclasses import dataclass
-from typing import Generic, Iterable, List, Tuple, TypeVar
+from typing import ClassVar, Generic, Iterable, List, Self, Tuple, Type, TypeVar
 
 from utils.util import assert_all_same_class, assert_iterable_typing, assert_typing
 
-
 T = TypeVar('T')
+class MakeableWithSingleArgument():
+
+    @classmethod
+    def make_single_argument(cls, arg) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        r = cls._make_single_argument(arg)
+        assert_typing(r, cls)
+        return r
+
+    @classmethod
+    def _make_single_argument(cls, arg) -> Self:
+        return NotImplemented
+
+    def repr_single_argument(self) -> str:
+        return NotImplemented
+
 class FrozenList(Generic[T]):
     _l: List[T]
+    type: ClassVar[Type]
 
     def __init__(self, arg: Iterable[T] = None):
         if arg is None:
@@ -15,7 +32,9 @@ class FrozenList(Generic[T]):
             return
         # make a copy of the list
         l = list(arg)
-        assert_all_same_class(l)
+        if issubclass(self.type, MakeableWithSingleArgument):
+            l = [self.type.make_single_argument(arg) for arg in l]
+        assert_iterable_typing(l, self.type)
         self._l = l
 
     def __iter__(self):
@@ -24,8 +43,8 @@ class FrozenList(Generic[T]):
     def __hash__(self):
         return hash(tuple(self._l))
 
-    def __eq__(self, other: "FrozenList"):
-        assert_typing(other, FrozenList)
+    def __eq__(self, other: Self):
+        assert_typing(other, self.__class__)
         return self._l == other._l
     
     def list(self):
@@ -35,7 +54,7 @@ class FrozenList(Generic[T]):
     def append(self, value):
         l = self.list()
         l.append(value)
-        return FrozenList(l)
+        return self.__class__(l)
     
     def __add__(self, other: Iterable[T]):
         other = list(other)
@@ -43,20 +62,32 @@ class FrozenList(Generic[T]):
             assert_iterable_typing(other, self._l[0].__class__)
         else:
             assert_all_same_class(other)
-        return FrozenList(self._l + other)
+        return self.__class__(self._l + other)
 
     def __getitem__(self, index):
         return self._l[index]
     
     def __repr__(self):
-        return f"FrozenList({self._l!r})"
+        if issubclass(self.type, MakeableWithSingleArgument):
+            l = [elt.repr_single_argument() for elt in self]
+        else:
+            l = [repr(elt) for elt in self]
+        return f"{self.__class__.__name__}([{",".join(l)}])"
 
     def __len__(self):
         return len(self._l)
     
-    def head_tail(self) -> Tuple[T, "FrozenList[T]"]:
-        return (self._l[0], FrozenList(self._l[1:]))
+    def head_tail(self) -> Tuple[T, Self]:
+        return (self._l[0], self.__class__(self._l[1:]))
     
     def __mul__(self, other: int):
         assert_typing(other, int)
-        return FrozenList(self._l * other)
+        return self.__class__(self._l * other)
+    
+class IntFrozenList(FrozenList[int]):
+    type = int
+
+class StrFrozenList(FrozenList[str]):
+    type = str
+
+FrozenListType = TypeVar("FrozenListType", bound=FrozenList)

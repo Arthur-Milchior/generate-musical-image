@@ -1,8 +1,8 @@
 from typing import Tuple
 import unittest
 
-from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list import ChromaticIntervalList
+from solfege.value.interval.interval import Interval, IntervalFrozenList
+from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalListFrozenList
 from utils.frozenlist import FrozenList
 
 from solfege.pattern.interval_list_to_patterns import *
@@ -12,7 +12,7 @@ tone = ChromaticIntervalList.make_relative([2])
 
 @dataclass(frozen=True, eq = True)
 class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
-    _relative_intervals: FrozenList[IntervalList]
+    _relative_intervals: IntervalListFrozenList
 
     @classmethod
     def _new_record_keeper(cls):
@@ -21,7 +21,7 @@ class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         def clean_intervals(intervals):
-            return FrozenList([Interval.make_single_argument(interval) for interval in intervals])
+            return IntervalFrozenList([Interval.make_single_argument(interval) for interval in intervals])
         
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_relative_intervals", clean_intervals)
         return super()._clean_arguments_for_constructor(args, kwargs)

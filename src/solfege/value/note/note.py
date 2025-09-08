@@ -5,26 +5,22 @@ from typing import ClassVar, Optional, Self, Type
 
 from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.value.chromatic import Chromatic
-from solfege.value.interval.chromatic_interval import ChromaticInterval
-from solfege.value.interval.interval import Interval
+from solfege.value.interval.interval import IntervalFrozenList
 from solfege.value.note.abstract_note import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput, low_and_high
-#from solfege.value.note.alteration import DOUBLE_FLAT, DOUBLE_SHARP, FLAT, NATURAL, SHARP, Alteration, alteration_symbols
 from solfege.value.pair import Pair
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.alteration import *
 from solfege.value.note.diatonic_note import DiatonicNote
+from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True, repr=False, eq=False)
-class Note(AbstractNote, Pair, LocalLilyable):
+@dataclass(frozen=True, repr=False, eq=True)
+class Note(AbstractNote, Pair[ChromaticNote, DiatonicNote], LocalLilyable):
     """A note of the scale, as an interval from middle C."""
     DiatonicClass: ClassVar[Type[DiatonicNote]] = DiatonicNote
     ChromaticClass: ClassVar[Type[ChromaticNote]] = ChromaticNote
     AlterationClass: ClassVar = Alteration
-
-    chromatic: ChromaticNote
-    diatonic: DiatonicNote
 
     def __post_init__(self):
         super().__post_init__()
@@ -67,6 +63,7 @@ class Note(AbstractNote, Pair, LocalLilyable):
     def adjacent(self, other: Note):
         """Whether `other` is at most two half-tone away"""
         lower, higher = low_and_high(self, other)
+        from solfege.value.interval.interval import Interval
         diff: Interval = higher - lower
         value = diff.chromatic.value
         assert value > 0
@@ -80,6 +77,7 @@ class Note(AbstractNote, Pair, LocalLilyable):
 
     def simplest_enharmonic(self):
         """Enharmonic note, with 0 alteration if possible or one of the same alteration"""
+        from solfege.value.interval.interval import Interval
         enharmonic = self
         while enharmonic.get_alteration().value >= 2:
             # double sharp at least, let's add a diatonic note
@@ -100,6 +98,7 @@ class Note(AbstractNote, Pair, LocalLilyable):
         return enharmonic
 
     def canonize(self, for_sharp: bool):
+        from solfege.value.interval.interval import Interval
         """Enharmonic note, with no alteration if possible or a single sharp"""
         enharmonic = self
         while enharmonic.get_alteration().value > (1 if for_sharp else 0):
@@ -150,6 +149,7 @@ class Note(AbstractNote, Pair, LocalLilyable):
         return self.chromatic.is_white_key_on_piano()
     
     def change_octave_to_be_enharmonic(self, chromatic_note: ChromaticNote) -> Optional[Self]:
+        from solfege.value.interval.chromatic_interval import ChromaticInterval
         chromatic_distance: ChromaticInterval = chromatic_note - self.chromatic 
         if chromatic_distance.value % Chromatic.number_of_interval_in_an_octave != 0:
             return None
@@ -161,3 +161,9 @@ DiatonicNote.PairClass = Note
 
 ChromaticNote.DiatonicClass = DiatonicNote
 DiatonicNote.ChromaticClass = ChromaticNote
+
+class NoteFrozenList(FrozenList[Note]):
+    type = Note
+
+
+IntervalFrozenList.note_frozen_list_type = NoteFrozenList

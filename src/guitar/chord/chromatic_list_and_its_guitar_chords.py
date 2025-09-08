@@ -2,12 +2,11 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, Generic, List
 
-from guitar.chord.guitar_chord import GuitarChord
+from guitar.chord.guitar_chord import GuitarChord, GuitarChordFrozenList
 from solfege.pattern.chord.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
 from solfege.value.chromatic import ChromaticType
 from utils.csv import CsvGenerator
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.frozenlist import FrozenList
 from utils.recordable import RecordedContainer
 from utils.util import assert_iterable_typing, assert_typing, img_tag
 
@@ -29,6 +28,7 @@ class ChromaticListAndItsGuitarChords(RecordedContainer[GuitarChord], CsvGenerat
         super().__post_init__()
 
     def append(self, guitar_chord: GuitarChord):
+        assert_typing(guitar_chord, GuitarChord)
         expected_chromatic_intervals = self.interval_and_its_inversions.chromatic_intervals
         actual_chromatic_intervals = guitar_chord.intervals_frow_lowest_note_in_base_octave()
         assert expected_chromatic_intervals == actual_chromatic_intervals, f"""{expected_chromatic_intervals}\n!=\n{actual_chromatic_intervals}"""
@@ -44,13 +44,13 @@ class ChromaticListAndItsGuitarChords(RecordedContainer[GuitarChord], CsvGenerat
         """Sort the list of chords. Starting with smallest number of frets, and in case of equality greater number of notes"""
         self.guitar_chords.sort(key=lambda guitar_chord: (guitar_chord.number_of_frets(include_open=False), -guitar_chord.number_of_distinct_notes()))
 
-    def maximals(self) -> FrozenList[GuitarChord]:
+    def maximals(self) -> GuitarChordFrozenList:
         """Return the elements of the list that are not strictly contained in other elements of the list."""
         self.sort()
-        return FrozenList(guitar_chord for guitar_chord in self.guitar_chords if not self.is_smaller_than_known_chord(guitar_chord))
+        return GuitarChordFrozenList(guitar_chord for guitar_chord in self.guitar_chords if not self.is_smaller_than_known_chord(guitar_chord))
 
     def all_guitar_chords(self):
-        return FrozenList(self.guitar_chords)
+        return GuitarChordFrozenList(self.guitar_chords)
     
     def __iter__(self):
         self.sort()

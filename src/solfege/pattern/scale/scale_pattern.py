@@ -1,15 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Generic, Self, Union, Tuple, Optional
+from typing import ClassVar, Dict, List, Optional
 
 from solfege.value.interval.set.interval_list import IntervalList
-from solfege.value.key.key import *
 from solfege.pattern.scale.scale import Scale
-from solfege.value.interval.abstract_interval import IntervalType
-from solfege.value.note.note import Note
 from solfege.value.note.abstract_note import NoteType
-from solfege.value.interval.interval_pattern import intervals_up_to_octave
 from utils.util import assert_optional_typing
 
 """Contains a class to represent a scale.

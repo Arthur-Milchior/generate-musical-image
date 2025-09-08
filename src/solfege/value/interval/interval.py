@@ -7,11 +7,12 @@ from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.diatonic_interval import DiatonicInterval
 from solfege.value.interval.abstract_interval import AbstractInterval
 from solfege.value.pair import Pair
+from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
 
 @dataclass(frozen=True, unsafe_hash=True, eq=False)
-class Interval(AbstractInterval, Pair):
+class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval]):
     """A solfège interval. Composed of both a diatonic interval and a chromatic interval."""
     DiatonicClass: ClassVar[Type[DiatonicInterval]] = DiatonicInterval
     ChromaticClass: ClassVar[Type[ChromaticInterval]] = ChromaticInterval
@@ -43,6 +44,9 @@ class Interval(AbstractInterval, Pair):
     def one_octave(cls)-> Self:
         return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.one_octave(), diatonic=cls.DiatonicClass.one_octave())
 
+
+class IntervalFrozenList(FrozenList[Interval]):
+    type = Interval
 
 Interval.PairClass = Interval
 ChromaticInterval.PairClass = Interval

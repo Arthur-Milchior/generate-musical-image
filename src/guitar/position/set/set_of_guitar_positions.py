@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import dataclasses
 import itertools
 from pickle import EMPTY_SET
-from typing import Dict, FrozenSet, Generator, Iterable, List, Iterator, Optional, Self, Tuple, Union
+from typing import Callable, Dict, FrozenSet, Generator, Iterable, List, Iterator, Optional, Self, Tuple, Union
 
 from guitar.position.guitar_position import GuitarPosition, GuitarPositionMakeSingleArgumentType
 from guitar.position.fret.fret import NOT_PLAYED, OPEN_FRET, Fret
@@ -17,7 +17,8 @@ from solfege.value.note.note import Note
 from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
 from solfege.value.note.set.note_list import NoteList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.util import assert_dict_typing, assert_increasing, assert_iterable_typing, assert_optional_typing, assert_typing, optional_max, optional_min, sorted_unique
+from utils.frozenlist import FrozenList
+from utils.util import T, assert_dict_typing, assert_increasing, assert_iterable_typing, assert_optional_typing, assert_typing, optional_max, optional_min, sorted_unique
 from guitar.position.string.string import String, strings
 
 COLOR_TONIC = "red"
@@ -73,10 +74,10 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
         return set(self.positions) == set(other.positions)
     
     def __lt__(self, other: SetOfGuitarPositions):
-        return set(self.positions) < set(other.positions)
+        return set(self.played_positions()) < set(other.played_positions())
     
     def __le__(self, other: SetOfGuitarPositions):
-        return set(self.positions) <= set(other.positions)
+        return set(self.played_positions()) <= set(other.played_positions())
 
     def _max_fret(self) -> Optional[Fret] :
         """The greatest fret used."""
@@ -110,16 +111,18 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
     def strings_at_min_fret(self, include_open: bool):
         return self.strings_at_fret(self._min_fret(include_open=include_open))
     
-    def height(self):
-        assert self.positions
+    def height(self, absolute: bool):
         return self.last_shown_fret().y_fret() + MARGIN
     
-    def svg_content(self, absolute: bool, tonic: Optional[ChromaticNote], nbFretMin: Fret =OPEN_FRET) -> List[str]:
+    def execute_on_maybe_transposed(self, absolute: bool, f: Callable[[SetOfGuitarPositions], T]) -> T:
+        """Execute `f` on `self` if `absolute` otherwise on self transposed to first fret."""
         if not absolute:
             transposed, transpose_interval = self.transpose_to_fret_one()
-            if transpose_interval != ChromaticInterval(0):
-                transposed_tonic = None if tonic is None else tonic-transpose_interval
-                return transposed.svg_content(absolute, transposed_tonic)
+        else:
+            transposed = self
+        return f(transposed)
+    
+    def svg_content(self, absolute: bool, tonic: Optional[ChromaticNote], nbFretMin: Fret =OPEN_FRET) -> List[str]:
         assert_optional_typing(tonic, ChromaticNote)
         """If tonic, add some colors depending on the role of the note compared to the tonic"""
         max_fret = max(self.last_shown_fret(), nbFretMin).below()
@@ -168,12 +171,15 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
         assert_iterable_typing(absolute_chromatic_intervals, ChromaticInterval)
         return ChromaticIntervalList.make_absolute(sorted_unique(interval.in_base_octave() for interval in absolute_chromatic_intervals))
 
+    def _svg(self, absolute:bool, tonic: Optional[ChromaticNote]=None, nbFretMin: Fret=OPEN_FRET):       
+            new_line = "\n"
+            return f"""\
+    <svg xmlns="http://www.w3.org/2000/svg" width="{int(WIDTH)}" height="{int(self.height(absolute))}" version="1.1">
+    {new_line.join(("  "+ content) for content in self.svg_content(absolute=absolute, tonic=tonic, nbFretMin=nbFretMin))}
+    </svg>"""
+
     def svg(self, absolute:bool, tonic: Optional[ChromaticNote]=None, nbFretMin: Fret=OPEN_FRET) -> str:
-        new_line = "\n"
-        return f"""\
-<svg xmlns="http://www.w3.org/2000/svg" width="{int(WIDTH)}" height="{int(self.height())}" version="1.1">
-{new_line.join(("  "+ content) for content in self.svg_content(absolute=absolute, tonic=tonic, nbFretMin=nbFretMin))}
-</svg>"""
+        return self.execute_on_maybe_transposed(absolute, lambda poss: (poss._svg(absolute, tonic, nbFretMin)))
     
     def number_of_distinct_notes(self):
         return len(self.chromatic_notes())
@@ -238,3 +244,7 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
             lowest_note: Note = self.get_most_grave_note().get_chromatic().get_note()
         notes_to_imitate: NoteList = interval_list.from_note(lowest_note)
         return self.notes_from_note_list(notes_to_imitate)
+    
+
+class SetOfGuitarPositionsFrozenList(FrozenList[SetOfGuitarPositions]):
+    type = SetOfGuitarPositions

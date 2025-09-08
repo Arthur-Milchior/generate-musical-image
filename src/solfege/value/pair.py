@@ -1,15 +1,16 @@
 
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Self, Tuple, Type, Union
+from typing import Callable, ClassVar, Generic, Self, Tuple, Type, Union
 
 from solfege.value.abstract import Abstract
-from solfege.value.chromatic import Chromatic, ChromaticGetter
-from solfege.value.diatonic import Diatonic, DiatonicGetter
+from solfege.value.chromatic import Chromatic, ChromaticGetter, ChromaticType
+from solfege.value.diatonic import Diatonic, DiatonicGetter, DiatonicType
+from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True, unsafe_hash=True, eq=False)
-class Pair(Abstract, ChromaticGetter, DiatonicGetter):
+@dataclass(frozen=True, unsafe_hash=True)
+class Pair(Abstract, ChromaticGetter, DiatonicGetter, MakeableWithSingleArgument, Generic[ChromaticType, DiatonicType]):
     """How to generate a new Pair, from chromatic and diatonic"""
     make_instance_of_selfs_class: ClassVar[Callable[[int, int], "Pair"]]
     DiatonicClass: ClassVar[Type[Diatonic]] = Diatonic
@@ -17,38 +18,40 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
     AlterationClass: ClassVar[Type[Chromatic]]
     IntervalClass: ClassVar[Type["Pair"]]
 
-    chromatic: Chromatic
-    diatonic: Diatonic
+    chromatic: ChromaticType
+    diatonic: DiatonicType
 
     def __post_init__(self):
         assert_typing(self.chromatic, self.ChromaticClass)
         assert_typing(self.diatonic, self.DiatonicClass)
 
     @classmethod
-    def make_instance_of_selfs_class(cls: Type["Pair"], chromatic: Chromatic, diatonic: Diatonic):
+    def make_instance_of_selfs_class(cls: Type["Pair"], chromatic: ChromaticType, diatonic: DiatonicType):
         return cls(chromatic, diatonic)
 
     @classmethod
     def make(cls,
-             chromatic: Union[Chromatic, int],
-             diatonic: Union[Diatonic, int]) -> Self:
+             chromatic: Union[ChromaticType, int],
+             diatonic: Union[DiatonicType, int]) -> Self:
         if isinstance(chromatic, int):
             chromatic = cls.ChromaticClass(chromatic)
         if isinstance(diatonic, int):
             diatonic = cls.DiatonicClass(diatonic)
         return cls(chromatic, diatonic)
     
+
+    def repr_single_argument(self) -> str:
+        return f"""{self.chromatic.value, self.diatonic.value}"""
+
     @classmethod
-    def make_single_argument(cls, arg: Union[Tuple[int, int], int, "Pair"]):
+    def _make_single_argument(cls, arg: Union[Tuple[int, int], int]):
         """If there are two arguments, it's chromatic, diatonic. If there is a single arg, it's chromatic, diatonic is one (useful for most scale). If it's already a Pair, return it."""
         if isinstance(arg, tuple):
             assert len(arg) == 2
             chromatic, diatonic = arg
             return cls.make(chromatic, diatonic)
-        if isinstance(arg, int):
-            return cls.make(arg, 1)
-        assert_typing(arg, cls)
-        return arg
+        assert_typing(arg, int)
+        return cls.make(arg, 1)
 
     def __eq__(self, other: "Pair"):
         diatonicEq = self.diatonic == other.diatonic
@@ -58,10 +61,10 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter):
     def get_chromatic(self):
         return self.chromatic
 
-    def get_diatonic(self) -> Diatonic:
+    def get_diatonic(self) -> DiatonicType:
         return self.diatonic
 
-    def get_alteration(self) -> "Chromatic":
+    def get_alteration(self) -> ChromaticType:
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
         from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
         diatonic = self.get_diatonic()

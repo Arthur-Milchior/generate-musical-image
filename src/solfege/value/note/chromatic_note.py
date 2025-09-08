@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import ClassVar, Optional, Type
+from solfege.value.interval.chromatic_interval import ChromaticIntervalFrozenList
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
-from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.chromatic import Chromatic
 from solfege.value.note.singleton_note import AbstractSingletonNote
+from utils.frozenlist import FrozenList
 from utils.util import img_tag
 
 
@@ -64,3 +65,8 @@ class ChromaticNote(AbstractSingletonNote, Chromatic):
         return (self.get_chromatic().value % 12) in blacks
     
 ChromaticNote.ChromaticClass = ChromaticNote
+
+class ChromaticNoteFrozenList(FrozenList[ChromaticNote]):
+    type = ChromaticNote
+
+ChromaticIntervalFrozenList.note_frozen_list_type = ChromaticNoteFrozenList

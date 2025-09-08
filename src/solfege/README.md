@@ -19,3 +19,7 @@ note/: contain classes to represents notes.
 --Note represents a note using its diatonic and chromatic position
 
 
+## Dependencies
+
+Key can depends on Note which can depend on interval.
+If other import is needed, do it inside function body.

@@ -4,7 +4,7 @@ from typing import ClassVar, Dict, List, Optional, Self, Tuple, Union
 
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
-from utils.frozenlist import FrozenList
+from utils.frozenlist import FrozenList, StrFrozenList
 from utils.util import assert_all_same_class, assert_iterable_typing, assert_optional_typing, assert_typing, traceback_str
 from solfege.value.key.key import nor_flat_nor_sharp
 
@@ -19,7 +19,7 @@ class PatternWithName(DataClassWithDefaultArgument):
     """associate to each class the list of all instances of this class"""
     all_patterns: ClassVar[List['PatternWithName']]
 
-    names: FrozenList[str]
+    names: StrFrozenList
     notation: Optional[str]
     """Whether to record this pattern in the list of patterns."""
     record: bool = field(compare=False)
@@ -33,14 +33,14 @@ class PatternWithName(DataClassWithDefaultArgument):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "names", FrozenList)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "names", StrFrozenList)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "notation")
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "record")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
         assert_typing(self.interval_for_signature, Interval)
-        assert_typing(self.names, FrozenList)
+        assert_typing(self.names, StrFrozenList)
         assert_typing(self.record, bool)
         assert_optional_typing(self.notation, str)
         assert_iterable_typing(self.names, str)

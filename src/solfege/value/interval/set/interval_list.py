@@ -1,16 +1,12 @@
 from dataclasses import dataclass
 from itertools import pairwise
-from typing import Callable, ClassVar, Generic, Iterable, List, Optional, Self, Tuple, Type, TypeVar, Union
+from typing import Callable, ClassVar, Dict, Generic, Iterable, List, Self, Tuple, Type, TypeVar, Union
 
+from solfege.list_order import ListOrder
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
-from solfege.value.interval.chromatic_interval import ChromaticInterval
-from solfege.value.interval.diatonic_interval import DiatonicInterval
-from solfege.value.interval.interval import Interval
-from solfege.value.note.abstract_note import AbstractNote, NoteType
-from solfege.value.note.chromatic_note import ChromaticNote
-from solfege.value.note.note import Note
-from solfege.value.chromatic import ChromaticGetter
-from solfege.value.key.key import *
+from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
+from solfege.value.interval.diatonic_interval import DiatonicInterval, DiatonicIntervalFrozenList
+from solfege.value.interval.interval import Interval, IntervalFrozenList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
 from utils.util import assert_iterable_typing, assert_typing, sorted_unique
@@ -20,6 +16,7 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
     interval_type: ClassVar[Type[AbstractInterval]]
     """The list of intervals, all relative to a common starting note."""
     _absolute_intervals: FrozenList[IntervalType]
+    _frozen_list_type: ClassVar[Type[FrozenList[IntervalType]]]
     increasing: bool
 
     @classmethod
@@ -31,8 +28,8 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         def clean_absolute_intervals(intervals):
-            if not isinstance(intervals, FrozenList):
-                return FrozenList(intervals)
+            if not isinstance(intervals, cls._frozen_list_type):
+                return cls._frozen_list_type(intervals)
             return intervals
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "_absolute_intervals", clean_absolute_intervals)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "increasing")
@@ -40,7 +37,7 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
 
     def __post_init__(self):
         assert self._absolute_intervals[0] == self.interval_type.unison()
-        assert_typing(self._absolute_intervals, FrozenList)
+        assert_typing(self._absolute_intervals, self._frozen_list_type)
         assert_iterable_typing(self._absolute_intervals, self.interval_type)
         for first, second in pairwise(self._absolute_intervals):
             if self.increasing:
@@ -52,11 +49,12 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
     @classmethod
     def make_absolute(cls, absolute_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]], *args, add_implicit_zero: bool = True, **kwargs):
         absolute_intervals = [cls.interval_type.make_single_argument(absolute_interval) for absolute_interval in absolute_intervals]
+        assert_iterable_typing(absolute_intervals, cls.interval_type)
         first_interval = absolute_intervals[0] if absolute_intervals else None
         unison = cls.interval_type.unison()
         if first_interval != unison and add_implicit_zero:
             absolute_intervals = [unison] + absolute_intervals
-        return cls.make(*args, _absolute_intervals=FrozenList(absolute_intervals), **kwargs)
+        return cls.make(*args, _absolute_intervals=cls._frozen_list_type(absolute_intervals), **kwargs)
 
     @classmethod
     def make_relative(cls, relative_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]],  *args,  **kwargs):
@@ -65,38 +63,39 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
         for relative_interval in relative_intervals:
             relative_interval = cls.interval_type.make_single_argument(relative_interval)
             absolute_intervals.append(absolute_intervals[-1] + relative_interval)
-        return cls.make(*args, _absolute_intervals=FrozenList(absolute_intervals), **kwargs)
+        return cls.make(*args, _absolute_intervals=cls._frozen_list_type(absolute_intervals), **kwargs)
 
-    def absolute_intervals(self) -> FrozenList[IntervalType]:
+    def absolute_intervals(self) -> FrozenList[IntervalType][IntervalType]:
         return self._absolute_intervals
 
-    def relative_intervals(self, assume_implicit_zero=True) -> FrozenList[IntervalType]:
+    def relative_intervals(self, assume_implicit_zero=True) -> FrozenList[IntervalType][IntervalType]:
         """Generator of the difference of intervals"""
         unison = self.interval_type.unison()
         assert self._absolute_intervals[0] == unison
-        return FrozenList([higher - lower for lower, higher in pairwise(self._absolute_intervals)])
+        return self._frozen_list_type([higher - lower for lower, higher in pairwise(self._absolute_intervals)])
 
     @classmethod
-    def _note_list_constructor(cls) -> Callable[[NoteType], "AbstractNoteList"]:
+    def _note_list_constructor(cls) -> Callable[["NoteType"], "AbstractNoteList"]:
         return NotImplemented
 
-    def _from_note(self, note: NoteType) -> FrozenList[NoteType]:
-        return FrozenList([note + absolute_interval for absolute_interval in self._absolute_intervals])
+    def _from_note(self, note: "NoteType") -> FrozenList["NoteType"]:
+        return self._frozen_list_type.note_frozen_list_type([note + absolute_interval for absolute_interval in self._absolute_intervals])
     
-    def from_note(self, note: NoteType) -> "NoteList":
-        return self._note_list_constructor().make(self._from_note(note))
+    def from_note(self, note: "NoteType") -> "NoteList":
+        from solfege.value.note.set.note_list import NoteList
+        return self._note_list_constructor()(self._from_note(note), ListOrder.INCREASING)
 
-    def relative_chromatic(self) -> FrozenList[ChromaticInterval]:
-        return FrozenList([interval.get_chromatic() for interval in self.relative_intervals()])
+    # def relative_chromatic(self) -> ChromaticIntervalFrozenList:
+    #     return self._frozen_list_type([interval.get_chromatic() for interval in self.relative_intervals()])
 
-    def relative_diatonic(self) -> FrozenList[DiatonicInterval]:
-        return FrozenList([interval.get_diatonic() for interval in self.relative_intervals()])
+    # def relative_diatonic(self) -> DiatonicIntervalFrozenList:
+    #     return self._frozen_list_type([interval.get_diatonic() for interval in self.relative_intervals()])
 
-    def absolute_chromatic(self) -> FrozenList[ChromaticInterval]:
-        return FrozenList([interval.get_chromatic() for interval in self.absolute_intervals()])
+    # def absolute_chromatic(self) -> ChromaticIntervalFrozenList:
+    #     return self._frozen_list_type([interval.get_chromatic() for interval in self.absolute_intervals()])
 
-    def absolute_diatonic(self) -> FrozenList[DiatonicInterval]:
-        return FrozenList([interval.get_diatonic() for interval in self.absolute_intervals()])
+    # def absolute_diatonic(self) -> DiatonicIntervalFrozenList:
+    #     return self._frozen_list_type([interval.get_diatonic() for interval in self.absolute_intervals()])
     
     def __repr__(self):
         l = [f"{self.__class__.__name__}.make_absolute(["""]
@@ -126,6 +125,7 @@ IntervalListType = TypeVar("IntervalListType", bound=AbstractIntervalList)
 class ChromaticIntervalList(AbstractIntervalList[ChromaticInterval]):
     interval_type: ClassVar[Type[ChromaticInterval]] = ChromaticInterval
     note_list_type: ClassVar[Type]
+    _frozen_list_type: ClassVar[Type] = ChromaticIntervalFrozenList
 
     @classmethod
     def _note_list_constructor(cls):
@@ -140,6 +140,7 @@ class ChromaticIntervalList(AbstractIntervalList[ChromaticInterval]):
 @dataclass(frozen=True, unsafe_hash=True, repr=False)
 class IntervalList(AbstractIntervalList[Interval]):
     interval_type: ClassVar[Type[Interval]] = Interval
+    _frozen_list_type: ClassVar[Type] = IntervalFrozenList
 
     @classmethod
     def _note_list_constructor(cls):
@@ -152,10 +153,13 @@ class IntervalList(AbstractIntervalList[Interval]):
         return f"""({interval.chromatic.value}, {interval.diatonic.value})"""
 
     def get_chromatic_interval_list(self) -> ChromaticIntervalList:
-        absolute_chromatic = self.absolute_chromatic()
-        chromatic_interval_list = ChromaticIntervalList.make_absolute([interval.get_chromatic() for interval in absolute_chromatic], increasing=self.increasing)
+        chromatic_interval_list = ChromaticIntervalList.make_absolute([interval.get_chromatic() for interval in self._absolute_intervals], increasing=self.increasing)
         assert_typing(chromatic_interval_list, ChromaticIntervalList)
         return chromatic_interval_list
 
     def get_interval_list(self) -> "IntervalList":
         return IntervalList(self._absolute_intervals, self.increasing)
+    
+
+class IntervalListFrozenList(FrozenList[IntervalList]):
+    type = IntervalList

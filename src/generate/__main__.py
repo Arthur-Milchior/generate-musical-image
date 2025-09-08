@@ -1,1 +1,1 @@
-from generate import scales, note
+from generate import generate_note, scales

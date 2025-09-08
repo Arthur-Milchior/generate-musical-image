@@ -10,7 +10,7 @@ from guitar.chord.playable import Playable
 from guitar.position.fret.fret import NOT_PLAYED, Fret
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
-from guitar.position.string.string import String, strings
+from guitar.position.string.string import String, StringFrozenList, strings
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
@@ -27,7 +27,7 @@ class HandForGuitarChord:
     two: Optional[GuitarPosition] = None
     three: Optional[GuitarPosition] = None
     four: Optional[GuitarPosition] = None
-    opens: FrozenList[String] = FrozenList({}) 
+    opens: StringFrozenList = StringFrozenList() 
 
     @staticmethod
     def make_hand_for_only_zero(guitar_chord: GuitarChord):
@@ -51,7 +51,7 @@ class HandForGuitarChord:
         # Ordered according to fret, and in case of equality string.
         played_positions_remaining_to_finger = list(sorted(guitar_chord.played_positions(), key=lambda pos: (pos.fret.value, pos.string.value)))
         # Remove open fret
-        opens = []
+        opens: List[String] = []
         while played_positions_remaining_to_finger and played_positions_remaining_to_finger[0].fret.is_open():
             # Pop 0 is not efficient. But the list has 6 elements so it does not matter.
             open = played_positions_remaining_to_finger.pop(0)
@@ -78,7 +78,7 @@ class HandForGuitarChord:
                 three = position
                 two = None
         assert not played_positions_remaining_to_finger
-        return HandForGuitarChord(zero_fret = None, one=one, barred=barred, two=two, three=three, four=four, opens=FrozenList(opens))
+        return HandForGuitarChord(zero_fret = None, one=one, barred=barred, two=two, three=three, four=four, opens=StringFrozenList(opens))
 
     def playable(self) -> Playable:
         easy = True

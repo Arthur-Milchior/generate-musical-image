@@ -1,12 +1,14 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
+from solfege.value.interval.diatonic_interval import DiatonicIntervalFrozenList
 from solfege.value.note.abstract_note import FixedLengthOutput, NoteOutput
 from solfege.value.note.alteration import LILY, FILE_NAME, FULL_NAME, DEBUG, NAME_UP_TO_OCTAVE
 from typing import assert_never
 from solfege.value.note.abstract_note import FixedLengthOutput, NoteOutput
 from solfege.value.diatonic import Diatonic
 from solfege.value.note.singleton_note import AbstractSingletonNote
+from utils.frozenlist import FrozenList
 from utils.util import assert_equal_length
 
 french_fixed_length_space = ["do ", "re ", "mi ", "fa ", "sol", "la ", "si "]
@@ -42,3 +44,9 @@ class DiatonicNote(AbstractSingletonNote, Diatonic):
         return note
 
 DiatonicNote.DiatonicClass = DiatonicNote
+
+
+class DiatonicNoteFrozenList(FrozenList[DiatonicNote]):
+    type = DiatonicNote
+
+DiatonicIntervalFrozenList.note_frozen_list_type = DiatonicNoteFrozenList

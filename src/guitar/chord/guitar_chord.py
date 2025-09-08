@@ -8,6 +8,7 @@ from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 import itertools
 
 from solfege.value.interval.set.interval_list import ChromaticIntervalList
+from utils.frozenlist import FrozenList
 from utils.util import assert_typing, optional_max
 
 class Barred(Enum):
@@ -106,3 +107,6 @@ class GuitarChord(SetOfGuitarPositions):
         
 
 intervals_in_base_octave_to_guitar_chord: Dict[ChromaticIntervalList, List[GuitarChord]] = dict()
+
+class GuitarChordFrozenList(FrozenList[GuitarChord]):
+    type = GuitarChord

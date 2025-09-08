@@ -3,7 +3,7 @@ import unittest
 from guitar.chord.hand_for_chord import HandForGuitarChord
 from guitar.position.guitar_position import GuitarPosition
 from utils.frozenlist import FrozenList
-from guitar.position.string.string import strings
+from guitar.position.string.string import StringFrozenList, strings
 from guitar.chord.test_constants import *
 
 class TestHandForGuitarChord(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestHandForGuitarChord(unittest.TestCase):
                 one = GuitarPosition.make(5, 1),
                 two = GuitarPosition.make(3, 2),
                 four = GuitarPosition.make(2, 3),
-                opens = FrozenList([strings[3], strings[5]]),
+                opens = StringFrozenList([strings[3], strings[5]]),
             ),
             HandForGuitarChord.make(C4M),
         )
@@ -31,7 +31,7 @@ class TestHandForGuitarChord(unittest.TestCase):
                 one = GuitarPosition.make(5, 1),
                 two = GuitarPosition.make(3, 2),
                 four = GuitarPosition.make(2, 3),
-                opens = FrozenList([strings[3]]),
+                opens = StringFrozenList([strings[3]]),
             ),
             HandForGuitarChord.make(C4M_),
         )

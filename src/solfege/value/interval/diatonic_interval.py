@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import ClassVar
 from solfege.value.diatonic import Diatonic
 from solfege.value.interval.singleton_interval import AbstractSingletonInterval
+from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
 
@@ -37,3 +38,5 @@ Diatonic.IntervalClass = DiatonicInterval
 DiatonicInterval.DiatonicClass = DiatonicInterval
 
 
+class DiatonicIntervalFrozenList(FrozenList[DiatonicInterval]):
+    type = DiatonicInterval

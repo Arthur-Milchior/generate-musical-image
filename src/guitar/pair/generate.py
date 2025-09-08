@@ -4,7 +4,6 @@ Generate an anki note, with this image, and the distance between both strings, a
 """
 from dataclasses import dataclass
 from pickletools import string1
-import guitar.util
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 from guitar.position.fret.fret import Fret

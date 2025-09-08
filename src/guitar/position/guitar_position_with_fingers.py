@@ -3,17 +3,18 @@ from typing import Dict, FrozenSet, List, Set, Tuple
 
 from guitar.finger_to_fret_delta import finger_to_fret_delta
 from guitar.position.guitar_position import GuitarPosition
-from guitar.position.guitar_position_with_finger import GuitarPositionWithFinger
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
+FingersType = FrozenSet[int]
+ALL_FINGERS = frozenset(range(1,5))
 
 @dataclass(frozen=True)
 class GuitarPositionWithFingers(GuitarPosition):
-    fingers: FrozenSet[int]
+    fingers: FingersType
 
-    def restrict_fingers(self, fingers: FrozenSet[int]):
+    def restrict_fingers(self, fingers: FingersType):
         assert fingers <= self.fingers
         return GuitarPositionWithFingers.make(fingers=fingers, string=self.string, fret=self.fret)
 
@@ -22,6 +23,10 @@ class GuitarPositionWithFingers(GuitarPosition):
         for finger in self.fingers:
             assert 1 <= finger <= 4
         super().__post_init__()
+
+    @staticmethod
+    def from_guitar_position(pos: GuitarPosition, fingers: FingersType = ALL_FINGERS):
+        return GuitarPositionWithFingers.make(fingers=fingers, string=pos.string, fret=pos.fret)
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
@@ -33,7 +38,7 @@ class GuitarPositionWithFingers(GuitarPosition):
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "fingers", clean_fingers)
         return args, kwargs
 
-    def positions_for_interval(self, interval: ChromaticInterval) -> Tuple[FrozenSet[int], FrozenList[GuitarPositionWithFinger]]:
+    def positions_for_interval(self, interval: ChromaticInterval) -> List[Tuple[FingersType, "GuitarPositionWithFingers"]]:
         """Returns the set of next note to play this interval, and the fingers that could be used to reach it on current note."""
         # Associate to each position the fingers for the current and the next note.
         pos_to_fingers: Dict[GuitarPosition, Tuple[Set[int], Set[int]]] = dict()
@@ -48,10 +53,13 @@ class GuitarPositionWithFingers(GuitarPosition):
                     fingers_for_current_note, fingers_for_next_note = pos_to_fingers[pos]
                     fingers_for_current_note.add(current_finger)
                     fingers_for_next_note.add(new_finger)
-        return FrozenList([
+        return [
             (frozenset(fingers_for_current_pos), 
              GuitarPositionWithFingers.make(string=next_pos.string, fret=next_pos.fret, fingers=fingers_for_next_pos)
-             ) for next_pos, (fingers_for_current_pos, fingers_for_next_pos) in pos_to_fingers.items()])
+             ) for next_pos, (fingers_for_current_pos, fingers_for_next_pos) in pos_to_fingers.items()]
     
     def __repr__(self):
         return f"""GuitarPositionWithFingers.make({self.string.value}, {self.fret.value}, {set(self.fingers)})"""
+    
+class GuitarPositionWithFingersFrozenList(FrozenList[GuitarPositionWithFingers]):
+    type = GuitarPositionWithFingers

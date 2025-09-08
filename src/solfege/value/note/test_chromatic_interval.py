@@ -1,5 +1,6 @@
 import unittest
 
+from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.test_chromatic_interval import TestChromaticInterval
 from solfege.value.note.abstract_note import OctaveOutput
 from solfege.value.note.alteration import Alteration

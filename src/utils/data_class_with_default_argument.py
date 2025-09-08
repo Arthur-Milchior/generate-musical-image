@@ -17,8 +17,8 @@ class DataClassWithDefaultArgument:
     def __post_init__(self):
         hash(self) #check that hash can be computed
     
-    @staticmethod
-    def arg_to_kwargs(args, kwargs, name, clean: Callable = lambda x: x):
+    @classmethod
+    def arg_to_kwargs(cls, args, kwargs, name, clean: Callable = lambda x: x):
         """If there is args, the first value is assumed to be name, not in kwargs, and is added in kwargs.
         Otherwise check that name in `kwargs`.
 
@@ -31,17 +31,17 @@ class DataClassWithDefaultArgument:
             arg = args[0]
             args = args[1:]
         else:
-            assert name in kwargs
+            assert name in kwargs, f"Missing {name} when creating {cls.__name__}"
             arg = kwargs[name]
         kwargs[name] = clean(arg)
         return (args, kwargs)
     
-    @staticmethod
-    def _maybe_arg_to_kwargs(args, kwargs, name, clean: Callable = lambda x:x):
+    @classmethod
+    def _maybe_arg_to_kwargs(cls, args, kwargs, name, clean: Callable = lambda x:x):
         """Clean the value associated to name, by default the first of args, if it exists. Otherwise do nothing."""
         if not args and name not in kwargs:
             return (args, kwargs)
-        return DataClassWithDefaultArgument.arg_to_kwargs(args, kwargs, name, clean)
+        return cls.arg_to_kwargs(args, kwargs, name, clean)
 
     @classmethod
     def _default_arguments_for_constructor(cls):
