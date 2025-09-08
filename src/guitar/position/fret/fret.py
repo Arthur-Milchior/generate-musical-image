@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import dataclasses
 from typing import Generator, List, Optional, Self, Union
 
 from solfege.value.interval.chromatic_interval import ChromaticInterval
@@ -142,7 +143,7 @@ class Fret(ChromaticInterval):
             return self
         if not transpose_open and self.is_open():
             return self
-        return self.__class__(self.require_value() + transpose.value)
+        return dataclasses.replace(self, value=self.require_value() + transpose.value)
 
 
 NOT_PLAYED = Fret(None)

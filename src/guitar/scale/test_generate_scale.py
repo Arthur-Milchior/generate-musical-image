@@ -72,8 +72,8 @@ ensure_folder(folder_path)
 
 for i, notes in enumerate([major_2_octave_1, major_2_octave_2, major_2_octave_3, major_2_octave_4, major_2_octave_5]):
     path = f"{folder_path}/major_{i}.svg"
-    save_file(path, SetOfGuitarPositions.make(positions=notes).svg(absolute=False))
-    display_svg_file(path)
+    # save_file(path, SetOfGuitarPositions.make(positions=notes).svg(absolute=False))
+    # display_svg_file(path)
 
 class TestGenerateScale(unittest.TestCase):
     def assert_equal_list_of_scales(self, expected, actual):

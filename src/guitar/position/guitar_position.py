@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import dataclasses
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -141,4 +142,4 @@ class GuitarPosition(DataClassWithDefaultArgument):
         return SetOfGuitarPositions(frozenset({self})).svg(absolute=True)
     
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
-        return self.__class__(self.string, self.fret.transpose(transpose, transpose_open, transpose_not_played))
+        return dataclasses.replace(self, fret=self.fret.transpose(transpose, transpose_open, transpose_not_played))

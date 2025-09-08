@@ -1,13 +1,13 @@
 
-from dataclasses import dataclass
-from typing import ClassVar, List
-from solfege.value.note.diatonic_note import DiatonicNote
-from solfege.value.note.with_tonic.singleton import AbstractSingletonNoteWithTonic
+# from dataclasses import dataclass
+# from typing import ClassVar, List
+# from solfege.value.note.diatonic_note import DiatonicNote
+# from solfege.value.note.with_tonic.singleton import AbstractSingletonNoteWithTonic
 
 
-@dataclass(frozen=True, eq=False)
-class DiatonicNoteWithTonic(AbstractSingletonNoteWithTonic, DiatonicNote):
-    # Saved as the interval from middle C
-    role: ClassVar[List[str]] = ["tonic", "supertonic", "mediant", "subdominant", "dominant", "submediant", "leading"]
+# @dataclass(frozen=True, eq=False)
+# class DiatonicNoteWithTonic(AbstractSingletonNoteWithTonic, DiatonicNote):
+#     # Saved as the interval from middle C
+#     role: ClassVar[List[str]] = ["tonic", "supertonic", "mediant", "subdominant", "dominant", "submediant", "leading"]
 
 

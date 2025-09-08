@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
+import dataclasses
 import itertools
 from pickle import EMPTY_SET
 from typing import Dict, FrozenSet, Generator, Iterable, List, Iterator, Optional, Self, Tuple, Union
@@ -62,7 +63,7 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
     def add(self, position: GuitarPositionMakeSingleArgumentType):
         """A set similar to `self`, with `position`"""
         position = GuitarPosition.make_single_argument(position)
-        return self.__class__(self.positions | frozenset({position}))
+        return dataclasses.replace(self, positions =self.positions | frozenset({position}))
 
     def __iter__(self) -> Iterator[GuitarPosition]:
         return iter(sorted(self.positions))
@@ -218,7 +219,7 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
         return self.get_specific_role(tonic, [1, 2, 5], assert_unique=False)
     
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
-        return self.__class__(frozenset(position.transpose_same_string(transpose, transpose_open, transpose_not_played) for position in self.positions))
+        return dataclasses.replace(self, positions =frozenset(position.transpose_same_string(transpose, transpose_open, transpose_not_played) for position in self.positions))
     
     def transpose_to_fret_one(self):
         assert not self.open_strings()
