@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from guitar.position.guitar_position import GuitarPosition
-from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
+from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 from solfege.pattern.pattern import SolfegePattern
 from guitar.scale.utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
 from utils.util import *

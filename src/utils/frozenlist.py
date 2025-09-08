@@ -1,12 +1,11 @@
 
 from dataclasses import dataclass
-from typing import Generic, Iterable, List, TypeVar
+from typing import Generic, Iterable, List, Tuple, TypeVar
 
 from utils.util import assert_all_same_class, assert_iterable_typing, assert_typing
 
 
 T = TypeVar('T')
-
 class FrozenList(Generic[T]):
     _l: List[T]
 
@@ -51,3 +50,10 @@ class FrozenList(Generic[T]):
 
     def __len__(self):
         return len(self._l)
+    
+    def head_tail(self) -> Tuple[T, "FrozenList[T]"]:
+        return (self._l[0], FrozenList(self._l[1:]))
+    
+    def __mul__(self, other: int):
+        assert_typing(other, int)
+        return FrozenList(self._l * other)

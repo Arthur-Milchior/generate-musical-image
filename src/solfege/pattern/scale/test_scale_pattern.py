@@ -167,3 +167,16 @@ class TestScalePattern(unittest.TestCase):
         ], pattern=minor_melodic)
         generated = minor_melodic.from_note(Note.make(0, 0), number_of_octaves=-2, add_an_extra_note=True)
         self.assertEqual(expected, generated)
+
+    def test_multiple_octave(self):
+        self.assertEqual(
+            IntervalList.make_relative([]), 
+            major_scale.multiple_octaves(0))
+        
+        self.assertEqual(
+            IntervalList.make_relative([2, 2, 1, 2, 2, 2, 1,]), 
+            major_scale.multiple_octaves(1))
+        
+        self.assertEqual(
+            IntervalList.make_relative([2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, ]), 
+            major_scale.multiple_octaves(2))

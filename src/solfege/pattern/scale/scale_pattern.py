@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Generic, Self, Union, Tuple, Optional
 
+from solfege.value.interval.set.interval_list import IntervalList
 from solfege.value.key.key import *
 from solfege.pattern.scale.scale import Scale
 from solfege.value.interval.abstract_interval import IntervalType
@@ -77,3 +78,7 @@ class ScalePattern(SolfegePattern):
 
     def __len__(self):
         return len(self.relative_intervals)
+
+    def multiple_octaves(self, nb_octave: int):
+        assert nb_octave >= 0
+        return IntervalList.make_relative(self.relative_intervals()*nb_octave)

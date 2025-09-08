@@ -26,8 +26,7 @@ class GuitarPositionWithFinger(GuitarPosition):
             if finger== self.finger:
                 continue
             fret_delta = finger_to_fret_delta[self.finger][finger]
-            l += [GuitarPositionWithFinger(finger=1, string=pos.string, fret=pos.fret)
-                  for pos in self.positions_for_interval_with_restrictions(interval=interval, frets=fret_delta)
-                ]
+            for pos in self.positions_for_interval_with_restrictions(interval=interval, frets=fret_delta):
+                l.append(GuitarPositionWithFinger(finger=finger, string=pos.string, fret=pos.fret))
         return l
     

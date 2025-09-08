@@ -4,7 +4,7 @@ from guitar.position.string.string import String, strings
 from guitar.position.guitar_position import GuitarPosition
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from solfege.value.note.chromatic_note import ChromaticNote
-from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
+from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.alteration import Alteration
 from solfege.value.note.diatonic_note import DiatonicNote

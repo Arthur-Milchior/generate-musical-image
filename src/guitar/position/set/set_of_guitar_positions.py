@@ -25,24 +25,6 @@ COLOR_FIFTH = "grey"
 COLOR_QUALITY = "green"
 COLOR_OTHER = "purple"
 
-# def fret_svg(last_fret: Fret) -> List[str]:
-#     """The svg for the guitar, with `nb_frets` frets"""
-#     svg_lines = []
-#     for string in range(1, 7):
-#         # columns
-#         x = string_distance * (string - .5)
-#         y1 = fret_distance / 2
-#         y2 = fret_distance * (last_fret.value + .5)
-#         svg_lines.append(f"""<line x1="{int(x)}" y1="{int(y1)}" x2="{int(x)}" y2="{int(y2)}" stroke-width="4" stroke="black" />""")
-#     for fret in range(1, last_fret.value + 2):
-#         # lines
-#         x1 = string_distance / 2
-#         x2 = string_distance * 5.5
-#         y = fret_distance * (fret - .5)
-#         svg_lines.append(f"""<line x1="{int(x1)}" y1="{int(y)}" x2="{int(x2)}" y2="{int(y)}" stroke-width="4" stroke="black" />""")
-#     return svg_lines
-
-
 @dataclass(frozen=True)
 class SetOfGuitarPositions(DataClassWithDefaultArgument):
     """
@@ -106,14 +88,9 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
             return optional_min(position.fret for position in self.played_positions())
         return optional_min(position.fret for position in self.closed_positions())
     
-    def last_shown_fret(self, add_one: bool = True) -> Optional[Fret]:
-        mf = self._max_fret()
-        if mf is None:
-            return None
-        if add_one:
-            return mf.below()
-        return mf
-    
+    def last_shown_fret(self) -> Optional[Fret]:
+        return self._max_fret()
+
     def strings_at_fret(self, fret: Fret):
         return [pos.string for pos in self.positions if pos.fret == fret]
     
@@ -123,9 +100,9 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
     def strings_at_min_fret(self, include_open: bool):
         return self.strings_at_fret(self._min_fret(include_open=include_open))
     
-    def height(self, add_one: bool = True):
+    def height(self):
         assert self.positions
-        return self.last_shown_fret(add_one).y_fret() + MARGIN
+        return self.last_shown_fret().y_fret() + MARGIN
     
     def svg_content(self, absolute: bool, tonic: Optional[ChromaticNote], nbFretMin: Fret =OPEN_FRET, add_empty_fret: bool = True):
         assert_optional_typing(tonic, ChromaticNote)
@@ -179,7 +156,7 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
     def svg(self, absolute:bool, tonic: Optional[ChromaticNote]=None, nbFretMin: Fret=OPEN_FRET) -> str:
         new_line = "\n"
         return f"""\
-<svg xmlns="http://www.w3.org/2000/svg" width="{int(WIDTH)}" height="{int(self.height(add_one=True))}" version="1.1">
+<svg xmlns="http://www.w3.org/2000/svg" width="{int(WIDTH)}" height="{int(self.height())}" version="1.1">
 {new_line.join(("  "+ content) for content in self.svg_content(absolute=absolute, tonic=tonic, nbFretMin=nbFretMin, add_empty_fret=True))}
 </svg>"""
     

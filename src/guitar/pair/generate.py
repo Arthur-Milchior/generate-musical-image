@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pickletools import string1
 import guitar.util
 from guitar.position.guitar_position import GuitarPosition
-from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
+from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 from guitar.position.fret.fret import Fret
 from guitar.position.string.string import String, strings
 from solfege.value.interval.chromatic_interval import ChromaticInterval, IntervalNameCreasing

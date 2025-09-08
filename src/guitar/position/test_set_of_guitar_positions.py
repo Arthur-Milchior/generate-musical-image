@@ -1,6 +1,6 @@
 import unittest
 
-from guitar.position.set_of_guitar_positions import *
+from guitar.position.set.set_of_guitar_positions import *
 from guitar.position.string.string import strings
 
 

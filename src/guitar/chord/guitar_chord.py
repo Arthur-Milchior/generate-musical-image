@@ -4,7 +4,7 @@ from guitar.chord.playable import Playable
 from guitar.position.fret.fret import Fret
 from guitar.position.guitar_position import GuitarPosition
 from guitar.position.string.string import String, strings
-from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
+from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 import itertools
 
 from solfege.value.interval.set.interval_list import ChromaticIntervalList

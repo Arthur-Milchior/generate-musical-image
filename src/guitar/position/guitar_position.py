@@ -83,7 +83,7 @@ class GuitarPosition(DataClassWithDefaultArgument):
         if isinstance(strings, StringDelta):
             strings = strings.set(self.string)
         if isinstance(frets, FretDelta):
-            frets = frets.set(self.string)
+            frets = frets.set(self.fret)
         chromatic_note = self.get_chromatic() + interval
         return GuitarPosition.from_chromatic(chromatic_note, strings, frets)
 
@@ -137,7 +137,7 @@ class GuitarPosition(DataClassWithDefaultArgument):
 
     def singleton_diagram_svg(self):
         """The svg for a diagram with only this note"""
-        from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
+        from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
         return SetOfGuitarPositions(frozenset({self})).svg(absolute=True)
     
     def transpose_same_fret(self, transpose: int, transpose_open: bool, transpose_not_played: bool):

@@ -55,4 +55,4 @@ class AbstractDelta(Generic[Ts, T]):
         return self.create_Ts(min, max)
     
     def __neg__(self) -> Self:
-        return self.__class__(-self.max_t, -self.min_t)
+        return self.__class__(-self.max_delta, -self.min_delta)

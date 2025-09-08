@@ -2,7 +2,7 @@ from typing import Optional
 from guitar.chord.guitar_chord import GuitarChord
 from guitar.position.fret.fret import Fret
 from guitar.position.guitar_position import GuitarPosition
-from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
+from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 from guitar.position.string.strings import ALL_STRINGS, Strings, strings
 from guitar.position.fret.frets import Frets
 from utils.util import assert_typing

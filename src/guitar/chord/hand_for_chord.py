@@ -9,7 +9,7 @@ from guitar.chord.guitar_chord import Barred, GuitarChord
 from guitar.chord.playable import Playable
 from guitar.position.fret.fret import NOT_PLAYED, Fret
 from guitar.position.guitar_position import GuitarPosition
-from guitar.position.set_of_guitar_positions import SetOfGuitarPositions
+from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 from guitar.position.string.string import String, strings
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing
