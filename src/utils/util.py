@@ -59,7 +59,7 @@ def assert_all_same_class(it: Iterable):
         return True
     elt = list(it)[0]
     for e in it:
-        assert e.__class__ == elt.__class__, "{it=}"
+        assert e.__class__ == elt.__class__, f"{it=}"
             
 
 def assert_typing(value, type, exact:bool=False):

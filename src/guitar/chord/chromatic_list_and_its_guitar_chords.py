@@ -39,15 +39,21 @@ class ChromaticListAndItsGuitarChords(RecordedContainer[GuitarChord], CsvGenerat
             if small_chord < big_chord:
                 return True
         return False
+    
+    def sort(self):
+        """Sort the list of chords. Starting with smallest number of frets, and in case of equality greater number of notes"""
+        self.guitar_chords.sort(key=lambda guitar_chord: (guitar_chord.number_of_frets(include_open=False), -guitar_chord.number_of_distinct_notes()))
 
     def maximals(self) -> FrozenList[GuitarChord]:
         """Return the elements of the list that are not strictly contained in other elements of the list."""
+        self.sort()
         return FrozenList(guitar_chord for guitar_chord in self.guitar_chords if not self.is_smaller_than_known_chord(guitar_chord))
 
     def all_guitar_chords(self):
         return FrozenList(self.guitar_chords)
     
     def __iter__(self):
+        self.sort()
         yield from self.guitar_chords
 
     # Used for anki:

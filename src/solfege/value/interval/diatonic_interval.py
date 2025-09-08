@@ -6,7 +6,7 @@ from solfege.value.interval.singleton_interval import AbstractSingletonInterval
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class DiatonicInterval(AbstractSingletonInterval, Diatonic):
     """An interval, where we count the number of note in the major scale,
     and ignore the note which are absent. B and B# can't be

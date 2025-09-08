@@ -10,7 +10,7 @@ from solfege.value.pair import Pair
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True, unsafe_hash=True)
+@dataclass(frozen=True, unsafe_hash=True, eq=False)
 class Interval(AbstractInterval, Pair):
     """A solfège interval. Composed of both a diatonic interval and a chromatic interval."""
     DiatonicClass: ClassVar[Type[DiatonicInterval]] = DiatonicInterval

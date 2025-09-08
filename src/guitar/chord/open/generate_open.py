@@ -18,9 +18,12 @@ ensure_folder(open_folder)
 
 note_to_chord = ChromaticNoteListToGuitarChords.make()
 def register_all_chords():
-    for guitar_chord in enumerate_guitar_chords(Frets.make(closed_fret_interval=1,
-                                                       max_fret=6,
-                                                         allow_not_played=True, allow_open=True)):
+    for guitar_chord in enumerate_guitar_chords(Frets.make(
+        closed_fret_interval=(1, 
+                              6
+                              ),
+        allow_not_played=True, 
+        allow_open=True)):
         if guitar_chord.number_of_distinct_notes() < 4:
             continue
         if guitar_chord.has_not_played_in_middle():
@@ -52,7 +55,7 @@ print(f"{biggest_anki_note=}")
 anki_notes = []
 def generate_anki_notes():
     for note_list, chromatic_note_and_its_guitar_chord in note_to_chord:
-        anki_notes.append(chromatic_note_and_its_guitar_chord.csv(lily_folder_path=open_folder))
+        anki_notes.append(chromatic_note_and_its_guitar_chord.csv(absolute=True, lily_folder_path=open_folder))
         chromatic_interval_and_inversion = chromatic_note_and_its_guitar_chord.interval_and_its_inversions
         inversions = chromatic_interval_and_inversion.inversions
         easiest_inversion = inversions[0]
@@ -61,8 +64,8 @@ def generate_anki_notes():
             pos_of_lowest_note = guitar_chord.get_most_grave_note()
             lowest_note = pos_of_lowest_note.get_chromatic()
             tonic = lowest_note - position_of_lowest_interval_in_base_octave
-            save_file(f"{open_folder}/{guitar_chord.file_name(stroke_colored=False)}", guitar_chord.svg(absolute=True, tonic=None))
-            save_file(f"{open_folder}/{guitar_chord.file_name(stroke_colored=True)}", guitar_chord.svg(absolute=True, tonic=tonic))
+            save_file(f"{open_folder}/{guitar_chord.file_name(stroke_colored=False, absolute=True)}", guitar_chord.svg(absolute=True, tonic=None))
+            save_file(f"{open_folder}/{guitar_chord.file_name(stroke_colored=True, absolute=True)}", guitar_chord.svg(absolute=True, tonic=tonic))
 generate_anki_notes()
 save_file(f"{open_folder}/anki.csv", "\n".join(anki_notes))
 

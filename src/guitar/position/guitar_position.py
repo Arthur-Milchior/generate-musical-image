@@ -140,5 +140,5 @@ class GuitarPosition(DataClassWithDefaultArgument):
         from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
         return SetOfGuitarPositions(frozenset({self})).svg(absolute=True)
     
-    def transpose_same_fret(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
+    def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
         return self.__class__(self.string, self.fret.transpose(transpose, transpose_open, transpose_not_played))

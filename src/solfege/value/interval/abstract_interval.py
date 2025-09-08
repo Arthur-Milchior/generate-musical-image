@@ -9,7 +9,7 @@ from solfege.value.singleton import Singleton
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True, unsafe_hash=True)
+@dataclass(frozen=True, unsafe_hash=True, eq=False)
 class AbstractInterval(Abstract):
     """This class is the basis for each kind of interval. It should never be used directly.
     It allows to represent a number, access it.

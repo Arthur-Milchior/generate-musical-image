@@ -1,7 +1,7 @@
 import unittest
 
 from guitar.chord.open.chromatic_note_list_and_its_guitar_chords import ChromaticNoteListAndItsGuitarChords
-from guitar.position.test_set_of_guitar_positions import CM, CM_
+from guitar.position.set.test_set_of_guitar_positions import CM, CM_
 from solfege.pattern.chord.chord_patterns import major_triad
 from solfege.value.note.note import Note
 from solfege.pattern.chord.test_chromatic_intervals_and_its_inversions import major_chromatic_interval_list_and_its_inversion

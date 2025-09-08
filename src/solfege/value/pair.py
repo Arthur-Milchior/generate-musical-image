@@ -8,7 +8,7 @@ from solfege.value.diatonic import Diatonic, DiatonicGetter
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True, unsafe_hash=True)
+@dataclass(frozen=True, unsafe_hash=True, eq=False)
 class Pair(Abstract, ChromaticGetter, DiatonicGetter):
     """How to generate a new Pair, from chromatic and diatonic"""
     make_instance_of_selfs_class: ClassVar[Callable[[int, int], "Pair"]]

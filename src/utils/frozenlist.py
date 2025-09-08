@@ -9,7 +9,10 @@ T = TypeVar('T')
 class FrozenList(Generic[T]):
     _l: List[T]
 
-    def __init__(self, arg: Iterable[T]):
+    def __init__(self, arg: Iterable[T] = None):
+        if arg is None:
+            self._l = []
+            return
         # make a copy of the list
         l = list(arg)
         assert_all_same_class(l)

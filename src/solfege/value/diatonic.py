@@ -12,7 +12,7 @@ class DiatonicGetter:
     def get_diatonic()-> "Diatonic":
         return NotImplemented
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Diatonic(Singleton, DiatonicGetter):
     IntervalClass: ClassVar[type]
     number_of_interval_in_an_octave: ClassVar[int] = 7

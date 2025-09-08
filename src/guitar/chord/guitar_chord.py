@@ -93,7 +93,11 @@ class GuitarChord(SetOfGuitarPositions):
             return Playable.NO
         return hand.playable()
     
-    def file_name(self, stroke_colored: bool):
+    def file_name(self, stroke_colored: bool, absolute: bool):
+        if not absolute:
+            transposed, transpose_interval = self.transpose_to_fret_one()
+            if transpose_interval != 0:
+                return transposed.file_name(stroke_colored, absolute)            
         fret_values = [fret.value for fret in self.get_frets()]
         frets = "_".join(str(value) if value is not None else "x" for value in fret_values)
         if stroke_colored:

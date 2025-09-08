@@ -7,7 +7,7 @@ from solfege.value.note.singleton_note import AbstractSingletonNote
 from utils.util import img_tag
 
 
-@dataclass(frozen=True, repr=False)
+@dataclass(frozen=True, repr=False, eq=False)
 class ChromaticNote(AbstractSingletonNote, Chromatic):
     AlterationClass: ClassVar[Type[Chromatic]]
     @staticmethod

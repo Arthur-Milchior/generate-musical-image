@@ -54,8 +54,8 @@ def generate_anki_notes():
             pos_of_lowest_note = guitar_chord.get_most_grave_note()
             lowest_note = pos_of_lowest_note.get_chromatic()
             tonic = lowest_note - position_of_lowest_interval_in_base_octave
-            save_file(f"{transposable_folder}/{guitar_chord.file_name(stroke_colored=False)}", guitar_chord.svg(absolute=False, tonic=None))
-            save_file(f"{transposable_folder}/{guitar_chord.file_name(stroke_colored=True)}", guitar_chord.svg(absolute=False, tonic=tonic))
+            save_file(f"{transposable_folder}/{guitar_chord.file_name(stroke_colored=False, absolute=False)}", guitar_chord.svg(absolute=False, tonic=None))
+            save_file(f"{transposable_folder}/{guitar_chord.file_name(stroke_colored=True, absolute=False)}", guitar_chord.svg(absolute=False, tonic=tonic))
 generate_anki_notes()
 save_file(f"{transposable_folder}/anki.csv", "\n".join(anki_notes))
 

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import dataclass
 
 from solfege.value.note.abstract_note import FixedLengthOutput, NoteOutput
 from solfege.value.note.alteration import LILY, FILE_NAME, FULL_NAME, DEBUG, NAME_UP_TO_OCTAVE
@@ -10,6 +11,8 @@ from utils.util import assert_equal_length
 
 french_fixed_length_space = ["do ", "re ", "mi ", "fa ", "sol", "la ", "si "]
 assert_equal_length(french_fixed_length_space)
+
+@dataclass(frozen=True, eq=False)
 class DiatonicNote(AbstractSingletonNote, Diatonic):
     """A diatonic note. Implemented as interval from C4"""
 

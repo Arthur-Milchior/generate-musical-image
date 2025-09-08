@@ -9,7 +9,7 @@ class ChromaticGetter:
     def get_chromatic()-> "Chromatic":
         return NotImplemented
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Chromatic(Singleton, ChromaticGetter):
     IntervalClass: ClassVar[type]
     number_of_interval_in_an_octave: ClassVar[int] = 12

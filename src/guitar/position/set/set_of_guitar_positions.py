@@ -88,6 +88,15 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
             return optional_min(position.fret for position in self.played_positions())
         return optional_min(position.fret for position in self.closed_positions())
     
+    def number_of_frets(self, include_open: bool) -> int:
+        """Returns the number of fret between the highest and the lowest fret."""
+        m = self._min_fret(include_open)
+        if m is None:
+            return 0
+        M = self._max_fret()
+        assert M is not None
+        return M.value - m.value
+    
     def last_shown_fret(self) -> Optional[Fret]:
         return self._max_fret()
 
@@ -104,10 +113,15 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
         assert self.positions
         return self.last_shown_fret().y_fret() + MARGIN
     
-    def svg_content(self, absolute: bool, tonic: Optional[ChromaticNote], nbFretMin: Fret =OPEN_FRET, add_empty_fret: bool = True):
+    def svg_content(self, absolute: bool, tonic: Optional[ChromaticNote], nbFretMin: Fret =OPEN_FRET) -> List[str]:
+        if not absolute:
+            transposed, transpose_interval = self.transpose_to_fret_one()
+            if transpose_interval != ChromaticInterval(0):
+                transposed_tonic = None if tonic is None else tonic-transpose_interval
+                return transposed.svg_content(absolute, transposed_tonic)
         assert_optional_typing(tonic, ChromaticNote)
         """If tonic, add some colors depending on the role of the note compared to the tonic"""
-        max_fret = max(self.last_shown_fret(add_empty_fret ), nbFretMin).below()
+        max_fret = max(self.last_shown_fret(), nbFretMin).below()
         l = ["""<rect width="100%" height="100%" fill="white" />"""]
         l += ALL_STRINGS.svg(lowest_fret=max_fret, show_open_fret=absolute)
         l += max_fret.all_frets_up_to_here(include_open=absolute).svg(absolute)
@@ -157,7 +171,7 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
         new_line = "\n"
         return f"""\
 <svg xmlns="http://www.w3.org/2000/svg" width="{int(WIDTH)}" height="{int(self.height())}" version="1.1">
-{new_line.join(("  "+ content) for content in self.svg_content(absolute=absolute, tonic=tonic, nbFretMin=nbFretMin, add_empty_fret=True))}
+{new_line.join(("  "+ content) for content in self.svg_content(absolute=absolute, tonic=tonic, nbFretMin=nbFretMin))}
 </svg>"""
     
     def number_of_distinct_notes(self):
@@ -203,8 +217,13 @@ class SetOfGuitarPositions(DataClassWithDefaultArgument):
         assert_typing(tonic, ChromaticNote)
         return self.get_specific_role(tonic, [1, 2, 5], assert_unique=False)
     
-    def transpose_same_fret(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
-        return self.__class__(frozenset(position.transpose_same_fret(transpose, transpose_open, transpose_not_played) for position in self.positions))
+    def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
+        return self.__class__(frozenset(position.transpose_same_string(transpose, transpose_open, transpose_not_played) for position in self.positions))
+    
+    def transpose_to_fret_one(self):
+        assert not self.open_strings()
+        transpose = ChromaticInterval(-(self._min_fret(include_open=False).value-1))
+        return self.transpose_same_string(transpose=transpose, transpose_open=False, transpose_not_played=True), transpose
 
     def notes_from_note_list(self, note_list: NoteList):
         """Returns the list of note played, where the diatonic is chosen in order to ensures that the note is octaves apart from an element of note_list"""

@@ -5,7 +5,7 @@ from typing import ClassVar, Self, Tuple, Union
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True, unsafe_hash=True)
+@dataclass(frozen=True, unsafe_hash=True, eq=False)
 class Abstract:
     """The class of interval similar to the current class"""
     IntervalClass: ClassVar[type] #abstract interval

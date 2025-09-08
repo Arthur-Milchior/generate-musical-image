@@ -3,30 +3,25 @@ from guitar.position.guitar_position import GuitarPosition
 from guitar.position.set.set_of_guitar_positions import SetOfGuitarPositions
 from solfege.pattern.pattern import SolfegePattern
 from guitar.scale.utils import scale2Pos, increase_fret_limit, decreasing_fret_limit
+from utils.csv import CsvGenerator
 from utils.util import *
 from solfege.pattern.scale.scale_pattern import ScalePattern
 import guitar.util
+from consts import generate_root_folder
 
-leafFolder = "scale"
-imageFolder = guitar.util.imageFolder + leafFolder
-ankiFolder = guitar.util.ankiFolder + leafFolder
 
-index = f"""<html><head><title>All transposable scale on a standard guitar</title></head>
-<body>
-Here is the list of each scales I found in English wikipedia. With the exception of the scales which can not be easily be played on guitar, e.g. scales using interval smaller than half-tones.
+scale_transposable_folder = f"{generate_root_folder}/guitar/scale/transposable"
+ensure_folder(scale_transposable_folder)
 
-For each of them, there is the list of way to play this scale, on one octave, on a standard guitar fret. The only exception being the <a href="https://en.wikipedia.org/wiki/Algerian_scale">Algerian scale</a> which, by definition, is played on two octaves.
-
-Here are the technical restrictions I used, to choose which scale's position to generates.
-<ul><li>
-It is assumed that, there is never more than {increase_fret_limit} fret from the first to the last note played on a single string.
-</li><li> Furthermore, there is never more than {decreasing_fret_limit} fret in distance from the the highest note played on a string, and the lowest note played on the following string. </li></lu>
-<ul>
-"""
 
 @dataclass(frozen=True)
-class AnkiNote:
+class AnkiNote(CsvGenerator):
     scale: SolfegePattern
+
+
+    def csv_content(self) -> List[str]:
+        l = []
+        return l
 
 
 for scale in ScalePattern.all_patterns:

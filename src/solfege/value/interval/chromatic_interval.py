@@ -12,7 +12,7 @@ class IntervalNameCreasing(Enum):
     NEVER = "NEVER"
     DECREASING_ONLY = "DECREASING_ONLY"
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class ChromaticInterval(AbstractSingletonInterval, Chromatic):
     """A chromatic interval. Counting the number of half tone between two note"""
     number_of_interval_in_an_octave: ClassVar[int] = 12

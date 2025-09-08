@@ -16,7 +16,7 @@ from solfege.value.note.diatonic_note import DiatonicNote
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True, repr=False)
+@dataclass(frozen=True, repr=False, eq=False)
 class Note(AbstractNote, Pair, LocalLilyable):
     """A note of the scale, as an interval from middle C."""
     DiatonicClass: ClassVar[Type[DiatonicNote]] = DiatonicNote

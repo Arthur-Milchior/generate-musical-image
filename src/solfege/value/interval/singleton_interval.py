@@ -7,7 +7,7 @@ from solfege.value.singleton import Singleton
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class AbstractSingletonInterval(AbstractInterval, Singleton):
     number_of_interval_in_an_octave: ClassVar[int]
 

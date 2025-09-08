@@ -135,13 +135,14 @@ class Fret(ChromaticInterval):
     def above(self):
         return Fret(self.require_value() - 1)
     
-    def transpose(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
+    def transpose(self, transpose: Union[int, ChromaticInterval], transpose_open: bool, transpose_not_played: bool):
+        transpose = ChromaticInterval.make_single_argument(transpose)
         if self.is_not_played():
             assert transpose_not_played
             return self
         if not transpose_open and self.is_open():
             return self
-        return self.__class__(self.require_value() + transpose)
+        return self.__class__(self.require_value() + transpose.value)
 
 
 NOT_PLAYED = Fret(None)

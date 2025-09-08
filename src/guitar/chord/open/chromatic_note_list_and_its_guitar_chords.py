@@ -46,7 +46,7 @@ class ChromaticNoteListAndItsGuitarChords(ChromaticListAndItsGuitarChords[Chroma
         guitar_chord_lowest_note = guitar_chord.get_most_grave_note()
         assert guitar_chord_lowest_note.get_chromatic().in_base_octave() == self.lowest_note.in_base_octave(), f"""{guitar_chord_lowest_note} is not a octave away from {self.lowest_note}"""
     
-    def csv_content(self, lily_folder_path: Optional[str] = None):
+    def csv_content(self, absolute: bool, lily_folder_path: Optional[str] = None):
         l = []
         inversions = self.interval_and_its_inversions.inversions
         easiest_inversion = inversions[0]
@@ -56,8 +56,8 @@ class ChromaticNoteListAndItsGuitarChords(ChromaticListAndItsGuitarChords[Chroma
         maximals = self.maximals()
         interval_list = easiest_inversion.interval_list
         for guitar_chord in maximals:
-            l.append(img_tag(guitar_chord.file_name(stroke_colored=False)))
-            l.append(img_tag(guitar_chord.file_name(stroke_colored=True)))
+            l.append(img_tag(guitar_chord.file_name(stroke_colored=False, absolute=absolute)))
+            l.append(img_tag(guitar_chord.file_name(stroke_colored=True, absolute=True)))
             note_list = guitar_chord.notes_from_interval_list(interval_list=interval_list)
             file_prefix = note_list.lily_file_name()
             if lily_folder_path:

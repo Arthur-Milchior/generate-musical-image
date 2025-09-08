@@ -6,7 +6,7 @@ from solfege.value.abstract import Abstract
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Singleton(Abstract):
     value: int
     IntervalClass: ClassVar[Type["Singleton"]]
