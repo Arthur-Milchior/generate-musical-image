@@ -24,14 +24,14 @@ class Abstract(MakeableWithSingleArgument):
         """True if it's a note. False if it's an interval"""
         return False
     
-    def _add(self, other: "Abstract")->"Abstract":
+    def _add(self, other: "Abstract")-> Self:
         return NotImplemented
     
-    def __add__(self, other:"Abstract"):
-        try:
-            return self._add(other)
-        except:
-            return other._add(self)
+    # def __add__(self, other:"Abstract"):
+    #     try:
+    #         return self._add(other)
+    #     except:
+    #         return other._add(self)
     
     def __sub__(self, other: "Abstract") -> Self:
         """This interval minus the other one. Class of `self`"""

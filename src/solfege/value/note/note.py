@@ -5,14 +5,15 @@ from typing import ClassVar, Optional, Self, Type
 
 from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.value.chromatic import Chromatic
-from solfege.value.interval.interval import IntervalFrozenList
+from solfege.value.interval.interval import Interval, IntervalFrozenList
 from solfege.value.note.abstract_note import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput, low_and_high
+from solfege.value.note.clef import Clef
 from solfege.value.pair import Pair
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.alteration import *
 from solfege.value.note.diatonic_note import DiatonicNote
 from utils.frozenlist import FrozenList
-from utils.util import assert_typing
+from utils.util import assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True, repr=False, eq=True)
@@ -43,7 +44,7 @@ class Note(AbstractNote, Pair[ChromaticNote, DiatonicNote], LocalLilyable):
     def __repr__(self):
         return f"Note.make({self.chromatic.value}, {self.diatonic.value})"
 
-    def _sub_note(self, other: Note):
+    def _sub_note(self, other: Note) -> Interval:
         diatonic = self.diatonic - other.diatonic
         chromatic = self.chromatic - other.chromatic
 
@@ -155,6 +156,19 @@ class Note(AbstractNote, Pair[ChromaticNote, DiatonicNote], LocalLilyable):
             return None
         number_octave = chromatic_distance.value // Chromatic.number_of_interval_in_an_octave
         return self.add_octave(number_octave)
+
+    def file_name(self, clef: Optional[Clef] = None):
+        """Return the file name without extension nor folder"""
+        assert_optional_typing(clef, Clef)
+        name = f"""_{self.get_name_with_octave(
+                    octave_notation=OctaveOutput.MIDDLE_IS_4,
+                    alteration_output = AlterationOutput.ASCII, 
+                    note_output = NoteOutput.LETTER, 
+                    fixed_length = FixedLengthOutput.NO
+                   )}"""
+        if clef is None:
+            clef = Clef.TREBLE if self.chromatic >= Chromatic(0) else Clef.BASS
+        return f"_{clef}_{name}"
 
 ChromaticNote.PairClass = Note
 DiatonicNote.PairClass = Note

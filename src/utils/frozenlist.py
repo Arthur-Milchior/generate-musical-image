@@ -56,7 +56,7 @@ class FrozenList(Generic[T]):
         l.append(value)
         return self.__class__(l)
     
-    def __add__(self, other: Iterable[T]):
+    def __add__(self, other: Iterable[T]) -> Self:
         other = list(other)
         if self._l:
             assert_iterable_typing(other, self._l[0].__class__)
@@ -64,7 +64,7 @@ class FrozenList(Generic[T]):
             assert_all_same_class(other)
         return self.__class__(self._l + other)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> T:
         return self._l[index]
     
     def __repr__(self):
@@ -72,7 +72,7 @@ class FrozenList(Generic[T]):
             l = [elt.repr_single_argument() for elt in self]
         else:
             l = [repr(elt) for elt in self]
-        return f"{self.__class__.__name__}([{",".join(l)}])"
+        return f"{self.__class__.__name__}([{", ".join(l)}])"
 
     def __len__(self):
         return len(self._l)

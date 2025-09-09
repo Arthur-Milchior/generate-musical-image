@@ -6,10 +6,11 @@ from typing import Optional, List, Iterable
 from lily.Lilyable.lilyable import Lilyable
 from lily.Lilyable.local_lilyable import LocalLilyable
 from lily.lily import compile_
+from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note
 from solfege.value.note.abstract_note import NoteOutput
 from utils.constants import test_folder
-from utils.util import indent
+from utils.util import assert_typing, indent
 
 
 class PianoLilyable(Lilyable):
@@ -32,7 +33,7 @@ class PianoLilyable(Lilyable):
     def __eq__(self, other: PianoLilyable):
         return self.first_key() == other.first_key() and self.left_lily() == other.left_lily() and self.right_lily() == other.right_lily() and self.annotations_lily() == other.annotations_lily()
 
-    def _staff(self, clef: str, content: Optional[str]) -> Optional[str]:
+    def _staff(self, clef: Clef, content: Optional[str]) -> Optional[str]:
         """A lilypond staff.
 
         The key is the given one.
@@ -43,6 +44,7 @@ class PianoLilyable(Lilyable):
 
         Add a comment with the complete fingering, to know whether recompilation is required. Or whether a change is due only to some meta information.
         """
+        assert_typing(clef, Clef)
         if content is None:
             return None
         return f"""\\new Staff{{

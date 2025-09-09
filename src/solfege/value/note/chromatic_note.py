@@ -35,26 +35,6 @@ class ChromaticNote(AbstractSingletonNote, Chromatic):
         diatonic = diatonic
         return cls(diatonic=diatonic, chromatic=self)
 
-    def file_name(self, clef: Optional[str] = None):
-        """Return the file name without extension nor folder"""
-        name = f"""_{self.get_name_with_octave(
-                    octave_notation=OctaveOutput.MIDDLE_IS_4,
-                    alteration_output = AlterationOutput.ASCII, 
-                    note_output = NoteOutput.LETTER, 
-                    fixed_length = FixedLengthOutput.NO
-                   )}"""
-        if clef is not None:
-            return f"_{clef}_{name}"
-        return name
-
-    def image_file_name(self, clef: Optional[str]  = None):
-        """Return the file name without folder"""
-        return f"{self.file_name(clef)}.svg"
-
-    def image_html(self, clef: Optional[str]="treble"):
-        """Return the html tag for the image."""
-        return img_tag(self.image_file_name(clef))
-
     def is_white_key_on_piano(self):
         """Whether this note corresponds to a black note of the keyboard"""
         return not self.is_black_key_on_piano()

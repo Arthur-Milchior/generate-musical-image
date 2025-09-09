@@ -1,1 +1,0 @@
-from guitar.position import generate

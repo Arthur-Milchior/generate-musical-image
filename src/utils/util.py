@@ -115,6 +115,7 @@ def save_file(file_path: str, file_content: str):
         f.write(file_content)
 
 def img_tag(filename:str):
+    assert_typing(filename, str)
     return f"""<img src='{filename}'/>"""
 
 T = TypeVar("T")

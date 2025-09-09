@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, Type, Union, TypeVar, Tuple, assert_never
+from typing import ClassVar, Optional, Self, Type, Union, TypeVar, Tuple, assert_never
 from enum import Enum
 
 from solfege.value.interval.abstract_interval import AbstractInterval
 from solfege.value.abstract import Abstract
+from solfege.value.note.clef import Clef
 from solfege.value.singleton import Singleton
-from utils.util import assert_typing
+from utils.util import assert_optional_typing, assert_typing, img_tag
 
 class AlterationOutput(Enum):
     ASCII = "ASCII"
@@ -63,7 +64,7 @@ class AbstractNote(Abstract):
     def _sub_note(self, other: AbstractNote):
         return NotImplemented
 
-    def __radd__(self, other: AbstractInterval):
+    def __radd__(self, other: AbstractInterval) -> Self:
         # called as other + self
         return self + other
 
@@ -87,6 +88,19 @@ class AbstractNote(Abstract):
 
     def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs):
         return f"{self.get_name_up_to_octave(**kwargs)}{str(self.get_octave_name(octave_notation=octave_notation))}"
+    
+    def file_name(self) -> str:
+        return NotImplemented    
+
+    def image_file_name(self, clef: Optional[Clef]  = None):
+        """Return the file name without folder"""
+        assert_optional_typing(clef, Clef)
+        return f"{self.file_name(clef)}.svg"
+
+    def image_html(self, clef: Optional[Clef]=Clef.TREBLE):
+        """Return the html tag for the image."""
+        assert_optional_typing(clef, Clef)
+        return img_tag(self.image_file_name(clef))
 
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)

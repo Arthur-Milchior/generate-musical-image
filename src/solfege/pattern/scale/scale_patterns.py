@@ -19,9 +19,9 @@ chromatic_scale_pattern = ScalePattern.make_relative(names=["Chromatic"], relati
 minor_natural = ScalePattern.make_relative(names=["Minor natural", "Aeolian mode"], relative_intervals=[2, 1, 2, 2, 1, 2, 2], interval_for_signature=three_flats)
 minor_melodic = ScalePattern.make_relative(names=["Minor melodic"], relative_intervals=[2, 1, 2, 2, 2, 2, 1], interval_for_signature=three_flats, descending=minor_natural)
 
+chord_patterns_as_scales = [chord_pattern.to_arpeggio_pattern() for chord_pattern in chord_patterns]
 scale_patterns_I_practice: List[ScalePattern] = [major_scale, blues, minor_natural, minor_harmonic, minor_melodic, chromatic_scale_pattern,
-                             whole_tone, pentatonic_major, pentatonic_minor] + [chord_pattern.to_arpeggio_pattern() for
-                                                                                chord_pattern in chord_patterns]
+                             whole_tone, pentatonic_major, pentatonic_minor] + chord_patterns_as_scales
 
 scale_patterns = scale_patterns_I_practice + [
     ScalePattern.make_relative(names=["Greek Dorian tonos (chromatic genus)"], relative_intervals=[1, 1, 3, 2, 1, 1, 3],

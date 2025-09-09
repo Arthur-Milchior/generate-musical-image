@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Self, Type, Union
+from typing import ClassVar, Optional, Self, Type, Union, overload
 
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.diatonic_interval import DiatonicInterval
 from solfege.value.interval.abstract_interval import AbstractInterval
+from solfege.value.note.abstract_note import NoteType
 from solfege.value.pair import Pair
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing
@@ -25,16 +26,16 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval]):
         assert_typing(self.chromatic, ChromaticInterval)
         assert_typing(self.diatonic, DiatonicInterval)
 
-    def __neg__(self):
+    def __neg__(self) -> Self:
         return self.make_instance_of_selfs_class(chromatic=-self.chromatic, diatonic=-self.diatonic)
 
-    def __mul__(self, other: int):
+    def __mul__(self, other: int) -> Self:
         assert isinstance(other, int)
         diatonic = self.diatonic * other
         chromatic = self.chromatic * other
         assert_typing(diatonic, diatonic.__class__)
         assert_typing(chromatic, chromatic.__class__)
-        return self.make_instance_of_selfs_class(chromatic=chromatic, diatonic=diatonic)    
+        return self.make_instance_of_selfs_class(chromatic=chromatic, diatonic=diatonic)
 
     @classmethod
     def unison(cls):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 from itertools import pairwise
-from typing import Optional, Dict, TypeVar, Any, Tuple, List
+from typing import Optional, Dict, Self, TypeVar, Any, Tuple, List
 
 from piano.piano_note import PianoNote
 from piano.scales.fingering import Fingering
@@ -106,7 +106,7 @@ class PenaltyForScale:
             return left
         return left + right
 
-    def __add__(self, other: PenaltyForScale):  # -> Self:
+    def __add__(self, other: PenaltyForScale) -> Self:
         """Merge the penalty of self and other."""
         assert self.__class__ == other.__class__
         nb_same_color_after_thumb_at_distance_diatonic = copy.deepcopy(

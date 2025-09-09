@@ -1,13 +1,16 @@
 from enum import Enum
+from solfege.pattern.chord.chord_patterns import chord_patterns
+from solfege.pattern.scale.scale_patterns import scale_patterns, chord_patterns_as_scales
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
 from solfege.value.key.key import Key, sets_of_enharmonic_keys
 from typing import Optional, Dict, List, assert_never
-from solfege.pattern.scale.scale_pattern import ScalePattern, scale_patterns_I_practice, scale_patterns, minor_melodic
+from solfege.pattern.scale.scale_pattern import ScalePattern
 from operator import itemgetter
 from lily.lily import compile_
 from dataclasses import dataclass
+from utils.util import img_tag, save_file
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.value.interval.interval import Interval
 from solfege.value.note.note import Note
@@ -23,9 +26,6 @@ class Direction(Enum):
     DECREASING = "decreasing"
     TOTAL = "total"
     REVERSE = "reverse"
-
-chords = [ chord.to_arpeggio_pattern()  for chord in  ChordPattern.class_to_patterns[ChordPattern]]
-
 
 @dataclass(frozen=True)
 class Instrument:
@@ -52,7 +52,7 @@ class ChromaticInstrumentWithDifficultNote(Instrument):
         super().__init__(name, lowest, highest)
         self.difficulty_notes = dict()
         for note, value in difficulty_notes.items():
-            note = Note(note).get_chromatic().in_base_octave()
+            note = Note.from_name(note).get_chromatic().in_base_octave()
             self.difficulty_notes[note] = max(value, self.difficulty_notes.get(note, 0))
 
     def difficulty(self, note: Note):
@@ -130,6 +130,7 @@ class Difficulties:
     def add(self, d):
         self.biggest = max(d, self.biggest)
         self.difficulties[d] = self.difficulties.get(d, 0) + 1
+        return self
 
     def __eq__(self, value):
         return self.difficulties == value.difficulties
@@ -184,7 +185,7 @@ class AnkiNote:
     
     def scale_for_difficulty(self):
         return self.scale_pattern.from_note(
-                        tonic=bass_note,
+                        tonic=self.bass_note(),
                         number_of_octaves=1,
                         )
 
@@ -222,7 +223,7 @@ class AnkiNote:
             self.tonic_name(),
             self.scale_name(),
             self.scale_notation(),
-            self.specific(),
+            self.specific,
             bass_note.image_html(),
             bass_note.add_octave(1).image_html(),
             bass_note.add_octave(2).image_html(),
@@ -273,7 +274,7 @@ class AnkiField:
         return self.anki_note.bass_note() <= self.anki_note.instrument.highest_instrument_note
     
     def scale_note_name(self):
-        return self.scale_lowest_note.get_name_with_octave(
+        return self.scale_lowest_note().get_name_with_octave(
                                 octave_notation=OctaveOutput.MIDDLE_IS_4,
                                 alteration_output = AlterationOutput.ASCII, 
                                 note_output = NoteOutput.LETTER, 
@@ -306,7 +307,7 @@ class AnkiField:
                 note_output = NoteOutput.LETTER, 
                 fixed_length = FixedLengthOutput.NO
             )
-            field_parts.append(img_tag(self.anki_note.instrument}_{note_name}.{self.anki_note.instrument.image_extension))
+            field_parts.append(img_tag(f"{self.anki_note.instrument}_{note_name}.{self.anki_note.instrument.image_extension}"))
         return field_parts            
 
 
@@ -325,7 +326,7 @@ for instrument in instruments:
     instrument_image = img_tag(f"{instrument}.png")
     csv_path = f"{folder_path}/{instrument}.csv"
     anki_notes: List[str] = []
-    for patterns, specific in ((chords, "Arpeggio"), (scale_patterns, "Scale"), ):
+    for patterns, specific in ((chord_patterns_as_scales, "Arpeggio"), (scale_patterns, "Scale"), ):
         for scale_pattern in patterns:
             anki_notes_in_scale = []
             for set_of_enharmonic_keys in sets_of_enharmonic_keys:
