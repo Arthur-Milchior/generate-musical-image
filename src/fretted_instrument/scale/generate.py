@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from fretted_instrument.position.guitar_position import GuitarPosition
-from fretted_instrument.position.set.set_of_guitar_positions_with_fingers import ScaleColors, SetOfGuitarPositionsWithFingers
+from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
+from fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import ScaleColors, SetOfFrettedInstrumentPositionsWithFingers
 from fretted_instrument.scale.generate_scale import generate_scale
 from solfege.pattern.pattern import SolfegePattern
 from utils.csv import CsvGenerator
@@ -14,28 +14,28 @@ from solfege.pattern.scale.scale_patterns import *
 from solfege.pattern.chord.chord_patterns import *
 
 
-scale_transposable_folder = f"{generate_root_folder}/guitar/scale/transposable"
+scale_transposable_folder = f"{generate_root_folder}/fretted_instrument/scale/transposable"
 ensure_folder(scale_transposable_folder)
 
 
 @dataclass(frozen=True)
 class AnkiNote(CsvGenerator):
     scale_pattern: ScalePattern
-    scales_for_two_octave_from_string_one: List[SetOfGuitarPositionsWithFingers]
-    scales_for_first_three_strings: List[SetOfGuitarPositionsWithFingers]
-    scales_for_middle_three_strings: List[SetOfGuitarPositionsWithFingers]
-    scales_for_last_three_strings: List[SetOfGuitarPositionsWithFingers]
+    scales_for_two_octave_from_string_one: List[SetOfFrettedInstrumentPositionsWithFingers]
+    scales_for_first_three_strings: List[SetOfFrettedInstrumentPositionsWithFingers]
+    scales_for_middle_three_strings: List[SetOfFrettedInstrumentPositionsWithFingers]
+    scales_for_last_three_strings: List[SetOfFrettedInstrumentPositionsWithFingers]
 
-    string_1_pos = GuitarPosition.make(1, 12)
-    string_3_pos = GuitarPosition.make(3, 12)
-    string_4_pos = GuitarPosition.make(4, 12)
+    string_1_pos = PositionOnFrettedInstrument.make(1, 12)
+    string_3_pos = PositionOnFrettedInstrument.make(3, 12)
+    string_4_pos = PositionOnFrettedInstrument.make(4, 12)
 
     def _scaless(self):
         return (self.scales_for_two_octave_from_string_one, self.scales_for_first_three_strings, self.scales_for_middle_three_strings, self.scales_for_last_three_strings)
 
     def __post_init__(self):
         assert_typing(self.scale_pattern, ScalePattern)
-        assert_iterable_typing(self.scales_for_two_octave_from_string_one, SetOfGuitarPositionsWithFingers)
+        assert_iterable_typing(self.scales_for_two_octave_from_string_one, SetOfFrettedInstrumentPositionsWithFingers)
 
     @classmethod
     def make(cls, scale_pattern: ScalePattern):

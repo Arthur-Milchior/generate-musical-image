@@ -1,6 +1,7 @@
 
+from typing import List
 from solfege.pattern.chord.chord_patterns import chord_patterns
-from solfege.value.key.key import *
+from solfege.value.key.keys import *
 from solfege.pattern.scale.scale_pattern import ScalePattern
 
 
@@ -17,7 +18,7 @@ chromatic_scale_pattern = ScalePattern.make_relative(names=["Chromatic"], relati
                                                   (1, 1), (1, 0), (1, 1),
                                                   (1, 1), ], interval_for_signature=nor_flat_nor_sharp)
 minor_natural = ScalePattern.make_relative(names=["Minor natural", "Aeolian mode"], relative_intervals=[2, 1, 2, 2, 1, 2, 2], interval_for_signature=three_flats)
-minor_melodic = ScalePattern.make_relative(names=["Minor melodic"], relative_intervals=[2, 1, 2, 2, 2, 2, 1], interval_for_signature=three_flats, descending=minor_natural)
+minor_melodic = ScalePattern.make_relative(names=["Minor melodic"], relative_intervals=[2, 1, 2, 2, 2, 2, 1], interval_for_signature=three_flats, _descending=minor_natural)
 
 chord_patterns_as_scales = [chord_pattern.to_arpeggio_pattern() for chord_pattern in chord_patterns]
 scale_patterns_I_practice: List[ScalePattern] = [major_scale, blues, minor_natural, minor_harmonic, minor_melodic, chromatic_scale_pattern,

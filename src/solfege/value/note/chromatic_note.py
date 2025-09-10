@@ -1,16 +1,18 @@
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Type
-from solfege.value.interval.chromatic_interval import ChromaticIntervalFrozenList
+from typing import ClassVar, Optional, Self, Type, Union
+from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from solfege.value.chromatic import Chromatic
 from solfege.value.note.singleton_note import AbstractSingletonNote
+from solfege.value.singleton import Singleton
 from utils.frozenlist import FrozenList
-from utils.util import img_tag
+from utils.util import assert_typing, img_tag
 
 
 @dataclass(frozen=True, repr=False, eq=False)
-class ChromaticNote(AbstractSingletonNote, Chromatic):
+class ChromaticNote(AbstractSingletonNote[ChromaticInterval], Chromatic):
     AlterationClass: ClassVar[Type[Chromatic]]
+    IntervalClass: ClassVar[Type[Singleton]] = ChromaticInterval
     @staticmethod
     def from_name(name) -> "ChromaticNote":
         from solfege.value.note.note import Note
@@ -43,6 +45,14 @@ class ChromaticNote(AbstractSingletonNote, Chromatic):
         """Whether this note corresponds to a black note of the keyboard"""
         blacks = {1, 3, 6, 8, 10}
         return (self.get_chromatic().value % 12) in blacks
+    
+    @classmethod
+    def _make_single_argument(cls, value: Union[int, str]) -> Self:
+        if isinstance(value, str):
+            from solfege.value.note.note import Note
+            return Note.from_name(value).get_chromatic()
+        assert_typing(value, int)
+        return cls(value)
     
 ChromaticNote.ChromaticClass = ChromaticNote
 

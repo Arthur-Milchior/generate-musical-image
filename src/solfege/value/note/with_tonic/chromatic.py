@@ -7,12 +7,12 @@
 # @dataclass(frozen=True, eq=False)
 # class ChromaticNoteWithTonic(AbstractSingletonNoteWithTonic, ChromaticNote):
 #     # The role this note is most likely to play in the standard chords
-#     # Especially used for guitar cards
+#     # Especially used for fretted_instrument cards
 #     role: ClassVar[List[Optional[str]]] = ["unison", None, None, "third", "third", "third", "fifth", "fifth", "fifth", "interval", "interval",
 #             "interval"]
 
 #     def get_color(self, color=True):
-#         """Coloring for guitar dots."""
+#         """Coloring for fretted_instrument dots."""
 #         if color:
 #             dic = {"unison": "black", "third": "violet", "fifth": "red", "interval": "green", None: None}
 #             return dic[self.get_role()]

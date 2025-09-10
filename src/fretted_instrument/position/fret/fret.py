@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 import dataclasses
-from typing import Generator, List, Optional, Self, Union
+from typing import Dict, Generator, List, Optional, Self, Tuple, Type, Union
 
+from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from solfege.value.interval.chromatic_interval import ChromaticInterval
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_optional_typing, assert_typing
 from fretted_instrument.position.consts import *
 
@@ -12,11 +14,12 @@ FRET_THICKNESS = 7
 TOP_FRET_THICKNESS = FRET_THICKNESS*1.4
 
 @dataclass(frozen=True)
-class Fret(ChromaticInterval):
+class Fret(ChromaticInterval, DataClassWithDefaultArgument):
     """
-    Represents one of the fret of the guitar.
+    Represents one of the fret of the fretted_instrument.
 
     None represents a string that is not played and is assumed to be greater than any played string."""
+    instrument: FrettedInstrument
     value: Optional[int]
 
     def require_value(self):
@@ -25,6 +28,11 @@ class Fret(ChromaticInterval):
         assert_typing(self.value, int)
         return self.value
     
+    @classmethod
+    def _make_single_argument(cls, arg: Tuple[FrettedInstrument, int]) -> Self:
+        instrument, value = arg
+        return instrument.fret(value)
+
     def name(self):
         if self.value is None:
             return "x"
@@ -43,16 +51,15 @@ class Fret(ChromaticInterval):
         return isinstance(self.value, int) and self.value > 0
     
     @classmethod
-    def make(cls, fret: Union["Fret", int, None]) -> Self:
-        if isinstance(fret, Fret):
-            return fret
-        if fret is None:
-            return NOT_PLAYED
-        return cls(fret)
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "value")
+        return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
         # not calling super because we accept None value
         #super().__post_init__()
+        assert_typing(self.instrument, FrettedInstrument)
         assert_optional_typing(self.value, int)
 
     def __add__(self, other: Union[ChromaticInterval, int]) -> Self:
@@ -63,8 +70,8 @@ class Fret(ChromaticInterval):
         value = self.value + other
         if value < 0:
             return None
-        fret = Fret(value)
-        if fret > HIGHEST_FRET:
+        fret = self.instrument.fret(value)
+        if fret.value > self.instrument.number_of_frets:
             return None
         return fret
     
@@ -128,13 +135,13 @@ class Fret(ChromaticInterval):
     def all_frets_up_to_here(self, include_open: bool):
         """The set of all frets up to here."""
         from fretted_instrument.position.fret.frets import Frets
-        return Frets.make((1, self.value), True)
+        return Frets.make(instrument=self.instrument, _closed_fret_interval=(1, self.value), allow_open=True)
 
     def below(self):
-        return Fret(self.require_value() + 1)
+        return self.instrument.fret(self.require_value() + 1)
 
     def above(self):
-        return Fret(self.require_value() - 1)
+        return self.instrument.fret(self.require_value() - 1)
     
     def transpose(self, transpose: Union[int, ChromaticInterval], transpose_open: bool, transpose_not_played: bool):
         transpose = ChromaticInterval.make_single_argument(transpose)
@@ -144,8 +151,15 @@ class Fret(ChromaticInterval):
         if not transpose_open and self.is_open():
             return self
         return dataclasses.replace(self, value=self.require_value() + transpose.value)
-
-
-NOT_PLAYED = Fret(None)
-OPEN_FRET = Fret(0)
-HIGHEST_FRET = Fret(24)
+    
+    def __neg__(self):
+        # A fret has no inverse value.
+        return NotImplemented
+    
+    def __sub__(self, other: Self) -> ChromaticInterval:
+        if not isinstance(other, ChromaticInterval):
+            return NotImplemented
+        delta = self.value - other.value
+        if isinstance(self, Fret):
+            return ChromaticInterval(delta)
+        return Fret(delta, self.instrument)

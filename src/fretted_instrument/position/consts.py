@@ -10,7 +10,7 @@ MARGIN = DISTANCE_BETWEEN_STRING/2
 """
 The ration by which each fret height is reduced.
 
-Fret(i+1).height() = Fret(i).height() * RATIO_FRET_HEIGHT"""
+instrument.fret(i+1).height() = instrument.fret(i).height() * RATIO_FRET_HEIGHT"""
 RATIO_FRET_HEIGHT = 1/pow(2, 1/12)
 
 

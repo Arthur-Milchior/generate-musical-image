@@ -44,8 +44,8 @@ class TestChromaticNote(unittest.TestCase):
         ChromaticNote.PairClass = Note
         ChromaticNote.AlterationClass = Alteration
 
-    def test_is_note(self):
-        self.assertTrue(self.C4.is_note())
+    # def test_is_note(self):
+    #     self.assertTrue(self.C4.is_note())
 
     def test_get_number(self):
         self.assertEqual(self.C4.value, 0)

@@ -5,12 +5,11 @@ from typing import ClassVar, Dict, Generic, List, Optional, Self, Type, TypeVar,
 from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from utils.recordable import RecordKeeperType, Recordable
 from utils.util import assert_iterable_typing, assert_typing
-from solfege.value.key.key import nor_flat_nor_sharp
 
 
 
 @dataclass(frozen=True)
-class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], Generic[RecordKeeperType], DataClassWithDefaultArgument):
+class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], DataClassWithDefaultArgument, Generic[RecordKeeperType]):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
@@ -22,8 +21,8 @@ class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], Generi
     _key_type: ClassVar[Type] = IntervalList
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        defaut_dict = super()._default_arguments_for_constructor()
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        defaut_dict = super()._default_arguments_for_constructor(args, kwargs)
         defaut_dict["record"] = True
         return defaut_dict
 

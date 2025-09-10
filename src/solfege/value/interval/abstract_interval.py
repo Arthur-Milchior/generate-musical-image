@@ -21,9 +21,6 @@ class AbstractInterval(Abstract):
     Inheriting class which are instantiated should contain the following variable:
     * DiatonicClass: class to which a chromatic object must be converted when a diatonic object is required.
     * PairClass: the class to which a diatonic and chromatic object must be converted."""
-
-    def __rmul__(self, other) -> Self:
-        return self.__mul__(other)
     
     @classmethod
     def unison(cls):
@@ -33,8 +30,11 @@ class AbstractInterval(Abstract):
     def one_octave(cls) -> Self:
         return NotImplemented
     
+    def __neg__(self):
+        return self * -1
+    
     def assert_in_base_octave(self, accepting_octave: bool = False):
-        """Assert that the note is in base octave"""
+        """Assert that the interval is in base octave"""
         assert self.octave() == 0 or (accepting_octave and self == self.one_octave())
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)

@@ -4,7 +4,8 @@ from solfege.pattern.scale.scale_patterns import scale_patterns, chord_patterns_
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
-from solfege.value.key.key import Key, sets_of_enharmonic_keys
+from solfege.value.key.key import Key 
+from solfege.value.key.keys import sets_of_enharmonic_keys
 from typing import Optional, Dict, List, assert_never
 from solfege.pattern.scale.scale_pattern import ScalePattern
 from operator import itemgetter
@@ -256,7 +257,7 @@ class AnkiField:
             tonic=self.scale_lowest_note(),
             number_of_octaves=self.number_of_octaves,
             )
-        decreasing = self.anki_note.scale_pattern.descending.from_note(
+        decreasing = self.anki_note.scale_pattern.descending().from_note(
             tonic=self.scale_lowest_note(),
             number_of_octaves=self.number_of_octaves,
             ).reverse()
@@ -286,10 +287,10 @@ class AnkiField:
         return f"""{self.anki_note.scale_name()}-{self.scale_note_name()}-{self.number_of_octaves}-{self.direction}"""
     
     def path(self):
-        return f"{folder_path}/{self.svg_scale_file_name}"
+        return f"{folder_path}/{self.svg_scale_file_name()}"
     
     def lily(self):
-        return self.scale.lily()
+        return self.scale().lily()
     
     def generate_and_compile_lily(self):
         compile_(self.lily(), file_prefix=self.path(), wav = False)
@@ -299,7 +300,7 @@ class AnkiField:
     
     def fingerings_html(self):
         field_parts = []
-        for note_in_scale in self.notes():
+        for note_in_scale in self.scale().notes:
             chromatic_note: ChromaticNote = note_in_scale.get_chromatic()
             note_name = chromatic_note.get_name_with_octave(
                 octave_notation=OctaveOutput.MIDDLE_IS_4,

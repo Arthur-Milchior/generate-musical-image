@@ -34,8 +34,8 @@ class DiatonicInterval(AbstractSingletonInterval, Diatonic):
         return text
 
 
-Diatonic.IntervalClass = DiatonicInterval
 DiatonicInterval.DiatonicClass = DiatonicInterval
+Diatonic.IntervalClass = DiatonicInterval
 
 
 class DiatonicIntervalFrozenList(FrozenList[DiatonicInterval]):

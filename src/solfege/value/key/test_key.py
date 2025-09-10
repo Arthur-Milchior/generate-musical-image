@@ -1,6 +1,7 @@
 from itertools import pairwise
 import unittest
-from solfege.value.key.key import *
+from solfege.value.key.keys import *
+from utils.frozendict import KeyType
 
 
 class TestClef(unittest.TestCase):

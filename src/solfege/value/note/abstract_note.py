@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Self, Type, Union, TypeVar, Tuple, assert_never
+from typing import ClassVar, Generic, Optional, Self, Type, Union, TypeVar, Tuple, assert_never, overload
 from enum import Enum
 
-from solfege.value.interval.abstract_interval import AbstractInterval
+from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
 from solfege.value.abstract import Abstract
 from solfege.value.note.clef import Clef
 from solfege.value.singleton import Singleton
@@ -34,7 +34,7 @@ class FixedLengthOutput(Enum):
     NO = "NO"
 
 @dataclass(frozen=True)
-class AbstractNote(Abstract):
+class AbstractNote(Abstract, Generic[IntervalType]):
     make_instance_of_selfs_class: ClassVar[Type["AbstractNote"]]
     """A note. Similar to an interval.
 
@@ -42,31 +42,17 @@ class AbstractNote(Abstract):
     -Two note may be subtracted, leading to an interval.
 
     """
-
-    def is_note(self):
-        return True
-
-    def __neg__(self):
-        raise Exception("Trying to negate a note makes no sens.")
-
-    def __neg__(self):
-        raise Exception("Trying to multiply a note makes no sens.")
-
-    def __sub__(self, other: Union[AbstractInterval, AbstractNote]) -> Union[AbstractInterval, AbstractNote]:
-        if isinstance(other, AbstractNote):
-            return self._sub_note(other)
-        else:
-            return self._sub_interval(other)
-
-    def _sub_interval(self, other: AbstractInterval):
-        return self + (-other)
-
-    def _sub_note(self, other: AbstractNote):
-        return NotImplemented
-
-    def __radd__(self, other: AbstractInterval) -> Self:
-        # called as other + self
+    def __radd__(self, other: IntervalType) -> Self:
         return self + other
+    
+    def __add__(self, other: IntervalType) -> Self:
+        return NotImplemented
+    
+    @overload
+    def __sub__(self, other: IntervalType) -> Self: ...
+    
+    @overload
+    def __sub__(self, other: Self) -> IntervalType: ...
 
     def get_octave_name(self, octave_notation: OctaveOutput) -> str:
         """The octave.  By default, starting at middle c. If scientific_notation, starting at C0"""

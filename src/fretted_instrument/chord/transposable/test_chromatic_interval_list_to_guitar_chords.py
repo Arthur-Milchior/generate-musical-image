@@ -1,23 +1,23 @@
 import unittest
 
-from .chromatic_interval_list_to_guitar_chords import * 
+from .chromatic_interval_list_to_fretted_instrument_chords import * 
 from ..test_constants import *
 from solfege.pattern.chord.chord_patterns import major_triad
 
 
-class TestChromaticIntervalListToGuitarChord(unittest.TestCase):
+class TestChromaticIntervalListToFrettedInstrumentChord(unittest.TestCase):
     def test_iter(self):
-        itv_to_chord = ChromaticIntervalListToGuitarChords.make()
+        itv_to_chord = ChromaticIntervalListToFrettedInstrumentChords.make()
         chromatic_intervals = F4M.intervals_frow_lowest_note_in_base_octave()
         itv_to_chord.register(chromatic_intervals, F4M)
         all_interval_and_its_inversions = list(itv_to_chord)
         self.assertEqual(len(all_interval_and_its_inversions), 1) 
-        interval_list, chromatic_interval_list_and_its_guitar_chords = all_interval_and_its_inversions[0]
+        interval_list, chromatic_interval_list_and_its_fretted_instrument_chords = all_interval_and_its_inversions[0]
         self.assertIsInstance(interval_list, ChromaticIntervalList)
-        self.assertIsInstance(chromatic_interval_list_and_its_guitar_chords, ChromaticIntervalListAndItsGuitarChords)
-        guitar_chords = chromatic_interval_list_and_its_guitar_chords.guitar_chords
-        self.assertEqual(guitar_chords, [F4M])
-        interval_and_its_inversions = chromatic_interval_list_and_its_guitar_chords.interval_and_its_inversions
+        self.assertIsInstance(chromatic_interval_list_and_its_fretted_instrument_chords, ChromaticIntervalListAndItsFrettedInstrumentChords)
+        fretted_instrument_chords = chromatic_interval_list_and_its_fretted_instrument_chords.fretted_instrument_chords
+        self.assertEqual(fretted_instrument_chords, [F4M])
+        interval_and_its_inversions = chromatic_interval_list_and_its_fretted_instrument_chords.interval_and_its_inversions
         self.assertIsInstance(interval_and_its_inversions, ChromaticIntervalListAndItsInversions)
         inversions = interval_and_its_inversions.inversions
         self.assertEqual(len(inversions), 1)

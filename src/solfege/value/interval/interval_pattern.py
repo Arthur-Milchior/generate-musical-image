@@ -1,9 +1,5 @@
 from dataclasses import dataclass
 from typing import ClassVar, Dict, Iterator, List, Union
-from solfege.value.interval.chromatic_interval import ChromaticInterval
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
-from solfege.value.note.abstract_note import NoteType
-from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.pattern.pattern import SolfegePattern
 from solfege.value.interval.interval import Interval
 
@@ -34,8 +30,10 @@ class IntervalPattern(SolfegePattern):
         return super()._clean_arguments_for_constructor(args, kwargs)
 
 
+second_minor_interval = Interval.make(diatonic=1, chromatic=1)
+second_minor_pattern = IntervalPattern.make(name="Second minor", interval=second_minor_interval)
 intervals_up_to_octave = [
-    IntervalPattern.make(name="Second minor", interval=Interval.make(diatonic=1, chromatic=1)),
+    second_minor_pattern,
     IntervalPattern.make(name="Second major", interval=Interval.make(diatonic=1, chromatic=2)),
     IntervalPattern.make(name="Third minor", interval=Interval.make(diatonic=2, chromatic=3)),
     IntervalPattern.make(name="Third major", interval=Interval.make(diatonic=2, chromatic=4)),

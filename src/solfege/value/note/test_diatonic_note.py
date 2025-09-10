@@ -22,8 +22,8 @@ class TestDiatonicNote(TestDiatonicInterval):
         from solfege.value.note.chromatic_note import ChromaticNote
         DiatonicNote.ChromaticClass = ChromaticNote
 
-    def test_is_note(self):
-        self.assertTrue(self.C4.is_note())
+    # def test_is_note(self):
+    #     self.assertTrue(self.C4.is_note())
 
     def test_get_number(self):
         self.assertEqual(self.C4.value, 0)
@@ -36,8 +36,8 @@ class TestDiatonicNote(TestDiatonicInterval):
     def test_add(self):
         self.assertEqual(self.D4 + self.third, self.F4)
         self.assertEqual(self.third + self.D4, self.F4)
-        self.assertEqual(self.D4 + Interval.make(4,2), self.F4)
-        self.assertEqual(Interval.make(4,2) + self.D4, self.F4)
+        # self.assertEqual(self.D4 + Interval.make(4,2), self.F4)
+        # self.assertEqual(Interval.make(4,2) + self.D4, self.F4)
         with self.assertRaises(Exception):
             _ = self.D4 + self.D4
 

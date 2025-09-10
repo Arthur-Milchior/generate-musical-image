@@ -44,8 +44,8 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
         return IntervalListToChordPattern.make()
     
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        default_dict = super()._default_arguments_for_constructor()
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["optional_fifth"] = False
         return default_dict
 

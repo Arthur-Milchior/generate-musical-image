@@ -22,7 +22,7 @@ Lily order is:
 """
 
 
-def chord(notes: List[Note]) -> str:  # only used by guitar right now
+def chord(notes: List[Note]) -> str:  # only used by fretted_instrument right now
     return f"""\\version "2.20.0"
 \\score{{
   \\new Staff{{
@@ -56,9 +56,10 @@ def compile_(code: str, file_prefix: str, wav: bool, extension="svg", execute_li
     `execute_lily` should be False only for tests, to save time.
     `file_prefix`: path, except for the .svg/.pdf
     wav: whether to convert midi to wav. Assumes the lilypond file will generate midi."""
-    if os.path.isfile(file_prefix + ".ly"):
+    lily_path = file_prefix + ".ly"
+    if os.path.isfile(lily_path):
         if os.path.exists(f"{file_prefix}.svg"):
-            with open(file_prefix + ".ly", "r") as file:
+            with open(lily_path, "r") as file:
                 old_code = file.read()
                 if old_code == code:
 #                    print("""%s.ly's old code is equal to current one""" % file_prefix)
@@ -66,7 +67,7 @@ def compile_(code: str, file_prefix: str, wav: bool, extension="svg", execute_li
     if force_recompile:
         execute_lily = True
     if execute_lily:
-        save_file(file_prefix + ".ly", code)
+        save_file(lily_path, code)
         
         preview_path = f"{file_prefix}.preview.{extension}"
         if extension == "svg":

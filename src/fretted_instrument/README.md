@@ -1,4 +1,4 @@
-This module contains everything related to guitar.
+This module contains everything related to fretted_instrument.
 
 The solo module generates images for notes, with a single note played. Between fret 0 (empty) and 6. I use those images to illustrate the starting/ending point of a scale/chord
 
@@ -16,5 +16,5 @@ If its a chord, satisfying some condition, the image is generated, and an anki n
 file:
 __init__.py : generates everything mentionned above
 pos.py: two classes:
---Pos, representing a position on the guitar
+--Pos, representing a position on the fretted_instrument
 --SetofPos: a set of pos, with some functions to test it as a chord

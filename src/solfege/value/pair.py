@@ -10,7 +10,7 @@ from utils.util import assert_typing
 
 
 @dataclass(frozen=True, unsafe_hash=True)
-class Pair(Abstract, ChromaticGetter, DiatonicGetter, MakeableWithSingleArgument, Generic[ChromaticType, DiatonicType]):
+class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter, Generic[ChromaticType, DiatonicType]):
     """How to generate a new Pair, from chromatic and diatonic"""
     make_instance_of_selfs_class: ClassVar[Callable[[int, int], "Pair"]]
     DiatonicClass: ClassVar[Type[Diatonic]] = Diatonic
@@ -77,20 +77,6 @@ class Pair(Abstract, ChromaticGetter, DiatonicGetter, MakeableWithSingleArgument
 
     def __repr__(self):
         return f"{self.__class__.__name__}.make({self.chromatic.value}, {self.diatonic.value})"
-
-    def _add(self, other: "Pair") -> Self:
-        if not isinstance(other, Pair):
-            return other._add(self)
-        from solfege.value.interval.interval import Interval
-        from solfege.value.note.note import Note
-        assert self.IntervalClass == other.IntervalClass, f"{self.IntervalClass} != {other.IntervalClass}"
-        diatonic = self.diatonic + other.diatonic
-        chromatic = self.chromatic + other.chromatic
-        if isinstance(other, Note):
-            assert_typing(self, Interval)
-            return other.make_instance_of_selfs_class(chromatic, diatonic)
-        assert_typing(other, Interval)
-        return self.make_instance_of_selfs_class(chromatic=chromatic, diatonic=diatonic)
 
     def __le__(self, other: "Pair"):
         assert_typing(other, self.__class__)

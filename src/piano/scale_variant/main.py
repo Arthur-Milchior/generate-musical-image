@@ -3,7 +3,8 @@ from lily.Lilyable.piano_lilyable import LiteralPianoLilyable
 from lily.lily import compile_
 from piano.fingering_generation.generate import generate_best_fingering_for_melody
 from solfege.value.interval.interval import Interval
-from solfege.value.key.key import sets_of_enharmonic_keys, Key
+from solfege.value.key.key import Key
+from solfege.value.key.keys import sets_of_enharmonic_keys
 from solfege.pattern.scale.scale import Scale
 from solfege.pattern.scale.scale_pattern import major_scale, scale_patterns
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput

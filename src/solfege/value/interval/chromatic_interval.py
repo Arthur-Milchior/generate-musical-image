@@ -15,7 +15,7 @@ class IntervalNameCreasing(Enum):
 
 @dataclass(frozen=True, eq=False)
 class ChromaticInterval(AbstractSingletonInterval, Chromatic):
-    """A chromatic interval. Counting the number of half tone between two note"""
+    """A chromatic interval. Counting the number of half tone between two notes."""
     number_of_interval_in_an_octave: ClassVar[int] = 12
     AlterationClass: ClassVar[type[ChromaticInterval]]  # more specific an alteration
 
@@ -62,11 +62,9 @@ class ChromaticInterval(AbstractSingletonInterval, Chromatic):
                 name += " increasing"
             return name
         return NotImplemented
-        
 
-
-Chromatic.IntervalClass = ChromaticInterval
 ChromaticInterval.ChromaticClass = ChromaticInterval
+Chromatic.IntervalClass = ChromaticInterval
 
 
 ChromaticIntervalType = TypeVar('ChromaticIntervalType', bound=ChromaticInterval)

@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from typing import ClassVar, Self
 
@@ -19,6 +18,11 @@ class AbstractSingletonInterval(AbstractInterval, Singleton):
         """Inverse interval"""
         return self.make_instance_of_selfs_class(value=-self.value)
     
+    def __add__(self, other: Self) ->Self:
+        if not other.__class__ == self.__class__:
+            return NotImplemented
+        return self.make_instance_of_selfs_class(value=self.value + other.value)
+    
     @classmethod
     def unison(cls):
         return cls(0)
@@ -26,5 +30,3 @@ class AbstractSingletonInterval(AbstractInterval, Singleton):
     @classmethod
     def one_octave(cls) -> Self:
         return cls.make_instance_of_selfs_class(value=cls.number_of_interval_in_an_octave)
-
-Singleton.IntervalClass = AbstractSingletonInterval

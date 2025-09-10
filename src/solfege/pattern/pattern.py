@@ -7,8 +7,8 @@ from solfege.pattern.pattern_with_name import PatternWithName
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from utils.frozenlist import FrozenList
-from utils.util import assert_all_same_class, assert_typing
-from solfege.value.key.key import nor_flat_nor_sharp
+from utils.util import assert_typing
+from solfege.value.key.keys import nor_flat_nor_sharp
 
 
 @dataclass(frozen=True)
@@ -21,8 +21,8 @@ class SolfegePattern(IntervalList, PatternWithName, PatternWithIntervalList, Dat
     interval_for_signature: Interval
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        default_dict = super()._default_arguments_for_constructor()
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["interval_for_signature"] = nor_flat_nor_sharp
         return default_dict
 

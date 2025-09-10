@@ -2,15 +2,15 @@ from dataclasses import dataclass
 from typing import Dict, Generic, TypeVar
 
 
-Key = TypeVar("Key")
-Value = TypeVar("Value")
+KeyType = TypeVar("Key")
+ValueType = TypeVar("Value")
 
 @dataclass(repr=True, eq=True)
-class FrozenDict(Generic[Key, Value]):
+class FrozenDict(Generic[KeyType, ValueType]):
     """A dictionary whose content is expected not to change.
     
     Can be constructed from either a dict or key/value pairs."""
-    _d: Dict[Key, Value]
+    _d: Dict[KeyType, ValueType]
 
     def __init__(self, *args, **kwargs):
         if args:
@@ -19,10 +19,10 @@ class FrozenDict(Generic[Key, Value]):
             kwargs = args[0]
         self._d = {**kwargs}
 
-    def get(self, key: Key, default: Value):
+    def get(self, key: KeyType, default: ValueType):
         return self.get(key, default)
 
-    def __getitem__(self, key: Key):
+    def __getitem__(self, key: KeyType):
         return self._d[key]
     
     def __len__(self):

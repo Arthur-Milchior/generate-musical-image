@@ -10,13 +10,13 @@ from utils.util import assert_typing
 @dataclass(frozen=True, eq=False)
 class Singleton(Abstract, MakeableWithSingleArgument):
     value: int
-    IntervalClass: ClassVar[Type["Singleton"]]
+    IntervalClass: ClassVar[Type[Self]]
 
     """number of note by octave (7 for diatonic, 12 for chromatic)"""
     number_of_interval_in_an_octave: ClassVar[int]
 
     @classmethod
-    def make_instance_of_selfs_class(cls: Type["Singleton"], value: int):
+    def make_instance_of_selfs_class(cls: Type[Self], value: int):
         return cls(value)
 
     def __post_init__(self):
@@ -31,26 +31,16 @@ class Singleton(Abstract, MakeableWithSingleArgument):
     def __hash__(self):
         return self.value
 
-    def __le__(self, other: "Singleton"):
+    def __le__(self, other: Self):
         assert_typing(other, self.__class__)
         return self.value <= other.value
 
-    def __lt__(self, other: "Singleton"):
+    def __lt__(self, other: Self):
         assert_typing(other, self.__class__)
         return self.value < other.value
 
     def __repr__(self):
         return f"{self.__class__.__name__}(value={self.value})"
-    
-    def _add(self, other: "Singleton"):
-        from solfege.value.note.abstract_note import AbstractNote
-        from solfege.value.interval.abstract_interval import AbstractInterval
-        assert (self.IntervalClass == other.IntervalClass, f"{self.IntervalClass} != {other.IntervalClass}")
-        if isinstance(other, AbstractNote):
-            assert_typing(self, AbstractInterval)
-            return other.make_instance_of_selfs_class(self.value + other.value)
-        assert_typing(other, AbstractInterval)
-        return self.make_instance_of_selfs_class(self.value + other.value)
     
     def octave(self):
         """The octave number. 0 for unison/central C up to seventh/C one octave above."""
@@ -60,7 +50,7 @@ class Singleton(Abstract, MakeableWithSingleArgument):
         return f"""{self.value}"""
 
     @classmethod
-    def _make_single_argument(cls, value: Union[int, "Singleton"]) -> Self:
+    def _make_single_argument(cls, value: int) -> Self:
         assert_typing(value, int)
         return cls.make_instance_of_selfs_class(value)
         

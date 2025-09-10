@@ -23,10 +23,10 @@ class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, RecordedCon
 
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        kwargs = super()._default_arguments_for_constructor()
-        kwargs["chromatic"] = cls.make_chromatic_container()
-        return kwargs
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default = super()._default_arguments_for_constructor(args, kwargs)
+        default["chromatic"] = cls.make_chromatic_container()
+        return default
     
     @classmethod
     def make_chromatic_container(self):

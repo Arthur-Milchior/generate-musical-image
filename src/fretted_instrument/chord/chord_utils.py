@@ -1,31 +1,36 @@
-from typing import Optional
-from fretted_instrument.chord.guitar_chord import GuitarChord
+from typing import Generator, Optional
+from fretted_instrument.chord.fretted_instrument_chord import ChordOnFrettedInstrument
+from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from fretted_instrument.position.fret.fret import Fret
-from fretted_instrument.position.guitar_position import GuitarPosition
-from fretted_instrument.position.set.set_of_guitar_positions import SetOfGuitarPositions
-from fretted_instrument.position.string.strings import ALL_STRINGS, Strings, strings
+from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
+from fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
+from fretted_instrument.position.string.strings import Strings
 from fretted_instrument.position.fret.frets import Frets
 from utils.util import assert_typing
-from fretted_instrument.position.set.set_of_guitar_positions import empty_set_of_guitar_position
+from fretted_instrument.position.set.set_of_fretted_instrument_positions import empty_set_of_position
 
 
-def enumerate_frets(strings: Strings= ALL_STRINGS, frets: Optional[Frets]=None):
+def enumerate_frets(instrument: FrettedInstrument, strings: Optional[Strings]= None, frets: Optional[Frets]=None) -> Generator[SetOfPositionOnFrettedInstrument]:
     """Generate a maping from each string to one of the fret."""
+    assert_typing(instrument, FrettedInstrument)
+    if strings is None:
+        strings = instrument.strings()
     assert_typing(strings, Strings)
-    frets = frets if frets else Frets.make(closed_fret_interval=(1, 5), allow_not_played=True, allow_open=True) 
+    frets = frets if frets else Frets.make(instrument, _closed_fret_interval=(1, 5), allow_not_played=True, allow_open=True) 
     s_ss = strings.pop()
     if s_ss is None:
         """There is no string to play at all. End case of the recursion."""
-        yield empty_set_of_guitar_position
+        yield empty_set_of_position(instrument)
         return
     if frets.is_contradiction():
         return
     string, strings = s_ss
-    for set_of_guitar_position in enumerate_frets(strings, frets):
+    for set_of_fretted_instrument_position in enumerate_frets(instrument, strings, frets):
         for fret in frets:
-            guitar_position = GuitarPosition(string, fret)
-            yield set_of_guitar_position.add(guitar_position)
+            fretted_instrument_position = PositionOnFrettedInstrument(instrument, string, fret)
+            yield set_of_fretted_instrument_position.add(fretted_instrument_position)
 
-def enumerate_guitar_chords(frets: Optional[Frets] = None):
-    for frets in enumerate_frets(frets = frets):
-        yield GuitarChord(frets.positions)
+def enumerate_fretted_instrument_chords(instrument: FrettedInstrument, frets: Optional[Frets] = None):
+    assert_typing(instrument, FrettedInstrument)
+    for fret in enumerate_frets(instrument, frets = frets):
+        yield ChordOnFrettedInstrument(instrument, fret.positions)

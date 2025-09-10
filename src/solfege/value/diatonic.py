@@ -1,26 +1,24 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, TypeVar
+from typing import ClassVar, Self, TypeVar
 
+from solfege.value.getters import ChromaticGetter, DiatonicGetter
 from solfege.value.singleton import Singleton
 from solfege.value.chromatic import Chromatic
+from utils.frozenlist import T
 from utils.util import assert_typing
 
-
-class DiatonicGetter:
-    """Protocol for class alowing to get a chromatic value."""
-    def get_diatonic()-> "Diatonic":
-        return NotImplemented
-
 @dataclass(frozen=True, eq=False)
-class Diatonic(Singleton, DiatonicGetter):
+class Diatonic(Singleton, ChromaticGetter, DiatonicGetter[Self]):
     IntervalClass: ClassVar[type]
     number_of_interval_in_an_octave: ClassVar[int] = 7
 
-    def _add(self, other: DiatonicGetter):
-        assert_typing(other, DiatonicGetter)
-        return super()._add(other.get_diatonic())
-
+    def __add__(self, other):
+        from solfege.value.pair import Pair
+        if isinstance(other, Pair):
+            return self + other.get_diatonic()
+        return super().__add__(self, other)
+    
     def get_chromatic(self, scale="Major") -> Chromatic:
         """
         Give the chromatic interval associated to the current diatonic interval in some scale.

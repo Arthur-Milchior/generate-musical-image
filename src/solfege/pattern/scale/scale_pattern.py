@@ -29,7 +29,7 @@ class ScalePattern(SolfegePattern):
 
     """The descending pattern if different from the ascending one. Mostly used for minor melodic. It's stored in an ascending way.
     If it's none, the descending is self"""
-    descending: Optional["ScalePattern"] = None
+    _descending: Optional["ScalePattern"] = None
     """If True, add a warning if the result is not a perfect octave"""
     suppress_warning: bool = field(compare = False, default=False)
 
@@ -40,7 +40,7 @@ class ScalePattern(SolfegePattern):
         return IntervalListToScalePattern.make()
 
     def __post_init__(self):
-        assert_optional_typing(self.descending, ScalePattern)
+        assert_optional_typing(self._descending, ScalePattern)
         assert_optional_typing(self.suppress_warning, bool)
         super().__post_init__()
         if not self.suppress_warning:
@@ -51,8 +51,13 @@ class ScalePattern(SolfegePattern):
     def __neg__(self):
         """The same pattern, reversed. Ignore the descending option"""
         return ScalePattern.make_relative(names=self.names, notation=self.notation, relative_intervals=[-interval for interval in reversed(list(self.relative_intervals()))],
-                            interval_for_signature=self.interval_for_signature, suppress_warning=True, increasing = not self.increasing, descending=self.descending,
+                            interval_for_signature=self.interval_for_signature, suppress_warning=True, increasing = not self.increasing, _descending=self._descending,
                             record=False)
+    
+    def descending(self):
+        if self._descending:
+            return self._descending
+        return self
 
     def from_note(self, tonic: NoteType, number_of_octaves=1,
                  add_an_extra_note: bool = False) -> Scale[NoteType]:

@@ -6,7 +6,6 @@ from typing import ClassVar, Optional, Self, Type, Union, overload
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.diatonic_interval import DiatonicInterval
 from solfege.value.interval.abstract_interval import AbstractInterval
-from solfege.value.note.abstract_note import NoteType
 from solfege.value.pair import Pair
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing
@@ -36,6 +35,11 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval]):
         assert_typing(diatonic, diatonic.__class__)
         assert_typing(chromatic, chromatic.__class__)
         return self.make_instance_of_selfs_class(chromatic=chromatic, diatonic=diatonic)
+    
+    def __add__(self, other: Self) -> Self:
+        if not other.__class__ == self.__class__:
+            return NotImplemented
+        return self.make_instance_of_selfs_class(chromatic=self.chromatic + other.chromatic, diatonic=self.diatonic+other.diatonic)    
 
     @classmethod
     def unison(cls):
@@ -49,10 +53,10 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval]):
 class IntervalFrozenList(FrozenList[Interval]):
     type = Interval
 
+Interval.IntervalClass = Interval
 Interval.PairClass = Interval
 ChromaticInterval.PairClass = Interval
 DiatonicInterval.PairClass = Interval
-Pair.IntervalClass = Interval
 
 ChromaticInterval.DiatonicClass = DiatonicInterval
 DiatonicInterval.ChromaticClass = ChromaticInterval

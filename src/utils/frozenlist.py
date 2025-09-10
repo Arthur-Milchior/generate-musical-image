@@ -65,6 +65,7 @@ class FrozenList(Generic[T]):
         return self.__class__(self._l + other)
 
     def __getitem__(self, index) -> T:
+        assert isinstance(index, int) or isinstance(index, slice)
         return self._l[index]
     
     def __repr__(self):

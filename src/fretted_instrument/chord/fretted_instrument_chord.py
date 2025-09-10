@@ -1,17 +1,18 @@
 from enum import Enum
 from typing import Dict, List, Optional, Self, Union
 from fretted_instrument.chord.playable import Playable
+from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from fretted_instrument.position.fret.fret import Fret
-from fretted_instrument.position.guitar_position import GuitarPosition, GuitarPositionFrozenList
-from fretted_instrument.position.set.abstract_set_of_guitar_positions import COLOR_FIFTH, COLOR_OTHER, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
-from fretted_instrument.position.string.string import String, strings
-from fretted_instrument.position.set.set_of_guitar_positions import SetOfGuitarPositions
+from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
+from fretted_instrument.position.set.abstract_set_of_fretted_instrument_positions import COLOR_FIFTH, COLOR_OTHER, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
+from fretted_instrument.position.string.string import String
+from fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 import itertools
 
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.set.interval_list import ChromaticIntervalList
 from utils.frozenlist import FrozenList
-from utils.util import assert_typing, optional_max
+from utils.util import assert_optional_typing, assert_typing, optional_max
 
 class Barred(Enum):
     NO = "NO"
@@ -19,21 +20,29 @@ class Barred(Enum):
     FULLY = "FULLY"
 
 class ChordColors(ColorsWithTonic):
-    def get_color(self, chromatic_interval: ChromaticInterval):
-        [COLOR_TONIC, 
+    def get_color_from_interval(self, chromatic_interval: ChromaticInterval):
+        assert_typing(chromatic_interval, ChromaticInterval)
+        return [COLOR_TONIC, 
          COLOR_OTHER, COLOR_OTHER,
          COLOR_THIRD, COLOR_THIRD,
          COLOR_OTHER,
          COLOR_FIFTH, COLOR_FIFTH, COLOR_FIFTH,
          COLOR_QUALITY, COLOR_QUALITY, COLOR_QUALITY][chromatic_interval.in_base_octave().value]
 
-class GuitarChord(SetOfGuitarPositions):
+class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
+
     @classmethod
-    def make(cls, frets: List[Union[Fret, int, None]]) -> Self:
-        assert len(frets) == len(strings)
-        frets = [Fret.make(fret) for fret in frets]
-        guitar_positions = [GuitarPosition(string, fret) for string, fret in itertools.zip_longest(strings, frets)]
-        return cls(GuitarPositionFrozenList(guitar_positions))
+    def make(cls, instrument: FrettedInstrument, frets: List[Union[Fret, int, None]]) -> Self:
+        assert len(frets) == instrument.number_of_strings()
+        l = []
+        for fret in frets:
+            if isinstance(fret, Fret):
+                l.append(fret)
+            else:
+                assert_optional_typing(fret, int)
+                l.append(instrument.fret(fret))
+        fretted_positions = [PositionOnFrettedInstrument(instrument, string, fret) for string, fret in itertools.zip_longest(instrument.strings(), l)]
+        return cls(instrument=instrument, positions=PositionOnFrettedInstrumentFrozenList(fretted_positions))
     
     def get_fret(self, string: String):
         assert_typing(string, String)
@@ -46,14 +55,14 @@ class GuitarChord(SetOfGuitarPositions):
         return fret
     
     def get_frets(self):
-        return [self.get_fret(string) for string in strings]
+        return [self.get_fret(string) for string in self.instrument.strings()]
     
     def __repr__(self):
-        return f"""GuitarChord.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
+        return f"""FrettedInstrumentChord.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
 
     def chord_pattern_is_redundant(self):
-        """Whether the same fingering pattern can be played higher on the guitar"""
-        return self._min_fret(include_open=True) > Fret(1)
+        """Whether the same fingering pattern can be played higher on the fretted_instrument"""
+        return self._min_fret(include_open=True) > self.instrument.fret(1)
 
     def is_open(self):
         return self._min_fret(include_open=True).is_open()
@@ -94,13 +103,13 @@ class GuitarChord(SetOfGuitarPositions):
                     return True
         return False
     
-    def hand_for_guitar(self) -> Optional["HandForGuitardChord"]:
-        from fretted_instrument.chord.hand_for_chord import HandForGuitarChord
-        return HandForGuitarChord.make(self)
+    def hand_for_fretted_instrument(self) -> Optional["HandForChordForFrettedInstrument"]:
+        from fretted_instrument.chord.hand_for_chord import HandForChordForFrettedInstrument
+        return HandForChordForFrettedInstrument.make(self)
     
     def playable(self) -> Playable:
-        from fretted_instrument.chord.hand_for_chord import HandForGuitarChord
-        hand: HandForGuitarChord = self.hand_for_guitar()
+        from fretted_instrument.chord.hand_for_chord import HandForChordForFrettedInstrument
+        hand: HandForChordForFrettedInstrument = self.hand_for_fretted_instrument()
         if hand is None:
             return Playable.NO
         return hand.playable()
@@ -113,11 +122,11 @@ class GuitarChord(SetOfGuitarPositions):
         fret_values = [fret.value for fret in self.get_frets()]
         frets = "_".join(str(value) if value is not None else "x" for value in fret_values)
         if stroke_colored:
-            return f"guitar_chord_{frets}_colored.svg"
-        return f"guitar_chord_{frets}_all_black.svg"
+            return f"fretted_instrument_chord_{frets}_colored.svg"
+        return f"fretted_instrument_chord_{frets}_all_black.svg"
         
 
-intervals_in_base_octave_to_guitar_chord: Dict[ChromaticIntervalList, List[GuitarChord]] = dict()
+intervals_in_base_octave_to_fretted_instrument_chord: Dict[ChromaticIntervalList, List[ChordOnFrettedInstrument]] = dict()
 
-class GuitarChordFrozenList(FrozenList[GuitarChord]):
-    type = GuitarChord
+class FrettedInstrumentChordFrozenList(FrozenList[ChordOnFrettedInstrument]):
+    type = ChordOnFrettedInstrument

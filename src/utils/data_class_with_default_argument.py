@@ -2,17 +2,22 @@
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Self
 
-
+_CLEANED = "_clean_arguments_for_constructor"
+_DEFAULT_ADDED = "_default_arguments_for_constructor"
 @dataclass(frozen=True)
 class DataClassWithDefaultArgument:
     """Must always be added as last ancestor."""
 
     @classmethod
     def make(cls, *args, **kwargs) -> Self:
-        args, kwargs = cls._clean_arguments_for_constructor(args, kwargs)
-        default_args = cls._default_arguments_for_constructor()
-        default_args.update(kwargs)
-        return cls(*args, **default_args)
+        cleaned_args, cleaned_kwargs = cls._clean_arguments_for_constructor(args, kwargs)
+        default_args = cls._default_arguments_for_constructor(cleaned_args, cleaned_kwargs)
+        new_kwargs = {**default_args, **cleaned_kwargs}
+        assert _CLEANED in new_kwargs, f"{cls} was not cleaned. {new_kwargs=}"
+        assert _DEFAULT_ADDED in new_kwargs, f"{cls} didn't get its default value. {new_kwargs=}"
+        del new_kwargs[_CLEANED]
+        del new_kwargs[_DEFAULT_ADDED]
+        return cls(*cleaned_args, **new_kwargs)
 
     def __post_init__(self):
         hash(self) #check that hash can be computed
@@ -44,14 +49,15 @@ class DataClassWithDefaultArgument:
         return cls.arg_to_kwargs(args, kwargs, name, clean)
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
+    def _default_arguments_for_constructor(cls, args, kwargs):
         """Returns the association from argument name to default argument value.
         Class inheriting must call super."""
-        return dict()
+        return {_DEFAULT_ADDED: True }
     
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         """Ensure that any value is changed so that it gets the correct type. E.g. transform list in frozenlist
         and pair of int in interval.
         Class inheriting must call super."""
+        kwargs[_CLEANED] = True
         return (args, kwargs)

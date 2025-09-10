@@ -26,8 +26,8 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversion"], DataC
         return IntervalListToInversionPattern.make()
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        default_dict = super()._default_arguments_for_constructor()
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["fifth_omitted"] = False
         return default_dict
 

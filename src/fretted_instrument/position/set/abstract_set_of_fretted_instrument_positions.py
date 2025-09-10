@@ -6,10 +6,12 @@ import itertools
 from pickle import EMPTY_SET
 from typing import Callable, ClassVar, Dict, FrozenSet, Generator, Generic, Iterable, List, Iterator, Optional, Self, Tuple, Type, Union
 
-from fretted_instrument.position.guitar_position import GuitarPositionMakeSingleArgumentType, GuitarPositionType
-from fretted_instrument.position.fret.fret import NOT_PLAYED, OPEN_FRET, Fret
+from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.position.fretted_instrument_position import  PositionOnFrettedInstrumentType
+from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.consts import *
-from fretted_instrument.position.string.strings import ALL_STRINGS
+from fretted_instrument.position.string.strings import Strings
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
 from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
 from solfege.value.note.chromatic_note import ChromaticNote
@@ -19,14 +21,18 @@ from solfege.value.note.set.note_list import NoteList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList, MakeableWithSingleArgument
 from utils.util import T, assert_dict_typing, assert_increasing, assert_iterable_typing, assert_optional_typing, assert_typing, optional_max, optional_min, sorted_unique
-from fretted_instrument.position.string.string import String, strings
+from fretted_instrument.position.string.string import String
 
 COLOR_TONIC = "red"
+COLOR_SECOND = "yellow"
 COLOR_THIRD = "blue"
+COLOR_FOURTH = "orange"
 COLOR_FIFTH = "grey"
 COLOR_QUALITY = "green"
 COLOR_OTHER = "purple"
 COLOR_UNINTERESTING = "black"
+
+open_fret = Gui_tar.fret( value=0)
 
 @dataclass(frozen=True)
 class Colors:
@@ -44,35 +50,46 @@ class ColorsWithTonic(Colors):
         return NotImplemented
     
     def get_color_from_note(self, chromatic_note: ChromaticNote):
+        assert_typing(chromatic_note, ChromaticNote)
         return self.get_color_from_interval(chromatic_note - self.tonic)
 
 
-@dataclass(frozen=True, eq=False)
-class AbstractSetOfGuitarPositions(MakeableWithSingleArgument, DataClassWithDefaultArgument, Generic[GuitarPositionType]):
+@dataclass(frozen=True, eq=False, unsafe_hash=True)
+class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDefaultArgument, Generic[PositionOnFrettedInstrumentType]):
     """
-    A set of positions on the guitar.
+    A set of positions on instrument.
 
     There may be 0, 1 or many note by strings.
-    Iterated in GuitarPosition order.
+    Iterated in PositionOnFrettedInstrument order.
     """
 
     """The set of positions"""
-    positions: FrozenList[GuitarPositionType]
-    type: ClassVar[Type[GuitarPositionType]]
-    _frozen_list_type: ClassVar[Type[FrozenList[GuitarPositionType]]]
+    instrument: FrettedInstrument
+    positions: FrozenList[PositionOnFrettedInstrumentType]
+    type: ClassVar[Type[PositionOnFrettedInstrumentType]]
+    _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]]
 
     @classmethod
     def _make_single_argument(cls, arg: List) -> Self:
-        return cls.make(cls.type.make_single_argument(pos) for pos in arg)
+        instrument, poss = arg
+        return cls.make(instrument, (cls.type.make_single_argument(pos) for pos in poss))
 
     def repr_single_argument(self) -> str:
         return f"""[{", ".join(position.repr_single_argument() for position in self.positions )}]"""
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_positions(positions: Iterable[GuitarPositionMakeSingleArgumentType]):
-             positions = sorted_unique(cls.type.make_single_argument(position) for position in positions)
-             return cls._frozen_list_type(positions)
+        def clean_positions(positions: Iterable):
+            instrument = kwargs["instrument"]
+            l =[]
+            for position in positions:
+                if isinstance(position, tuple) and len(position) == 2:
+                    string, fret = position
+                    position = (instrument, string, fret)
+                l.append(cls.type.make_single_argument(position))    
+            positions = sorted_unique(l)
+            return cls._frozen_list_type(positions)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "positions", clean_positions)
         return super()._clean_arguments_for_constructor(args, kwargs)
  
@@ -86,17 +103,25 @@ class AbstractSetOfGuitarPositions(MakeableWithSingleArgument, DataClassWithDefa
         assert_typing(self.positions, self._frozen_list_type)
         assert_iterable_typing(self.positions, self.type)
 
-    def get_most_grave_note(self) -> Optional[GuitarPositionType]:
-        """The guitar position of the lowest note"""
+    def get_most_grave_note(self) -> Optional[PositionOnFrettedInstrumentType]:
+        """The fretted_instrument position of the lowest note"""
         return optional_min(self.positions)
 
-    def add(self, position: GuitarPositionMakeSingleArgumentType):
+    def add(self, new_position: Union[PositionOnFrettedInstrumentType, Tuple[Union[String, int], Union[Fret, Optional[int]]]]) -> Self:
         """A set similar to `self`, with `position`"""
-        position = self.type.make_single_argument(position)
-        new_positions = sorted(self.positions.append(position))
+        if not isinstance(new_position, self.type):
+            string, fret = new_position
+            if isinstance(string, int):
+                string = self.instrument.string(string)
+            assert_typing(string, String)
+            if isinstance(fret, int):
+                fret = self.instrument.fret(fret)
+            assert_typing(string, String)
+            new_position = self.type(self.instrument, string, fret)
+        new_positions = sorted(self.positions.append(new_position))
         return dataclasses.replace(self, positions =self._frozen_list_type(new_positions))
 
-    def __iter__(self) -> Iterator[GuitarPositionType]:
+    def __iter__(self) -> Iterator[PositionOnFrettedInstrumentType]:
         return iter(sorted(self.positions))
 
     def __eq__(self, other: Self):
@@ -138,7 +163,7 @@ class AbstractSetOfGuitarPositions(MakeableWithSingleArgument, DataClassWithDefa
         return [pos.string for pos in self.positions if pos.fret == fret]
     
     def open_strings(self):
-        return self.strings_at_fret(OPEN_FRET)
+        return self.strings_at_fret(open_fret)
 
     def strings_at_min_fret(self, include_open: bool):
         return self.strings_at_fret(self._min_fret(include_open=include_open))
@@ -146,7 +171,7 @@ class AbstractSetOfGuitarPositions(MakeableWithSingleArgument, DataClassWithDefa
     def height(self, absolute: bool):
         return self.last_shown_fret().y_fret() + MARGIN
     
-    def execute_on_maybe_transposed(self, absolute: bool, f: Callable[[AbstractSetOfGuitarPositions], T]) -> T:
+    def execute_on_maybe_transposed(self, absolute: bool, f: Callable[[AbstractSetOfFrettedPositions], T]) -> T:
         """Execute `f` on `self` if `absolute` otherwise on self transposed to first fret."""
         if not absolute:
             transposed, transpose_interval = self.transpose_to_fret_one()
@@ -154,14 +179,16 @@ class AbstractSetOfGuitarPositions(MakeableWithSingleArgument, DataClassWithDefa
             transposed = self
         return f(transposed)
     
-    def svg_content(self, absolute: bool, colors: Optional[Colors] = None, nbFretMin: Fret =OPEN_FRET) -> List[str]:
+    def svg_content(self, absolute: bool, colors: Optional[Colors] = None, nbFretMin: Fret =open_fret) -> List[str]:
+        assert_optional_typing(colors, Colors)
         """If tonic, add some colors depending on the role of the note compared to the tonic"""
         max_fret = max(self.last_shown_fret(), nbFretMin).below()
         l = ["""<rect width="100%" height="100%" fill="white" />"""]
-        l += ALL_STRINGS.svg(lowest_fret=max_fret, show_open_fret=absolute)
+        l += self.instrument.strings().svg(lowest_fret=max_fret, show_open_fret=absolute)
         l += max_fret.all_frets_up_to_here(include_open=absolute).svg(absolute)
         for pos in self:
-            color = colors.get_color_from_note(chromatic_note = pos.get_chromatic()) if colors else None
+            chromatic = pos.get_chromatic()
+            color = colors.get_color_from_note(chromatic_note = chromatic) if colors and chromatic else None
             assert_optional_typing(color, str)
             svg = pos.svg(absolute, color)
             #print(f"      {svg=}")
@@ -198,7 +225,7 @@ class AbstractSetOfGuitarPositions(MakeableWithSingleArgument, DataClassWithDefa
         assert_iterable_typing(absolute_chromatic_intervals, ChromaticInterval)
         return ChromaticIntervalList.make_absolute(sorted_unique(interval.in_base_octave() for interval in absolute_chromatic_intervals))
 
-    def _svg(self, absolute:bool, colors: Optional[Colors]= None,  nbFretMin: Fret=OPEN_FRET):
+    def _svg(self, absolute:bool, colors: Optional[Colors]= None,  nbFretMin: Fret=open_fret):
         assert_optional_typing(colors, Colors)
         new_line = "\n"
         return f"""\
@@ -206,7 +233,7 @@ class AbstractSetOfGuitarPositions(MakeableWithSingleArgument, DataClassWithDefa
     {new_line.join(("  "+ content) for content in self.svg_content(absolute=absolute, colors=colors, nbFretMin=nbFretMin))}
     </svg>"""
 
-    def svg(self, absolute:bool, colors: Optional[Colors]= None, nbFretMin: Fret=OPEN_FRET) -> str:
+    def svg(self, absolute:bool, colors: Optional[Colors]= None, nbFretMin: Fret=open_fret) -> str:
         assert_optional_typing(colors, Colors)
         return self.execute_on_maybe_transposed(absolute, lambda poss: (poss._svg(absolute, colors, nbFretMin)))
     
@@ -218,7 +245,7 @@ class AbstractSetOfGuitarPositions(MakeableWithSingleArgument, DataClassWithDefa
         E.g. not having both third minor and major."""
         assert_typing(tonic, ChromaticNote)
         roles = [ChromaticInterval.make_single_argument(role) for role in roles]
-        positions: List[GuitarPositionType] = []
+        positions: List[PositionOnFrettedInstrumentType] = []
         found_role = None
         played_positions = [pos for pos in self if pos.fret.is_played()]
         for role in roles:

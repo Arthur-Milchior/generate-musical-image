@@ -1,14 +1,15 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, Self, Tuple, Union
+from typing import ClassVar, Optional, Self, Tuple, Union
 
+from solfege.value.getters import ChromaticGetter, DiatonicGetter
 from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
 
 
 @dataclass(frozen=True, unsafe_hash=True, eq=False)
-class Abstract(MakeableWithSingleArgument):
+class Abstract(MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter):
     """The class of interval similar to the current class"""
     IntervalClass: ClassVar[type] #abstract interval
 
@@ -20,27 +21,12 @@ class Abstract(MakeableWithSingleArgument):
     """The class with both Chromatic and Diatonic similar to the current class"""
     PairClass: ClassVar[type]# abstract interval
 
+    def __radd__(self, other):
+        return self.__add__(other)
+
     def is_note(self) -> bool:
         """True if it's a note. False if it's an interval"""
         return False
-    
-    def _add(self, other: "Abstract")-> Self:
-        return NotImplemented
-    
-    # def __add__(self, other:"Abstract"):
-    #     try:
-    #         return self._add(other)
-    #     except:
-    #         return other._add(self)
-    
-    def __sub__(self, other: "Abstract") -> Self:
-        """This interval minus the other one. Class of `self`"""
-        from solfege.value.interval.abstract_interval import AbstractInterval
-        assert_typing(other, AbstractInterval)
-        neg = -other
-        if neg.is_note():
-            raise Exception("Neg is %s, which is a note" % neg)
-        return self + neg
 
     def add_octave(self, nb: int) -> Self:
         """Same note with nb more octave"""
@@ -57,3 +43,9 @@ class Abstract(MakeableWithSingleArgument):
     
     def octave(self) -> int:
         return NotImplemented
+    
+    def __sub__(self, other):
+        return self + (-other)
+    
+    def get_pair(self):
+        return self.PairClass(self.get_chromatic(), self.get_diatonic())

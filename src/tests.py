@@ -1,7 +1,7 @@
 # import unittest
 
 # from utils.util import tests_modules
-# import guitar
+# import fretted_instrument
 # import harmonica
 # import accordina
 # import piano.tests
@@ -10,5 +10,5 @@
 
 # unittest.TestCase.maxDiff = None
 
-# tests_modules([solfege.tests, piano.tests, lily.tests#, harmonica, guitar
+# tests_modules([solfege.tests, piano.tests, lily.tests#, harmonica, fretted_instrument
 #  ])

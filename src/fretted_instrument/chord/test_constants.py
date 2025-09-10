@@ -1,11 +1,16 @@
-from fretted_instrument.chord.guitar_chord import *
-from fretted_instrument.position.fret.fret import OPEN_FRET
+from fretted_instrument.chord.fretted_instrument_chord import *
+from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
 
+def _make(l):
+    return ChordOnFrettedInstrument.make(Gui_tar, l)
 
-open = GuitarChord.make([OPEN_FRET] * 6)
-ones = GuitarChord.make([Fret(1)] * 6)
-diag = GuitarChord.make([Fret(i) for i in range(6)])
-diag_two = GuitarChord.make([Fret(i+2) for i in range(6)])
-C4M_ = GuitarChord.make([None, 3, 2, 0, 1, None])
-C4M = GuitarChord.make([None, 3, 2, 0, 1, 0])
-F4M = GuitarChord.make([1, 3, 3, 2, 1, 1])
+def fret(value):
+    return Gui_tar.fret(value)
+
+open = _make([fret(0)] * 6)
+ones = _make([fret(1)] * 6)
+diag = _make([fret(i) for i in range(6)])
+diag_two = _make([fret(i+2) for i in range(6)])
+C4M_ = _make([None, 3, 2, 0, 1, None])
+C4M = _make([None, 3, 2, 0, 1, 0])
+F4M = _make([1, 3, 3, 2, 1, 1])

@@ -12,7 +12,7 @@ from utils.frozenlist import FrozenList
 from utils.util import assert_iterable_typing, assert_typing, sorted_unique
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
+class AbstractIntervalList(DataClassWithDefaultArgument, Generic[IntervalType]):
     interval_type: ClassVar[Type[AbstractInterval]]
     """The list of intervals, all relative to a common starting note."""
     _absolute_intervals: FrozenList[IntervalType]
@@ -20,8 +20,8 @@ class AbstractIntervalList(Generic[IntervalType], DataClassWithDefaultArgument):
     increasing: bool
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        default_dict = super()._default_arguments_for_constructor()
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["increasing"] = True
         return default_dict
 

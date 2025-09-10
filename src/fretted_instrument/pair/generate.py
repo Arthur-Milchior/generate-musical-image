@@ -4,35 +4,33 @@ Generate an anki note, with this image, and the distance between both strings, a
 """
 from dataclasses import dataclass
 from pickletools import string1
-from fretted_instrument.position.guitar_position import GuitarPosition, GuitarPositionFrozenList
-from fretted_instrument.position.set.set_of_guitar_positions import SetOfGuitarPositions
+from fretted_instrument.fretted_instrument.fretted_instruments import fretted_instruments
+from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
+from fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 from fretted_instrument.position.fret.fret import Fret
-from fretted_instrument.position.string.string import String, strings
+from fretted_instrument.position.string.string import String
 from solfege.value.interval.chromatic_interval import ChromaticInterval, IntervalNameCreasing
 from utils.util import *
-from fretted_instrument.position.fret.fret import OPEN_FRET
 from consts import generate_root_folder
 
 """
 Generate an image for each pair of notes between fret 0 and LAST_FRET on distinct string.
-Also a card for each note. Used for the card type "guitar interval"
+Also a card for each note. Used for the card type "fretted_instrument interval"
 """
 
 
-folder_path = f"{generate_root_folder}/guitar/pair"
-
-LAST_FRET = 6
-
-ensure_folder(folder_path)
 
 @dataclass(frozen=True)
 class AnkiNote:
-    pos1: GuitarPosition
-    pos2: GuitarPosition
+    instrument: FrettedInstrument
+    pos1: PositionOnFrettedInstrument
+    pos2: PositionOnFrettedInstrument
 
     def __post_init__(self):
-        assert_typing(self.pos1, GuitarPosition)
-        assert_typing(self.pos2, GuitarPosition)
+        assert_typing(self.pos1, PositionOnFrettedInstrument)
+        assert_typing(self.pos2, PositionOnFrettedInstrument)
         assert self.pos1.fret.value < 2 or self.pos2.fret.value < 2
         assert self.pos1.string < self.pos2.string
 
@@ -40,7 +38,7 @@ class AnkiNote:
         return f"{self.pos1.string.value}{self.pos1.fret.value}-{self.pos2.string.value}{self.pos2.fret.value}"
     
     def svg_name(self):
-        return f"guitar_{self.key()}.svg"
+        return f"fretted_instrument_{self.key()}.svg"
     
     def interval(self):
         return self.pos2 - self.pos1
@@ -73,29 +71,37 @@ class AnkiNote:
     
     def svg(self):
         absolute = self.pos1.fret.is_open() or self.pos2.fret.is_open()
-        return SetOfGuitarPositions(GuitarPositionFrozenList({self.pos1, self.pos2})).svg(absolute=absolute)
+        return SetOfPositionOnFrettedInstrument(self.instrument, PositionOnFrettedInstrumentFrozenList({self.pos1, self.pos2})).svg(absolute=absolute)
 
-def pairs_of_frets_values(last_fret: int):
+def pairs_of_frets_values(last_fret: Fret):
+    assert_typing(last_fret, Fret)
     return (
-        [(low_fret, high_fret) for low_fret in range(0, 2) for high_fret in range(0, last_fret + 1)] +
-        [(low_fret, high_fret) for low_fret in range(2, last_fret + 1) for high_fret in range(0, 2)]
+        [(low_fret, high_fret) for low_fret in range(0, 2) for high_fret in range(0, last_fret.value + 1)] +
+        [(low_fret, high_fret) for low_fret in range(2, last_fret.value + 1) for high_fret in range(0, 2)]
     )
 
-def pair_of_frets(last_fret: int):
-    return [(Fret(low_fret), Fret(high_fret)) for (low_fret, high_fret) in pairs_of_frets_values(last_fret)]
+def pair_of_frets(instrument: FrettedInstrument):
+    last_fret = instrument.last_fret()
+    return [(instrument.fret(low_fret), instrument.fret(high_fret)) for (low_fret, high_fret) in pairs_of_frets_values(last_fret)]
 
-def anki_note_(low_string: int, high_string: int, low_fret: Fret, high_fret: Fret):
-    return AnkiNote(
-        GuitarPosition(strings[low_string-1], low_fret,),
-        GuitarPosition(strings[high_string-1], high_fret,),
+def anki_note_(instrument: FrettedInstrument, low_string: int, high_string: int, low_fret: Fret, high_fret: Fret):
+    return AnkiNote(instrument,
+        PositionOnFrettedInstrument(instrument, instrument.string(low_string), low_fret,),
+        PositionOnFrettedInstrument(instrument, instrument.string(high_string), high_fret,),
         )
 
-anki_notes = []
-for low_string in range(1, 6):
-    for high_string in range(low_string + 1, 7):
-        for (low_fret, high_fret) in pair_of_frets(LAST_FRET):
-            anki_note = anki_note_(low_string, high_string, low_fret, high_fret)
-            save_file(f"{folder_path}/{anki_note.svg_name()}", anki_note.svg())
-            anki_notes.append(anki_note.anki_csv())
+def generate(instrument: FrettedInstrument, folder_path:str):
+    anki_notes = []
+    number_of_strings = instrument.number_of_strings()
+    for low_string in range(1, number_of_strings):
+        for high_string in range(low_string + 1, number_of_strings + 1):
+            for (low_fret, high_fret) in pair_of_frets(instrument):
+                anki_note = anki_note_(Gui_tar, low_string, high_string, low_fret, high_fret)
+                save_file(f"{folder_path}/{anki_note.svg_name()}", anki_note.svg())
+                anki_notes.append(anki_note.anki_csv())
+    return anki_notes
 
-save_file(f"{folder_path}/anki.csv", "\n".join(anki_notes))
+for instrument in fretted_instruments:
+    folder_path = f"{instrument.generated_folder_name()}/pair"
+    ensure_folder(folder_path)
+    save_file(f"{folder_path}/anki.csv", "\n".join(generate(instrument, folder_path)))

@@ -42,10 +42,10 @@ class RecordKeeper(Generic[KeyType, RecordedType, RecordedContainerType], DataCl
         assert_typing(self._records, dict)
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        kwargs = super()._default_arguments_for_constructor()
-        kwargs["_records"] = dict()
-        return kwargs
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default = super()._default_arguments_for_constructor(args, kwargs)
+        default["_records"] = dict()
+        return default
     
     def _new_container(self, key: KeyType) -> RecordedContainerType:
         return NotImplemented

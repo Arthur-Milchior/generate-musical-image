@@ -27,10 +27,10 @@ class AbstractNoteList(Generic[NoteType, IntervalType, IntervalListType], DataCl
         return self.interval_list_type.make(note-min_note for note in self.notes)
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        kwargs = super()._default_arguments_for_constructor()
-        kwargs["list_order"] = ListOrder.INCREASING
-        return kwargs
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default = super()._default_arguments_for_constructor(args, kwargs)
+        default["list_order"] = ListOrder.INCREASING
+        return default
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):

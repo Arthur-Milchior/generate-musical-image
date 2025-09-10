@@ -1,22 +1,24 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-from solfege.value.interval.diatonic_interval import DiatonicIntervalFrozenList
+from solfege.value.interval.diatonic_interval import DiatonicInterval, DiatonicIntervalFrozenList
 from solfege.value.note.abstract_note import FixedLengthOutput, NoteOutput
 from solfege.value.note.alteration import LILY, FILE_NAME, FULL_NAME, DEBUG, NAME_UP_TO_OCTAVE
-from typing import assert_never
+from typing import ClassVar, Self, Type, Union, assert_never
 from solfege.value.note.abstract_note import FixedLengthOutput, NoteOutput
 from solfege.value.diatonic import Diatonic
 from solfege.value.note.singleton_note import AbstractSingletonNote
+from solfege.value.singleton import Singleton
 from utils.frozenlist import FrozenList
-from utils.util import assert_equal_length
+from utils.util import assert_equal_length, assert_typing
 
 french_fixed_length_space = ["do ", "re ", "mi ", "fa ", "sol", "la ", "si "]
 assert_equal_length(french_fixed_length_space)
 
 @dataclass(frozen=True, eq=False)
-class DiatonicNote(AbstractSingletonNote, Diatonic):
+class DiatonicNote(AbstractSingletonNote[DiatonicInterval], Diatonic):
     """A diatonic note. Implemented as interval from C4"""
+    IntervalClass: ClassVar[Type[Singleton]] = DiatonicInterval
 
     def get_name_up_to_octave(self, note_output: NoteOutput, fixed_length: FixedLengthOutput) -> str:
         if note_output == NoteOutput.LILY:
@@ -31,6 +33,14 @@ class DiatonicNote(AbstractSingletonNote, Diatonic):
         elif note_output == NoteOutput.NUMBER:
             return ["1", "2", "3", "4", "5", "6", "7"][self.value % 7]
         assert_never(note_output)
+    
+    @classmethod
+    def _make_single_argument(cls, value: Union[int, str]) -> Self:
+        if isinstance(value, str):
+            from solfege.value.note.note import Note
+            return Note.from_name(value).get_diatonic()
+        assert_typing(value, int)
+        return cls(value)
 
     @staticmethod
     def from_name(name: str):

@@ -1,14 +1,14 @@
 # from dataclasses import dataclass
 # from typing import Dict, List
 
-# from guitar.finger_to_fret_delta import finger_to_fret_delta
-# from guitar.position.guitar_position import GuitarPosition
+# from fretted_instrument.finger_to_fret_delta import finger_to_fret_delta
+# from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 # from solfege.value.interval.chromatic_interval import ChromaticInterval
 # from utils.frozenlist import FrozenList
 
 
 # @dataclass(frozen=True)
-# class GuitarPositionWithFinger(GuitarPosition):
+# class FrettedInstrumentPositionWithFinger(PositionOnFrettedInstrument):
 #     finger: int
 
 #     def __post_init__(self):
@@ -28,8 +28,8 @@
 #                 continue
 #             fret_delta = finger_to_fret_delta[self.finger][finger]
 #             for pos in self.positions_for_interval_with_restrictions(interval=interval, frets=fret_delta):
-#                 l.append(GuitarPositionWithFinger(finger=finger, string=pos.string, fret=pos.fret))
+#                 l.append(FrettedInstrumentPositionWithFinger(finger=finger, string=pos.string, fret=pos.fret))
 #         return l
 
-# class GuitarPositionWithFingerFrozenList(FrozenList[GuitarPositionWithFinger]):
-#     type = GuitarPositionWithFinger
+# class FrettedInstrumentPositionWithFingerFrozenList(FrozenList[FrettedInstrumentPositionWithFinger]):
+#     type = FrettedInstrumentPositionWithFinger

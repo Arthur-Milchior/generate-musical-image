@@ -1,6 +1,6 @@
 
 from solfege.pattern.chord.chord_pattern import ChordPattern
-from solfege.value.key.key import *
+from solfege.value.key.keys import *
 
 major_triad = ChordPattern.make_absolute(names=["Major triad"], notation="M",
                            absolute_intervals=[(4, 2), (7, 4)], interval_for_signature=nor_flat_nor_sharp)

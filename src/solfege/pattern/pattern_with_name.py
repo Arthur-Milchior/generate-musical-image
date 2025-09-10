@@ -5,8 +5,7 @@ from typing import ClassVar, Dict, List, Optional, Self, Tuple, Union
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
 from utils.frozenlist import FrozenList, StrFrozenList
-from utils.util import assert_all_same_class, assert_iterable_typing, assert_optional_typing, assert_typing, traceback_str
-from solfege.value.key.key import nor_flat_nor_sharp
+from utils.util import assert_iterable_typing, assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True)
@@ -25,8 +24,8 @@ class PatternWithName(DataClassWithDefaultArgument):
     record: bool = field(compare=False)
 
     @classmethod
-    def _default_arguments_for_constructor(cls):
-        default_dict = super()._default_arguments_for_constructor()
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["record"] = True
         default_dict["notation"] = None
         return default_dict

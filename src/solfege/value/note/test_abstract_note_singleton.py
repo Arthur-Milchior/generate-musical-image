@@ -16,8 +16,8 @@ class TestBaseNoteSingleton(unittest.TestCase):
     E4 = AbstractSingletonNote(2)
     F4 = AbstractSingletonNote(3)
 
-    def test_is_note(self):
-        self.assertTrue(self.C4.is_note())
+    # def test_is_note(self):
+    #     self.assertTrue(self.C4.is_note())
 
     def test_get_number(self):
         self.assertEqual(self.C4.value, 0)

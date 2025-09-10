@@ -5,16 +5,16 @@ import dataclasses
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
+from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.fret.fret_deltas import FretDelta
 from fretted_instrument.position.fret.frets import Frets
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
-from fretted_instrument.position.string.strings import ALL_STRINGS, Strings
+from fretted_instrument.position.string.strings import Strings
 from fretted_instrument.position.string.string import String
 from fretted_instrument.position.consts import *
-from fretted_instrument.position.string.string_deltas import ANY_STRING, StringDelta
-from fretted_instrument.position.string.string import strings
+from fretted_instrument.position.string.string_deltas import StringDelta
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList, MakeableWithSingleArgument
 from utils.util import assert_typing
@@ -36,13 +36,13 @@ string_number_to_note_played_when_free = {
 
 # colors = [COLOR_TONIC, COLOR_OTHER, COLOR_OTHER, COLOR_THIRD, COLOR_THIRD, ]
 
-GuitarPositionMakeSingleArgumentType = Union["GuitarPosition", Tuple[Union[String, int], Union[Fret, Optional[int]]]]
 @dataclass(frozen=True)
-class GuitarPosition(MakeableWithSingleArgument, DataClassWithDefaultArgument):
-    """A position on the guitar, that is, a string and a fret.
+class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefaultArgument):
+    """A position on the fretted_instrument, that is, a string and a fret.
     Fret 0 is open. Fret None is not played.
 
     Order is the same as its chromatic note, and in case of equality the string. Not played notes is maximal. This ensure that the minimal of a chord is its lowest note."""
+    instrument: FrettedInstrument
     string: String
     fret: Fret
 
@@ -52,43 +52,64 @@ class GuitarPosition(MakeableWithSingleArgument, DataClassWithDefaultArgument):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        def clean_string(arg: Union[Tuple[FrettedInstrument, int],int]):
+            if isinstance(arg, String):
+                return arg
+            if isinstance(arg, tuple):
+                instrument, string = arg
+            else:
+                instrument = kwargs["instrument"]
+                string = arg
+            return instrument.string(string)
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "string", String.make_single_argument)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fret", Fret.make_single_argument)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
+        instrument = kwargs["instrument"]
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "string", clean_string)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fret", instrument.fret)
         return args, kwargs
     
     def repr_single_argument(self) -> str:
         return f"""{(self.string.value, self.fret.value)}"""
 
     @classmethod
-    def _make_single_argument(cls, arg: GuitarPositionMakeSingleArgumentType):
-        string, fret = arg
-        return cls.make(string, fret)
+    def _make_single_argument(cls, arg: Tuple[FrettedInstrument, Union[String, int], Union[Fret, int]]):
+        instrument, string, fret = arg
+        assert_typing(instrument, FrettedInstrument)
+        return cls.make(instrument = instrument, string= string, fret=fret)
 
     @staticmethod
-    def from_chromatic(note:ChromaticNote, strings: Strings = ALL_STRINGS, frets: Frets = Frets.make()):
+    def from_chromatic(instrument: FrettedInstrument, note:ChromaticNote, strings: Optional[Strings] = None, frets: Optional[Frets] = None):
+        assert_typing(instrument, FrettedInstrument)
         """Return all the position for `note` in `frets` and `strings`"""
+        if frets is None:
+            frets = Frets.make(instrument)
+        if strings is None:
+            strings = instrument.strings()
         assert_typing(note, ChromaticNote)
-        positions: List[GuitarPosition] = []
+        positions: List[PositionOnFrettedInstrument] = []
         for string in strings:
             fret = string.fret_for_note(note)
             if fret is None:
                 continue
             if fret not in frets:
                 continue
-            positions.append(GuitarPosition(string, fret))
+            positions.append(PositionOnFrettedInstrument(instrument, string, fret))
         return positions
     
     def positions_for_interval_with_restrictions(self, 
             interval: ChromaticInterval, 
-            strings: Union[StringDelta, Strings] = ANY_STRING, 
-            frets: Union[FretDelta, Frets] = Frets.make()) -> List[GuitarPosition]:
+            strings: Optional[Union[StringDelta, Strings]] = None, 
+            frets: Optional[Union[FretDelta, Frets]]=None) -> List[PositionOnFrettedInstrument]:
+        if strings is None:
+            strings = StringDelta.ANY_STRING(self.instrument)
+        if frets is None:
+            frets = Frets.make(self.instrument)
         if isinstance(strings, StringDelta):
             strings = strings.set(self.string)
         if isinstance(frets, FretDelta):
             frets = frets.set(self.fret)
         chromatic_note = self.get_chromatic() + interval
-        return GuitarPosition.from_chromatic(chromatic_note, strings, frets)
+        return PositionOnFrettedInstrument.from_chromatic(self.instrument, chromatic_note, strings, frets)
 
     def get_chromatic(self) -> Optional[ChromaticNote]:
         if self.fret.is_not_played():
@@ -108,18 +129,18 @@ class GuitarPosition(MakeableWithSingleArgument, DataClassWithDefaultArgument):
         y = self.fret.y_dots()
         return f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{stroke_color}" stroke="{stroke_color}" stroke-width="3"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""
 
-    def __eq__(self, other: GuitarPosition):
-        assert_typing(other, GuitarPosition)
-        return isinstance(other, GuitarPosition) and self.fret == other.fret and self.string == other.string
+    def __eq__(self, other: PositionOnFrettedInstrument):
+        assert_typing(other, PositionOnFrettedInstrument)
+        return isinstance(other, PositionOnFrettedInstrument) and self.fret == other.fret and self.string == other.string
 
-    def __lt__(self, other: GuitarPosition):
+    def __lt__(self, other: PositionOnFrettedInstrument):
         if self.get_chromatic() is None:
             return False
         if other.get_chromatic() is None:
             return True
         return (self.get_chromatic(), self.string) < (other.get_chromatic(), other.string)
     
-    def __le__(self, other: GuitarPosition):
+    def __le__(self, other: PositionOnFrettedInstrument):
         return self == other or self<other
 
     def __hash__(self):
@@ -128,8 +149,8 @@ class GuitarPosition(MakeableWithSingleArgument, DataClassWithDefaultArgument):
     def __repr__(self):
         return f"{self.__class__.__name__}.make({self.string.value}, {self.fret.value})"
     
-    def __sub__(self, other: GuitarPosition) -> ChromaticInterval:
-        assert isinstance(other, GuitarPosition)
+    def __sub__(self, other: PositionOnFrettedInstrument) -> ChromaticInterval:
+        assert isinstance(other, PositionOnFrettedInstrument)
         return self.get_chromatic() - other.get_chromatic()
     
     def singleton_diagram_svg_name(self):
@@ -138,18 +159,18 @@ class GuitarPosition(MakeableWithSingleArgument, DataClassWithDefaultArgument):
     
     def singleton_diagram_key(self):
         """A unique name short name for this position."""
-        return f"""guitar_{self.string.value}_{self.fret.value}"""
+        return f"""fretted_instrument_{self.string.value}_{self.fret.value}"""
 
     def singleton_diagram_svg(self):
         """The svg for a diagram with only this note"""
-        from fretted_instrument.position.set.set_of_guitar_positions import SetOfGuitarPositions
-        return SetOfGuitarPositions(frozenset({self})).svg(absolute=True)
+        from fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
+        return SetOfPositionOnFrettedInstrument(self.instrument, frozenset({self})).svg(absolute=True)
     
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
         return dataclasses.replace(self, fret=self.fret.transpose(transpose, transpose_open, transpose_not_played))
     
 
-GuitarPositionType = TypeVar("GuitarPositionType", bound=GuitarPosition)
+PositionOnFrettedInstrumentType = TypeVar("PositionOnFrettedInstrumentType", bound=PositionOnFrettedInstrument)
 
-class GuitarPositionFrozenList(FrozenList[GuitarPosition]):
-    type = GuitarPosition
+class PositionOnFrettedInstrumentFrozenList(FrozenList[PositionOnFrettedInstrument]):
+    type = PositionOnFrettedInstrument

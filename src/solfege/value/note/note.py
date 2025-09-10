@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Self, Type
+import dataclasses
+from typing import ClassVar, Optional, Self, Tuple, Type, Union
 
 from lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.value.chromatic import Chromatic
@@ -17,16 +18,29 @@ from utils.util import assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True, repr=False, eq=True)
-class Note(AbstractNote, Pair[ChromaticNote, DiatonicNote], LocalLilyable):
+class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], LocalLilyable):
     """A note of the scale, as an interval from middle C."""
     DiatonicClass: ClassVar[Type[DiatonicNote]] = DiatonicNote
     ChromaticClass: ClassVar[Type[ChromaticNote]] = ChromaticNote
     AlterationClass: ClassVar = Alteration
+    IntervalClass: ClassVar[Type[Pair]] = Interval
 
     def __post_init__(self):
         super().__post_init__()
         assert_typing(self.chromatic, ChromaticNote)
         assert_typing(self.diatonic, DiatonicNote)
+ 
+    def __add__(self, other: Interval) -> Self:
+        if isinstance(other, Interval):
+            return dataclasses.replace(self, chromatic=self.chromatic + other.chromatic, diatonic=self.diatonic + other.diatonic)
+        return NotImplemented
+
+    @classmethod
+    def _make_single_argument(cls, value: Union[Tuple[int, int], str]) -> Self:
+        if isinstance(value, str):
+            return cls.from_name(value)
+        chromatic, diatonic = value
+        return cls.make(chromatic, diatonic)
 
     @staticmethod
     def from_name(name: str):
@@ -37,9 +51,15 @@ class Note(AbstractNote, Pair[ChromaticNote, DiatonicNote], LocalLilyable):
         alteration = Alteration.from_name(alteration_name)
         chromatic = diatonic.get_chromatic() + alteration
         return Note(chromatic, diatonic)
-
-    def __neg__(self):
-        raise Exception("Trying to negate a note makes no sens.")
+    
+    def __sub__(self, other: Union[Self, Interval]) -> Union[Self, Interval]:
+        chromatic = self.chromatic - other.chromatic
+        diatonic = self.diatonic - other.diatonic
+        if self.__class__ == other.__class__:
+            return Interval(chromatic, diatonic)
+        else:
+            assert other.__class__ == Interval
+            return dataclasses.replace(self, chromatic=chromatic, diatonic=diatonic)
     
     def __repr__(self):
         return f"Note.make({self.chromatic.value}, {self.diatonic.value})"

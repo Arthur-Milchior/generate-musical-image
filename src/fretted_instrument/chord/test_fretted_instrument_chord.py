@@ -1,25 +1,27 @@
 import unittest
 
-from fretted_instrument.chord.guitar_chord import *
-from fretted_instrument.position.fret.fret import NOT_PLAYED
+from fretted_instrument.chord.fretted_instrument_chord import *
 from .test_constants import *
+from .test_constants import _make
 
-CM_ = GuitarChord.make([None, 3, 2, 0, 1, None])
-CM = GuitarChord.make([None, 3, 2, 0, 1, 0])
+CM_ = _make([None, 3, 2, 0, 1, None])
+CM = _make([None, 3, 2, 0, 1, 0])
 
-class TestGuitarChord(unittest.TestCase):
+not_played_fret = Gui_tar.fret( value=None)
+
+class TestFrettedInstrumentChord(unittest.TestCase):
     def test_eq(self):
-        self.assertEqual(GuitarChord.make([NOT_PLAYED] * 6), GuitarChord.make([NOT_PLAYED] * 6))
-        self.assertNotEqual(GuitarChord.make([NOT_PLAYED] * 6), open)
+        self.assertEqual(_make([not_played_fret] * 6), _make([not_played_fret] * 6))
+        self.assertNotEqual(_make([not_played_fret] * 6), open)
 
     def test_get_fret(self):
-        self.assertEqual(open.get_fret(strings[0]), OPEN_FRET)
+        self.assertEqual(open.get_fret(Gui_tar.string(1)), Gui_tar.fret( value=0))
 
     def test_get_frets(self):
-        self.assertEqual(C4M.get_frets(), [NOT_PLAYED, Fret(3), Fret(2), Fret(0), Fret(1), Fret(0)])
+        self.assertEqual(C4M.get_frets(), [not_played_fret, Gui_tar.fret(3), Gui_tar.fret(2), Gui_tar.fret(0), Gui_tar.fret(1), Gui_tar.fret(0)])
 
     def test_repr(self):
-        self.assertEqual(repr(C4M), "GuitarChord.make([None, 3, 2, 0, 1, 0])")
+        self.assertEqual(repr(C4M), "FrettedInstrumentChord.make([None, 3, 2, 0, 1, 0])")
         
     def test_is_open(self):
         self.assertTrue(open.is_open())
@@ -45,11 +47,11 @@ class TestGuitarChord(unittest.TestCase):
         self.assertEqual(F4M.is_barred(), Barred.FULLY)
         
     def test_is_playable(self):
+        self.assertEqual(C4M.playable(), Playable.EASY)
         self.assertEqual(open.playable(), Playable.EASY)
         self.assertEqual(diag.playable(), Playable.NO)
         self.assertEqual(ones.playable(), Playable.EASY)
         self.assertEqual(diag_two.playable(), Playable.NO)
-        self.assertEqual(C4M.playable(), Playable.EASY)
         self.assertEqual(F4M.playable(), Playable.EASY)
         
     def test_chord_pattern_is_redundant(self):
@@ -61,11 +63,11 @@ class TestGuitarChord(unittest.TestCase):
         self.assertFalse(F4M.chord_pattern_is_redundant())
 
     def test_has_not_played_in_the_middle(self):
-        self.assertFalse(GuitarChord.make([1, 3, 3, 4, 1, 1]).has_not_played_in_middle())
-        self.assertTrue(GuitarChord.make([1, 3, 3, None, 1, 1]).has_not_played_in_middle())
-        self.assertFalse(GuitarChord.make([None, 3, 3, 4, 1, 1]).has_not_played_in_middle())
-        self.assertFalse(GuitarChord.make([None, 3, 3, 4, 1, None]).has_not_played_in_middle())
-        self.assertFalse(GuitarChord.make([1, 3, 3, 4, 1, None]).has_not_played_in_middle())
+        self.assertFalse(_make([1, 3, 3, 4, 1, 1]).has_not_played_in_middle())
+        self.assertTrue(_make([1, 3, 3, None, 1, 1]).has_not_played_in_middle())
+        self.assertFalse(_make([None, 3, 3, 4, 1, 1]).has_not_played_in_middle())
+        self.assertFalse(_make([None, 3, 3, 4, 1, None]).has_not_played_in_middle())
+        self.assertFalse(_make([1, 3, 3, 4, 1, None]).has_not_played_in_middle())
         
     def test_lt(self):
         self.assertLess(CM_, CM)

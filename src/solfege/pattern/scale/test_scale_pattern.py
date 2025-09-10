@@ -1,6 +1,7 @@
 import unittest
 from solfege.pattern.scale.scale_pattern import *
 from solfege.pattern.scale.scale_patterns import *
+from utils.util import assert_typing
 
 
 class TestScalePattern(unittest.TestCase):
@@ -64,7 +65,7 @@ class TestScalePattern(unittest.TestCase):
                                               Interval.make(diatonic=-1, chromatic=-2),
                                               Interval.make(diatonic=-1, chromatic=-1),
                                               Interval.make(diatonic=-1, chromatic=-2)], interval_for_signature=three_flats, increasing=False,
-                                          record=False, descending=minor_natural)
+                                          record=False, _descending=minor_natural)
         self.assertEqual(reversed,
                           expected)
 
