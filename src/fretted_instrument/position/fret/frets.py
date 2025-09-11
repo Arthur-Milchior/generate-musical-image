@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 import dataclasses
 from typing import Dict, Generator, List, Optional, Tuple
-from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from fretted_instrument.position.fret.fret import Fret
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.util import assert_typing
+from utils.util import assert_optional_typing, assert_typing
 
 @dataclass(frozen=True)
 class Frets(DataClassWithDefaultArgument):
@@ -15,73 +14,58 @@ class Frets(DataClassWithDefaultArgument):
 
     min_fret>0
     max_fret """
-    instrument: FrettedInstrument
 
     """If `closed_fret_interval` is None, no closed fret can be played.
-    If it's [m, None] then it should be interpreted as all frets starting at m.
-    If it's [m, M], it's all frets betwee m and M included."""
-    _closed_fret_interval: Optional[Tuple[Fret, Optional[Fret]]]
+    If it's [m, M], it's all frets betwee m and M included.
+    """
+    closed_fret_interval: Optional[Tuple[Fret, Fret]]
     allow_open: bool
     allow_not_played: bool
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
         default = super()._default_arguments_for_constructor(args, kwargs)
-        default["_closed_fret_interval"] = (kwargs["instrument"].fret(1), None)
-        default["allow_open"] = True
+        default["closed_fret_interval"] = None
+        default["allow_open"] = False
         default["allow_not_played"] = False
         return default
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         def clean_closed_fret_interval(closed_fret_interval):
-            instrument: FrettedInstrument = kwargs["instrument"]
-            assert_typing(instrument, FrettedInstrument)
             if closed_fret_interval is None:
                 return None
-            if isinstance(closed_fret_interval, Tuple):
-                m, M = closed_fret_interval
-            else:
-                m = closed_fret_interval
-                M = None
-            m = instrument.fret(m)
-            M = None if M is None else instrument.fret(M)
+            m, M = closed_fret_interval
+            m = Fret.make_single_argument(m)
+            M = Fret.make_single_argument(M)
             return (m, M)
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_closed_fret_interval", clean_closed_fret_interval)
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "closed_fret_interval", clean_closed_fret_interval)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_open")
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_not_played")
         return (args, kwargs)
     
     def __post_init__(self):
-        assert_typing(self.instrument, FrettedInstrument)
         assert_typing(self.allow_open, int)
         assert_typing(self.allow_not_played, bool)
-        if self._closed_fret_interval is not None:
-            assert_typing(self._closed_fret_interval, tuple)
-            m, M = self.closed_fret_interval()
+        if self.closed_fret_interval is not None:
+            assert_typing(self.closed_fret_interval, tuple)
+            m, M = self.closed_fret_interval
             assert_typing(m, Fret)
-            assert_typing(M, Fret)
-            assert 0 < m.value <= M.value, f"Wrong bounds {m}, {M}"
-
-    def closed_fret_interval(self):
-        if self._closed_fret_interval is None:
-            return None
-        m, M = self._closed_fret_interval
-        if M is None:
-            M = self.instrument.last_fret()
-        return (m, M)
+            assert_optional_typing(M, Fret)
+            assert m.is_closed()
+            assert M.is_closed()
+            assert m <= M, f"wrong interval {m}, {M}"
 
     def min_fret(self) -> Optional[Fret]:
-        if self._closed_fret_interval is None:
+        if self.closed_fret_interval is None:
             return None
-        return self._closed_fret_interval[0]
+        return self.closed_fret_interval[0]
 
     def max_fret(self) -> Optional[Fret]:
-        if self._closed_fret_interval is None:
+        if self.closed_fret_interval is None:
             return None
-        return self.closed_fret_interval()[1]
+        return self.closed_fret_interval[1]
 
     def disallow_open(self) -> "Frets":
         return dataclasses.replace(self, allow_open=False)
@@ -92,24 +76,24 @@ class Frets(DataClassWithDefaultArgument):
     def limit_min(self, min_fret: Fret) -> "Frets":
         """Restrict interval to fret at least min_fret. If self.min_fret >= min_fret, the returned value equals self."""
         assert_typing(min_fret, Fret)
-        if self._closed_fret_interval is None:
+        if self.closed_fret_interval is None:
             return self
-        m, M = self._closed_fret_interval
+        m, M = self.closed_fret_interval
         min_fret = max(min_fret, m)
-        return dataclasses.replace(self, _closed_fret_interval=(min_fret, M))
+        return dataclasses.replace(self, closed_fret_interval=(min_fret, M))
     
     def limit_max(self, max_fret: Fret) -> "Frets":
         """Restrict interval to fret at least max_fret. If self.max_fret >= max_fret, the returned value equals self."""
         assert_typing(max_fret, Fret)
-        if self._closed_fret_interval is None:
+        if self.closed_fret_interval is None:
             return self
-        m, M = self.closed_fret_interval()
+        m, M = self.closed_fret_interval
         max_fret = min(max_fret, M)
-        return dataclasses.replace(self, _closed_fret_interval=(m, max_fret))
+        return dataclasses.replace(self, closed_fret_interval=(m, max_fret))
     
     def is_empty(self) -> bool:
         """Whether no note can be played"""
-        return not self.allow_open and self._closed_fret_interval is None
+        return not self.allow_open and self.closed_fret_interval is None
     
     def is_contradiction(self) -> bool:
         """Whether no Fret oject satisfies this."""
@@ -117,12 +101,12 @@ class Frets(DataClassWithDefaultArgument):
     
     def __iter__(self) -> Generator[Fret]:
         if self.allow_not_played:
-            yield self.instrument.fret(None)
+            yield Fret(None)
         if self.allow_open:
-            yield self.instrument.fret(0)
-        if self._closed_fret_interval is not None:
-            min_fret, max_fret = self.closed_fret_interval()
-            yield from [self.instrument.fret(fret) for fret in range(max(min_fret.value, 1), max_fret.value + 1)]
+            yield Fret(0)
+        if self.closed_fret_interval is not None:
+            min_fret, max_fret = self.closed_fret_interval
+            yield from [Fret(fret) for fret in range(min_fret.value, max_fret.value + 1)]
 
     # def restrict_around(self, fret: Fret, interval_size: ChromaticInterval = ChromaticInterval(4)) -> "Frets":
     #     assert_typing(fret, Fret)
@@ -138,5 +122,9 @@ class Frets(DataClassWithDefaultArgument):
         return [svg for fret in self for svg in fret.svg(absolute)]
     
     @classmethod
-    def empty(cls, instrument:FrettedInstrument):
-        return cls(instrument, None, False, False)
+    def empty(cls):
+        return cls(None, False, False)
+    
+    @classmethod
+    def all_played(cls, instrument: "FrettedInstrument"):
+        return cls.make((Fret(1), instrument.last_fret()), allow_open=True)

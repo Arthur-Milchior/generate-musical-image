@@ -141,15 +141,15 @@ class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDef
         played_positions = self.played_positions()
         return optional_max(position.fret for position in played_positions)
      
-    def _min_fret(self, include_open: bool) -> Optional[Fret]:
+    def _min_fret(self, allow_open: bool) -> Optional[Fret]:
         """The lowest fret used."""
-        if include_open:
+        if allow_open:
             return optional_min(position.fret for position in self.played_positions())
         return optional_min(position.fret for position in self.closed_positions())
     
-    def number_of_frets(self, include_open: bool) -> int:
+    def number_of_frets(self, allow_open: bool) -> int:
         """Returns the number of fret between the highest and the lowest fret."""
-        m = self._min_fret(include_open)
+        m = self._min_fret(allow_open)
         if m is None:
             return 0
         M = self._max_fret()
@@ -165,8 +165,8 @@ class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDef
     def open_strings(self):
         return self.strings_at_fret(open_fret)
 
-    def strings_at_min_fret(self, include_open: bool):
-        return self.strings_at_fret(self._min_fret(include_open=include_open))
+    def strings_at_min_fret(self, allow_open: bool):
+        return self.strings_at_fret(self._min_fret(allow_open=allow_open))
     
     def height(self, absolute: bool):
         return self.last_shown_fret().y_fret() + MARGIN
@@ -182,10 +182,10 @@ class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDef
     def svg_content(self, absolute: bool, colors: Optional[Colors] = None, nbFretMin: Fret =open_fret) -> List[str]:
         assert_optional_typing(colors, Colors)
         """If tonic, add some colors depending on the role of the note compared to the tonic"""
-        max_fret = max(self.last_shown_fret(), nbFretMin).below()
+        max_fret = max(self.last_shown_fret(), nbFretMin)
         l = ["""<rect width="100%" height="100%" fill="white" />"""]
         l += self.instrument.strings().svg(lowest_fret=max_fret, show_open_fret=absolute)
-        l += max_fret.all_frets_up_to_here(include_open=absolute).svg(absolute)
+        l += max_fret.all_frets_up_to_here(allow_open=absolute).svg(absolute)
         for pos in self:
             chromatic = pos.get_chromatic()
             color = colors.get_color_from_note(chromatic_note = chromatic) if colors and chromatic else None
@@ -285,7 +285,7 @@ class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDef
     
     def transpose_to_fret_one(self):
         assert not self.open_strings()
-        transpose = ChromaticInterval(-(self._min_fret(include_open=False).value-1))
+        transpose = ChromaticInterval(-(self._min_fret(allow_open=False).value-1))
         return self.transpose_same_string(transpose=transpose, transpose_open=False, transpose_not_played=True), transpose
 
     def notes_from_note_list(self, note_list: NoteList):

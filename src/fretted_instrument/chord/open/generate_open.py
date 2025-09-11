@@ -23,8 +23,8 @@ def open_folder(instrument: FrettedInstrument):
 
 def register_all_chords(instrument: FrettedInstrument):
     note_to_chord = ChromaticNoteListToFrettedInstrumentChords.make(instrument=instrument)
-    for fretted_instrument_chord in enumerate_fretted_instrument_chords(instrument, Frets.make(instrument,
-        _closed_fret_interval=(1, 
+    for fretted_instrument_chord in enumerate_fretted_instrument_chords(instrument, Frets.make(
+        closed_fret_interval=(1, 
                               6
                               ),
         allow_not_played=True, 

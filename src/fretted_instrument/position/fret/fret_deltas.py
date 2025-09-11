@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from typing import ClassVar, Optional
-from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+from typing import ClassVar, Optional, Type
 from fretted_instrument.position.abstract_delta import AbstractDelta
 from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.fret.frets import Frets
@@ -14,14 +13,17 @@ class FretDelta(AbstractDelta[Frets, Fret]):
     min_t: ClassVar[int] = 1
     max_t: ClassVar[int] = 24
 
+    type_t: ClassVar[Type] = Fret
+    type_ts: ClassVar[Type] = Frets
+
     @classmethod
-    def create_T(cls, instrument: FrettedInstrument, i: int) -> Fret:
+    def create_T(cls, instrument: "FrettedInstrument", i: int) -> Fret:
         return instrument.fret(i)
 
     @classmethod
-    def create_Ts(cls, instrument: FrettedInstrument, min_t: Fret, max_t: Fret) -> Frets:
-        return Frets.make(instrument, (min_t, max_t), False, False)
+    def create_Ts(cls, instrument: "FrettedInstrument", min_t: Fret, max_t: Fret) -> Frets:
+        return Frets.make((min_t, max_t), False, False)
     
     @classmethod
-    def create_empty_ts(cls, instrument: FrettedInstrument):
-        return Frets.empty(instrument)
+    def create_empty_ts(cls):
+        return Frets.empty()

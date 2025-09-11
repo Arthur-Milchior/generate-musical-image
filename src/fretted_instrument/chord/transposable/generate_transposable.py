@@ -21,7 +21,7 @@ def transposable_folder(instrument: FrettedInstrument):
 
 def register_all_chords(instrument: FrettedInstrument):
     interval_to_chord = ChromaticIntervalListToFrettedInstrumentChords.make(instrument=instrument)
-    for fretted_instrument_chord in enumerate_fretted_instrument_chords(instrument, Frets.make(instrument, _closed_fret_interval=(1, 
+    for fretted_instrument_chord in enumerate_fretted_instrument_chords(instrument, Frets.make(closed_fret_interval=(1, 
                                                                                               4
                                                                                               ), allow_not_played=True, allow_open=False)):
         if fretted_instrument_chord.number_of_distinct_notes() < 4:

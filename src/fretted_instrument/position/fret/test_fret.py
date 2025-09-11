@@ -8,13 +8,13 @@ not_played_fret = Guitar.fret( value=None)
 class TestFrettedInstrumentAddString(unittest.TestCase):
     def test_eq(self):
         self.assertEqual(not_played_fret, not_played_fret)
-        self.assertEqual(not_played_fret + ChromaticInterval(4), not_played_fret)
+        self.assertEqual(not_played_fret.add(Guitar, ChromaticInterval(4)), not_played_fret)
         self.assertNotEqual(not_played_fret, open_fret)
-        self.assertNotEqual(open_fret + ChromaticInterval(4), open_fret)
+        self.assertNotEqual(open_fret.add(Guitar, ChromaticInterval(4)), open_fret)
         self.assertEqual(open_fret, open_fret)
-        self.assertEqual(Guitar.fret(4) + ChromaticInterval(-5), None)
-        self.assertEqual(Guitar.fret(4) + ChromaticInterval(30), None)
-        self.assertEqual(Guitar.fret(4) + ChromaticInterval(5), Guitar.fret(9))
+        self.assertEqual(Guitar.fret(4).add(Guitar, ChromaticInterval(-5)), None)
+        self.assertEqual(Guitar.fret(4).add(Guitar, ChromaticInterval(30)), None)
+        self.assertEqual(Guitar.fret(4).add(Guitar, ChromaticInterval(5)), Guitar.fret(9))
 
     def test_lt(self):
         self.assertLess(open_fret, not_played_fret)

@@ -1,8 +1,10 @@
 
 import copy
 from dataclasses import dataclass, field
+import dataclasses
 from typing import Dict, List, Optional, Union
 
+from fretted_instrument.position.fret.fret_deltas import FretDelta
 from solfege.value.note.chromatic_note import ChromaticNoteFrozenList
 from solfege.value.note.clef import Clef
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
@@ -21,19 +23,29 @@ class FrettedInstrument(DataClassWithDefaultArgument):
     number_of_frets: int
     open_string_chromatic_note: ChromaticNoteFrozenList
     clef: Clef
-    finger_to_fret_delta: Dict[int, Dict[int, "FretDelta"]]=field(compare=False)
+    finger_to_fret_delta: Dict[int, Dict[int, FretDelta]]=field(compare=False)
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         def clean_open_strings(open_strings):
             return ChromaticNoteFrozenList(open_strings)
+        def clean_finger_to_fret_delta(open_strings: Dict[int, Dict[int, FretDelta]]):
+            # Ensure modifications are not applied to the dic
+            open_strings = copy.deepcopy(open_strings)
+            assert_typing(open_strings, dict)
+            for lower in range(4):
+                for higher in range (lower+1, 5):
+                    delta = open_strings[lower][higher]
+                    assert_typing(delta, FretDelta)
+                    open_strings[higher][lower] = -delta
+            return open_strings
 
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "name")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_frets")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "open_string_chromatic_note", clean_open_strings)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "clef")
         #Copying to ensure we don't modify the input dic
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "finger_to_fret_delta", copy.deepcopy)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "finger_to_fret_delta", clean_finger_to_fret_delta)
         return super()._clean_arguments_for_constructor(args, kwargs)
     
     def __post_init__(self):
@@ -41,33 +53,32 @@ class FrettedInstrument(DataClassWithDefaultArgument):
         assert_typing(self.number_of_frets, int)
         assert_typing(self.name, str)
         assert_typing(self.clef, Clef)
-        from fretted_instrument.position.fret.fret_deltas import FretDelta
-        #Change is done here because creating the delta require the instrument.
-        for lower in range(4):
-            for higher in range (lower+1, 5):
-                delta_above, delta_below = self.finger_to_fret_delta[lower][higher]
-                self.finger_to_fret_delta[lower][higher] = FretDelta(self, delta_above, delta_below)
-                self.finger_to_fret_delta[higher][lower] = -self.finger_to_fret_delta[lower][higher]
+        for finger_for_first_note, dic in self.finger_to_fret_delta.items():
+            assert 0<= finger_for_first_note <= 4, f"{finger_for_first_note}"
+            for finger_for_next_note, delta in dic.items():
+                assert 0 <= finger_for_next_note <= 4, f"{finger_for_next_note}"
+                assert finger_for_first_note != finger_for_next_note
+                assert_typing(delta, FretDelta)
+                assert delta == -self.finger_to_fret_delta[finger_for_next_note][finger_for_first_note]
 
         super().__post_init__()
 
     def string(self, index):
         from fretted_instrument.position.string.string import String
         # String 1 is at position 0 in the array, and so on. So removing 1 to index.
-        return String(self, index, self.open_string_chromatic_note[index-1])
+        return String(index, self.open_string_chromatic_note[index-1])
     
     def strings(self):
         from fretted_instrument.position.string.string import StringFrozenList
         from fretted_instrument.position.string.strings import Strings
-        return Strings.make(self, (self.string(index) for index in range(1, len(self.open_string_chromatic_note)+1)))
+        return Strings.make((self.string(index) for index in range(1, len(self.open_string_chromatic_note)+1)))
 
     def fret(self, value: Optional[Union[int, "Fret"]]):
         from fretted_instrument.position.fret.fret import Fret
         if isinstance(value, Fret):
-            assert value.instrument == self
             return value
         assert_optional_typing(value, int)
-        return Fret(value, self)
+        return Fret(value)
     
     def number_of_strings(self):
         return len(self.open_string_chromatic_note)

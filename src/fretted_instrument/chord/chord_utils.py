@@ -16,7 +16,7 @@ def enumerate_frets(instrument: FrettedInstrument, strings: Optional[Strings]= N
     if strings is None:
         strings = instrument.strings()
     assert_typing(strings, Strings)
-    frets = frets if frets else Frets.make(instrument, _closed_fret_interval=(1, 5), allow_not_played=True, allow_open=True) 
+    frets = frets if frets else Frets.make(closed_fret_interval=(1, 5), allow_not_played=True, allow_open=True) 
     s_ss = strings.pop()
     if s_ss is None:
         """There is no string to play at all. End case of the recursion."""

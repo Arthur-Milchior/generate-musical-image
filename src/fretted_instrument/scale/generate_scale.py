@@ -88,7 +88,7 @@ class AnkiScaleWithString(DataClassWithDefaultArgument):
     
     def all_scales(self):
         l = [scale for aswfas in self.fingers_to_scales.values() for scale in aswfas.scales]
-        l.sort(key = lambda scale: scale.number_of_frets(include_open=False))
+        l.sort(key = lambda scale: scale.number_of_frets(allow_open=False))
         return l
     
 

@@ -7,7 +7,7 @@ from solfege.pattern.chord.chord_patterns import major_triad
 
 class TestChromaticIntervalListToFrettedInstrumentChord(unittest.TestCase):
     def test_iter(self):
-        itv_to_chord = ChromaticIntervalListToFrettedInstrumentChords.make()
+        itv_to_chord = ChromaticIntervalListToFrettedInstrumentChords.make(Guitar)
         chromatic_intervals = F4M.intervals_frow_lowest_note_in_base_octave()
         itv_to_chord.register(chromatic_intervals, F4M)
         all_interval_and_its_inversions = list(itv_to_chord)

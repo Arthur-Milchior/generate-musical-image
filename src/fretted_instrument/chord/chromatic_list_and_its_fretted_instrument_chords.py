@@ -52,7 +52,7 @@ class ChromaticListAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrette
     
     def sort(self):
         """Sort the list of chords. Starting with smallest number of frets, and in case of equality greater number of notes"""
-        self.fretted_instrument_chords.sort(key=lambda fretted_instrument_chord: (fretted_instrument_chord.number_of_frets(include_open=False), -fretted_instrument_chord.number_of_distinct_notes()))
+        self.fretted_instrument_chords.sort(key=lambda fretted_instrument_chord: (fretted_instrument_chord.number_of_frets(allow_open=False), -fretted_instrument_chord.number_of_distinct_notes()))
 
     def maximals(self) -> FrettedInstrumentChordFrozenList:
         """Return the elements of the list that are not strictly contained in other elements of the list."""

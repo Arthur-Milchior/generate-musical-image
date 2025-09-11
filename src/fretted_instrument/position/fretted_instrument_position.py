@@ -84,13 +84,13 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         assert_typing(instrument, FrettedInstrument)
         """Return all the position for `note` in `frets` and `strings`"""
         if frets is None:
-            frets = Frets.make(instrument)
+            frets = Frets.all_played(instrument)
         if strings is None:
             strings = instrument.strings()
         assert_typing(note, ChromaticNote)
         positions: List[PositionOnFrettedInstrument] = []
         for string in strings:
-            fret = string.fret_for_note(note)
+            fret = string.fret_for_note(instrument, note)
             if fret is None:
                 continue
             if fret not in frets:
@@ -105,11 +105,11 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         if strings is None:
             strings = StringDelta.ANY_STRING(self.instrument)
         if frets is None:
-            frets = Frets.make(self.instrument)
+            frets = Frets.all_played(self.instrument)
         if isinstance(strings, StringDelta):
-            strings = strings.set(self.string)
+            strings = strings.range(self.instrument, self.string)
         if isinstance(frets, FretDelta):
-            frets = frets.set(self.fret)
+            frets = frets.range(self.instrument, self.fret)
         chromatic_note = self.get_chromatic() + interval
         return PositionOnFrettedInstrument.from_chromatic(self.instrument, chromatic_note, strings, frets)
 

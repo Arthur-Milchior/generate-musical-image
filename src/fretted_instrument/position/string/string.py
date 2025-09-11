@@ -16,8 +16,6 @@ STRING_THICKNESS = 5
 class String(MakeableWithSingleArgument):
     """Represents one of the string of the FrettedInstrument."""
 
-    instrument: FrettedInstrument
-
     value: int
     """The note when the string is played empty."""
     note_open: ChromaticNote
@@ -36,44 +34,50 @@ class String(MakeableWithSingleArgument):
         assert_typing(string, int)
         return instrument.string(string)
 
-    def __add__(self, other: int) -> Optional[Self]:
+    def add(self, instrument: FrettedInstrument, other: int) -> Optional[Self]:
         assert_typing(other, int)
         new_string_value = self.value + other
         if new_string_value < 1:
             return None
-        if new_string_value > self.instrument.number_of_strings():
+        if new_string_value > instrument.number_of_strings():
             return None
-        return self.instrument.string(new_string_value)
+        return instrument.string(new_string_value)
     
     def __sub__(self, other: int):
         return self + (-other)
     
-    def fret_for_note(self, note: ChromaticNote) -> Optional[Fret]:
+    def fret_for_note(self, instrument: FrettedInstrument, note: ChromaticNote) -> Optional[Fret]:
+        """The fret to play `note` on `self`. None if it can't be done withing the limit of the instrument."""
+        assert_typing(instrument, FrettedInstrument)
         assert_typing(note, ChromaticNote)
         if note < self.note_open:
             return None
         interval = note-self.note_open
-        fret = self.instrument.fret(interval.value)
-        if fret > self.instrument.last_fret():
+        fret = instrument.fret(interval.value)
+        if fret > instrument.last_fret():
             return None
         return fret
     
-    def position_for_note(self, note:ChromaticNote):
+    def position_for_note(self, instrument: FrettedInstrument, note:ChromaticNote):
+        """The position to play `note` on `self`. None if it can't be done on `instrument`."""
         from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-        fret = self.fret_for_note(note)
+        fret = self.fret_for_note(instrument, note)
         if fret is None:
             return None
-        return PositionOnFrettedInstrument(self.instrument, self, fret)
+        return PositionOnFrettedInstrument(instrument, self, fret)
     
     def __lt__(self, other: "String"):
         return self.value < other.value
+    
+    def __le__(self, other: "String"):
+        return self.value <= other.value
     
     def __eq__(self, other: "String"):
         assert_typing(other, String)
         return self.value == other.value and self.note_open == other.note_open
     
     def __repr__(self):
-        return f"{self.instrument.name}.string[{self.value}]"
+        return f"String[{self.value}]"
     
     def x(self):
         return MARGIN + (self.value-1) * DISTANCE_BETWEEN_STRING
@@ -85,6 +89,7 @@ class String(MakeableWithSingleArgument):
         Otherwise the fret goes over the entire height.
         The fret ends below `lowest_fret` so that it also cover the margin at the bottom.
         """
+        assert_typing(lowest_fret, Fret)
         y1 = int(MARGIN) if show_open_fret else 0
         y2 = int(lowest_fret.y_fret())
         x = int(self.x())

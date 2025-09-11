@@ -7,21 +7,21 @@ from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.string.string_deltas import *
 
 def frets_make(*args, **kwargs):
-    return Frets.make(Guitar, *args, **kwargs)
+    return Frets.make(*args, **kwargs)
 
 instrument = Guitar
 
-ALL_PLAYED = frets_make()
+ALL_PLAYED = frets_make((1, Guitar.last_fret()), True)
 ALL = frets_make(allow_not_played=True)
 ALL_CLOSED = ALL_PLAYED.disallow_open()
-FIRST_FOUR = frets_make((1, 4))
+FIRST_FOUR = frets_make((1, 4), True)
 
 # AROUND_SEVEN = ALL_PLAYED.restrict_around(instrument.fret(7))
 # AROUND_FIVE_SEVEN = AROUND_SEVEN.restrict_around(instrument.fret(5))
 NOT_PLAYED_FRETS = frets_make(None, False, True)
 CONTRADICTION = frets_make(None, False, False)
 ONLY_OPEN = frets_make(None, allow_open=True, allow_not_played=False)
-FOR_TRANSPOSABLE_CHORD = frets_make(_closed_fret_interval=(1, 5), allow_not_played=True, allow_open=False)
+FOR_TRANSPOSABLE_CHORD = frets_make(closed_fret_interval=(1, 5), allow_not_played=True, allow_open=False)
 
 highest_fret = Guitar.last_fret()
 open_fret = Guitar.fret( value=0)
@@ -29,8 +29,8 @@ not_played_fret = Guitar.fret( value=None)
 
 class TestFrettedInstrumentFrets(unittest.TestCase):
     def test_eq(self):
-        self.assertEqual(ALL_PLAYED, frets_make((1, None), True))
-        self.assertEqual(ALL_CLOSED, frets_make((1, None), allow_open=False))
+        self.assertEqual(ALL_PLAYED, frets_make((1, Guitar.last_fret()), True))
+        self.assertEqual(ALL_CLOSED, frets_make((1, Guitar.last_fret()), allow_open=False))
         self.assertEqual(FIRST_FOUR, frets_make((1, 4), True))
         # self.assertEqual(AROUND_SEVEN, frets_make((3, 11), True))
         # self.assertEqual(AROUND_FIVE_SEVEN, frets_make((3, 9), True))

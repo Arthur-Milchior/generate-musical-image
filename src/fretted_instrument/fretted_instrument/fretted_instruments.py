@@ -1,68 +1,74 @@
 from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+from fretted_instrument.position.fret.fret_deltas import FretDelta
 from solfege.value.note.clef import Clef
+from utils.util import assert_typing
 
 finger_to_fret_delta = {
     0: {
-        1: (-1, 1),
-        2: (-1, 2),
-        3: (0, 2),
-        4: (0, 3),
+        1: FretDelta((-1, 1)),
+        2: FretDelta((-1, 2)),
+        3: FretDelta((0, 2)),
+        4: FretDelta((0, 3)),
     },
     1: {
-        2: (0, 1),
-        3: (0, 2),
-        4: (0, 3),
+        2: FretDelta((0, 1)),
+        3: FretDelta((0, 2)),
+        4: FretDelta((0, 3)),
     },
     2: {
-        3: (0, 1),
-        4: (0, 2),
+        3: FretDelta((0, 1)),
+        4: FretDelta((0, 2)),
     },
     3: {
-        4: (0, 2),
+        4: FretDelta((0, 2)),
     },
     4: {},
 }
 
 ukulele_finger_to_fret_delta = {
     0: {
-        1: (-2, 3),
-        2: (-1, 4),
-        3: (0, 4),
-        4: (0, 5),
+        1: FretDelta((-2, 3)),
+        2: FretDelta((-1, 4)),
+        3: FretDelta((0, 4)),
+        4: FretDelta((0, 5)),
     },
     1: {
-        2: (0, 2),
-        3: (0, 4),
-        4: (0, 6),
+        2: FretDelta((0, 2)),
+        3: FretDelta((0, 4)),
+        4: FretDelta((0, 6)),
     },
     2: {
-        3: (0, 2),
-        4: (0, 4),
+        3: FretDelta((0, 2)),
+        4: FretDelta((0, 4)),
     },
     3: {
-        4: (0, 3),
+        4: FretDelta((0, 3)),
     },
     4: {},
 }
 
+for lower, dic in ukulele_finger_to_fret_delta.items():
+    for higher, delta in dic.items():
+        assert_typing(delta, FretDelta)
+
 # finger_to_fret_delta_hard = {
 #     0: {
-#         1: FretDelta(-2, 2),
-#         2: FretDelta(-1, 3),
-#         3: FretDelta(-1, 3),
-#         4: FretDelta(-1, 3),
+#         1: FretDelta((-2, 2)),
+#         2: FretDelta((-1, 3)),
+#         3: FretDelta((-1, 3)),
+#         4: FretDelta((-1, 3)),
 #     },
 #     1: {
-#         2: FretDelta(0, 2),
-#         3: FretDelta(0, 3),
-#         4: FretDelta(0, 4),
+#         2: FretDelta((0, 2)),
+#         3: FretDelta((0, 3)),
+#         4: FretDelta((0, 4)),
 #     },
 #     2: {
-#         3: FretDelta(0, 2),
-#         4: FretDelta(0, 3),
+#         3: FretDelta((0, 2)),
+#         4: FretDelta((0, 3)),
 #     },
 #     3: {
-#         4: FretDelta(0, 2),
+#         4: FretDelta((0, 2)),
 #     },
 #     4: {},
 # }

@@ -4,7 +4,7 @@ from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from fretted_instrument.position.string.strings import *
 
 def strings_make(l):
-    return Strings.make(Guitar, l)
+    return Strings.make(l)
 
 no_strings = strings_make([])
 all_strings = Guitar.strings()
