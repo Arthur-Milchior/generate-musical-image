@@ -8,8 +8,11 @@ from fretted_instrument.chord.test_constants import *
 
 strings = list(Guitar.strings())
 
-def position_make(*args, **kwargs):
-    return PositionOnFrettedInstrument.make(Guitar, *args, **kwargs)
+def position_make(string, fret):
+    if isinstance(string, int):
+        string = Guitar.string(string)
+    fret = Fret.make_single_argument(fret)
+    return PositionOnFrettedInstrument.make(string=string, fret=fret)
 
 class TestHandForFrettedInstrumentChord(unittest.TestCase):
     def assertHandEqual(self, expected: HandForChordForFrettedInstrument, actual: HandForChordForFrettedInstrument):
@@ -28,7 +31,7 @@ class TestHandForFrettedInstrumentChord(unittest.TestCase):
                 four = position_make(2, 3),
                 opens = StringFrozenList([strings[3], strings[5]]),
             )
-        actual = HandForChordForFrettedInstrument.make(C4M)
+        actual = HandForChordForFrettedInstrument.compute_hand(Guitar, C4M)
         self.assertHandEqual(expected
             ,actual
         )
@@ -39,7 +42,7 @@ class TestHandForFrettedInstrumentChord(unittest.TestCase):
                 four = position_make(2, 3),
                 opens = StringFrozenList([strings[3]]),
             ),
-            HandForChordForFrettedInstrument.make(C4M_),
+            HandForChordForFrettedInstrument.compute_hand(Guitar, C4M_),
         )
         self.assertHandEqual(
             HandForChordForFrettedInstrument(instrument = Guitar,
@@ -49,5 +52,5 @@ class TestHandForFrettedInstrumentChord(unittest.TestCase):
                 four = position_make(3, 3),
                 barred = Barred.FULLY,
             ),
-            HandForChordForFrettedInstrument.make(F4M),
+            HandForChordForFrettedInstrument.compute_hand(Guitar, F4M),
         )

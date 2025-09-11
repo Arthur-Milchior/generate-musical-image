@@ -54,7 +54,7 @@ class ColorsWithTonic(Colors):
         return self.get_color_from_interval(chromatic_note - self.tonic)
 
 
-@dataclass(frozen=True, eq=False, unsafe_hash=True)
+@dataclass(frozen=True, eq=False)
 class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDefaultArgument, Generic[PositionOnFrettedInstrumentType]):
     """
     A set of positions on instrument.
@@ -64,33 +64,23 @@ class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDef
     """
 
     """The set of positions"""
-    instrument: FrettedInstrument
     positions: FrozenList[PositionOnFrettedInstrumentType]
     type: ClassVar[Type[PositionOnFrettedInstrumentType]]
     _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]]
 
+    def __hash__(self):
+        return hash(frozenset(self.positions))
+
     @classmethod
     def _make_single_argument(cls, arg: List) -> Self:
-        instrument, poss = arg
-        return cls.make(instrument, (cls.type.make_single_argument(pos) for pos in poss))
+        return cls.make((cls.type.make_single_argument(pos) for pos in arg))
 
     def repr_single_argument(self) -> str:
         return f"""[{", ".join(position.repr_single_argument() for position in self.positions )}]"""
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_positions(positions: Iterable):
-            instrument = kwargs["instrument"]
-            l =[]
-            for position in positions:
-                if isinstance(position, tuple) and len(position) == 2:
-                    string, fret = position
-                    position = (instrument, string, fret)
-                l.append(cls.type.make_single_argument(position))    
-            positions = sorted_unique(l)
-            return cls._frozen_list_type(positions)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "positions", clean_positions)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "positions", cls._frozen_list_type)
         return super()._clean_arguments_for_constructor(args, kwargs)
  
     def played_positions(self):
@@ -107,18 +97,14 @@ class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDef
         """The fretted_instrument position of the lowest note"""
         return optional_min(self.positions)
 
-    def add(self, new_position: Union[PositionOnFrettedInstrumentType, Tuple[Union[String, int], Union[Fret, Optional[int]]]]) -> Self:
+    def add(self, new_position: Union[PositionOnFrettedInstrumentType, Tuple[String, Fret]]) -> Self:
         """A set similar to `self`, with `position`"""
         if not isinstance(new_position, self.type):
             string, fret = new_position
-            if isinstance(string, int):
-                string = self.instrument.string(string)
             assert_typing(string, String)
-            if isinstance(fret, int):
-                fret = self.instrument.fret(fret)
-            assert_typing(string, String)
-            new_position = self.type(self.instrument, string, fret)
-        new_positions = sorted(self.positions.append(new_position))
+            assert_typing(fret, Fret)
+            new_position = self.type(string, fret)
+        new_positions = sorted_unique(self.positions.append(new_position))
         return dataclasses.replace(self, positions =self._frozen_list_type(new_positions))
 
     def __iter__(self) -> Iterator[PositionOnFrettedInstrumentType]:
@@ -179,12 +165,13 @@ class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDef
             transposed = self
         return f(transposed)
     
-    def svg_content(self, absolute: bool, colors: Optional[Colors] = None, nbFretMin: Fret =open_fret) -> List[str]:
+    def svg_content(self, instrument: FrettedInstrument, absolute: bool, colors: Optional[Colors] = None, nbFretMin: Fret =open_fret) -> List[str]:
         assert_optional_typing(colors, Colors)
+        assert_typing(instrument, FrettedInstrument)
         """If tonic, add some colors depending on the role of the note compared to the tonic"""
         max_fret = max(self.last_shown_fret(), nbFretMin)
         l = ["""<rect width="100%" height="100%" fill="white" />"""]
-        l += self.instrument.strings().svg(lowest_fret=max_fret, show_open_fret=absolute)
+        l += instrument.strings().svg(lowest_fret=max_fret, show_open_fret=absolute)
         l += max_fret.all_frets_up_to_here(allow_open=absolute).svg(absolute)
         for pos in self:
             chromatic = pos.get_chromatic()
@@ -225,17 +212,17 @@ class AbstractSetOfFrettedPositions(MakeableWithSingleArgument, DataClassWithDef
         assert_iterable_typing(absolute_chromatic_intervals, ChromaticInterval)
         return ChromaticIntervalList.make_absolute(sorted_unique(interval.in_base_octave() for interval in absolute_chromatic_intervals))
 
-    def _svg(self, absolute:bool, colors: Optional[Colors]= None,  nbFretMin: Fret=open_fret):
+    def _svg(self, instrument:FrettedInstrument, absolute:bool, colors: Optional[Colors]= None,  nbFretMin: Fret=open_fret):
         assert_optional_typing(colors, Colors)
         new_line = "\n"
         return f"""\
     <svg xmlns="http://www.w3.org/2000/svg" width="{int(WIDTH)}" height="{int(self.height(absolute))}" version="1.1">
-    {new_line.join(("  "+ content) for content in self.svg_content(absolute=absolute, colors=colors, nbFretMin=nbFretMin))}
+    {new_line.join(("  "+ content) for content in self.svg_content(instrument=instrument, absolute=absolute, colors=colors, nbFretMin=nbFretMin))}
     </svg>"""
 
-    def svg(self, absolute:bool, colors: Optional[Colors]= None, nbFretMin: Fret=open_fret) -> str:
+    def svg(self, instrument: FrettedInstrument, absolute:bool, colors: Optional[Colors]= None, nbFretMin: Fret=open_fret) -> str:
         assert_optional_typing(colors, Colors)
-        return self.execute_on_maybe_transposed(absolute, lambda poss: (poss._svg(absolute, colors, nbFretMin)))
+        return self.execute_on_maybe_transposed(absolute, lambda poss: (poss._svg(instrument, absolute, colors, nbFretMin)))
     
     def number_of_distinct_notes(self):
         return len(self.chromatic_notes())

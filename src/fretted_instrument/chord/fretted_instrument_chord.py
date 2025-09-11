@@ -5,7 +5,7 @@ from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInst
 from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
 from fretted_instrument.position.set.abstract_set_of_fretted_instrument_positions import COLOR_FIFTH, COLOR_OTHER, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
-from fretted_instrument.position.string.string import String
+from fretted_instrument.position.string.string import String, StringFrozenList
 from fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 import itertools
 
@@ -41,10 +41,11 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
             else:
                 assert_optional_typing(fret, int)
                 l.append(instrument.fret(fret))
-        fretted_positions = [PositionOnFrettedInstrument(instrument, string, fret) for string, fret in itertools.zip_longest(instrument.strings(), l)]
-        return cls(instrument=instrument, positions=PositionOnFrettedInstrumentFrozenList(fretted_positions))
+        fretted_positions = [PositionOnFrettedInstrument(string, fret) for string, fret in itertools.zip_longest(instrument.strings(), l)]
+        return cls(positions=PositionOnFrettedInstrumentFrozenList(fretted_positions))
     
-    def get_fret(self, string: String):
+    def get_fret(self, string: String) -> Optional[Fret]:
+        """Return the note played on this string, if any."""
         assert_typing(string, String)
         fret = None
         for pos in self:
@@ -52,17 +53,26 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
             if pos.string == string:
                 assert fret is None
                 fret = pos.fret
-        return fret
-    
-    def get_frets(self):
-        return [self.get_fret(string) for string in self.instrument.strings()]
-    
+        return fret if fret else Fret(None)
+ 
+    def get_frets(self, instrument: Optional[FrettedInstrument]= None) -> List[Optional[Fret]]:
+        if instrument is not None:
+            return [self.get_fret(string) for string in instrument.strings()]
+        frets = dict()
+        max_string = 0
+        for pos in self:
+            string = pos.string.value
+            max_string = max(max_string, string)
+            assert string not in frets
+            frets[string] = pos.fret
+        return [frets.get(string, Fret(None)) for string in range(1, max_string+1)]
+
     def __repr__(self):
         return f"""FrettedInstrumentChord.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
 
     def chord_pattern_is_redundant(self):
         """Whether the same fingering pattern can be played higher on the fretted_instrument"""
-        return self._min_fret(allow_open=True) > self.instrument.fret(1)
+        return self._min_fret(allow_open=True) > Fret(1)
 
     def is_open(self):
         return self._min_fret(allow_open=True).is_open()
@@ -103,23 +113,23 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
                     return True
         return False
     
-    def hand_for_fretted_instrument(self) -> Optional["HandForChordForFrettedInstrument"]:
+    def hand_for_fretted_instrument(self, instrument: FrettedInstrument) -> Optional["HandForChordForFrettedInstrument"]:
         from fretted_instrument.chord.hand_for_chord import HandForChordForFrettedInstrument
-        return HandForChordForFrettedInstrument.make(self)
+        return HandForChordForFrettedInstrument.compute_hand(instrument, self)
     
-    def playable(self) -> Playable:
+    def playable(self, instrument: FrettedInstrument) -> Playable:
         from fretted_instrument.chord.hand_for_chord import HandForChordForFrettedInstrument
-        hand: HandForChordForFrettedInstrument = self.hand_for_fretted_instrument()
+        hand: HandForChordForFrettedInstrument = self.hand_for_fretted_instrument(instrument)
         if hand is None:
             return Playable.NO
         return hand.playable()
     
-    def file_name(self, stroke_colored: bool, absolute: bool):
+    def file_name(self, instrument:FrettedInstrument, stroke_colored: bool, absolute: bool):
         if not absolute:
             transposed, transpose_interval = self.transpose_to_fret_one()
             if not transpose_interval.unison():
-                return transposed.file_name(stroke_colored, absolute)            
-        fret_values = [fret.value for fret in self.get_frets()]
+                return transposed.file_name(instrument, stroke_colored, absolute)            
+        fret_values = [fret.value for fret in self.get_frets(instrument)]
         frets = "_".join(str(value) if value is not None else "x" for value in fret_values)
         if stroke_colored:
             return f"fretted_instrument_chord_{frets}_colored.svg"

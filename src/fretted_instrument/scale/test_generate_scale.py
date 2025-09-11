@@ -1,6 +1,7 @@
 import unittest
 
 from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
+from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.fretted_instrument_position_with_fingers import FrettedInstrumentPositionWithFingersFrozenList
 from lily.svg import display_svg_file
 from utils.util import ensure_folder, save_file
@@ -9,8 +10,10 @@ from solfege.pattern.scale.scale_patterns import major_scale
 
 from .generate_scale import _generate_scale
 
-def position_make(*args, **kwargs):
-    return PositionOnFrettedInstrumentWithFingers.make(Guitar, *args, **kwargs)
+def position_make(string: int, fret:int, fingers:Set[int]):
+    string = Guitar.string(string)
+    fret = Fret(fret)
+    return PositionOnFrettedInstrumentWithFingers.make(string = string, fret=fret, fingers=fingers)
 
 major_1_1 = ([
     position_make(string=1, fret=12, fingers={1}),
@@ -85,7 +88,7 @@ def anki_scale_make(*args, **kwargs):
     return AnkiScaleWithFingersAndString.make(Guitar, *args, **kwargs)
 
 def set_of_pos_make(*args, **kwargs):
-    return SetOfPositionOnFrettedInstrument.make(Guitar, *args, **kwargs)
+    return SetOfPositionOnFrettedInstrument.make(*args, **kwargs)
 
 chromatic_relative_intervals = major_scale.get_interval_list().get_chromatic_interval_list().relative_intervals()
 chromatic_relative_intervals_2_octaves = major_scale.multiple_octaves(2).get_chromatic_interval_list().relative_intervals()
@@ -121,7 +124,7 @@ class TestGenerateScale(unittest.TestCase):
     def test_major_1(self):
         
         expected = [major_1_1, major_2_1]
-        actual = list(_generate_scale(
+        actual = list(_generate_scale(Guitar,
             position_make(string=1, fret=12, fingers=1),
             chromatic_relative_intervals))
         self.assertEqual(expected, actual)
@@ -129,7 +132,7 @@ class TestGenerateScale(unittest.TestCase):
     def test_major_all_fingers(self):
         self.assertEqual(
             [major_1_2, major_2_2, major_3_2],
-            list(_generate_scale(
+            list(_generate_scale(Guitar,
                 position_make(string=1, fret=12, fingers=[1, 2, 3, 4]),
                 chromatic_relative_intervals)),
         )
@@ -139,7 +142,7 @@ class TestGenerateScale(unittest.TestCase):
             [major_2_octave_1, major_2_octave_2,
               major_2_octave_3, major_2_octave_4, major_2_octave_5, 
              ],
-            list(_generate_scale(
+            list(_generate_scale(Guitar,
                 position_make(string=1, fret=12, fingers=[1, 2, 3, 4]),
                 chromatic_relative_intervals_2_octaves)),
         )
@@ -154,7 +157,7 @@ class TestGenerateScale(unittest.TestCase):
                 frozenset({1, 2, 3}): one_two_three,
                 frozenset({4}):four,
             })
-        actual = generate_scale(
+        actual = generate_scale(Guitar, 
                 position_make(string=1, fret=12, fingers=[1, 2, 3, 4]),
                 major_scale, 2)
         self.assertEqualAnkiScaleWithString(

@@ -71,7 +71,7 @@ class AnkiNote:
     
     def svg(self):
         absolute = self.pos1.fret.is_open() or self.pos2.fret.is_open()
-        return SetOfPositionOnFrettedInstrument(self.instrument, PositionOnFrettedInstrumentFrozenList({self.pos1, self.pos2})).svg(absolute=absolute)
+        return SetOfPositionOnFrettedInstrument(PositionOnFrettedInstrumentFrozenList({self.pos1, self.pos2})).svg(instrument, absolute=absolute)
 
 def pairs_of_frets_values(last_fret: Fret):
     assert_typing(last_fret, Fret)
@@ -86,8 +86,8 @@ def pair_of_frets(instrument: FrettedInstrument):
 
 def anki_note_(instrument: FrettedInstrument, low_string: int, high_string: int, low_fret: Fret, high_fret: Fret):
     return AnkiNote(instrument,
-        PositionOnFrettedInstrument(instrument, instrument.string(low_string), low_fret,),
-        PositionOnFrettedInstrument(instrument, instrument.string(high_string), high_fret,),
+        PositionOnFrettedInstrument(instrument.string(low_string), low_fret,),
+        PositionOnFrettedInstrument(instrument.string(high_string), high_fret,),
         )
 
 def generate(instrument: FrettedInstrument, folder_path:str):

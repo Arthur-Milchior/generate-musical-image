@@ -18,7 +18,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertEqual(open.get_fret(Guitar.string(1)), Guitar.fret( value=0))
 
     def test_get_frets(self):
-        self.assertEqual(C4M.get_frets(), [not_played_fret, Guitar.fret(3), Guitar.fret(2), Guitar.fret(0), Guitar.fret(1), Guitar.fret(0)])
+        self.assertEqual(C4M.get_frets(Guitar), [not_played_fret, Guitar.fret(3), Guitar.fret(2), Guitar.fret(0), Guitar.fret(1), Guitar.fret(0)])
 
     def test_repr(self):
         self.assertEqual(repr(C4M), "FrettedInstrumentChord.make([None, 3, 2, 0, 1, 0])")
@@ -47,12 +47,12 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertEqual(F4M.is_barred(), Barred.FULLY)
         
     def test_is_playable(self):
-        self.assertEqual(C4M.playable(), Playable.EASY)
-        self.assertEqual(open.playable(), Playable.EASY)
-        self.assertEqual(diag.playable(), Playable.NO)
-        self.assertEqual(ones.playable(), Playable.EASY)
-        self.assertEqual(diag_two.playable(), Playable.NO)
-        self.assertEqual(F4M.playable(), Playable.EASY)
+        self.assertEqual(C4M.playable(Guitar), Playable.EASY)
+        self.assertEqual(open.playable(Guitar), Playable.EASY)
+        self.assertEqual(diag.playable(Guitar), Playable.NO)
+        self.assertEqual(ones.playable(Guitar), Playable.EASY)
+        self.assertEqual(diag_two.playable(Guitar), Playable.NO)
+        self.assertEqual(F4M.playable(Guitar), Playable.EASY)
         
     def test_chord_pattern_is_redundant(self):
         self.assertFalse(open.chord_pattern_is_redundant())

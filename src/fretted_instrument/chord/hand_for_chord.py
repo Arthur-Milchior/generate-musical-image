@@ -32,24 +32,25 @@ class HandForChordForFrettedInstrument:
     opens: StringFrozenList = StringFrozenList() 
 
     @staticmethod
-    def _make_hand_for_only_zero(fretted_instrument_chord: ChordOnFrettedInstrument):
+    def _make_hand_for_only_zero(instrument: FrettedInstrument, fretted_instrument_chord: ChordOnFrettedInstrument):
         """Special case of `make` where no closed strings are present. Of course, no left-hand finger are used. """
         #It's easier to consider this case separately
-        return HandForChordForFrettedInstrument(fretted_instrument_chord.instrument, opens =[pos.string for pos in fretted_instrument_chord if pos.fret.is_open()])
+        return HandForChordForFrettedInstrument(instrument, opens =[pos.string for pos in fretted_instrument_chord if pos.fret.is_open()])
 
     @staticmethod
-    def make(fretted_instrument_chord: ChordOnFrettedInstrument, potential_thumb: bool = False):
+    def compute_hand(instrument: FrettedInstrument, fretted_instrument_chord: ChordOnFrettedInstrument, potential_thumb: bool = False):
         assert_typing(fretted_instrument_chord, ChordOnFrettedInstrument)
         assert not potential_thumb
         # Searching whether there is any closed position.
         for pos in fretted_instrument_chord:
             if pos.fret.is_closed():
-                return HandForChordForFrettedInstrument.make_hand_for_closed(chord_on_fretted=fretted_instrument_chord, potential_thumb=potential_thumb)
+                return HandForChordForFrettedInstrument.make_hand_for_closed(instrument, chord_on_fretted=fretted_instrument_chord, potential_thumb=potential_thumb)
         #It's easier to consider the case where all notes are open separately
-        return HandForChordForFrettedInstrument._make_hand_for_only_zero(fretted_instrument_chord)
+        return HandForChordForFrettedInstrument._make_hand_for_only_zero(instrument, fretted_instrument_chord)
 
     @staticmethod
-    def make_hand_for_closed(chord_on_fretted: ChordOnFrettedInstrument, potential_thumb:bool = False) -> Optional["HandForChordForFrettedInstrument"]:
+    def make_hand_for_closed(instrument: FrettedInstrument, chord_on_fretted: ChordOnFrettedInstrument, potential_thumb:bool = False) -> Optional["HandForChordForFrettedInstrument"]:
+        assert_typing(instrument, FrettedInstrument)
         assert_typing(chord_on_fretted, ChordOnFrettedInstrument)
         assert not potential_thumb
         #TODO deal with thumb
@@ -84,7 +85,7 @@ class HandForChordForFrettedInstrument:
                 three = position
                 two = None
         assert not played_positions_remaining_to_finger
-        return HandForChordForFrettedInstrument(instrument = chord_on_fretted.instrument, zero_fret = None, one=one, barred=barred, two=two, three=three, four=four, opens=StringFrozenList(opens))
+        return HandForChordForFrettedInstrument(instrument = instrument, zero_fret = None, one=one, barred=barred, two=two, three=three, four=four, opens=StringFrozenList(opens))
 
     def playable(self) -> Playable:
         non_zero_position = [self.one, self.two, self.three, self.four]
@@ -113,7 +114,7 @@ class HandForChordForFrettedInstrument:
             """Barred mean two strings at least"""
 
     def not_barred_positions(self):
-        l = [PositionOnFrettedInstrument(self.instrument, self.instrument.string(1), self.zero_fret) if self.zero_fret else None, self.one if not self.barred else None, self.two, self.three, self.four]
+        l = [PositionOnFrettedInstrument(self.instrument.string(1), self.zero_fret) if self.zero_fret else None, self.one if not self.barred else None, self.two, self.three, self.four]
         return [pos for pos in l if pos is not None]
     
     def positions(self):
@@ -122,7 +123,7 @@ class HandForChordForFrettedInstrument:
             barred_fret = self.one.fret
             barred_string = self.one.string
             while barred_fret <= self.instrument.last_string():
-                positions.append(PositionOnFrettedInstrument(self.instrument, barred_string, barred_fret))
+                positions.append(PositionOnFrettedInstrument(barred_string, barred_fret))
                 barred_string += 1
         return ChordOnFrettedInstrument.make(positions)
 

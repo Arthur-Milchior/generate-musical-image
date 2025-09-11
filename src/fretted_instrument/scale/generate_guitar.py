@@ -28,10 +28,10 @@ class AnkiNote(CsvGenerator):
     scale_pattern: ScalePattern
     # note 3 and 4 are the same. One octave higher than note 1. This ensure that 
     # if we generate a scale starting on note 3 and 4 and it's the same pattern than a two-octave scale on note 1, the actual positions are the same. 
-    string_1_pos = PositionOnFrettedInstrument.make(Guitar, 1, 12)
-    string_2_pos = PositionOnFrettedInstrument.make(Guitar, 3, 12)
-    string_3_pos = PositionOnFrettedInstrument.make(Guitar, 3, 14)
-    string_4_pos = PositionOnFrettedInstrument.make(Guitar, 4, 9)
+    string_1_pos = PositionOnFrettedInstrument.make(1, 12)
+    string_2_pos = PositionOnFrettedInstrument.make(3, 12)
+    string_3_pos = PositionOnFrettedInstrument.make(3, 14)
+    string_4_pos = PositionOnFrettedInstrument.make(4, 9)
 
     def __post_init__(self):
         assert_typing(self.scale_pattern, ScalePattern)
@@ -43,12 +43,12 @@ class AnkiNote(CsvGenerator):
         l.append(first_name)
         l.append(", ".join(names))
 
-        two_octaves_scales = generate_scale(self.string_1_pos, self.scale_pattern, number_of_octaves=2).best_for_each_finger()
+        two_octaves_scales = generate_scale(Guitar, self.string_1_pos, self.scale_pattern, number_of_octaves=2).best_for_each_finger()
         avoid = {two_octave_scale for two_octave_scale in two_octaves_scales if two_octave_scale is not None}
 
-        first_string_scales = generate_scale(self.string_1_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
+        first_string_scales = generate_scale(Guitar, self.string_1_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
 
-        second_string_scales = generate_scale(self.string_2_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).all_scales()
+        second_string_scales = generate_scale(Guitar, self.string_2_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).all_scales()
         # The only case where it's interesting to start on second string without repeating the first string is if we end on string 5
         best_second_string_scale_with_fifth_string: Optional[SetOfFrettedInstrumentPositionsWithFingers] = None
         for fingers, second_string_scale in second_string_scales:
@@ -57,9 +57,9 @@ class AnkiNote(CsvGenerator):
                 best_second_string_scale_with_fifth_string = second_string_scale
                 break
 
-        third_string_scales = generate_scale(self.string_1_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
+        third_string_scales = generate_scale(Guitar, self.string_1_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
 
-        fourth_string_scales = generate_scale(self.string_1_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
+        fourth_string_scales = generate_scale(Guitar, self.string_1_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
         fourth_string_scale_first_finger, fourth_string_scale_middle_finger, fourth_string_scale_fourth_finger = fourth_string_scales
         assert fourth_string_scale_fourth_finger is None
 
@@ -68,7 +68,7 @@ class AnkiNote(CsvGenerator):
             if scale is None:
                 l.append("")
                 continue
-            svg = scale.svg(absolute=False)
+            svg = scale.svg(Guitar, absolute=False)
             file_name = scale.scale_name(absolute=False)
             file_path = f"{scale_transposable_folder}/{file_name}"
             save_file(file_path, svg)

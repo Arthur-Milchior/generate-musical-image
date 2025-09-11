@@ -50,7 +50,7 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
     
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "value")
         return super()._clean_arguments_for_constructor(args, kwargs)
 

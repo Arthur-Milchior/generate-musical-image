@@ -64,7 +64,7 @@ class String(MakeableWithSingleArgument):
         fret = self.fret_for_note(instrument, note)
         if fret is None:
             return None
-        return PositionOnFrettedInstrument(instrument, self, fret)
+        return PositionOnFrettedInstrument(self, fret)
     
     def __lt__(self, other: "String"):
         return self.value < other.value

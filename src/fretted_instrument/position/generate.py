@@ -13,5 +13,5 @@ for instrument in fretted_instruments:
     ensure_folder(folder_path)
     for fret_value in range(0, instrument.last_fret.value + 1):
         for string in instrument.strings():
-            pos = PositionOnFrettedInstrument(instrument, string, instrument.fret(fret_value))
-            save_file(f"{folder_path}/{pos.singleton_diagram_svg_name()}", pos.singleton_diagram_svg())
+            pos = PositionOnFrettedInstrument(string, instrument.fret(fret_value))
+            save_file(f"{folder_path}/{pos.singleton_diagram_svg_name(instrument)}", pos.singleton_diagram_svg(instrument))

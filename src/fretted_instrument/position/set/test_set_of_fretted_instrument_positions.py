@@ -1,29 +1,52 @@
+from dataclasses import dataclass
+from typing import Tuple
 import unittest
 
 from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from fretted_instrument.position.set.set_of_fretted_instrument_positions import empty_set_of_position, SetOfPositionOnFrettedInstrument
+from fretted_instrument.position.string.string import String
 from solfege.value.interval.chromatic_interval import ChromaticInterval
+from utils.util import assert_typing
+
+@dataclass(frozen=True)
+class SetOfPositionOnGuitar(SetOfPositionOnFrettedInstrument):
+    """Same as SetOfPositionOnFrettedInstrument, but allows to add with ints"""
+    def add(self, arg):
+        if isinstance(arg, tuple):
+            string, fret = arg
+            if isinstance(string, int):
+                string = Guitar.string(string)
+            if isinstance(fret, int):
+                fret = Fret(fret)
+            assert_typing(fret, Fret)
+            assert_typing(string, String)
+            arg = (string, fret)
+        return super().add(arg)
+    
+def pos_make(string, fret):
+    return PositionOnFrettedInstrument(Guitar.string(string), Fret(fret))
 
 def _make(l):
-    return SetOfPositionOnFrettedInstrument.make(instrument=Guitar, positions=l)
+    return SetOfPositionOnGuitar.make(positions=l)
 
-CM_ = _make([(2, 3), (3, 2), (4, 0), (5, 1)])
+
+CM_ = _make(pos_make(*pos) for pos in [(2, 3), (3, 2), (4, 0), (5, 1)])
 CM = CM_.add((6, 0))
 
-F4M = _make([(1, 1), (2, 3), (3, 3), (4, 2), (5, 1), (6, 1)])
-G4M = _make([(1, 3), (2, 5), (3, 5), (4, 4), (5, 3), (6, 3)])
+F4M = _make(pos_make(*pos) for pos in [(1, 1), (2, 3), (3, 3), (4, 2), (5, 1), (6, 1)])
+G4M = _make(pos_make(*pos) for pos in [(1, 3), (2, 5), (3, 5), (4, 4), (5, 3), (6, 3)])
 
 strings = list(Guitar.strings())
 
-empty_set_of_fretted_instrument_position = empty_set_of_position(Guitar)
+empty_set_of_fretted_instrument_position = SetOfPositionOnGuitar.make([])
 not_played = Guitar.fret( value=None)
 
 instrument = Guitar
 
 def position_make(string, fret):
-    return PositionOnFrettedInstrument(Guitar, string, fret)
+    return PositionOnFrettedInstrument(string, fret)
 
 class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
     def test_eq(self):

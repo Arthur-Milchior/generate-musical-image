@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Self
+from typing import Callable, Dict, List, Optional, Self, Type
+
+from utils.util import assert_typing
 
 _CLEANED = "_clean_arguments_for_constructor"
 _DEFAULT_ADDED = "_default_arguments_for_constructor"
@@ -22,7 +24,7 @@ class DataClassWithDefaultArgument:
         hash(self) #check that hash can be computed
     
     @classmethod
-    def arg_to_kwargs(cls, args, kwargs, name, clean: Callable = lambda x: x):
+    def arg_to_kwargs(cls, args, kwargs, name, clean: Callable = lambda x: x, type: Optional[Type] = None):
         """If there is args, the first value is assumed to be name, not in kwargs, and is added in kwargs.
         Otherwise check that name in `kwargs`.
 
@@ -37,7 +39,10 @@ class DataClassWithDefaultArgument:
         else:
             assert name in kwargs, f"Missing {name} when creating {cls.__name__}"
             arg = kwargs[name]
-        kwargs[name] = clean(arg)
+        output = clean(arg)
+        if type is not None:
+            assert_typing(output, type)
+        kwargs[name] = output
         return (args, kwargs)
     
     @classmethod

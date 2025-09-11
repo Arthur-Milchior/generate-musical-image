@@ -33,7 +33,7 @@ def register_all_chords(instrument: FrettedInstrument):
             continue
         if fretted_instrument_chord.has_not_played_in_middle():
             continue
-        if fretted_instrument_chord.playable() != Playable.EASY:
+        if fretted_instrument_chord.playable(instrument) != Playable.EASY:
             continue
         if fretted_instrument_chord.chord_pattern_is_redundant():
             continue
@@ -65,8 +65,8 @@ def generate_anki_notes(instrument: FrettedInstrument):
             pos_of_lowest_note = fretted_instrument_chord.get_most_grave_note()
             lowest_note = pos_of_lowest_note.get_chromatic()
             chromatic_tonic = lowest_note - chromatic_position_of_lowest_interval_in_base_octave
-            save_file(f"{open_folder(instrument)}/{fretted_instrument_chord.file_name(stroke_colored=False, absolute=True)}", fretted_instrument_chord.svg(absolute=True))
-            save_file(f"{open_folder(instrument)}/{fretted_instrument_chord.file_name(stroke_colored=True, absolute=True)}", fretted_instrument_chord.svg(absolute=True, colors=ChordColors(chromatic_tonic)))
+            save_file(f"{open_folder(instrument)}/{fretted_instrument_chord.file_name(instrument, stroke_colored=False, absolute=True)}", fretted_instrument_chord.svg(instrument, absolute=True))
+            save_file(f"{open_folder(instrument)}/{fretted_instrument_chord.file_name(instrument, stroke_colored=True, absolute=True)}", fretted_instrument_chord.svg(instrument, absolute=True, colors=ChordColors(chromatic_tonic)))
     return anki_notes, note_to_chord
 
 def generate_instruments():

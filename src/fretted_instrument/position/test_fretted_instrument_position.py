@@ -10,7 +10,7 @@ instrument = Guitar
 strings = list(Guitar.strings())
 
 def position_make(string, fret):
-    return PositionOnFrettedInstrument(Guitar, string, fret)
+    return PositionOnFrettedInstrument(string, fret)
 
 empty_first_string = position_make(strings[0], instrument.fret(0))
 E5 = ChromaticNote.from_name("E5")
@@ -104,23 +104,23 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
     def test_add(self):
         C5 = position_make(strings[0], instrument.fret(20))
         third_major = ChromaticInterval(4)
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_STRING_ONLY(Guitar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, strings=StringDelta.SAME_STRING_ONLY(Guitar)),
                          [E5_1,])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.NEXT_STRING_ONLY(Guitar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, strings=StringDelta.NEXT_STRING_ONLY(Guitar)),
                          [E5_2,])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_OR_NEXT_STRING(Guitar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, strings=StringDelta.SAME_OR_NEXT_STRING(Guitar)),
                          [E5_1, E5_2,])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_STRING_OR_GREATER(Guitar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, strings=StringDelta.SAME_STRING_OR_GREATER(Guitar)),
                          [E5_1, E5_2, E5_3, E5_4, E5_5, E5_6])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.NEXT_STRING_OR_GREATER(Guitar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, strings=StringDelta.NEXT_STRING_OR_GREATER(Guitar)),
                          [E5_2, E5_3, E5_4, E5_5, E5_6])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=frets_make((1, 5), allow_open =True)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, frets=frets_make((1, 5), allow_open =True)),
                          [E5_5, E5_6])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=frets_make((1, 5), False)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, frets=frets_make((1, 5), False)),
                          [E5_5])
         
-        # self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=frets_make().restrict_around(C5.fret)),
+        # self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, frets=frets_make().restrict_around(C5.fret)),
         #                  [E5_1, E5_2, E5_6])
-        # self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=frets_make().restrict_around(C5.fret).disallow_open()),
+        # self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, frets=frets_make().restrict_around(C5.fret).disallow_open()),
         #                  [E5_1, E5_2])
         

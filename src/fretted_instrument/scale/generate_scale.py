@@ -24,17 +24,13 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_scales(scales):
-            return SetOfFrettedInstrumentPositionsWithFingersFrozenList(
-                (instrument, scale) for scale in scales
-            )
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
         instrument = kwargs["instrument"]
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "start_string")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_octaves")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "fingers", frozenset)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "pattern")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "scales", clean_scales)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "scales", SetOfFrettedInstrumentPositionsWithFingersFrozenList)
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
@@ -69,7 +65,7 @@ class AnkiScaleWithString(DataClassWithDefaultArgument):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "start_string")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_octaves")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "pattern")
@@ -152,32 +148,31 @@ class AnkiScaleWithString(DataClassWithDefaultArgument):
         return (pair_to_scale(best_first_fingers_scale), pair_to_scale(best_middle_fingers_scale), pair_to_scale(best_fourth_fingers_scale))
     
 
-def _generate_scale(starting_note: PositionOnFrettedInstrumentWithFingers, relative_intervals: ChromaticIntervalFrozenList) -> Generator[List[PositionOnFrettedInstrumentWithFingers]]:
+def _generate_scale(instrument: FrettedInstrument, starting_note: PositionOnFrettedInstrumentWithFingers, relative_intervals: ChromaticIntervalFrozenList) -> Generator[List[PositionOnFrettedInstrumentWithFingers]]:
     assert_typing(starting_note, PositionOnFrettedInstrumentWithFingers)
     if not relative_intervals:
         yield [starting_note]
         return
     relative_interval, remaining_relative_intervals = relative_intervals.head_tail()
-    for fingers_for_current_note, next_note in starting_note.positions_for_interval(interval=relative_interval):
+    for fingers_for_current_note, next_note in starting_note.positions_for_interval(instrument, interval=relative_interval):
         starting_note_fingered = starting_note.restrict_fingers(fingers_for_current_note)
-        for notes_for_remaining_intervals in _generate_scale(next_note, remaining_relative_intervals):
+        for notes_for_remaining_intervals in _generate_scale(instrument, next_note, remaining_relative_intervals):
             assert_iterable_typing(notes_for_remaining_intervals, PositionOnFrettedInstrumentWithFingers)
             yield [starting_note_fingered, *notes_for_remaining_intervals]
 
-def generate_scale(starting_note: PositionOnFrettedInstrument, scale_pattern: ScalePattern, number_of_octaves: int, pattern_to_avoid_list:List[SetOfPositionOnFrettedInstrument] = SetOfPositionsOnFrettedInstrumentFrozenList()) -> AnkiScaleWithString:
+def generate_scale(instrument: FrettedInstrument, starting_note: PositionOnFrettedInstrument, scale_pattern: ScalePattern, number_of_octaves: int, pattern_to_avoid_list:List[SetOfPositionOnFrettedInstrument] = SetOfPositionsOnFrettedInstrumentFrozenList()) -> AnkiScaleWithString:
     """
     patter_to_avoid - don't return any position that is a subset of this one."""
-    assert_iterable_typing(SetOfPositionOnFrettedInstrument, SetOfPositionOnFrettedInstrument)
-    instrument = starting_note.instrument
+    assert_typing(pattern_to_avoid_list, SetOfPositionsOnFrettedInstrumentFrozenList)
     fingers_to_scales: Dict[FingersType, List[SetOfPositionOnFrettedInstrument]] = dict()
     starting_note = PositionOnFrettedInstrumentWithFingers.from_fretted_instrument_position(starting_note)
     assert_typing(scale_pattern, ScalePattern)
-    for scale in _generate_scale(starting_note, scale_pattern.multiple_octaves(number_of_octaves).get_chromatic_interval_list().relative_intervals()):
+    for scale in _generate_scale(instrument, starting_note, scale_pattern.multiple_octaves(number_of_octaves).get_chromatic_interval_list().relative_intervals()):
         first_pos = scale[0]
         first_fingers = first_pos.fingers
         if first_fingers not in fingers_to_scales:
             fingers_to_scales[first_fingers] = []
-        set_of_pos = SetOfPositionOnFrettedInstrument.make(instrument=instrument, positions=scale)
+        set_of_pos = SetOfPositionOnFrettedInstrument.make(positions=scale)
         must_be_avoided = False
         for pattern_to_avoid in pattern_to_avoid_list:
             if set_of_pos <= pattern_to_avoid:

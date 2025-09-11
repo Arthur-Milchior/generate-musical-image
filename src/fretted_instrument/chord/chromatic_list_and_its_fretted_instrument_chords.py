@@ -91,8 +91,8 @@ class ChromaticListAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrette
     
     def triple_field(self, fretted_chord: ChordOnFrettedInstrument):
         return (
-            img_tag(fretted_chord.file_name(stroke_colored=False, absolute=self.absolute)),
-            img_tag(fretted_chord.file_name(stroke_colored=True, absolute=True)),
+            img_tag(fretted_chord.file_name(self.instrument, stroke_colored=False, absolute=self.absolute)),
+            img_tag(fretted_chord.file_name(self.instrument, stroke_colored=True, absolute=True)),
             self.lily_field(fretted_chord, self.interval_and_its_inversions.easiest_inversion().get_interval_list()),
         )
 

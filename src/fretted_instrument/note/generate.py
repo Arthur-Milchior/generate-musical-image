@@ -58,7 +58,7 @@ class AnkiNote:
         return img_tag(pos.singleton_diagram_svg_name())
     
     def svg(self):
-        return SetOfPositionOnFrettedInstrument(self.instrument, frozenset(self.positions())).svg(absolute=True)
+        return SetOfPositionOnFrettedInstrument(frozenset(self.positions())).svg(instrument, absolute=True)
     
     def all_notes_field(self):
         return img_tag(self.svg_name_for_all_positions())

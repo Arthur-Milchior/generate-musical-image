@@ -37,13 +37,13 @@ class FrettedInstrument(DataClassWithDefaultArgument):
                     open_strings[higher][lower] = -delta
             return open_strings
 
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "name")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_frets")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "open_string_chromatic_note", clean_open_strings)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "clef")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "name", type=str)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_frets", type=int)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "open_string_chromatic_note", clean_open_strings, type=ChromaticNoteFrozenList)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "clef", type=Clef)
         #Copying to ensure we don't modify the input dic
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "finger_to_fret_delta", clean_finger_to_fret_delta)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_scales_reachable_per_string", IntFrozenList)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_scales_reachable_per_string", IntFrozenList, type=IntFrozenList)
         return super()._clean_arguments_for_constructor(args, kwargs)
     
     def __post_init__(self):

@@ -42,7 +42,6 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     Fret 0 is open. Fret None is not played.
 
     Order is the same as its chromatic note, and in case of equality the string. Not played notes is maximal. This ensure that the minimal of a chord is its lowest note."""
-    instrument: FrettedInstrument
     string: String
     fret: Fret
 
@@ -52,22 +51,9 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_string(arg: Union[Tuple[FrettedInstrument, int],int]):
-            if isinstance(arg, String):
-                return arg
-            if isinstance(arg, tuple):
-                instrument, string = arg
-                assert_typing(instrument, FrettedInstrument)
-            else:
-                instrument = kwargs["instrument"]
-                assert_typing(instrument, FrettedInstrument)
-                string = arg
-            return instrument.string(string)
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
-        instrument = kwargs["instrument"]
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "string", clean_string)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fret", instrument.fret)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "string")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fret", Fret.make_single_argument)
         return args, kwargs
     
     def repr_single_argument(self) -> str:
@@ -75,9 +61,8 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
 
     @classmethod
     def _make_single_argument(cls, arg: Tuple[FrettedInstrument, Union[String, int], Union[Fret, int]]):
-        instrument, string, fret = arg
-        assert_typing(instrument, FrettedInstrument)
-        return cls.make(instrument = instrument, string= string, fret=fret)
+        string, fret = arg
+        return cls.make(string= string, fret=fret)
 
     @staticmethod
     def from_chromatic(instrument: FrettedInstrument, note:ChromaticNote, strings: Optional[Strings] = None, frets: Optional[Frets] = None):
@@ -95,23 +80,25 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
                 continue
             if fret not in frets:
                 continue
-            positions.append(PositionOnFrettedInstrument(instrument, string, fret))
+            positions.append(PositionOnFrettedInstrument(string, fret))
         return positions
     
-    def positions_for_interval_with_restrictions(self, 
-            interval: ChromaticInterval, 
-            strings: Optional[Union[StringDelta, Strings]] = None, 
-            frets: Optional[Union[FretDelta, Frets]]=None) -> List[PositionOnFrettedInstrument]:
+    def positions_for_interval_with_restrictions(self,
+                                                 instrument: FrettedInstrument,
+                                                 interval: ChromaticInterval, 
+                                                 strings: Optional[Union[StringDelta, Strings]] = None, 
+                                                 frets: Optional[Union[FretDelta, Frets]]=None) -> List[PositionOnFrettedInstrument]:
+        assert_typing(instrument, FrettedInstrument)
         if strings is None:
-            strings = StringDelta.ANY_STRING(self.instrument)
+            strings = StringDelta.ANY_STRING(instrument)
         if frets is None:
-            frets = Frets.all_played(self.instrument)
+            frets = Frets.all_played(instrument)
         if isinstance(strings, StringDelta):
-            strings = strings.range(self.instrument, self.string)
+            strings = strings.range(instrument, self.string)
         if isinstance(frets, FretDelta):
-            frets = frets.range(self.instrument, self.fret)
+            frets = frets.range(instrument, self.fret)
         chromatic_note = self.get_chromatic() + interval
-        return PositionOnFrettedInstrument.from_chromatic(self.instrument, chromatic_note, strings, frets)
+        return PositionOnFrettedInstrument.from_chromatic(instrument, chromatic_note, strings, frets)
 
     def get_chromatic(self) -> Optional[ChromaticNote]:
         if self.fret.is_not_played():
@@ -155,18 +142,21 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         assert isinstance(other, PositionOnFrettedInstrument)
         return self.get_chromatic() - other.get_chromatic()
     
-    def singleton_diagram_svg_name(self):
+    def singleton_diagram_svg_name(self, instrument: FrettedInstrument):
+        assert_typing(instrument, FrettedInstrument)
         """A unique filename for the diagram containing only this note."""
-        return f"""{self.singleton_diagram_key()}.svg"""
+        return f"""{self.singleton_diagram_key(instrument)}.svg"""
     
-    def singleton_diagram_key(self):
+    def singleton_diagram_key(self, instrument: FrettedInstrument):
+        assert_typing(instrument, FrettedInstrument)
         """A unique name short name for this position."""
-        return f"""fretted_instrument_{self.string.value}_{self.fret.value}"""
+        return f"""{instrument.name}_{self.string.value}_{self.fret.value}"""
 
-    def singleton_diagram_svg(self):
+    def singleton_diagram_svg(self, instrument: FrettedInstrument):
         """The svg for a diagram with only this note"""
+        assert_typing(instrument, FrettedInstrument)
         from fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
-        return SetOfPositionOnFrettedInstrument(self.instrument, frozenset({self})).svg(absolute=True)
+        return SetOfPositionOnFrettedInstrument(frozenset({self})).svg(instrument, absolute=True)
     
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
         return dataclasses.replace(self, fret=self.fret.transpose(transpose, transpose_open, transpose_not_played))

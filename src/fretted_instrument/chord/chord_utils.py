@@ -27,7 +27,7 @@ def enumerate_frets(instrument: FrettedInstrument, strings: Optional[Strings]= N
     string, strings = s_ss
     for set_of_fretted_instrument_position in enumerate_frets(instrument, strings, frets):
         for fret in frets:
-            fretted_instrument_position = PositionOnFrettedInstrument(instrument, string, fret)
+            fretted_instrument_position = PositionOnFrettedInstrument(string, fret)
             yield set_of_fretted_instrument_position.add(fretted_instrument_position)
 
 def enumerate_fretted_instrument_chords(instrument: FrettedInstrument, frets: Optional[Frets] = None):
