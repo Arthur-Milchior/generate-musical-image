@@ -1,16 +1,16 @@
 
 import unittest
 
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from solfege.value.note.note import Note
 from fretted_instrument.position.fretted_instrument_position import *
 from fretted_instrument.position.string.string_deltas import *
 
-instrument = Gui_tar
-strings = list(Gui_tar.strings())
+instrument = Guitar
+strings = list(Guitar.strings())
 
 def position_make(string, fret):
-    return PositionOnFrettedInstrument(Gui_tar, string, fret)
+    return PositionOnFrettedInstrument(Guitar, string, fret)
 
 empty_first_string = position_make(strings[0], instrument.fret(0))
 E5 = ChromaticNote.from_name("E5")
@@ -22,10 +22,10 @@ E5_4 = position_make(strings[3], instrument.fret(9))
 E5_5 = position_make(strings[4], instrument.fret(5))
 E5_6 = position_make(strings[5], instrument.fret(0))
 
-not_played = Gui_tar.fret( value=None)
+not_played = Guitar.fret( value=None)
 
 def frets_make(*args, **kwargs):
-    return Frets.make(Gui_tar, *args, **kwargs)
+    return Frets.make(Guitar, *args, **kwargs)
 
 class TestFrettedInstrumentPosition(unittest.TestCase):
     def test_get_chromatic(self):
@@ -64,8 +64,8 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
         self.assertLessEqual(position_make(strings[0], instrument.fret(1)), position_make(strings[1], fret=not_played))
 
     def test_from_chromatic(self):
-        strings_interval = StringsInterval(Gui_tar, strings[3], strings[5])
-        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Gui_tar, E5), 
+        strings_interval = StringsInterval(Guitar, strings[3], strings[5])
+        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Guitar, E5), 
                          [
                              E5_1,
                              E5_2,
@@ -74,29 +74,29 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
                              E5_5,
                              E5_6,
                           ])
-        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Gui_tar, E5, frets = frets_make((8, 15), True)), 
+        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Guitar, E5, frets = frets_make((8, 15), True)), 
                          [
                              E5_3,
                              E5_4,
                              E5_6,
                           ])
-        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Gui_tar, E5, frets = frets_make((8, 15), False)), 
+        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Guitar, E5, frets = frets_make((8, 15), False)), 
                          [
                              E5_3,
                              E5_4,
                           ])
-        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Gui_tar, E5, strings = strings_interval), 
+        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Guitar, E5, strings = strings_interval), 
                          [
                              E5_4,
                              E5_5,
                              E5_6,
                           ])
-        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Gui_tar, E5, frets = frets_make((8, 15), True), strings = strings_interval), 
+        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Guitar, E5, frets = frets_make((8, 15), True), strings = strings_interval), 
                          [
                              E5_4,
                              E5_6,
                           ])
-        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Gui_tar, E5, frets = frets_make((8, 15), False), strings = strings_interval), 
+        self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Guitar, E5, frets = frets_make((8, 15), False), strings = strings_interval), 
                          [
                              E5_4,
                           ])
@@ -104,15 +104,15 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
     def test_add(self):
         C5 = position_make(strings[0], instrument.fret(20))
         third_major = ChromaticInterval(4)
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_STRING_ONLY(Gui_tar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_STRING_ONLY(Guitar)),
                          [E5_1,])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.NEXT_STRING_ONLY(Gui_tar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.NEXT_STRING_ONLY(Guitar)),
                          [E5_2,])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_OR_NEXT_STRING(Gui_tar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_OR_NEXT_STRING(Guitar)),
                          [E5_1, E5_2,])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_STRING_OR_GREATER(Gui_tar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.SAME_STRING_OR_GREATER(Guitar)),
                          [E5_1, E5_2, E5_3, E5_4, E5_5, E5_6])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.NEXT_STRING_OR_GREATER(Gui_tar)),
+        self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, strings=StringDelta.NEXT_STRING_OR_GREATER(Guitar)),
                          [E5_2, E5_3, E5_4, E5_5, E5_6])
         self.assertEqual(C5.positions_for_interval_with_restrictions(third_major, frets=frets_make((1, 5))),
                          [E5_5, E5_6])

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pickletools import string1
 from fretted_instrument.fretted_instrument.fretted_instruments import fretted_instruments
 from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
 from fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 from fretted_instrument.position.fret.fret import Fret
@@ -96,7 +96,7 @@ def generate(instrument: FrettedInstrument, folder_path:str):
     for low_string in range(1, number_of_strings):
         for high_string in range(low_string + 1, number_of_strings + 1):
             for (low_fret, high_fret) in pair_of_frets(instrument):
-                anki_note = anki_note_(Gui_tar, low_string, high_string, low_fret, high_fret)
+                anki_note = anki_note_(Guitar, low_string, high_string, low_fret, high_fret)
                 save_file(f"{folder_path}/{anki_note.svg_name()}", anki_note.svg())
                 anki_notes.append(anki_note.anki_csv())
     return anki_notes

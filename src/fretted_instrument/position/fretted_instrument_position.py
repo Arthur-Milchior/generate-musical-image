@@ -57,8 +57,10 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
                 return arg
             if isinstance(arg, tuple):
                 instrument, string = arg
+                assert_typing(instrument, FrettedInstrument)
             else:
                 instrument = kwargs["instrument"]
+                assert_typing(instrument, FrettedInstrument)
                 string = arg
             return instrument.string(string)
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)

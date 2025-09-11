@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from fretted_instrument.fretted_instrument.fretted_instruments import fretted_instruments
+from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import ScaleColors, SetOfFrettedInstrumentPositionsWithFingers
 from fretted_instrument.scale.generate_scale import generate_scale
@@ -75,10 +77,14 @@ class AnkiNote(CsvGenerator):
                 path =f"{scale_transposable_folder}/{file_name}"
                 save_file(path, svg)
 
-anki_notes = []
-for scale_pattern in ScalePattern.all_patterns:
-    anki_note = AnkiNote.make(scale_pattern)
-    anki_note.generate_svg()
-    anki_notes.append(anki_note.csv())
+def generate_instrument(instrument: FrettedInstrument):
+    anki_notes = []
+    for scale_pattern in ScalePattern.all_patterns:
+        anki_note = AnkiNote.make(scale_pattern)
+        anki_note.generate_svg()
+        anki_notes.append(anki_note.csv())
 
-save_file(f"{scale_transposable_folder}/anki.csv", "\n".join(anki_notes))
+    save_file(f"{scale_transposable_folder}/anki.csv", "\n".join(anki_notes))
+
+for instrument in fretted_instruments:
+    generate_instrument(instrument)

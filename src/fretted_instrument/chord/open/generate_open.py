@@ -3,7 +3,7 @@ from fretted_instrument.chord.open.chromatic_note_list_to_fretted_instrument_cho
 from fretted_instrument.chord.chord_utils import enumerate_fretted_instrument_chords
 from fretted_instrument.chord.playable import Playable
 from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar, fretted_instruments
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar, fretted_instruments
 from fretted_instrument.position.fret.frets import Frets
 
 # Ensure that all chords are registered
@@ -21,8 +21,8 @@ def open_folder(instrument: FrettedInstrument):
     return path
 
 
-note_to_chord = ChromaticNoteListToFrettedInstrumentChords.make()
-def register_all_chords(instrument):
+def register_all_chords(instrument: FrettedInstrument):
+    note_to_chord = ChromaticNoteListToFrettedInstrumentChords.make(instrument=instrument)
     for fretted_instrument_chord in enumerate_fretted_instrument_chords(instrument, Frets.make(instrument,
         _closed_fret_interval=(1, 
                               6
@@ -49,12 +49,14 @@ def register_all_chords(instrument):
         if chromatic_intervals_and_inversions is None:
             continue
         note_to_chord.register(chromatic_notes, fretted_instrument_chord)
+    return note_to_chord
 
 
 def generate_anki_notes(instrument: FrettedInstrument):
+    note_to_chord = register_all_chords(instrument)
     anki_notes = []
     for note_list, chromatic_note_and_its_fretted_instrument_chord in note_to_chord:
-        anki_notes.append(chromatic_note_and_its_fretted_instrument_chord.csv(absolute=True, lily_folder_path=open_folder(instrument)))
+        anki_notes.append(chromatic_note_and_its_fretted_instrument_chord.csv())
         chromatic_interval_and_inversion = chromatic_note_and_its_fretted_instrument_chord.interval_and_its_inversions
         inversions = chromatic_interval_and_inversion.inversions
         easiest_inversion = inversions[0]
@@ -65,16 +67,18 @@ def generate_anki_notes(instrument: FrettedInstrument):
             chromatic_tonic = lowest_note - chromatic_position_of_lowest_interval_in_base_octave
             save_file(f"{open_folder(instrument)}/{fretted_instrument_chord.file_name(stroke_colored=False, absolute=True)}", fretted_instrument_chord.svg(absolute=True))
             save_file(f"{open_folder(instrument)}/{fretted_instrument_chord.file_name(stroke_colored=True, absolute=True)}", fretted_instrument_chord.svg(absolute=True, colors=ChordColors(chromatic_tonic)))
-    return anki_notes
+    return anki_notes, note_to_chord
 
-for instrument in fretted_instruments:
-    register_all_chords(instrument)
-    anki_notes = generate_anki_notes(instrument)
-    save_file(f"{open_folder(instrument)}/anki.csv", "\n".join(anki_notes))
+def generate_instruments():
+    for instrument in fretted_instruments:
+        register_all_chords(instrument)
+        anki_notes, note_to_chord = generate_anki_notes(instrument)
+        save_file(f"{open_folder(instrument)}/anki.csv", "\n".join(anki_notes))
 
+        biggest_anki_note = max((anki_note_content for note_list, anki_note_content in note_to_chord), 
+                                key=lambda anki_note_content: len(anki_note_content.maximals()))
+        print(f"=================\n{instrument.name}\n=======================")
+        print(f"{len(biggest_anki_note)=}")
+        print(f"{biggest_anki_note=}")
 
-
-biggest_anki_note = max((anki_note_content for note_list, anki_note_content in note_to_chord), 
-                        key=lambda anki_note_content: len(anki_note_content.maximals()))
-print(f"{len(biggest_anki_note)=}")
-print(f"{biggest_anki_note=}")
+generate_instruments()

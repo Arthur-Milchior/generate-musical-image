@@ -1,11 +1,11 @@
 from fretted_instrument.chord.fretted_instrument_chord import *
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 
 def _make(l):
-    return ChordOnFrettedInstrument.make(Gui_tar, l)
+    return ChordOnFrettedInstrument.make(Guitar, l)
 
 def fret(value):
-    return Gui_tar.fret(value)
+    return Guitar.fret(value)
 
 open = _make([fret(0)] * 6)
 ones = _make([fret(1)] * 6)

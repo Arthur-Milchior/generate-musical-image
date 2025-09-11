@@ -11,7 +11,7 @@ from solfege.value.interval.set.interval_list import IntervalList
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.set.note_list import NoteList
-from utils.util import assert_typing, img_tag
+from utils.util import assert_typing, ensure_folder, img_tag
 
 @dataclass(frozen=True, unsafe_hash=True)
 class ChromaticNoteListAndItsFrettedInstrumentChords(ChromaticListAndItsFrettedInstrumentChords[ChromaticNote]):
@@ -53,6 +53,7 @@ class ChromaticNoteListAndItsFrettedInstrumentChords(ChromaticListAndItsFrettedI
         note_list = fretted_instrument_chord.notes_from_interval_list(interval_list=interval_list)
         file_prefix = note_list.lily_file_name()
         lily_folder_path = f"""{self.instrument.generated_folder_name()}/open"""
+        ensure_folder(lily_folder_path)
         path_prefix = f"{lily_folder_path}/{file_prefix}"
         code = note_list.lily_file_with_only_chord()
         lily.compile_(code, path_prefix, wav=False)

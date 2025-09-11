@@ -78,9 +78,12 @@ class ChromaticListAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrette
         return self.names()[0]
     
     def other_names(self):
-        return ", ".join(self.names()[1:])
+        names = self.names()
+        assert_iterable_typing(names, str)
+        other_names = names[1:]
+        return ", ".join(other_names)
 
-    def chord_names(self):
+    def names(self):
         return [self.name(inversion) for inversion in self.interval_and_its_inversions.inversions]
     
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalList) -> str:
@@ -90,20 +93,15 @@ class ChromaticListAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrette
         return (
             img_tag(fretted_chord.file_name(stroke_colored=False, absolute=self.absolute)),
             img_tag(fretted_chord.file_name(stroke_colored=True, absolute=True)),
-            self.lily_field(fretted_chord),
+            self.lily_field(fretted_chord, self.interval_and_its_inversions.easiest_inversion().get_interval_list()),
         )
 
-    
-    def csv_content(self, absolute: bool, lily_folder_path: Optional[str] = None):
+    def csv_content(self):
         l = []
-        inversions = self.interval_and_its_inversions.inversions
-        easiest_inversion = inversions[0]
-        other_inversions = inversions[1:]
         l.append(self.first_name())
-        l.append(self.other_names)
+        l.append(self.other_names())
         l.append("x" if self.open else "")
         maximals = self.maximals()
-        interval_list = easiest_inversion.interval_list
         individual_maximals, other_maximals = maximals[:7], maximals[7:]
         for fretted_chord in individual_maximals:
             l += self.triple_field(fretted_chord)

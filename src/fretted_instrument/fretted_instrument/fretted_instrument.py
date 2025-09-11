@@ -6,9 +6,14 @@ from typing import Dict, List, Optional, Union
 from solfege.value.note.chromatic_note import ChromaticNoteFrozenList
 from solfege.value.note.clef import Clef
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.util import assert_optional_typing, assert_typing
+from utils.util import assert_optional_typing, assert_typing, ensure_folder
 from consts import generate_root_folder
 
+
+@dataclass
+class ScaleGeneratorParameters:
+    number_of_octaves: int
+    string: int
 
 @dataclass(frozen=True, unsafe_hash=True)
 class FrettedInstrument(DataClassWithDefaultArgument):
@@ -80,4 +85,6 @@ class FrettedInstrument(DataClassWithDefaultArgument):
         return max(self.open_string_chromatic_note) + self.number_of_frets
     
     def generated_folder_name(self):
-        return f"{generate_root_folder}/{self.name}"
+        path = f"{generate_root_folder}/{self.name}"
+        ensure_folder(path)
+        return path

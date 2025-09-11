@@ -1,11 +1,11 @@
 import unittest
 
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from utils.frozenlist import FrozenList
 from .fretted_instrument_position_with_fingers import *
 
 def position_make(*args, **kwargs):
-    return PositionOnFrettedInstrumentWithFingers.make(Gui_tar, *args, **kwargs)
+    return PositionOnFrettedInstrumentWithFingers.make(Guitar, *args, **kwargs)
 
 class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
     def test_positions_minus_tone_finger_1(self):

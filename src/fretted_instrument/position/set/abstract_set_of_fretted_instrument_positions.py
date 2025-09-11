@@ -7,7 +7,7 @@ from pickle import EMPTY_SET
 from typing import Callable, ClassVar, Dict, FrozenSet, Generator, Generic, Iterable, List, Iterator, Optional, Self, Tuple, Type, Union
 
 from fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from fretted_instrument.position.fretted_instrument_position import  PositionOnFrettedInstrumentType
 from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.consts import *
@@ -32,7 +32,7 @@ COLOR_QUALITY = "green"
 COLOR_OTHER = "purple"
 COLOR_UNINTERESTING = "black"
 
-open_fret = Gui_tar.fret( value=0)
+open_fret = Guitar.fret( value=0)
 
 @dataclass(frozen=True)
 class Colors:

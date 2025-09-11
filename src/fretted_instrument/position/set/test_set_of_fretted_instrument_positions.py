@@ -1,13 +1,13 @@
 import unittest
 
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from fretted_instrument.position.set.set_of_fretted_instrument_positions import empty_set_of_position, SetOfPositionOnFrettedInstrument
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 
 def _make(l):
-    return SetOfPositionOnFrettedInstrument.make(instrument=Gui_tar, positions=l)
+    return SetOfPositionOnFrettedInstrument.make(instrument=Guitar, positions=l)
 
 CM_ = _make([(2, 3), (3, 2), (4, 0), (5, 1)])
 CM = CM_.add((6, 0))
@@ -15,15 +15,15 @@ CM = CM_.add((6, 0))
 F4M = _make([(1, 1), (2, 3), (3, 3), (4, 2), (5, 1), (6, 1)])
 G4M = _make([(1, 3), (2, 5), (3, 5), (4, 4), (5, 3), (6, 3)])
 
-strings = list(Gui_tar.strings())
+strings = list(Guitar.strings())
 
-empty_set_of_fretted_instrument_position = empty_set_of_position(Gui_tar)
-not_played = Gui_tar.fret( value=None)
+empty_set_of_fretted_instrument_position = empty_set_of_position(Guitar)
+not_played = Guitar.fret( value=None)
 
-instrument = Gui_tar
+instrument = Guitar
 
 def position_make(string, fret):
-    return PositionOnFrettedInstrument(Gui_tar, string, fret)
+    return PositionOnFrettedInstrument(Guitar, string, fret)
 
 class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
     def test_eq(self):

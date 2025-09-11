@@ -7,7 +7,7 @@ from .test_constants import _make
 CM_ = _make([None, 3, 2, 0, 1, None])
 CM = _make([None, 3, 2, 0, 1, 0])
 
-not_played_fret = Gui_tar.fret( value=None)
+not_played_fret = Guitar.fret( value=None)
 
 class TestFrettedInstrumentChord(unittest.TestCase):
     def test_eq(self):
@@ -15,10 +15,10 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertNotEqual(_make([not_played_fret] * 6), open)
 
     def test_get_fret(self):
-        self.assertEqual(open.get_fret(Gui_tar.string(1)), Gui_tar.fret( value=0))
+        self.assertEqual(open.get_fret(Guitar.string(1)), Guitar.fret( value=0))
 
     def test_get_frets(self):
-        self.assertEqual(C4M.get_frets(), [not_played_fret, Gui_tar.fret(3), Gui_tar.fret(2), Gui_tar.fret(0), Gui_tar.fret(1), Gui_tar.fret(0)])
+        self.assertEqual(C4M.get_frets(), [not_played_fret, Guitar.fret(3), Guitar.fret(2), Guitar.fret(0), Guitar.fret(1), Guitar.fret(0)])
 
     def test_repr(self):
         self.assertEqual(repr(C4M), "FrettedInstrumentChord.make([None, 3, 2, 0, 1, 0])")

@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from typing import ClassVar
 from fretted_instrument.chord.chromatic_list_and_its_fretted_instrument_chords import ChromaticListAndItsFrettedInstrumentChords
+from solfege.pattern.chord.inversion_pattern import InversionPattern
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.util import img_tag
 
@@ -14,12 +15,9 @@ class ChromaticIntervalListAndItsFrettedInstrumentChords(ChromaticListAndItsFret
     """
     open: ClassVar[bool] = False
     absolute: ClassVar[bool] = False
-    
-    def chord_pattern_name(self):
-        return self.interval_and_its_inversions.easiest_name()
 
-    def alternative_chord_pattern_names(self):
-        return self.interval_and_its_inversions.alternative_names()
+    def name(self, inversion: InversionPattern):
+        return inversion.name()
     
     def lily_field(self, *arg, **kwargs) -> str:
         return ""

@@ -19,10 +19,10 @@ def transposable_folder(instrument: FrettedInstrument):
     ensure_folder(path)
     return path
 
-interval_to_chord = ChromaticIntervalListToFrettedInstrumentChords.make()
 def register_all_chords(instrument: FrettedInstrument):
+    interval_to_chord = ChromaticIntervalListToFrettedInstrumentChords.make(instrument=instrument)
     for fretted_instrument_chord in enumerate_fretted_instrument_chords(instrument, Frets.make(instrument, _closed_fret_interval=(1, 
-                                                                                              2
+                                                                                              4
                                                                                               ), allow_not_played=True, allow_open=False)):
         if fretted_instrument_chord.number_of_distinct_notes() < 4:
             continue
@@ -42,33 +42,33 @@ def register_all_chords(instrument: FrettedInstrument):
         if chromatic_intervals_and_inversions is None:
             continue
         interval_to_chord.register(chromatic_intervals, fretted_instrument_chord)
+    return interval_to_chord
 
 
-def generate_anki_notes():
+def generate_anki_notes(instrument: FrettedInstrument):
+    interval_to_chord = register_all_chords(instrument)
     anki_notes = []
     for interval_list, chromatic_interval_and_its_fretted_instrument_chord in interval_to_chord:
         anki_notes.append(chromatic_interval_and_its_fretted_instrument_chord.csv())
         chromatic_interval_and_inversion = chromatic_interval_and_its_fretted_instrument_chord.interval_and_its_inversions
         inversions = chromatic_interval_and_inversion.inversions
         easiest_inversion = inversions[0]
-        position_of_lowest_interval_in_base_octave = easiest_inversion.position_of_lowest_interval_in_base_octave
+        chromatic_position_of_lowest_interval_in_base_octave = easiest_inversion.position_of_lowest_interval_in_base_octave.chromatic
         for fretted_instrument_chord in chromatic_interval_and_its_fretted_instrument_chord.maximals():
             pos_of_lowest_note = fretted_instrument_chord.get_most_grave_note()
             lowest_note = pos_of_lowest_note.get_chromatic()
-            tonic = lowest_note - position_of_lowest_interval_in_base_octave
+            tonic = lowest_note - chromatic_position_of_lowest_interval_in_base_octave
             save_file(f"{transposable_folder(instrument)}/{fretted_instrument_chord.file_name(stroke_colored=False, absolute=False)}", fretted_instrument_chord.svg(absolute=False))
             save_file(f"{transposable_folder(instrument)}/{fretted_instrument_chord.file_name(stroke_colored=True, absolute=False)}", fretted_instrument_chord.svg(absolute=False, colors=ChordColors(tonic)))
-    return anki_notes
+    return anki_notes, interval_to_chord
 
 for instrument in fretted_instruments:
     register_all_chords(instrument)
-    anki_notes = generate_anki_notes()
+    anki_notes, interval_to_chord = generate_anki_notes(instrument)
     save_file(f"{transposable_folder(instrument)}/anki.csv", "\n".join(anki_notes))
 
-
-
-
-biggest_anki_note = max((anki_note_content for interval_list, anki_note_content in interval_to_chord), 
-                        key=lambda anki_note_content: len(anki_note_content.maximals()))
-print(f"{len(biggest_anki_note)=}")
-print(f"{biggest_anki_note=}")
+    biggest_anki_note = max((anki_note_content for interval_list, anki_note_content in interval_to_chord), 
+                            key=lambda anki_note_content: len(anki_note_content.maximals()))
+    print(f"=====================\n{instrument.name}, transposable chord\n===============================")
+    print(f"{len(biggest_anki_note)=}")
+    print(f"{biggest_anki_note=}")

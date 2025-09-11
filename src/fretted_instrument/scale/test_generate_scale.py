@@ -1,6 +1,6 @@
 import unittest
 
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from fretted_instrument.position.fretted_instrument_position_with_fingers import FrettedInstrumentPositionWithFingersFrozenList
 from lily.svg import display_svg_file
 from utils.util import ensure_folder, save_file
@@ -10,7 +10,7 @@ from solfege.pattern.scale.scale_patterns import major_scale
 from .generate_scale import _generate_scale
 
 def position_make(*args, **kwargs):
-    return PositionOnFrettedInstrumentWithFingers.make(Gui_tar, *args, **kwargs)
+    return PositionOnFrettedInstrumentWithFingers.make(Guitar, *args, **kwargs)
 
 major_1_1 = ([
     position_make(string=1, fret=12, fingers={1}),
@@ -74,7 +74,7 @@ major_4_path = f"{folder_path}/major_4.svg"
 major_5_path = f"{folder_path}/major_5.svg"
 ensure_folder(folder_path)
 
-strings = list(Gui_tar.strings())
+strings = list(Guitar.strings())
 
 for i, notes in enumerate([major_2_octave_1, major_2_octave_2, major_2_octave_3, major_2_octave_4, major_2_octave_5]):
     path = f"{folder_path}/major_{i}.svg"
@@ -82,10 +82,10 @@ for i, notes in enumerate([major_2_octave_1, major_2_octave_2, major_2_octave_3,
     # display_svg_file(path)
 
 def anki_scale_make(*args, **kwargs):
-    return AnkiScaleWithFingersAndString.make(Gui_tar, *args, **kwargs)
+    return AnkiScaleWithFingersAndString.make(Guitar, *args, **kwargs)
 
 def set_of_pos_make(*args, **kwargs):
-    return SetOfPositionOnFrettedInstrument.make(Gui_tar, *args, **kwargs)
+    return SetOfPositionOnFrettedInstrument.make(Guitar, *args, **kwargs)
 
 chromatic_relative_intervals = major_scale.get_interval_list().get_chromatic_interval_list().relative_intervals()
 chromatic_relative_intervals_2_octaves = major_scale.multiple_octaves(2).get_chromatic_interval_list().relative_intervals()
@@ -150,7 +150,7 @@ class TestGenerateScale(unittest.TestCase):
                 set_of_pos_make(major_2_octave_1), set_of_pos_make(major_2_octave_2), set_of_pos_make(major_2_octave_3), set_of_pos_make(major_2_octave_4)
             ], pattern=major_scale)
         four =  anki_scale_make(start_string=strings[0], number_of_octaves=2, fingers = frozenset({4}), pattern=major_scale, scales=[set_of_pos_make(major_2_octave_5)])
-        expected_scale_with_string = AnkiScaleWithString.make(instrument=Gui_tar, start_string=strings[0], number_of_octaves=2, pattern=major_scale, fingers_to_scales={ 
+        expected_scale_with_string = AnkiScaleWithString.make(instrument=Guitar, start_string=strings[0], number_of_octaves=2, pattern=major_scale, fingers_to_scales={ 
                 frozenset({1, 2, 3}): one_two_three,
                 frozenset({4}):four,
             })

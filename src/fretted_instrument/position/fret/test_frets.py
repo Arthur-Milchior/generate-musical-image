@@ -1,15 +1,15 @@
 
 import unittest
 
-from fretted_instrument.fretted_instrument.fretted_instruments import Gui_tar
+from fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from fretted_instrument.position.fret.frets import Frets
 from fretted_instrument.position.fret.fret import Fret
 from fretted_instrument.position.string.string_deltas import *
 
 def frets_make(*args, **kwargs):
-    return Frets.make(Gui_tar, *args, **kwargs)
+    return Frets.make(Guitar, *args, **kwargs)
 
-instrument = Gui_tar
+instrument = Guitar
 
 ALL_PLAYED = frets_make()
 ALL = frets_make(allow_not_played=True)
@@ -23,9 +23,9 @@ CONTRADICTION = frets_make(None, False, False)
 ONLY_OPEN = frets_make(None, allow_open=True, allow_not_played=False)
 FOR_TRANSPOSABLE_CHORD = frets_make(_closed_fret_interval=(1, 5), allow_not_played=True, allow_open=False)
 
-highest_fret = Gui_tar.last_fret()
-open_fret = Gui_tar.fret( value=0)
-not_played_fret = Gui_tar.fret( value=None)
+highest_fret = Guitar.last_fret()
+open_fret = Guitar.fret( value=0)
+not_played_fret = Guitar.fret( value=None)
 
 class TestFrettedInstrumentFrets(unittest.TestCase):
     def test_eq(self):
