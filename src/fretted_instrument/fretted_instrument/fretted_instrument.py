@@ -8,14 +8,10 @@ from fretted_instrument.position.fret.fret_deltas import FretDelta
 from solfege.value.note.chromatic_note import ChromaticNoteFrozenList
 from solfege.value.note.clef import Clef
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.frozenlist import IntFrozenList
 from utils.util import assert_optional_typing, assert_typing, ensure_folder
 from consts import generate_root_folder
 
-
-@dataclass
-class ScaleGeneratorParameters:
-    number_of_octaves: int
-    string: int
 
 @dataclass(frozen=True, unsafe_hash=True)
 class FrettedInstrument(DataClassWithDefaultArgument):
@@ -24,6 +20,7 @@ class FrettedInstrument(DataClassWithDefaultArgument):
     open_string_chromatic_note: ChromaticNoteFrozenList
     clef: Clef
     finger_to_fret_delta: Dict[int, Dict[int, FretDelta]]=field(compare=False)
+    number_of_scales_reachable_per_string: IntFrozenList
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
@@ -46,6 +43,7 @@ class FrettedInstrument(DataClassWithDefaultArgument):
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "clef")
         #Copying to ensure we don't modify the input dic
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "finger_to_fret_delta", clean_finger_to_fret_delta)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_scales_reachable_per_string", IntFrozenList)
         return super()._clean_arguments_for_constructor(args, kwargs)
     
     def __post_init__(self):
@@ -60,6 +58,10 @@ class FrettedInstrument(DataClassWithDefaultArgument):
                 assert finger_for_first_note != finger_for_next_note
                 assert_typing(delta, FretDelta)
                 assert delta == -self.finger_to_fret_delta[finger_for_next_note][finger_for_first_note]
+        assert len(self.number_of_scales_reachable_per_string) == self.number_of_strings()
+        for number_of_scale in self.number_of_scales_reachable_per_string:
+            assert_typing(number_of_scale, int)
+            assert 0 <= number_of_scale
 
         super().__post_init__()
 

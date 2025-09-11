@@ -114,6 +114,11 @@ def save_file(file_path: str, file_content: str):
     with open(file_path, "w") as f:
         f.write(file_content)
 
+def img_optional_tag(filename: Optional[str]):
+    if filename is None:
+        return ""
+    return img_tag(filename)
+
 def img_tag(filename:str):
     assert_typing(filename, str)
     return f"""<img src='{filename}'/>"""

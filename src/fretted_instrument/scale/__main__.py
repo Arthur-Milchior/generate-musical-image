@@ -1,1 +1,1 @@
-from fretted_instrument.scale import generate
+from fretted_instrument.scale import generate_guitar

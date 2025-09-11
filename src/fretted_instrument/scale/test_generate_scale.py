@@ -66,7 +66,7 @@ major_2_octave_4 = ([position_make(1, 12, {1, 2, 3}), position_make(1, 14, {4}),
 major_2_octave_5 = ([position_make(1, 12, {4}), position_make(2, 9, {1}), position_make(2, 11, {3}), position_make(2, 12, {4}), position_make(3, 9, {1}), position_make(3, 11, {4}), position_make(4, 8, {1}), position_make(4, 9, {2, 3}), position_make(4, 11, {4}), position_make(5, 9, {1, 2, 3}), position_make(5, 10, {2, 3}), position_make(5, 12, {4}), position_make(6, 9, {1}), position_make(6, 11, {3}), position_make(6, 12, {4})])
 
 
-folder_path = "test/fretted_instrument/scale"
+folder_path = "test/guitar/scale"
 
 major_2_path = f"{folder_path}/major_2.svg"
 major_3_path = f"{folder_path}/major_3.svg"

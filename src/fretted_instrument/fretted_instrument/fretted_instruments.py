@@ -80,6 +80,7 @@ Ukulele = FrettedInstrument.make(
     open_string_chromatic_note= ["G4", "C4", "E4", "A4"],
     clef=Clef.TREBLE, 
     finger_to_fret_delta=ukulele_finger_to_fret_delta,
+    number_of_scales_reachable_per_string = [0, 1, 0, 0],
     )
 Guitar = FrettedInstrument.make(
     name="guitar",
@@ -87,6 +88,7 @@ Guitar = FrettedInstrument.make(
     open_string_chromatic_note= ["E3", "A3", "D4", "G4", "B4", "E5"],
     clef=Clef.TREBLE,
     finger_to_fret_delta=finger_to_fret_delta,
+    number_of_scales_reachable_per_string = [2, 2, 1, 1, 0, 0],
     )
 Bass = FrettedInstrument.make(
     name = "bass",
@@ -94,6 +96,7 @@ Bass = FrettedInstrument.make(
     open_string_chromatic_note= ["E2", "A2", "D3", "G3"],
     clef=Clef.BASS,
     finger_to_fret_delta=finger_to_fret_delta,
+    number_of_scales_reachable_per_string = [1, 1, 0, 0],
     )
 
 fretted_instruments = [Ukulele, Guitar, Bass]
