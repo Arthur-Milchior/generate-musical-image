@@ -1,2 +1,2 @@
 
-import solfege.value.interval.set.interval_list
+import solfege.value.interval.set.interval_list_pattern

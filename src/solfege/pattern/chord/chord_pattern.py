@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from itertools import pairwise
-from typing import ClassVar, Dict, List
+from typing import Callable, ClassVar, Dict, List, Type
 
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
-from solfege.pattern.pattern import SolfegePattern
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, DataClassWithDefaultArgument, IntervalListPattern
+from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.frozenlist import FrozenList
 from utils.util import assert_all_same_class, assert_typing
 
@@ -28,9 +28,9 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     all_patterns: ClassVar[List['ChordPattern']] = list()
 
     "Associate to a set of interval the chord it represents."
-    set_of_interval_to_pattern: ClassVar[Dict[IntervalList, "ChordPattern"]] = dict()
+    set_of_interval_to_pattern: ClassVar[Dict[IntervalListPattern, "ChordPattern"]] = dict()
     "associate to a set of chromatic interval the chord it represents."
-    set_of_chromatic_interval_to_pattern: ClassVar[Dict[ChromaticIntervalList, "ChordPattern"]] = dict()
+    set_of_chromatic_interval_to_pattern: ClassVar[Dict[ChromaticIntervalListPattern, "ChordPattern"]] = dict()
     _record_keeper: ClassVar[List]
 
     """Whether the 5th is optional"""
@@ -42,19 +42,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     def _new_record_keeper(cls):
         from solfege.pattern.chord.interval_list_to_chord_pattern import IntervalListToChordPattern
         return IntervalListToChordPattern.make()
-    
-    @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
-        default_dict = super()._default_arguments_for_constructor(args, kwargs)
-        default_dict["optional_fifth"] = False
-        return default_dict
-
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "optional_fifth")
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "inversions")
-        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        return super()._clean_arguments_for_constructor(args, kwargs)
+   
 
     def _index_of_fifth(self):
         index = None
@@ -64,25 +52,12 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
                 index = i
         assert index is not None
         return index
-
-    def __post_init__(self):
-        """A sequence of interval between the tonic and the other note of this chord.
-        
-        Unison is not present in the param. Other intervals are presented as a pair of Chromatic, Diatonic
-        """
-        super().__post_init__()
-        if not self.record:
-            return
-        assert self.increasing
-        self.inversions.extend(self.compute_all_inversions(record=self.record))
-        if not self.optional_fifth:
-            return
     
     def intervals_without_fifth(self):
         assert self.optional_fifth
         index_of_fifth = self._index_of_fifth()
         absolute_without_fifth = self._absolute_intervals[:index_of_fifth] + self._absolute_intervals[index_of_fifth+1:]
-        return IntervalList.make_absolute(absolute_without_fifth)
+        return IntervalListPattern.make_absolute(absolute_without_fifth)
 
     def to_arpeggio_pattern(self):
         from solfege.pattern.scale.scale_pattern import ScalePattern
@@ -94,7 +69,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
                             interval_for_signature=self.interval_for_signature, record=True, increasing=self.increasing)
 
     def inversion(self, inversion_number, omit_fifth:bool=False, record=False):
-        from solfege.pattern.chord.inversion_pattern import InversionPattern
+        from solfege.pattern.inversion.inversion_pattern import InversionPattern
         assert 0<= inversion_number<len(self._absolute_intervals)
         assert self.increasing
         new_lower: Interval = self._absolute_intervals[inversion_number]
@@ -105,7 +80,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
             new_index_of_fifth = (self._index_of_fifth() - inversion_number) % len(absolute_intervals)
             assert new_index_of_fifth > 0 # don't remove the lowest note of the inversion
             absolute_intervals.pop(new_index_of_fifth)
-        inversion_interval_list = IntervalList.make_absolute(absolute_intervals, increasing=self.increasing)
+        inversion_interval_list = IntervalListPattern.make_absolute(absolute_intervals, increasing=self.increasing)
         return InversionPattern.make(inversion=inversion_number, interval_list=inversion_interval_list, base=self, fifth_omitted = omit_fifth, record=record, position_of_lowest_interval_in_base_octave=new_lower)
     
     def compute_all_inversions(self, record=False):
@@ -119,8 +94,39 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     def __lt__(self, other: "ChordPattern"):
         return self.first_of_the_names() < other.first_of_the_names()
     
-    def interval_lists(self) -> List[IntervalList]:
+    def interval_lists(self) -> List[IntervalListPattern]:
         l = [self.get_interval_list()]
         if self.optional_fifth:
             l.append(self.intervals_without_fifth())
         return l
+    
+    @classmethod
+    def _get_instantiation_type(cls) -> Type["Chord"]:
+        from solfege.pattern_instantiation.chord.chord import Chord
+        return Chord
+
+    # pragma mark - DataClassWithDefaultArgument
+ 
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default_dict = super()._default_arguments_for_constructor(args, kwargs)
+        default_dict["optional_fifth"] = False
+        return default_dict
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "optional_fifth")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "inversions")
+        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    def __post_init__(self):
+        """A sequence of interval between the tonic and the other note of this chord.
+        
+        Unison is not present in the param. Other intervals are presented as a pair of Chromatic, Diatonic
+        """
+        super().__post_init__()
+        if not self.record:
+            return
+        assert self.increasing
+        self.inversions.extend(self.compute_all_inversions(record=self.record))

@@ -2,7 +2,7 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, Generator, Generic, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
-from solfege.value.interval.set.interval_list import DataClassWithDefaultArgument
+from solfege.value.interval.set.interval_list_pattern import DataClassWithDefaultArgument
 from utils.util import assert_dict_typing, assert_iterable_typing, assert_typing
 
 
@@ -36,23 +36,6 @@ class RecordKeeper(Generic[KeyType, RecordedType, RecordedContainerType], DataCl
     
     """Associate the key to the set of recorded type"""
     _records: Dict[KeyType, RecordedContainerType]
-
-
-    def __post_init__(self):
-        assert_typing(self._records, dict)
-
-    def is_key_valid(self, key: KeyType) -> bool:
-        """Whether the key is a valid entry. assert if not."""
-        return NotImplemented
-
-    @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
-        default = super()._default_arguments_for_constructor(args, kwargs)
-        default["_records"] = dict()
-        return default
-    
-    def _new_container(self, key: KeyType) -> RecordedContainerType:
-        return NotImplemented
     
     def register(self, key: KeyType, recorded: RecordedType):
         assert_typing(key, self._key_type, exact=True)
@@ -89,6 +72,26 @@ class RecordKeeper(Generic[KeyType, RecordedType, RecordedContainerType], DataCl
     def __repr__(self):
         return f"{self.__class__.__name__}(_recorded_type={self._recorded_type}, _key_type={self._key_type}, _recorded_container_type={self._recorded_container_type}, _records=...)"
 
+    # Must be implemented by subclass
+
+    def is_key_valid(self, key: KeyType) -> bool:
+        """Whether the key is a valid entry. assert if not."""
+        return NotImplemented
+
+    def _new_container(self, key: KeyType) -> RecordedContainerType:
+        return NotImplemented
+
+    # pragma mark - DataClassWithDefaultArgument
+
+    def __post_init__(self):
+        assert_typing(self._records, dict)
+    
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default = super()._default_arguments_for_constructor(args, kwargs)
+        default["_records"] = dict()
+        return default
+    
 
 RecordKeeperType = TypeVar("RecordKeeperType", bound = RecordKeeper)
 

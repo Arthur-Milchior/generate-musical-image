@@ -8,11 +8,11 @@ from solfege.pattern.pattern_with_interval_list import PatternType, PatternWithI
 from utils.util import assert_typing
 
 
-NoteListType= TypeVar("NoteListType", bound = FrozenList)
-IntervalListType= TypeVar("IntervalListType", bound = FrozenList)
+NoteFrozenListType= TypeVar("NoteFrozenListType", bound = FrozenList)
+IntervalFrozenListType= TypeVar("IntervalFrozenListType", bound = FrozenList)
 
 @dataclass(frozen=True)
-class AbstractPatternInstantiation(DataClassWithDefaultArgument, Generic[PatternType, NoteType, IntervalType, NoteListType, IntervalListType]):
+class AbstractPatternInstantiation(DataClassWithDefaultArgument, Generic[PatternType, NoteType, IntervalType]):
     pattern: PatternType
     lowest_note: NoteType
 
@@ -27,13 +27,13 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, Generic[Pattern
         assert_typing(self.pattern, self.pattern_type)
         super().__post_init__()
 
-    def get_intervals(self) -> IntervalListType:
+    def get_intervals(self) -> IntervalFrozenListType:
         return NotImplemented
 
     def get_absolute_intervals(self) -> FrozenList[IntervalType]:
         return self.get_intervals().absolute_intervals()
     
-    def get_notes(self) -> NoteListType:
+    def get_notes(self) -> NoteFrozenListType:
         l =  []
         for interval in self.get_absolute_intervals():
             l.append(self.lowest_note + interval)

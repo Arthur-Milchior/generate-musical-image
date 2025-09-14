@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, List
 
-from solfege.pattern.chord.inversion_pattern import InversionPattern
+from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.value.note.chromatic_note import ChromaticNote
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_typing
@@ -11,6 +11,8 @@ from utils.util import assert_typing
 class InversionAndTonic(DataClassWithDefaultArgument):
     inversion: InversionPattern
     tonic: ChromaticNote
+
+    # pragma mark - DataClassWithDefaultArgument
 
     def __post_init__(self):
         assert_typing(self.inversion, InversionPattern)

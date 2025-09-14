@@ -1,0 +1,82 @@
+
+
+from dataclasses import dataclass
+from typing import ClassVar, Dict, List, Type, TypeVar
+from solfege.pattern.chord.chord_pattern import ChordPattern
+from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
+from solfege.value.interval.interval import Interval
+from solfege.value.interval.set.interval_list_pattern import DataClassWithDefaultArgument, IntervalListPattern
+from utils.util import assert_typing
+
+
+class InversionPatternGetter:
+    def get_inversion_pattern(self) -> "InversionPattern":
+        return NotImplemented
+    
+InversionPatternGetterType = TypeVar("InversionPatternGetterType", bound=InversionPatternGetter)
+
+@dataclass(frozen=True)
+class InversionPattern(InversionPatternGetter, PatternWithIntervalList["IntervalListToInversion"], DataClassWithDefaultArgument):
+    """Order is considering not inversion first. Then with fifth. Then base."""
+    inversion: int
+    interval_list: IntervalListPattern
+    base: ChordPattern
+    fifth_omitted: bool
+
+    """For a scale whose lowest note is n, you get the position of the tonic with n+position_of_lowest_interval_in_base_octave."""
+    position_of_lowest_interval_in_base_octave: Interval
+
+    @classmethod
+    def _new_record_keeper(cls):
+        from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
+        return IntervalListToInversionPattern.make()
+    
+    def get_inversion_pattern(self) -> "InversionPattern":
+        return self
+    
+    def get_interval_list(self) -> IntervalListPattern:
+        iv = self.interval_list
+        assert_typing(iv, IntervalListPattern, exact=True)
+        return iv
+    
+    def name(self):
+        if self.inversion == 0:
+            suffix = ""
+        elif self.inversion == 1:
+            suffix = " first inversion"
+        elif self.inversion == 2:
+            suffix = " second inversion"
+        elif self.inversion == 3:
+            suffix = " third inversion"
+        else:
+            assert self.inversion < 10
+            suffix = f" {self.inversion}th inversion"
+        return f"""{self.base.first_of_the_names()}{suffix}"""
+    
+    def __lt__(self, other: "InversionPattern"):
+        return (self.inversion, not self.fifth_omitted, self.base) < (other.inversion, not other.fifth_omitted, other.base)
+
+    @classmethod
+    def _get_instantiation_type(cls) -> Type["Inversion"]:
+        from solfege.pattern_instantiation.inversion.inversion import Inversion
+        return Inversion
+
+    # pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default_dict = super()._default_arguments_for_constructor(args, kwargs)
+        default_dict["fifth_omitted"] = False
+        return default_dict
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        cls.arg_to_kwargs(args, kwargs, "inversion")
+        def clean_absolute_intervals(intervals):
+            if not isinstance(intervals, IntervalListPattern):
+                return IntervalListPattern.make_absolute(intervals)
+            return intervals
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "interval_list", clean_absolute_intervals)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "base")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "fifth_omitted")
+        return super()._clean_arguments_for_constructor(args, kwargs)

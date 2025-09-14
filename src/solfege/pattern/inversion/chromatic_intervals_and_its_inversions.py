@@ -1,8 +1,8 @@
 
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, List
-from solfege.pattern.chord.inversion_pattern import InversionPattern
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
+from solfege.pattern.inversion.inversion_pattern import InversionPattern
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.recordable import RecordedContainer
 
@@ -13,7 +13,7 @@ class ChromaticIntervalListAndItsInversions(RecordedContainer[InversionPattern],
     
     It is the data entry for ChromaticIntervalListToInversion
     """
-    chromatic_intervals: ChromaticIntervalList
+    chromatic_intervals: ChromaticIntervalListPattern
     inversions: List[InversionPattern] = field(default_factory=list, hash=False)
 
     def append(self, inversion):

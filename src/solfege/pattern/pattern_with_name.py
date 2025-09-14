@@ -3,7 +3,7 @@ import sys
 from typing import ClassVar, Dict, List, Optional, Self, Tuple, Union
 
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, DataClassWithDefaultArgument, IntervalListPattern
 from utils.frozenlist import FrozenList, StrFrozenList
 from utils.util import assert_iterable_typing, assert_optional_typing, assert_typing
 
@@ -22,6 +22,29 @@ class PatternWithName(DataClassWithDefaultArgument):
     notation: Optional[str]
     """Whether to record this pattern in the list of patterns."""
     record: bool = field(compare=False)
+
+
+    def first_of_the_names(self, for_file= False) -> str:
+        """The first of all the names associated to this pattern. Hopefully the most canonical one"""
+        name = self.names[0] 
+        if for_file:
+            return name.replace(" ", "_")
+        return name
+
+    def get_names(self):
+        """All the names associated to this pattern"""
+        return self.names
+
+    @classmethod
+    def get_all_instances(cls):
+        return cls.all_patterns
+
+    @classmethod
+    def get_from_name(cls, name: str):
+        return cls.name_to_pattern.get(name)
+
+
+    #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
@@ -51,23 +74,3 @@ class PatternWithName(DataClassWithDefaultArgument):
             assert name not in cls.name_to_pattern, f""" "{name}" added twice in {cls}. Check for error above that would cause the definition of {name} to be imported twice."""
             cls.name_to_pattern[name] = self
         super().__post_init__()
-
-
-    def first_of_the_names(self, for_file= False) -> str:
-        """The first of all the names associated to this pattern. Hopefully the most canonical one"""
-        name = self.names[0] 
-        if for_file:
-            return name.replace(" ", "_")
-        return name
-
-    def get_names(self):
-        """All the names associated to this pattern"""
-        return self.names
-
-    @classmethod
-    def get_all_instances(cls):
-        return cls.all_patterns
-
-    @classmethod
-    def get_from_name(cls, name: str):
-        return cls.name_to_pattern.get(name)

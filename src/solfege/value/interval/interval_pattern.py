@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import ClassVar, Dict, Iterator, List, Union
-from solfege.pattern.pattern import SolfegePattern
+from typing import ClassVar, Dict, Iterator, List, Type, Union
+from solfege.pattern.solfege_pattern import SolfegePattern
 from solfege.value.interval.interval import Interval
 
 @dataclass(frozen=True)
@@ -10,11 +10,17 @@ class IntervalPattern(SolfegePattern):
     """See SoflegePattern"""
     name_to_pattern: ClassVar[Dict[str, "IntervalPattern"]] = dict()
     all_patterns: ClassVar[List['IntervalPattern']] = list()
+    
+    @classmethod
+    def _get_instantiation_type(cls) -> Type["Chord"]:
+        return NotImplemented
 
     @classmethod
     def _new_record_keeper(cls):
         # we won't record interval
         return NotImplemented
+
+    #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):

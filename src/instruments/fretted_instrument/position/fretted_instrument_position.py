@@ -44,17 +44,6 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     Order is the same as its chromatic note, and in case of equality the string. Not played notes is maximal. This ensure that the minimal of a chord is its lowest note."""
     string: String
     fret: Fret
-
-    def __post_init__(self):
-        assert_typing(self.fret, Fret)
-        assert_typing(self.string, String)
-
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "string")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fret", Fret.make_single_argument)
-        return args, kwargs
     
     def repr_single_argument(self) -> str:
         return f"""{(self.string.value, self.fret.value)}"""
@@ -99,11 +88,6 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
             frets = frets.range(instrument, self.fret)
         chromatic_note = self.get_chromatic() + interval
         return PositionOnFrettedInstrument.from_chromatic(instrument, chromatic_note, strings, frets)
-
-    def get_chromatic(self) -> Optional[ChromaticNote]:
-        if self.fret.is_not_played():
-            return None
-        return self.string.note_open + ChromaticInterval(self.fret.value)
 
     def svg(self, absolute: bool, stroke_color: Optional[str]) -> List[str]:
         """Draw this position, assuming that f already contains the svg for the fret"""
@@ -160,7 +144,26 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
         return dataclasses.replace(self, fret=self.fret.transpose(transpose, transpose_open, transpose_not_played))
-    
+
+#pragma mark - ChromaticGetter
+
+    def get_chromatic(self) -> Optional[ChromaticNote]:
+        if self.fret.is_not_played():
+            return None
+        return self.string.note_open + ChromaticInterval(self.fret.value)
+
+    # pragma mark - DataClassWithDefaultArgument
+
+    def __post_init__(self):
+        assert_typing(self.fret, Fret)
+        assert_typing(self.string, String)
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "string")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fret", Fret.make_single_argument)
+        return args, kwargs
 
 PositionOnFrettedInstrumentType = TypeVar("PositionOnFrettedInstrumentType", bound=PositionOnFrettedInstrument)
 

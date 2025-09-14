@@ -47,17 +47,7 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
     
     def is_closed(self):
         return isinstance(self.value, int) and self.value > 0
-    
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "value")
-        return super()._clean_arguments_for_constructor(args, kwargs)
 
-    def __post_init__(self):
-        # not calling super because we accept None value
-        #super().__post_init__()
-        assert_optional_typing(self.value, int)
 
     def add(self, instrument: "FrettedInstrument", other: Union[ChromaticInterval, int]) -> Self:
         return self.sub(instrument, -other)
@@ -164,3 +154,16 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
     
     def __sub__(self, other):
         raise Exception("Use .sub")
+    
+    # pragma mark - DataClassWithDefaultArgument
+    
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "value")
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    def __post_init__(self):
+        # not calling super because we accept None value
+        #super().__post_init__()
+        assert_optional_typing(self.value, int)

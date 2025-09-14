@@ -4,7 +4,7 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instrument import
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import ScaleColors, SetOfFrettedInstrumentPositionsWithFingers
 from instruments.fretted_instrument.scale.generate_scale import generate_scale
-from solfege.pattern.pattern import SolfegePattern
+from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.csv import CsvGenerator
 from utils.util import *
 from solfege.pattern.scale.scale_pattern import ScalePattern

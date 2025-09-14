@@ -1,8 +1,8 @@
 from typing import ClassVar, List, Type
-from solfege.pattern.chord.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
-from solfege.pattern.chord.inversion_pattern import InversionPattern
+from solfege.pattern.inversion.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
+from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from utils.util import assert_typing
 
 
@@ -16,9 +16,9 @@ class ChromaticIntervalListToInversion(ChromaticIntervalListToPatterns[Inversion
     _recorded_type: ClassVar[Type] = InversionPattern
     _recorded_container_type: ClassVar[Type] = ChromaticIntervalListAndItsInversions
 
-    def is_key_valid(self, key: ChromaticIntervalList):
+    def is_key_valid(self, key: ChromaticIntervalListPattern):
         return key.is_in_base_octave()
     
     @classmethod
-    def _new_container(self, key: IntervalList) -> List[InversionPattern]:
+    def _new_container(self, key: IntervalListPattern) -> List[InversionPattern]:
         return ChromaticIntervalListAndItsInversions(key)

@@ -6,7 +6,7 @@ from typing import Callable, ClassVar, Dict, Generic, List, Type
 
 from solfege.list_order import ListOrder
 from solfege.value.interval.abstract_interval import IntervalType
-from solfege.value.interval.set.interval_list import AbstractIntervalList, IntervalListType
+from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, IntervalListType
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
@@ -15,7 +15,7 @@ from utils.util import assert_decreasing, assert_increasing, assert_iterable_typ
 
 @dataclass(frozen=True, unsafe_hash=True)
 class AbstractNoteList(Generic[NoteType, IntervalType, IntervalListType], DataClassWithDefaultArgument):
-    interval_list_type: ClassVar[Type[AbstractIntervalList]]
+    interval_list_type: ClassVar[Type[AbstractIntervalListPattern]]
     note_type: ClassVar[Type[AbstractNote]]
     _frozen_list_type: ClassVar[Type[FrozenList[AbstractNote]]]
     notes: FrozenList[NoteType]
@@ -26,6 +26,14 @@ class AbstractNoteList(Generic[NoteType, IntervalType, IntervalListType], DataCl
         min_note = self.notes[0]
         return self.interval_list_type.make(note-min_note for note in self.notes)
 
+    def __iter__(self):
+        return iter (self.notes)
+    
+    def __len__(self):
+        return len(self.notes)
+
+    # pragma mark - DataClassWithDefaultArgument
+    
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
         default = super()._default_arguments_for_constructor(args, kwargs)
@@ -47,9 +55,3 @@ class AbstractNoteList(Generic[NoteType, IntervalType, IntervalListType], DataCl
         elif self.list_order == ListOrder.DECREASING:
             assert_decreasing(self)
         super().__post_init__()
-
-    def __iter__(self):
-        return iter (self.notes)
-    
-    def __len__(self):
-        return len(self.notes)

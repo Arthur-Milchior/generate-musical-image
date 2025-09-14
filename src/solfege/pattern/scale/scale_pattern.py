@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import ClassVar, Dict, List, Optional
+from typing import ClassVar, Dict, List, Optional, Type
 
-from solfege.value.interval.set.interval_list import IntervalList
+from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from solfege.pattern.scale.scale import Scale
 from solfege.value.note.abstract_note import NoteType
 from utils.util import assert_optional_typing
@@ -15,7 +15,7 @@ Also contains all scales from wikipedia, which can be done using the 12 note fro
 import sys
 
 from solfege.value.interval.interval import Interval, octave
-from solfege.pattern.pattern import SolfegePattern
+from solfege.pattern.solfege_pattern import SolfegePattern
 
 
 @dataclass(frozen=True)
@@ -82,4 +82,9 @@ class ScalePattern(SolfegePattern):
 
     def multiple_octaves(self, nb_octave: int):
         assert nb_octave >= 0
-        return IntervalList.make_relative(self.relative_intervals()*nb_octave)
+        return IntervalListPattern.make_relative(self.relative_intervals()*nb_octave)
+    
+    @classmethod
+    def _get_instantiation_type(cls) -> Type["Scale"]:
+        from solfege.pattern_instantiation.chord.chord import Chord
+        return Scale

@@ -171,13 +171,13 @@ class TestScalePattern(unittest.TestCase):
 
     def test_multiple_octave(self):
         self.assertEqual(
-            IntervalList.make_relative([]), 
+            IntervalListPattern.make_relative([]), 
             major_scale.multiple_octaves(0))
         
         self.assertEqual(
-            IntervalList.make_relative([2, 2, 1, 2, 2, 2, 1,]), 
+            IntervalListPattern.make_relative([2, 2, 1, 2, 2, 2, 1,]), 
             major_scale.multiple_octaves(1))
         
         self.assertEqual(
-            IntervalList.make_relative([2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, ]), 
+            IntervalListPattern.make_relative([2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, ]), 
             major_scale.multiple_octaves(2))

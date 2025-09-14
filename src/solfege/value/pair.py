@@ -28,10 +28,6 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
     @classmethod
     def make_instance_of_selfs_class(cls: Type["Pair"], chromatic: ChromaticType, diatonic: DiatonicType):
         return cls(chromatic, diatonic)
-    
-    @classmethod
-    def one_octave(cls)-> Self:
-        return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.one_octave(), diatonic=cls.DiatonicClass.one_octave())
 
     @classmethod
     def make(cls,
@@ -62,12 +58,6 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         chromaticEq = self.chromatic == other.chromatic
         return diatonicEq and chromaticEq
 
-    def get_chromatic(self):
-        return self.chromatic
-
-    def get_diatonic(self) -> DiatonicType:
-        return self.diatonic
-
     def get_alteration(self) -> ChromaticType:
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
         from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
@@ -90,5 +80,21 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         assert_typing(other, self.__class__)
         return (self.chromatic, self.diatonic) < (other.chromatic, other.diatonic)
 
+#pragma mark - ChromaticGetter
+
+    def get_chromatic(self):
+        return self.chromatic
+    
+#pragma mark - DiatonicGetter
+
+    def get_diatonic(self) -> DiatonicType:
+        return self.diatonic
+    
+    #pragma mark - Abstract
+    
     def octave(self):
         return self.diatonic.octave()
+
+    @classmethod
+    def one_octave(cls)-> Self:
+        return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.one_octave(), diatonic=cls.DiatonicClass.one_octave())

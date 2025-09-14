@@ -42,10 +42,6 @@ class Singleton(Abstract, MakeableWithSingleArgument):
     def __repr__(self):
         return f"{self.__class__.__name__}(value={self.value})"
     
-    def octave(self):
-        """The octave number. 0 for unison/central C up to seventh/C one octave above."""
-        return math.floor(self.value / self.__class__.number_of_interval_in_an_octave)
-    
     def repr_single_argument(self) -> str:
         return f"""{self.value}"""
 
@@ -53,6 +49,12 @@ class Singleton(Abstract, MakeableWithSingleArgument):
     def _make_single_argument(cls, value: int) -> Self:
         assert_typing(value, int)
         return cls.make_instance_of_selfs_class(value)
+    
+    #pragma mark - Abstract
+    
+    def octave(self):
+        """The octave number. 0 for unison/central C up to seventh/C one octave above."""
+        return math.floor(self.value / self.__class__.number_of_interval_in_an_octave)
 
     @classmethod
     def one_octave(cls) -> Self:

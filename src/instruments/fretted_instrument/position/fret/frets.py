@@ -22,41 +22,6 @@ class Frets(DataClassWithDefaultArgument):
     allow_open: bool
     allow_not_played: bool
 
-    @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
-        default = super()._default_arguments_for_constructor(args, kwargs)
-        default["closed_fret_interval"] = None
-        default["allow_open"] = False
-        default["allow_not_played"] = False
-        return default
-
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_closed_fret_interval(closed_fret_interval):
-            if closed_fret_interval is None:
-                return None
-            m, M = closed_fret_interval
-            m = Fret.make_single_argument(m)
-            M = Fret.make_single_argument(M)
-            return (m, M)
-        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "closed_fret_interval", clean_closed_fret_interval)
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_open")
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_not_played")
-        return (args, kwargs)
-    
-    def __post_init__(self):
-        assert_typing(self.allow_open, int)
-        assert_typing(self.allow_not_played, bool)
-        if self.closed_fret_interval is not None:
-            assert_typing(self.closed_fret_interval, tuple)
-            m, M = self.closed_fret_interval
-            assert_typing(m, Fret)
-            assert_optional_typing(M, Fret)
-            assert m.is_closed()
-            assert M.is_closed()
-            assert m <= M, f"wrong interval {m}, {M}"
-
     def min_fret(self) -> Optional[Fret]:
         if self.closed_fret_interval is None:
             return None
@@ -128,3 +93,40 @@ class Frets(DataClassWithDefaultArgument):
     @classmethod
     def all_played(cls, instrument: "FrettedInstrument"):
         return cls.make((Fret(1), instrument.last_fret()), allow_open=True)
+
+    #pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default = super()._default_arguments_for_constructor(args, kwargs)
+        default["closed_fret_interval"] = None
+        default["allow_open"] = False
+        default["allow_not_played"] = False
+        return default
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        def clean_closed_fret_interval(closed_fret_interval):
+            if closed_fret_interval is None:
+                return None
+            m, M = closed_fret_interval
+            m = Fret.make_single_argument(m)
+            M = Fret.make_single_argument(M)
+            return (m, M)
+        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "closed_fret_interval", clean_closed_fret_interval)
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_open")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_not_played")
+        return (args, kwargs)
+    
+    def __post_init__(self):
+        assert_typing(self.allow_open, int)
+        assert_typing(self.allow_not_played, bool)
+        if self.closed_fret_interval is not None:
+            assert_typing(self.closed_fret_interval, tuple)
+            m, M = self.closed_fret_interval
+            assert_typing(m, Fret)
+            assert_optional_typing(M, Fret)
+            assert m.is_closed()
+            assert M.is_closed()
+            assert m <= M, f"wrong interval {m}, {M}"

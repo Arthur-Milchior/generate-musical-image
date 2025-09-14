@@ -13,7 +13,7 @@ from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.consts import *
 from instruments.fretted_instrument.position.string.strings import Strings
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalList
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
 from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
@@ -85,10 +85,6 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
     def repr_single_argument(self) -> str:
         return f"""[{", ".join(position.repr_single_argument() for position in self.positions )}]"""
 
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "positions", cls._frozen_list_type)
-        return super()._clean_arguments_for_constructor(args, kwargs)
  
     def played_positions(self):
         return self._frozen_list_type(pos for pos in self.positions if pos.fret.is_played())
@@ -96,9 +92,6 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
     def closed_positions(self):
         return self._frozen_list_type(pos for pos in self.positions if pos.fret.is_closed())
 
-    def __post_init__(self):
-        assert_typing(self.positions, self._frozen_list_type)
-        assert_iterable_typing(self.positions, self.type)
 
     def get_most_grave_note(self) -> Optional[PositionOnFrettedInstrumentType]:
         """The fretted_instrument position of the lowest note"""
@@ -196,7 +189,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
         assert_iterable_typing(chromatic_notes, ChromaticNote)
         return ChromaticNoteList.make(sorted_unique(chromatic_notes))
 
-    def intervals_frow_lowest_note(self) -> Optional[IntervalList]:
+    def intervals_frow_lowest_note(self) -> Optional[IntervalListPattern]:
         """Return None if there are no note played."""
         lowest_position = self.get_most_grave_note()
         lowest_note = lowest_position.get_chromatic()
@@ -209,7 +202,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
         assert_optional_typing(lowest_note, ChromaticNote)
         chromatic_intervals = ChromaticIntervalFrozenList(chromatic_note - lowest_note for chromatic_note in chromatic_notes)
         assert_iterable_typing(chromatic_intervals, ChromaticInterval)
-        return ChromaticIntervalList.make_absolute(sorted_unique(chromatic_intervals))
+        return ChromaticIntervalListPattern.make_absolute(sorted_unique(chromatic_intervals))
 
     def intervals_frow_lowest_note_in_base_octave(self):
         intervals = self.intervals_frow_lowest_note()
@@ -217,7 +210,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
             return None
         absolute_chromatic_intervals = intervals.absolute_intervals()
         assert_iterable_typing(absolute_chromatic_intervals, ChromaticInterval)
-        return ChromaticIntervalList.make_absolute(sorted_unique(interval.in_base_octave() for interval in absolute_chromatic_intervals))
+        return ChromaticIntervalListPattern.make_absolute(sorted_unique(interval.in_base_octave() for interval in absolute_chromatic_intervals))
 
     def number_of_distinct_notes(self):
         return len(self.chromatic_notes())
@@ -275,9 +268,9 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
         chromatic_notes = self.chromatic_notes()
         return note_list.change_octave_to_be_enharmonic(chromatic_notes)
         
-    def notes_from_interval_list(self, interval_list: IntervalList, lowest_note: Optional[Note] = None):
+    def notes_from_interval_list(self, interval_list: IntervalListPattern, lowest_note: Optional[Note] = None):
         """Returns the list of note played, where the diatonic is chosen in order to ensures that the note difference between each note and its lowest note belongs (up to octave) in interval_list, and lowest note is `lowest_note`."""
-        assert_typing(interval_list, IntervalList)
+        assert_typing(interval_list, IntervalListPattern)
         if lowest_note is None:
             lowest_note: Note = self.get_most_grave_note().get_chromatic().get_note()
         notes_to_imitate: NoteList = interval_list.from_note(lowest_note)
@@ -309,3 +302,14 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
     
     def _svg_name_base(self, instrument: FrettedInstrument, absolute: bool, colors: Optional[Colors], *args, **kwargs):
         return f"""{instrument.name}_{colors.name if colors is not None else "black"}_{"absolute" if absolute else "transposable"}_{"__".join(f"{pos.string.value}_{pos.fret.value}" for pos in self)}"""
+
+    #pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "positions", cls._frozen_list_type)
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    def __post_init__(self):
+        assert_typing(self.positions, self._frozen_list_type)
+        assert_iterable_typing(self.positions, self.type)

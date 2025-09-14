@@ -28,11 +28,6 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
         assert fingers <= self.fingers
         return dataclasses.replace(self, fingers=fingers)
 
-    def __post_init__(self):
-        assert_typing(self.fingers, frozenset)
-        for finger in self.fingers:
-            assert 1 <= finger <= 4
-        super().__post_init__()
 
     @staticmethod
     def from_fretted_instrument_position(pos: PositionOnFrettedInstrument, fingers: FingersType = ALL_FINGERS):
@@ -40,16 +35,6 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
         fret = pos.fret
         assert_typing(fret, Fret)
         return PositionOnFrettedInstrumentWithFingers.make(fingers=fingers, string=pos.string, fret=fret)
-
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_fingers(fingers):
-            if isinstance(fingers, int):
-                fingers = {fingers}
-            return frozenset(fingers)
-        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fingers", clean_fingers)
-        return args, kwargs
 
     def positions_for_interval(self, instrument: FrettedInstrument, interval: ChromaticInterval) -> List[Tuple[FingersType, "PositionOnFrettedInstrumentWithFingers"]]:
         """Returns the set of next note to play this interval, and the fingers that could be used to reach it on current note."""
@@ -74,6 +59,23 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
     
     def __repr__(self):
         return f"""FrettedInstrumentPositionWithFingers.make({self.string.value}, {self.fret.value}, {set(self.fingers)})"""
-    
+
+    # pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        def clean_fingers(fingers):
+            if isinstance(fingers, int):
+                fingers = {fingers}
+            return frozenset(fingers)
+        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fingers", clean_fingers)
+        return args, kwargs
+
+    def __post_init__(self):
+        assert_typing(self.fingers, frozenset)
+        for finger in self.fingers:
+            assert 1 <= finger <= 4
+        super().__post_init__()
 class FrettedInstrumentPositionWithFingersFrozenList(FrozenList[PositionOnFrettedInstrumentWithFingers]):
     type = PositionOnFrettedInstrumentWithFingers

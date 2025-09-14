@@ -1,7 +1,7 @@
 
 from typing import ClassVar
 from solfege.pattern.chord.chord_pattern import ChordPattern
-from solfege.pattern_instantiation.chord.abstract_chromatic_instantiation import AbstractChromaticInstantiation
+from solfege.pattern_instantiation.abstract_chromatic_instantiation import AbstractChromaticInstantiation
 from solfege.pattern_instantiation.chord.chord import AbstractChord
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList

@@ -19,9 +19,8 @@ class DataClassWithDefaultArgument:
         del new_kwargs[_CLEANED]
         del new_kwargs[_DEFAULT_ADDED]
         return cls(*cleaned_args, **new_kwargs)
-
-    def __post_init__(self):
-        hash(self) #check that hash can be computed
+    
+    # Protected methods
     
     @classmethod
     def arg_to_kwargs(cls, args, kwargs, name, clean: Callable = lambda x: x, type: Optional[Type] = None):
@@ -51,6 +50,11 @@ class DataClassWithDefaultArgument:
         if not args and name not in kwargs:
             return (args, kwargs)
         return cls.arg_to_kwargs(args, kwargs, name, clean)
+    
+    # Must be implemented by children classes.
+
+    def __post_init__(self):
+        hash(self) #check that hash can be computed
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):

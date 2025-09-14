@@ -23,6 +23,48 @@ class FrettedInstrument(DataClassWithDefaultArgument):
     finger_to_fret_delta: Dict[int, Dict[int, FretDelta]]=field(compare=False)
     number_of_scales_reachable_per_string: IntFrozenList
 
+    def string(self, index):
+        from instruments.fretted_instrument.position.string.string import String
+        # String 1 is at position 0 in the array, and so on. So removing 1 to index.
+        return String(index, self.open_string_chromatic_note[index-1])
+    
+    def strings(self):
+        from instruments.fretted_instrument.position.string.string import StringFrozenList
+        from instruments.fretted_instrument.position.string.strings import Strings
+        return Strings.make((self.string(index) for index in range(1, len(self.open_string_chromatic_note)+1)))
+
+    def fret(self, value: Optional[Union[int, "Fret"]]):
+        from instruments.fretted_instrument.position.fret.fret import Fret
+        if isinstance(value, Fret):
+            return value
+        assert_optional_typing(value, int)
+        return Fret(value)
+    
+    def number_of_strings(self):
+        return len(self.open_string_chromatic_note)
+
+    def last_fret(self):
+        return self.fret(self.number_of_frets)
+    
+    def last_string(self):
+        return self.string(self.number_of_strings())
+
+    def lowest_note(self):
+        return min(self.open_string_chromatic_note)
+    
+    def highest_note(self):
+        return self.last_fret() + max(self.open_string_chromatic_note) 
+    
+    def generated_folder_name(self):
+        path = f"{generate_root_folder}/{self.name}"
+        ensure_folder(path)
+        return path
+    
+    def width(self):
+        return int(DISTANCE_BETWEEN_STRING * self.number_of_strings())
+
+    # pragma mark - DataClassWithDefaultArgument
+    
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         def clean_open_strings(open_strings):
@@ -65,43 +107,3 @@ class FrettedInstrument(DataClassWithDefaultArgument):
             assert 0 <= number_of_scale
 
         super().__post_init__()
-
-    def string(self, index):
-        from instruments.fretted_instrument.position.string.string import String
-        # String 1 is at position 0 in the array, and so on. So removing 1 to index.
-        return String(index, self.open_string_chromatic_note[index-1])
-    
-    def strings(self):
-        from instruments.fretted_instrument.position.string.string import StringFrozenList
-        from instruments.fretted_instrument.position.string.strings import Strings
-        return Strings.make((self.string(index) for index in range(1, len(self.open_string_chromatic_note)+1)))
-
-    def fret(self, value: Optional[Union[int, "Fret"]]):
-        from instruments.fretted_instrument.position.fret.fret import Fret
-        if isinstance(value, Fret):
-            return value
-        assert_optional_typing(value, int)
-        return Fret(value)
-    
-    def number_of_strings(self):
-        return len(self.open_string_chromatic_note)
-
-    def last_fret(self):
-        return self.fret(self.number_of_frets)
-    
-    def last_string(self):
-        return self.string(self.number_of_strings())
-
-    def lowest_note(self):
-        return min(self.open_string_chromatic_note)
-    
-    def highest_note(self):
-        return self.last_fret() + max(self.open_string_chromatic_note) 
-    
-    def generated_folder_name(self):
-        path = f"{generate_root_folder}/{self.name}"
-        ensure_folder(path)
-        return path
-    
-    def width(self):
-        return int(DISTANCE_BETWEEN_STRING * self.number_of_strings())

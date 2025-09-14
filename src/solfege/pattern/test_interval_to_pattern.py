@@ -2,13 +2,13 @@ from typing import Tuple
 import unittest
 
 from solfege.value.interval.interval import Interval, IntervalFrozenList
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, IntervalListFrozenList
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListFrozenList
 from utils.frozenlist import FrozenList
 
 from solfege.pattern.interval_list_to_patterns import *
 
-second_major = IntervalList.make_relative([(2, 1)])
-tone = ChromaticIntervalList.make_relative([2])
+second_major = IntervalListPattern.make_relative([(2, 1)])
+tone = ChromaticIntervalListPattern.make_relative([2])
 
 @dataclass(frozen=True, eq = True)
 class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
@@ -18,6 +18,15 @@ class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
     def _new_record_keeper(cls):
         return FakeIntervalListToFakePatterns.make()
 
+    def get_interval_list(self) -> IntervalListPattern:
+        return IntervalListPattern.make_relative(self._relative_intervals)
+
+    @classmethod
+    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
+        return NotImplemented
+
+    #pragma mark - DataClassWithDefaultArgument
+
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         def clean_intervals(intervals):
@@ -25,20 +34,16 @@ class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
         
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_relative_intervals", clean_intervals)
         return super()._clean_arguments_for_constructor(args, kwargs)
-
-    def get_interval_list(self) -> IntervalList:
-        return IntervalList.make_relative(self._relative_intervals)
-    
 class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[FakePattern, List]):
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = FakePattern
     _recorded_container_type: ClassVar[Type] = list
 
-    def is_key_valid(self, key: ChromaticIntervalList):
+    def is_key_valid(self, key: ChromaticIntervalListPattern):
         return True
     
     @classmethod
-    def _new_container(self, key: IntervalList) -> List[FakePattern]:
+    def _new_container(self, key: IntervalListPattern) -> List[FakePattern]:
         return list()
 
 class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, List]):
@@ -47,7 +52,7 @@ class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, L
     _recorded_container_type: ClassVar[Type] = list
     _chromatic_recorded_container_type: ClassVar[Type] = list
 
-    def is_key_valid(self, key: ChromaticIntervalList):
+    def is_key_valid(self, key: ChromaticIntervalListPattern):
         return True
     
     @classmethod
@@ -55,7 +60,7 @@ class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, L
         return FakeChromaticIntervalListToFakePatterns.make()
     
     @classmethod
-    def _new_container(self, key: IntervalList) -> List[FakePattern]:
+    def _new_container(self, key: IntervalListPattern) -> List[FakePattern]:
         return list()
 
     

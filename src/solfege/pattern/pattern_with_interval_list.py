@@ -2,13 +2,15 @@ from dataclasses import dataclass, field
 import sys
 from typing import ClassVar, Dict, Generic, List, Optional, Self, Type, TypeVar, Union
 
-from solfege.value.interval.set.interval_list import ChromaticIntervalList, DataClassWithDefaultArgument, IntervalList
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, DataClassWithDefaultArgument, IntervalListPattern
+from solfege.value.note.chromatic_note import ChromaticNote
+from solfege.value.note.note import Note
 from utils.recordable import RecordKeeperType, Recordable
 from utils.util import assert_iterable_typing, assert_typing
 
 
 @dataclass(frozen=True)
-class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], DataClassWithDefaultArgument, Generic[RecordKeeperType]):
+class PatternWithIntervalList(Recordable[IntervalListPattern, RecordKeeperType], DataClassWithDefaultArgument, Generic[RecordKeeperType]):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
@@ -17,7 +19,28 @@ class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], DataCl
     """Whether to record this pattern in the list of patterns."""
     _record_keeper: ClassVar[RecordKeeperType]
     _record_keeper_type: ClassVar[Type]
-    _key_type: ClassVar[Type] = IntervalList
+    _key_type: ClassVar[Type] = IntervalListPattern
+    
+    def get_interval_list(self) -> IntervalListPattern:
+        return NotImplemented
+
+    def interval_lists(self) -> List[IntervalListPattern]:
+        return [self.get_interval_list()]
+    
+    def chromatic_interval_lists(self) -> ChromaticIntervalListPattern:
+        return [interval.get_chromatic_interval_list() for interval in self.interval_lists()]
+
+    def get_chromatic_instantiation(self, lowest_chromatic_note: ChromaticNote) -> "AbstractChromaticInstantiation[Self]":
+        return self._get_instantiation_type.related_chromatic_type(lowest_chromatic_note)
+    
+    def get_instantiation(self, lowest_note: Note) -> "AbstractPairInstantiation[Self]":
+        return self._get_instantiation_type(lowest_note)
+
+    @classmethod
+    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
+        return NotImplemented
+    
+    #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
@@ -35,15 +58,6 @@ class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], DataCl
         super().__post_init__()
         if self.record:
             self._associate_keys_to_self()
-    
-    def get_interval_list(self) -> IntervalList:
-        return NotImplemented
-
-    def interval_lists(self) -> List[IntervalList]:
-        return [self.get_interval_list()]
-    
-    def chromatic_interval_lists(self) -> ChromaticIntervalList:
-        return [interval.get_chromatic_interval_list() for interval in self.interval_lists()]
     
 
 PatternType = TypeVar("PatternType", bound=PatternWithIntervalList)

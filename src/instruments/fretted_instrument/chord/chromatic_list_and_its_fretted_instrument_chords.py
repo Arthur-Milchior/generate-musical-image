@@ -7,40 +7,33 @@ from instruments.fretted_instrument.chord.chord_decomposition_anki_note import C
 from instruments.fretted_instrument.chord.fretted_instrument_chord import ChordColors, ChordOnFrettedInstrument, FrettedInstrumentChordFrozenList
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-from solfege.pattern.chord.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
-from solfege.pattern.chord.inversion_pattern import InversionPattern
-from solfege.value.interval.set.interval_list import IntervalList
+from solfege.pattern.inversion.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
+from solfege.pattern.inversion.inversion_pattern import InversionPattern, InversionPatternGetter, InversionPatternGetterType
+from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from utils.csv import CsvGenerator
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.recordable import RecordedContainer
+from utils.recordable import RecordedContainer, RecordedType
 from utils.util import assert_iterable_typing, assert_typing, img_tag
 
 @dataclass(frozen=True, unsafe_hash=True)
-class ChromaticListAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrettedInstrument], CsvGenerator, DataClassWithDefaultArgument):
+class ChromaticListAndItsFrettedInstrumentChords(InversionPatternGetter, RecordedContainer[InversionPatternGetterType], CsvGenerator, DataClassWithDefaultArgument, Generic[InversionPatternGetterType]):
     """    Csv is:
     name, other name, open, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored, partition)
     """
     instrument: FrettedInstrument
-    interval_and_its_inversions: ChromaticIntervalListAndItsInversions
+    key: InversionPatternGetterType
     fretted_instrument_chords: List[ChordOnFrettedInstrument] = field(hash=False, compare=False)
-    open: ClassVar[bool]
-    absolute: ClassVar[bool]
+    # open: ClassVar[bool]
+    # absolute: ClassVar[bool]
 
-    @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
-        default = super()._default_arguments_for_constructor(args, kwargs)
-        default["fretted_instrument_chords"] = list()
-        return default
+    #pragma mark - InversionPatternGetter
 
-    def __post_init__(self):
-        assert_typing(self.interval_and_its_inversions, ChromaticIntervalListAndItsInversions)
-        assert_typing(self.fretted_instrument_chords, list)
-        assert_iterable_typing(self.fretted_instrument_chords, ChordOnFrettedInstrument)
-        super().__post_init__()
+    def get_inversion_pattern(self) -> InversionPattern:
+        return self.key.get_inversion_pattern()
 
     def append(self, fretted_instrument_chord: ChordOnFrettedInstrument):
         assert_typing(fretted_instrument_chord, ChordOnFrettedInstrument)
-        expected_chromatic_intervals = self.interval_and_its_inversions.chromatic_intervals
+        expected_chromatic_intervals = self.get_inversion_pattern().chromatic_interval_lists()
         actual_chromatic_intervals = fretted_instrument_chord.intervals_frow_lowest_note_in_base_octave()
         assert expected_chromatic_intervals == actual_chromatic_intervals, f"""{expected_chromatic_intervals}\n!=\n{actual_chromatic_intervals}"""
         self.fretted_instrument_chords.append(fretted_instrument_chord)
@@ -87,7 +80,7 @@ class ChromaticListAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrette
     def names(self):
         return [self.name(inversion) for inversion in self.interval_and_its_inversions.inversions]
     
-    def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalList) -> str:
+    def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
         return NotImplemented
     
     def triple_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument, chord_decompositions: List[str]):
@@ -124,3 +117,16 @@ class ChromaticListAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrette
         l.append(", ".join(colored for _, colored, _ in triples))
         l.append(", ".join(partition for _, _, partition in triples) if self.absolute else "")
         return l
+    
+    #pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default = super()._default_arguments_for_constructor(args, kwargs)
+        default["fretted_instrument_chords"] = list()
+        return default
+
+    def __post_init__(self):
+        assert_typing(self.fretted_instrument_chords, list)
+        assert_iterable_typing(self.fretted_instrument_chords, ChordOnFrettedInstrument)
+        super().__post_init__()

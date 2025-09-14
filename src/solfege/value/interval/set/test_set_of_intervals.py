@@ -30,10 +30,10 @@
 #         self.assertNotIn(ChromaticInterval(10), major_chord)
 
 #     def test_inversion(self):
-#         self.assertEqual(major_chord.inversion(ChromaticInterval(4)), )
+#         self.assertEqual(major_inversion(ChromaticInterval(4)), )
 
 #     def test_inversion(self):
-#         self.assertEqual(set(major_chord.inversions()), 
+#         self.assertEqual(set(major_inversions()), 
 #                          {InversionPattern(0, major_chord), InversionPattern(1, major_first_inversion), InversionPattern(2, major_second_inversion)})
         
 #     def test_minor(self):

@@ -1,6 +1,6 @@
 import unittest
 
-from solfege.pattern_instantiation.chord.chromatic_inversion import ChromaticInversion
+from solfege.pattern_instantiation.inversion.chromatic_inversion import ChromaticInversion
 from solfege.pattern.chord.chord_patterns import major_triad
 from solfege.value.note.chromatic_note import ChromaticNote, ChromaticNoteFrozenList
 

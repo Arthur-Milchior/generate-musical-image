@@ -22,6 +22,11 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
     pattern: ScalePattern
     scales: SetOfFrettedInstrumentPositionsWithFingersFrozenList
 
+    def __len__(self):
+        return len(self.scales)
+
+    #pragma mark - DataClassWithDefaultArgument
+
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
@@ -53,9 +58,6 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
         assert_typing(self.number_of_octaves, int)
         assert 1 <= self.number_of_octaves <= 2
 
-    def __len__(self):
-        return len(self.scales)
-
 @dataclass(frozen=True)
 class AnkiScaleWithString(DataClassWithDefaultArgument):
     instrument: FrettedInstrument
@@ -63,33 +65,6 @@ class AnkiScaleWithString(DataClassWithDefaultArgument):
     number_of_octaves: int
     pattern: ScalePattern
     fingers_to_scales: FrozenDict[FingersType, AnkiScaleWithFingersAndString] = field(hash=False)
-
-
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "start_string")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_octaves")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "pattern")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fingers_to_scales", FrozenDict)
-
-        return super()._clean_arguments_for_constructor(args, kwargs)
-
-    def __post_init__(self):
-        all_fingers = set()
-        # To find case where the same finger occurs in multiple places.
-        assert_typing(self.fingers_to_scales, FrozenDict)
-        assert_typing(self.instrument, FrettedInstrument)
-        assert_dict_typing(self.fingers_to_scales, frozenset, AnkiScaleWithFingersAndString)
-        for new_fingers, scales in self.fingers_to_scales.items():
-            # for new_finger in new_fingers:
-            #     assert new_finger not in all_fingers
-            assert scales.start_string == self.start_string
-            assert scales.number_of_octaves == self.number_of_octaves
-            assert new_fingers == scales.fingers
-            assert self.pattern == scales.pattern
-            all_fingers = all_fingers | new_fingers
-        super().__post_init__()
 
     def __len__(self):
         return sum (len(scales) for scales in self.fingers_to_scales.values())
@@ -148,7 +123,35 @@ class AnkiScaleWithString(DataClassWithDefaultArgument):
             fingers, scale = pair
             return scale
         return (pair_to_scale(best_first_fingers_scale), pair_to_scale(best_middle_fingers_scale), pair_to_scale(best_fourth_fingers_scale))
-    
+
+    #pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "start_string")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_octaves")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "pattern")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fingers_to_scales", FrozenDict)
+
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    def __post_init__(self):
+        all_fingers = set()
+        # To find case where the same finger occurs in multiple places.
+        assert_typing(self.fingers_to_scales, FrozenDict)
+        assert_typing(self.instrument, FrettedInstrument)
+        assert_dict_typing(self.fingers_to_scales, frozenset, AnkiScaleWithFingersAndString)
+        for new_fingers, scales in self.fingers_to_scales.items():
+            # for new_finger in new_fingers:
+            #     assert new_finger not in all_fingers
+            assert scales.start_string == self.start_string
+            assert scales.number_of_octaves == self.number_of_octaves
+            assert new_fingers == scales.fingers
+            assert self.pattern == scales.pattern
+            all_fingers = all_fingers | new_fingers
+        super().__post_init__()
+
 
 def _generate_scale(instrument: FrettedInstrument, starting_note: PositionOnFrettedInstrumentWithFingers, relative_intervals: ChromaticIntervalFrozenList) -> Generator[List[PositionOnFrettedInstrumentWithFingers]]:
     assert_typing(starting_note, PositionOnFrettedInstrumentWithFingers)

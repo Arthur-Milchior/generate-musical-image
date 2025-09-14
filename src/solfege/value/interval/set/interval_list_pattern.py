@@ -12,39 +12,12 @@ from utils.frozenlist import FrozenList
 from utils.util import assert_iterable_typing, assert_typing, sorted_unique
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractIntervalList(DataClassWithDefaultArgument, Generic[IntervalType]):
+class AbstractIntervalListPattern(DataClassWithDefaultArgument, Generic[IntervalType]):
     interval_type: ClassVar[Type[AbstractInterval]]
     """The list of intervals, all relative to a common starting note."""
     _absolute_intervals: FrozenList[IntervalType]
     _frozen_list_type: ClassVar[Type[FrozenList[IntervalType]]]
     increasing: bool
-
-    @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
-        default_dict = super()._default_arguments_for_constructor(args, kwargs)
-        default_dict["increasing"] = True
-        return default_dict
-
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_absolute_intervals(intervals):
-            if not isinstance(intervals, cls._frozen_list_type):
-                return cls._frozen_list_type(intervals)
-            return intervals
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "_absolute_intervals", clean_absolute_intervals)
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "increasing")
-        return super()._clean_arguments_for_constructor(args, kwargs)
-
-    def __post_init__(self):
-        assert self._absolute_intervals[0] == self.interval_type.unison()
-        assert_typing(self._absolute_intervals, self._frozen_list_type)
-        assert_iterable_typing(self._absolute_intervals, self.interval_type)
-        for first, second in pairwise(self._absolute_intervals):
-            if self.increasing:
-                assert first < second, self._absolute_intervals
-            else:
-                assert first > second, self._absolute_intervals
-        super().__post_init__()
 
     @classmethod
     def make_absolute(cls, absolute_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]], *args, add_implicit_zero: bool = True, **kwargs):
@@ -119,12 +92,40 @@ class AbstractIntervalList(DataClassWithDefaultArgument, Generic[IntervalType]):
             if not interval.is_in_base_octave(accepting_octave):
                 return False
         return True
+    # pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default_dict = super()._default_arguments_for_constructor(args, kwargs)
+        default_dict["increasing"] = True
+        return default_dict
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        def clean_absolute_intervals(intervals):
+            if not isinstance(intervals, cls._frozen_list_type):
+                return cls._frozen_list_type(intervals)
+            return intervals
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "_absolute_intervals", clean_absolute_intervals)
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "increasing")
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    def __post_init__(self):
+        assert self._absolute_intervals[0] == self.interval_type.unison()
+        assert_typing(self._absolute_intervals, self._frozen_list_type)
+        assert_iterable_typing(self._absolute_intervals, self.interval_type)
+        for first, second in pairwise(self._absolute_intervals):
+            if self.increasing:
+                assert first < second, self._absolute_intervals
+            else:
+                assert first > second, self._absolute_intervals
+        super().__post_init__()
 
     
-IntervalListType = TypeVar("IntervalListType", bound=AbstractIntervalList)
+IntervalListType = TypeVar("IntervalListType", bound=AbstractIntervalListPattern)
 
 @dataclass(frozen=True, unsafe_hash=True, repr=False)
-class ChromaticIntervalList(AbstractIntervalList[ChromaticInterval]):
+class ChromaticIntervalListPattern(AbstractIntervalListPattern[ChromaticInterval]):
     interval_type: ClassVar[Type[ChromaticInterval]] = ChromaticInterval
     note_list_type: ClassVar[Type]
     _frozen_list_type: ClassVar[Type] = ChromaticIntervalFrozenList
@@ -140,7 +141,7 @@ class ChromaticIntervalList(AbstractIntervalList[ChromaticInterval]):
         return str(interval.value)
 
 @dataclass(frozen=True, unsafe_hash=True, repr=False)
-class IntervalList(AbstractIntervalList[Interval]):
+class IntervalListPattern(AbstractIntervalListPattern[Interval]):
     interval_type: ClassVar[Type[Interval]] = Interval
     _frozen_list_type: ClassVar[Type] = IntervalFrozenList
 
@@ -154,14 +155,14 @@ class IntervalList(AbstractIntervalList[Interval]):
         "How to display the interval in make."
         return f"""({interval.chromatic.value}, {interval.diatonic.value})"""
 
-    def get_chromatic_interval_list(self) -> ChromaticIntervalList:
-        chromatic_interval_list = ChromaticIntervalList.make_absolute([interval.get_chromatic() for interval in self._absolute_intervals], increasing=self.increasing)
-        assert_typing(chromatic_interval_list, ChromaticIntervalList)
+    def get_chromatic_interval_list(self) -> ChromaticIntervalListPattern:
+        chromatic_interval_list = ChromaticIntervalListPattern.make_absolute([interval.get_chromatic() for interval in self._absolute_intervals], increasing=self.increasing)
+        assert_typing(chromatic_interval_list, ChromaticIntervalListPattern)
         return chromatic_interval_list
 
-    def get_interval_list(self) -> "IntervalList":
-        return IntervalList(self._absolute_intervals, self.increasing)
+    def get_interval_list(self) -> "IntervalListPattern":
+        return IntervalListPattern(self._absolute_intervals, self.increasing)
     
 
-class IntervalListFrozenList(FrozenList[IntervalList]):
-    type = IntervalList
+class IntervalListFrozenList(FrozenList[IntervalListPattern]):
+    type = IntervalListPattern

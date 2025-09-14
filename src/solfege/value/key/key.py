@@ -26,29 +26,6 @@ class Key(DataClassWithDefaultArgument):
     _key_to_simplest_enharmonic: ClassVar[Dict[Note, Note]] = {}
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
-        default = super()._default_arguments_for_constructor(args, kwargs)
-        default["number_of_flats"] = 0
-        default["number_of_sharps"] = 0
-        return default
-    
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_note(note: Note):
-            return note.in_base_octave()
-        cls.arg_to_kwargs(args, kwargs, "note", clean_note)
-        cls._maybe_arg_to_kwargs(args, kwargs, "number_of_flats")
-        cls._maybe_arg_to_kwargs(args, kwargs, "number_of_sharps")
-        return super()._clean_arguments_for_constructor(args, kwargs)
-
-    def __post_init__(self):
-        assert_typing(self.note, Note)
-        assert_typing(self.number_of_flats, int)
-        assert_typing(self.number_of_sharps, int)
-        assert(self.note, self.note.in_base_octave())
-        self._from_note[self.note.in_base_octave()] = self
-
-    @classmethod
     def make(cls, note: Note, *args, **kwargs) -> Self:
         note = note.in_base_octave()
         return cls(note, *args, **kwargs)
@@ -90,3 +67,29 @@ class Key(DataClassWithDefaultArgument):
     def __str__(self):
         return self.note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False) + (f" with {self.number_of_flats} ♭" if self.number_of_flats else "") + (
             f" with {self.number_of_sharps} #" if self.number_of_sharps else "")
+
+
+    # pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        default = super()._default_arguments_for_constructor(args, kwargs)
+        default["number_of_flats"] = 0
+        default["number_of_sharps"] = 0
+        return default
+    
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        def clean_note(note: Note):
+            return note.in_base_octave()
+        cls.arg_to_kwargs(args, kwargs, "note", clean_note)
+        cls._maybe_arg_to_kwargs(args, kwargs, "number_of_flats")
+        cls._maybe_arg_to_kwargs(args, kwargs, "number_of_sharps")
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    def __post_init__(self):
+        assert_typing(self.note, Note)
+        assert_typing(self.number_of_flats, int)
+        assert_typing(self.number_of_sharps, int)
+        assert(self.note, self.note.in_base_octave())
+        self._from_note[self.note.in_base_octave()] = self

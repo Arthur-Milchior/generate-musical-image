@@ -5,7 +5,7 @@ from typing import Callable, ClassVar, Dict, Generic, List, Optional, Self, Type
 from lily.lily import chord
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list import AbstractIntervalList, IntervalList
+from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, IntervalListPattern
 from solfege.value.note.abstract_note import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput, NoteType, OctaveOutput
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note, NoteFrozenList
@@ -15,8 +15,8 @@ from utils.util import assert_iterable_typing, assert_typing, indent
 from .chromatic_note_list import ChromaticNoteList
 
 
-class NoteList(AbstractNoteList[Note, Interval, IntervalList]):
-    interval_list_type: ClassVar[Type[AbstractIntervalList]] = IntervalList
+class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern]):
+    interval_list_type: ClassVar[Type[AbstractIntervalListPattern]] = IntervalListPattern
     _frozen_list_type: ClassVar[Type[FrozenList[AbstractNote]]] = NoteFrozenList
 
     note_type: ClassVar[Type[AbstractNote]] = Note

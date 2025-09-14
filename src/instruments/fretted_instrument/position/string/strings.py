@@ -10,15 +10,6 @@ from utils.util import assert_iterable_typing, assert_typing
 class Strings(DataClassWithDefaultArgument):
     """Represents a set of string of the fretted_instrument."""
     strings: StringFrozenList
-    
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "strings", StringFrozenList)
-        return super()._clean_arguments_for_constructor(args, kwargs)
-
-    def __post_init__(self):
-        assert_typing(self.strings, StringFrozenList)
-        assert_iterable_typing(self.strings, String)
 
     @classmethod
     def make_interval(cls, instrument: "FrettedInstrument", lower: String, higher: String):
@@ -55,3 +46,14 @@ class Strings(DataClassWithDefaultArgument):
         string = self.strings[0]
         strings = Strings.make(self.strings[1:])
         return (string, strings)
+    
+    #pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "strings", StringFrozenList)
+        return super()._clean_arguments_for_constructor(args, kwargs)
+
+    def __post_init__(self):
+        assert_typing(self.strings, StringFrozenList)
+        assert_iterable_typing(self.strings, String)

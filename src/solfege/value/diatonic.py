@@ -18,6 +18,8 @@ class Diatonic(Singleton, ChromaticGetter, DiatonicGetter[Self]):
         if isinstance(other, Pair):
             return self + other.get_diatonic()
         return super().__add__(self, other)
+
+#pragma mark - ChromaticGetter
     
     def get_chromatic(self, scale="Major") -> Chromatic:
         """
@@ -27,6 +29,8 @@ class Diatonic(Singleton, ChromaticGetter, DiatonicGetter[Self]):
         assert (scale == "Major")
         assert_typing(self, Diatonic)
         return self.ChromaticClass(12 * self.octave() + [0, 2, 4, 5, 7, 9, 11][self.value % 7])
+    
+#pragma mark - DiatonicGetter
     
     def get_diatonic(self):
         return self
