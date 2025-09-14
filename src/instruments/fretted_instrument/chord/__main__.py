@@ -1,0 +1,1 @@
+from instruments.fretted_instrument.chord.transposable import generate_transposable

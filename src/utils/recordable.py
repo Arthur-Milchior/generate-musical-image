@@ -41,6 +41,10 @@ class RecordKeeper(Generic[KeyType, RecordedType, RecordedContainerType], DataCl
     def __post_init__(self):
         assert_typing(self._records, dict)
 
+    def is_key_valid(self, key: KeyType) -> bool:
+        """Whether the key is a valid entry. assert if not."""
+        return NotImplemented
+
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
         default = super()._default_arguments_for_constructor(args, kwargs)
@@ -53,11 +57,13 @@ class RecordKeeper(Generic[KeyType, RecordedType, RecordedContainerType], DataCl
     def register(self, key: KeyType, recorded: RecordedType):
         assert_typing(key, self._key_type, exact=True)
         assert_typing(recorded, self._recorded_type)
+        assert self.is_key_valid(key)
         container = self._get_or_create_recorded_container(key)
         assert_typing(container, self._recorded_container_type)
         container.append(recorded)
 
     def _get_or_create_recorded_container(self, key: KeyType) -> Optional[RecordedContainerType]:
+        assert self.is_key_valid(key)
         container = self.get_recorded_container(key)
         if container is None:
             container = self._new_container(key)
@@ -68,6 +74,7 @@ class RecordKeeper(Generic[KeyType, RecordedType, RecordedContainerType], DataCl
 
     def get_recorded_container(self, key: KeyType) -> Optional[RecordedContainerType]:
         """Given a set of interval, return the object having this set of interval_list."""
+        assert self.is_key_valid(key)
         assert_typing(key, self._key_type, exact=True)
         assert_dict_typing(self._records, self._key_type, self._recorded_container_type)
         if key in self._records:

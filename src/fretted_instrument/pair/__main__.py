@@ -1,1 +1,0 @@
-from fretted_instrument.pair import generate

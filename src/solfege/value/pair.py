@@ -28,6 +28,10 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
     @classmethod
     def make_instance_of_selfs_class(cls: Type["Pair"], chromatic: ChromaticType, diatonic: DiatonicType):
         return cls(chromatic, diatonic)
+    
+    @classmethod
+    def one_octave(cls)-> Self:
+        return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.one_octave(), diatonic=cls.DiatonicClass.one_octave())
 
     @classmethod
     def make(cls,

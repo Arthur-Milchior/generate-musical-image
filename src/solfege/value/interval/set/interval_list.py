@@ -65,10 +65,10 @@ class AbstractIntervalList(DataClassWithDefaultArgument, Generic[IntervalType]):
             absolute_intervals.append(absolute_intervals[-1] + relative_interval)
         return cls.make(*args, _absolute_intervals=cls._frozen_list_type(absolute_intervals), **kwargs)
 
-    def absolute_intervals(self) -> FrozenList[IntervalType][IntervalType]:
+    def absolute_intervals(self) -> FrozenList[IntervalType]:
         return self._absolute_intervals
 
-    def relative_intervals(self, assume_implicit_zero=True) -> FrozenList[IntervalType][IntervalType]:
+    def relative_intervals(self, assume_implicit_zero=True) -> FrozenList[IntervalType]:
         """Generator of the difference of intervals"""
         unison = self.interval_type.unison()
         assert self._absolute_intervals[0] == unison
@@ -114,9 +114,11 @@ class AbstractIntervalList(DataClassWithDefaultArgument, Generic[IntervalType]):
         intervals_in_base_octave = sorted_unique(interval.in_base_octave() for interval in self._absolute_intervals)
         return self.__class__.make(intervals_in_base_octave)
     
-    def assert_in_base_octave(self, accepting_octave: bool = False):
+    def is_in_base_octave(self, accepting_octave: bool = False):
         for interval in self._absolute_intervals:
-            interval.assert_in_base_octave(accepting_octave)
+            if not interval.is_in_base_octave(accepting_octave):
+                return False
+        return True
 
     
 IntervalListType = TypeVar("IntervalListType", bound=AbstractIntervalList)

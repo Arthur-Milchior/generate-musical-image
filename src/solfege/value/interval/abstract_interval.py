@@ -26,15 +26,7 @@ class AbstractInterval(Abstract):
     def unison(cls):
         return NotImplemented
     
-    @classmethod
-    def one_octave(cls) -> Self:
-        return NotImplemented
-    
     def __neg__(self):
         return self * -1
-    
-    def assert_in_base_octave(self, accepting_octave: bool = False):
-        """Assert that the interval is in base octave"""
-        assert self.octave() == 0 or (accepting_octave and self == self.one_octave())
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)

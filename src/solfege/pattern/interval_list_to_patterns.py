@@ -11,6 +11,12 @@ from utils.util import assert_dict_typing, assert_optional_typing, assert_typing
 
 @dataclass(frozen=True)
 class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, RecordedContainerType], Generic[PatternType, RecordedContainerType, ChromaticRecordedContainerType]):
+    """Associate a Interval list to a list of PatternType stored in RecordedContainerType.
+
+    Registering in this record keeper also register to the associated record keeper with interval keys.
+    """
+
+
     """Same but for chromatic interval as key"""
     chromatic: ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]
     """Same as KeyType"""
@@ -21,7 +27,9 @@ class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, RecordedCon
     _recorded_container_type: ClassVar[Type]
     _chromatic_recorded_container_type: ClassVar[Type]
 
-
+    def is_key_valid(self, key: IntervalList):
+        return NotImplemented
+    
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
         default = super()._default_arguments_for_constructor(args, kwargs)
@@ -29,7 +37,7 @@ class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, RecordedCon
         return default
     
     @classmethod
-    def make_chromatic_container(self):
+    def make_chromatic_container(self) -> ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]:
         return NotImplemented
 
     def __post_init__(self):
@@ -49,7 +57,6 @@ class IntervalListToPatterns(RecordKeeper[IntervalList, PatternType, RecordedCon
 
     def get_from_chromatic_interval_list(self, key: ChromaticIntervalList) -> Optional[ChromaticRecordedContainerType]:
         assert_typing(key, ChromaticIntervalList)
-        key.assert_in_base_octave()
         container = self.chromatic.get_recorded_container(key)
         assert_optional_typing(container, self._chromatic_recorded_container_type)
         return container

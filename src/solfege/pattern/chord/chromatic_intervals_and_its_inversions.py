@@ -9,6 +9,10 @@ from utils.recordable import RecordedContainer
 
 @dataclass(frozen=True, unsafe_hash=True)
 class ChromaticIntervalListAndItsInversions(RecordedContainer[InversionPattern], DataClassWithDefaultArgument):
+    """A chromatic interval list and all chord inversion associated to it.
+    
+    It is the data entry for ChromaticIntervalListToInversion
+    """
     chromatic_intervals: ChromaticIntervalList
     inversions: List[InversionPattern] = field(default_factory=list, hash=False)
 

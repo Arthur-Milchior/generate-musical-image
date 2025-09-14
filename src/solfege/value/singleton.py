@@ -53,6 +53,10 @@ class Singleton(Abstract, MakeableWithSingleArgument):
     def _make_single_argument(cls, value: int) -> Self:
         assert_typing(value, int)
         return cls.make_instance_of_selfs_class(value)
+
+    @classmethod
+    def one_octave(cls) -> Self:
+        return cls.make_instance_of_selfs_class(value=cls.number_of_interval_in_an_octave)
         
     
 SingletonType = TypeVar("SingletonType", bound=Singleton)

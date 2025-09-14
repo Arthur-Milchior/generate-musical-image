@@ -5,7 +5,7 @@ from sh import shell
 
 class TestLily(unittest.TestCase):
     def setUp(self):
-        from piano.piano_note import PianoNote
+        from instruments.piano.piano_note import PianoNote
 
         self.c_pentatonic_minor_5th_right = [
             PianoNote.make(chromatic=0, diatonic=0, finger=1),
@@ -79,7 +79,7 @@ class TestLily(unittest.TestCase):
 
     #
     # def test_for_list_of_notes(self):
-    #     from piano.pianonote import PianoNote
+    #     from instruments.piano.pianonote import PianoNote
     #     self.assertEqual(_for_list_of_notes([PianoNote.make(chromatic=0, diatonic=0, finger=1)], ),
     #                       "c'-1")
     #     self.assertEqual(_for_list_of_notes(self.c_pentatonic_minor_5th_right, ),

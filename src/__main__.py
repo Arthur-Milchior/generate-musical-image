@@ -1,6 +1,6 @@
-from fretted_instrument import *
+from instruments.fretted_instrument import *
 
-from piano import *
+from instruments.piano import *
 # from debug_file import *
 
 

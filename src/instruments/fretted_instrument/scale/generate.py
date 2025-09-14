@@ -1,0 +1,3 @@
+import instruments.fretted_instrument.scale.generate_ukulele
+import instruments.fretted_instrument.scale.generate_bass
+import instruments.fretted_instrument.scale.generate_guitar

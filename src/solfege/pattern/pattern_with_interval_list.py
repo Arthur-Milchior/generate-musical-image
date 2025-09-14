@@ -7,7 +7,6 @@ from utils.recordable import RecordKeeperType, Recordable
 from utils.util import assert_iterable_typing, assert_typing
 
 
-
 @dataclass(frozen=True)
 class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], DataClassWithDefaultArgument, Generic[RecordKeeperType]):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
@@ -45,3 +44,6 @@ class PatternWithIntervalList(Recordable[IntervalList, RecordKeeperType], DataCl
     
     def chromatic_interval_lists(self) -> ChromaticIntervalList:
         return [interval.get_chromatic_interval_list() for interval in self.interval_lists()]
+    
+
+PatternType = TypeVar("PatternType", bound=PatternWithIntervalList)

@@ -30,6 +30,9 @@ class RecordKeeperForPatternEmpty(RecordKeeper[IntervalList, PatternEmpty, List[
     _key_type: ClassVar[Type] = IntervalList
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = List
+
+    def is_key_valid(self, key: IntervalList):
+        return True
     
     def _new_container(self, key: IntervalList) -> List[IntervalList]:
         return list()
@@ -57,6 +60,10 @@ class RecordKeeperForPatternDeux(RecordKeeper[IntervalList, PatternDeux, List[Pa
     _key_type: ClassVar[Type] = IntervalList
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = List
+
+
+    def is_key_valid(self, key: IntervalList):
+        return True
     
     def _new_container(self, key: IntervalList) -> List[IntervalList]:
         return list()

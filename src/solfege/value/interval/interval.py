@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar, Optional, Self, Type, Union, overload
 
-from solfege.value.interval.chromatic_interval import ChromaticInterval
+from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
 from solfege.value.interval.diatonic_interval import DiatonicInterval
 from solfege.value.interval.abstract_interval import AbstractInterval
 from solfege.value.pair import Pair
@@ -44,14 +44,13 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval]):
     @classmethod
     def unison(cls):
         return cls.make(0, 0)
-    
-    @classmethod
-    def one_octave(cls)-> Self:
-        return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.one_octave(), diatonic=cls.DiatonicClass.one_octave())
 
 
 class IntervalFrozenList(FrozenList[Interval]):
     type = Interval
+
+    def get_chromatic_intervals(self) ->ChromaticIntervalFrozenList:
+        return ChromaticIntervalFrozenList.make(interval.chromatic for interval in self)
 
 Interval.IntervalClass = Interval
 Interval.PairClass = Interval

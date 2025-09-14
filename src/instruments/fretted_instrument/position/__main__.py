@@ -1,0 +1,1 @@
+from instruments.fretted_instrument.position import generate

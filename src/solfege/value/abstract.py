@@ -49,3 +49,12 @@ class Abstract(MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter):
     
     def get_pair(self):
         return self.PairClass(self.get_chromatic(), self.get_diatonic())
+    
+    @classmethod
+    def one_octave(cls) -> Self:
+        """Return the value at exactly one octave about value 0. Should not be used for note except maybe to check for canonicity"""
+        return NotImplemented
+    
+    def is_in_base_octave(self, accepting_octave: bool) -> bool:
+        """Whether the value is in base octave. Used to check value is canonify when octave don't matter."""
+        return self.in_base_octave() == self or self == self.one_octave()

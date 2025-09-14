@@ -33,6 +33,9 @@ class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[Fa
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = FakePattern
     _recorded_container_type: ClassVar[Type] = list
+
+    def is_key_valid(self, key: ChromaticIntervalList):
+        return True
     
     @classmethod
     def _new_container(self, key: IntervalList) -> List[FakePattern]:
@@ -43,6 +46,9 @@ class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, L
     _recorded_type: ClassVar[Type] = FakePattern
     _recorded_container_type: ClassVar[Type] = list
     _chromatic_recorded_container_type: ClassVar[Type] = list
+
+    def is_key_valid(self, key: ChromaticIntervalList):
+        return True
     
     @classmethod
     def make_chromatic_container(self):
