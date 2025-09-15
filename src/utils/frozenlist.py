@@ -1,11 +1,11 @@
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Generic, Iterable, List, Self, Tuple, Type, TypeVar
 
-from utils.util import assert_all_same_class, assert_iterable_typing, assert_typing
+from utils.util import T, assert_all_same_class, assert_iterable_typing, assert_typing
 
-T = TypeVar('T')
-class MakeableWithSingleArgument():
+class MakeableWithSingleArgument(ABC):
 
     @classmethod
     def make_single_argument(cls, arg) -> Self:
@@ -18,9 +18,11 @@ class MakeableWithSingleArgument():
     # Must be implemented by subclasses
 
     @classmethod
+    @abstractmethod
     def _make_single_argument(cls, arg) -> Self:
         return NotImplemented
 
+    @abstractmethod
     def repr_single_argument(self) -> str:
         return NotImplemented
 

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from lily import Lilyable
 
 
-class Lilyable:
+class Lilyable(ABC):
     """Represents a class that implements `lily` that generates the lily code to put in a file to then call lilypond on it."""
+    @abstractmethod
     def lily(self, midi: bool = False):
         return NotImplemented
 

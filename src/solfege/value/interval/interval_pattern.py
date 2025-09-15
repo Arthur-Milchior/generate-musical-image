@@ -1,10 +1,11 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Dict, Iterator, List, Type, Union
 from solfege.pattern.solfege_pattern import SolfegePattern
 from solfege.value.interval.interval import Interval
 
 @dataclass(frozen=True)
-class IntervalPattern(SolfegePattern):
+class IntervalPattern(SolfegePattern, ABC):
     """A pattern for a single interval."""
 
     """See SoflegePattern"""
@@ -13,6 +14,7 @@ class IntervalPattern(SolfegePattern):
     
     @classmethod
     def _get_instantiation_type(cls) -> Type["Chord"]:
+        # We won't instantiate those
         return NotImplemented
 
     @classmethod

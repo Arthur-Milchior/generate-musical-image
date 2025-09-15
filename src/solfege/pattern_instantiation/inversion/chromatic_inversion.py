@@ -6,5 +6,5 @@ from solfege.value.interval.interval import Interval
 from solfege.value.note.note import Note
 
 
-class ChromaticInversion(AbstractInversion[Note, Interval], AbstractChromaticInstantiation[InversionPattern]):
+class ChromaticInversionPattern(AbstractInversion[Note, Interval], AbstractChromaticInstantiation[InversionPattern]):
     pass

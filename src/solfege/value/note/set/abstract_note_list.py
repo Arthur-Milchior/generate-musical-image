@@ -6,7 +6,8 @@ from typing import Callable, ClassVar, Dict, Generic, List, Type
 
 from solfege.list_order import ListOrder
 from solfege.value.interval.abstract_interval import IntervalType
-from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, IntervalListType
+from solfege.value.interval.set.abstract_interval_ilst_pattern import IntervalListPatternType
+from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
@@ -14,14 +15,14 @@ from utils.util import assert_decreasing, assert_increasing, assert_iterable_typ
 
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractNoteList(Generic[NoteType, IntervalType, IntervalListType], DataClassWithDefaultArgument):
+class AbstractNoteList(Generic[NoteType, IntervalType, IntervalListPatternType], DataClassWithDefaultArgument):
     interval_list_type: ClassVar[Type[AbstractIntervalListPattern]]
     note_type: ClassVar[Type[AbstractNote]]
     _frozen_list_type: ClassVar[Type[FrozenList[AbstractNote]]]
     notes: FrozenList[NoteType]
     list_order: ListOrder
 
-    def interval_list_from_min_note(self) -> IntervalListType:
+    def interval_list_from_min_note(self) -> IntervalListPatternType:
         assert self.list_order == ListOrder.INCREASING
         min_note = self.notes[0]
         return self.interval_list_type.make(note-min_note for note in self.notes)

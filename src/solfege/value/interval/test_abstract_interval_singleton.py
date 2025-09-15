@@ -2,12 +2,18 @@ import unittest
 
 from solfege.value.interval.singleton_interval import AbstractSingletonInterval
 
+class FakeSingletonInterval(AbstractSingletonInterval):
+    def get_chromatic(self):
+        return self
+    def get_diatonic(self):
+        return self
+
 class TestBaseIntervalSingleton(unittest.TestCase):
-    zero = AbstractSingletonInterval(0)
-    un = AbstractSingletonInterval(1)
-    moins_un = AbstractSingletonInterval(-1)
-    deux = AbstractSingletonInterval(2)
-    trois = AbstractSingletonInterval(3)
+    zero = FakeSingletonInterval(0)
+    un = FakeSingletonInterval(1)
+    moins_un = FakeSingletonInterval(-1)
+    deux = FakeSingletonInterval(2)
+    trois = FakeSingletonInterval(3)
 
     def test_is_note(self):
         self.assertFalse(self.zero.is_note())
@@ -35,7 +41,7 @@ class TestBaseIntervalSingleton(unittest.TestCase):
         self.assertLessEqual(self.un, self.un)
 
     def test_repr(self):
-        self.assertEqual(repr(self.un), "AbstractSingletonInterval(value=1)")
+        self.assertEqual(repr(self.un), "FakeSingletonInterval(value=1)")
 
     def test_mul(self):
         self.assertEqual(self.zero * 4, self.zero)

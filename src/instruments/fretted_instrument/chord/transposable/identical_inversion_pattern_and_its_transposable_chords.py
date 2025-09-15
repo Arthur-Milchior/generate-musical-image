@@ -1,0 +1,15 @@
+
+from dataclasses import dataclass, field
+from typing import ClassVar, List, Type
+from instruments.fretted_instrument.chord.abstract_equivalent_inversion_and_its_fretted_instrument_chords import AbstractEquivalentInversionAndItsFrettedInstrumentChords
+from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternsGetter, IdenticalInversionPatterns
+from solfege.pattern.inversion.inversion_pattern import InversionPattern
+from utils.recordable import RecordedContainer
+from utils.util import img_tag
+
+
+@dataclass(frozen=True, unsafe_hash=True)
+class IdenticalInversionPatternAndItsTransposableChords(AbstractEquivalentInversionAndItsFrettedInstrumentChords[IdenticalInversionPatterns]):
+    #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
+
+    identical_inversion_pattern_getter_type:ClassVar[Type[IdenticalInversionPatternsGetter]] = IdenticalInversionPatterns

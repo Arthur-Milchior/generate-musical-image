@@ -1,4 +1,5 @@
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Type
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
@@ -9,7 +10,7 @@ from utils.util import assert_typing
 
 
 @dataclass(frozen=True, eq=False)
-class SetOfPositionOnFrettedInstrument(AbstractSetOfFrettedPositions[PositionOnFrettedInstrument]):
+class SetOfPositionOnFrettedInstrument(AbstractSetOfFrettedPositions[PositionOnFrettedInstrument], ABC):
     # Must be implemented by subclasses
     type: ClassVar[Type[PositionOnFrettedInstrument]] = PositionOnFrettedInstrument
     _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]] = PositionOnFrettedInstrumentFrozenList

@@ -4,17 +4,25 @@ from solfege.value.interval.test_abstract_interval_singleton import *
 from solfege.value.note.singleton_note import AbstractSingletonNote
 from solfege.value.note.abstract_note import *
 
+
+class FakeSingletonNote(AbstractSingletonNote):
+    IntervalClass: ClassVar[Type[Singleton]] = FakeSingletonInterval
+    def get_chromatic(self):
+        return self
+    def get_diatonic(self):
+        return self
+
 class TestBaseNoteSingleton(unittest.TestCase):
-    zero = AbstractSingletonInterval(0)
-    un = AbstractSingletonInterval(1)
-    moins_un = AbstractSingletonInterval(-1)
-    deux = AbstractSingletonInterval(2)
-    trois = AbstractSingletonInterval(3)
-    C4 = AbstractSingletonNote(0)
-    D4 = AbstractSingletonNote(1)
-    B3 = AbstractSingletonNote(-1)
-    E4 = AbstractSingletonNote(2)
-    F4 = AbstractSingletonNote(3)
+    zero = FakeSingletonInterval(0)
+    un = FakeSingletonInterval(1)
+    moins_un = FakeSingletonInterval(-1)
+    deux = FakeSingletonInterval(2)
+    trois = FakeSingletonInterval(3)
+    C4 = FakeSingletonNote(0)
+    D4 = FakeSingletonNote(1)
+    B3 = FakeSingletonNote(-1)
+    E4 = FakeSingletonNote(2)
+    F4 = FakeSingletonNote(3)
 
     # def test_is_note(self):
     #     self.assertTrue(self.C4.is_note())
@@ -47,7 +55,7 @@ class TestBaseNoteSingleton(unittest.TestCase):
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
-        self.assertEqual(repr(self.D4), "AbstractSingletonNote(value=1)")
+        self.assertEqual(repr(self.D4), "FakeSingletonNote(value=1)")
 
     def test_low_and_high(self):
         self.assertEqual(low_and_high(self.C4, self.C4), (self.C4, self.C4))

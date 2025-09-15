@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional, List, Iterable
 
@@ -13,19 +14,23 @@ from utils.constants import test_folder
 from utils.util import assert_typing, indent
 
 
-class PianoLilyable(Lilyable):
+class PianoLilyable(Lilyable, ABC):
 
+    @abstractmethod
     def first_key(self) -> str:
         return NotImplemented
 
+    @abstractmethod
     def right_lily(self) -> Optional[str]:
         """The lily code for the right hand scale, without the first key"""
         return NotImplemented
 
+    @abstractmethod
     def left_lily(self) -> Optional[str]:
         """The lily code for the left hand scale, without the first key"""
         return NotImplemented
 
+    @abstractmethod
     def annotations_lily(self) -> Optional[str]:
         """The lily code for the annotation"""
         return NotImplemented

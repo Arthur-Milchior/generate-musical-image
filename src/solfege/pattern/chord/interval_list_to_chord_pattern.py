@@ -23,5 +23,5 @@ class IntervalListToChordPattern(IntervalListToPatterns["ChordPattern", List, Li
     
     #pragma mark - IntervalListToPatterns
     @classmethod
-    def make_chromatic_container(self):
+    def make_chromatic_record_keeper(self):
         return ChromaticIntervalListToChordPattern.make()

@@ -1,9 +1,10 @@
+from abc import ABC, abstractmethod
 from typing import List
 
 from utils.util import assert_typing
 
 
-class CsvGenerator:
+class CsvGenerator(ABC):
     def csv(self, *args, **kwargs)->str:
         csv_content = self.csv_content(*args, **kwargs)
         for content in csv_content:
@@ -12,5 +13,6 @@ class CsvGenerator:
         return ",".join(f'"{content}"' for content in csv_content)
 
     #Must be implemented by subclasses
+    @abstractmethod
     def csv_content(self) -> List[str]:
         return NotImplemented

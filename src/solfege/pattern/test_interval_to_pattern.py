@@ -12,6 +12,9 @@ tone = ChromaticIntervalListPattern.make_relative([2])
 
 @dataclass(frozen=True, eq = True)
 class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
+    #pragma mark - Recordable
+    _key_type: ClassVar[Type] = IntervalListPattern
+    #???
     _relative_intervals: IntervalListFrozenList
 
     @classmethod
@@ -68,7 +71,7 @@ class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, L
     #pragma mark - IntervalListToPatterns
     
     @classmethod
-    def make_chromatic_container(self):
+    def make_chromatic_record_keeper(self):
         return FakeChromaticIntervalListToFakePatterns.make()
 
     

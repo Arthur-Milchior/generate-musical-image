@@ -21,6 +21,6 @@ class IntervalListToScalePattern(IntervalListToPatterns[ScalePattern, List, List
 
     #pragma mark - IntervalListToPatterns    
     @classmethod
-    def make_chromatic_container(self):
+    def make_chromatic_record_keeper(self):
         return ChromaticIntervalListToScalePattern.make()
     

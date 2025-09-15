@@ -1,0 +1,61 @@
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import ClassVar, Generator, Generic, List, Type
+
+from solfege.pattern.inversion.inversion_pattern import InversionPattern
+from solfege.value.interval.abstract_interval import IntervalType
+from solfege.value.interval.set.abstract_interval_ilst_pattern import AbstractIntervalListPattern, IntervalListPatternType
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.recordable import RecordedContainer
+from utils.util import assert_iterable_typing, assert_typing
+
+
+@dataclass(frozen=True, unsafe_hash=True)
+class AbstractIdenticalInversionPatterns(RecordedContainer[InversionPattern], 
+                                 DataClassWithDefaultArgument, 
+                                 ABC, Generic[IntervalListPatternType]):
+    """A (chromatic) interval list and all chord inversion associated to it.
+    """
+
+    #must be implemented by subclasses
+
+    "Same as IntervalListPatternType"
+    interval_list_type: ClassVar[Type]
+
+    #public
+    intervals: AbstractIntervalListPattern[IntervalType]
+    inversions: List[InversionPattern] = field(default_factory=list, hash=False)
+
+    def __len__(self):
+        return len(self.inversions)
+
+    def append(self, inversion: InversionPattern):
+        expected = self.intervals
+        actuals = self.get_interval_list_from_inversion(inversion)
+        assert expected == actuals, f"{expected} != {actuals}"
+        self.inversions.append(inversion)
+
+    def easiest_inversion(self):
+        return min(self.inversions)
+    
+    def easiest_name(self):
+        return self.easiest_inversion().name()
+    
+    def alternative_names(self):
+        return ",".join(inversion.name() for inversion in self.inversions[1:])
+    
+    def __iter__(self):
+        return iter(self.inversions)
+    
+    # Must be implemented by subclasses
+    @classmethod
+    @abstractmethod
+    def get_interval_list_from_inversion(cls, inversion: InversionPattern):
+        return NotImplemented
+    
+    # pragma mark - DataClassWithDefaultArgument
+    def __post_init__(self):
+        assert_typing(self.intervals, self.interval_list_type)
+        assert_iterable_typing(self.inversions, InversionPattern)
+        super().__post_init__()

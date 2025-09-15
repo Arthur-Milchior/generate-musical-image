@@ -1,13 +1,13 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Generic, Optional, Self, Tuple, Type, TypeVar
 
-from utils.util import assert_optional_typing, assert_typing
+from utils.util import T, assert_optional_typing, assert_typing
 
-T = TypeVar("T")
 Ts = TypeVar("Ts")
 
 @dataclass(frozen=True)
-class AbstractDelta(Generic[Ts, T]):
+class AbstractDelta(ABC, Generic[Ts, T]):
     """
     If deltas is None, consider this as empty set.
     Otherwise, min_delta, max_delta = deltas.
@@ -24,18 +24,22 @@ class AbstractDelta(Generic[Ts, T]):
     min_t: ClassVar[int]
 
     @classmethod
+    @abstractmethod
     def max_t(cls, instrument: "FrettedInstrument") -> int:
         return NotImplemented
 
     @classmethod
+    @abstractmethod
     def create_T(cls, instrument: "FrettedInstrument", i: int) -> T:
         return NotImplemented
 
     @classmethod
+    @abstractmethod
     def create_Ts(cls, instrument: "FrettedInstrument", min: T, max: T) -> Ts:
         return NotImplemented
 
     @classmethod
+    @abstractmethod
     def create_empty_ts(cls) -> Ts:
         return NotImplemented
     

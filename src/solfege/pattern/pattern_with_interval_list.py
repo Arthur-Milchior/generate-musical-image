@@ -1,28 +1,37 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import sys
 from typing import ClassVar, Dict, Generic, List, Optional, Self, Type, TypeVar, Union
 
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, DataClassWithDefaultArgument, IntervalListPattern
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.recordable import RecordKeeperType, Recordable
 from utils.util import assert_iterable_typing, assert_typing
 
 
 @dataclass(frozen=True)
-class PatternWithIntervalList(Recordable[IntervalListPattern, RecordKeeperType], DataClassWithDefaultArgument, Generic[RecordKeeperType]):
+class PatternWithIntervalList(Recordable[IntervalListPattern, RecordKeeperType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType]):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
     """Associate a interval list to its patterns"""
 
     """Whether to record this pattern in the list of patterns."""
-    _record_keeper: ClassVar[RecordKeeperType]
-    _record_keeper_type: ClassVar[Type]
-    _key_type: ClassVar[Type] = IntervalListPattern
+
+    #Must be implemented by subtype
     
+    @abstractmethod
     def get_interval_list(self) -> IntervalListPattern:
         return NotImplemented
+
+    @classmethod
+    @abstractmethod
+    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
+        return NotImplemented
+
+    # public
 
     def interval_lists(self) -> List[IntervalListPattern]:
         return [self.get_interval_list()]
@@ -35,10 +44,6 @@ class PatternWithIntervalList(Recordable[IntervalListPattern, RecordKeeperType],
     
     def get_instantiation(self, lowest_note: Note) -> "AbstractPairInstantiation[Self]":
         return self._get_instantiation_type(lowest_note)
-
-    @classmethod
-    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
-        return NotImplemented
     
     #pragma mark - DataClassWithDefaultArgument
 

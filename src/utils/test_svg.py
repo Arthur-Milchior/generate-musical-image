@@ -16,7 +16,7 @@ class FakeSvgGenerator(SvgGenerator):
         assert_typing(self._width, int)
         assert_typing(self._height, int)
 
-    def svg_content(self):
+    def _svg_content(self):
         return self.svgs
 
     def svg_width(self):

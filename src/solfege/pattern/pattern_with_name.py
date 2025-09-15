@@ -3,7 +3,8 @@ import sys
 from typing import ClassVar, Dict, List, Optional, Self, Tuple, Union
 
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, DataClassWithDefaultArgument, IntervalListPattern
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList, StrFrozenList
 from utils.util import assert_iterable_typing, assert_optional_typing, assert_typing
 

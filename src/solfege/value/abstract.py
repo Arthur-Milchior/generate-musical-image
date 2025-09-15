@@ -1,6 +1,7 @@
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Self, Tuple, Union
+from typing import ClassVar, Self
 
 from solfege.value.getters import ChromaticGetter, DiatonicGetter
 from utils.frozenlist import MakeableWithSingleArgument
@@ -9,7 +10,7 @@ from utils.util import assert_typing
 
 
 @dataclass(frozen=True, unsafe_hash=True, eq=False)
-class Abstract(MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter):
+class Abstract(MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter, ABC):
     """The class of interval similar to the current class"""
     IntervalClass: ClassVar[type] #abstract interval
 
@@ -44,7 +45,7 @@ class Abstract(MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter):
     def __sub__(self, other):
         return self + (-other)
     
-    def get_pair(self):
+    def get_pair(self) -> "Pair":
         return self.PairClass(self.get_chromatic(), self.get_diatonic())
     
     def is_in_base_octave(self, accepting_octave: bool) -> bool:
@@ -53,10 +54,12 @@ class Abstract(MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter):
     
     # Must be implemented by subclasses.
 
+    @abstractmethod
     def octave(self) -> int:
         return NotImplemented
     
     @classmethod
+    @abstractmethod
     def one_octave(cls) -> Self:
         """Return the value at exactly one octave about value 0. Should not be used for note except maybe to check for canonicity"""
         return NotImplemented

@@ -1,43 +1,31 @@
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, TypeVar
-from solfege.pattern.inversion.inversion_pattern import InversionPattern, InversionPatternGetter
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
-from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.recordable import RecordedContainer
+from typing import ClassVar, List, Type, TypeVar
+from solfege.pattern.inversion.abstract_identical_inversion_patterns import AbstractIdenticalInversionPatterns
+from solfege.pattern.inversion.inversion_pattern import InversionPattern
+from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from utils.util import assert_iterable_typing, assert_typing
 
 
 
-class IdenticalInversionPatternGetter:
-    def get_identical_inversion_pattern(self) -> "IdenticalInversionPattern":
+class IdenticalInversionPatternsGetter(ABC):
+    @abstractmethod
+    def get_identical_inversion_pattern(self) -> "IdenticalInversionPatterns":
         return NotImplemented
     
-IdenticalInversionPatternGetterType = TypeVar("IdenticalInversionPatternGetterType", bound=IdenticalInversionPatternGetter)
+IdenticalInversionPatternsGetterType = TypeVar("IdenticalInversionPatternGetterType", bound=IdenticalInversionPatternsGetter)
 
 @dataclass(frozen=True, unsafe_hash=True)
-class IdentiticalInversionPatterns(RecordedContainer[InversionPattern], DataClassWithDefaultArgument):
-    """A chromatic interval list and all chord inversion associated to it.
-    
-    It is the data entry for ChromaticIntervalListToInversion
+class IdenticalInversionPatterns(AbstractIdenticalInversionPatterns[IntervalListPattern], IdenticalInversionPatternsGetter):
+    """A interval list and all chord inversion associated to it.
     """
-    chromatic_intervals: ChromaticIntervalListPattern
-    inversions: List[InversionPattern] = field(default_factory=list, hash=False)
+    interval_list_type: ClassVar[Type] = IntervalListPattern
 
-    def append(self, inversion: InversionPattern):
-        expected = self.chromatic_intervals
-        actuals = inversion.chromatic_interval_lists()
-        assert expected in actuals, f"{expected} not in {actuals}"
-        self.inversions.append(inversion)
+    def get_identical_inversion_pattern(self):
+        return self
 
-    def easiest_inversion(self):
-        return min(self.inversions)
-    
-    def easiest_name(self):
-        return self.easiest_inversion().name()
-    
-    def alternative_names(self):
-        return ",".join(inversion.name() for inversion in self.inversions[1:])
-    
-    def __iter__(self):
-        return iter(self.inversions)
+    @classmethod
+    def get_interval_list_from_inversion(cls, inversion: InversionPattern):
+        return inversion.get_interval_list()
     

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Generic, Optional, Self, Type, Union, TypeVar, Tuple, assert_never, overload
 from enum import Enum
@@ -34,7 +35,7 @@ class FixedLengthOutput(Enum):
     NO = "NO"
 
 @dataclass(frozen=True)
-class AbstractNote(Abstract, Generic[IntervalType]):
+class AbstractNote(Abstract, ABC, Generic[IntervalType]):
     make_instance_of_selfs_class: ClassVar[Type["AbstractNote"]]
     """A note. Similar to an interval.
 
@@ -45,6 +46,7 @@ class AbstractNote(Abstract, Generic[IntervalType]):
     def __radd__(self, other: IntervalType) -> Self:
         return self + other
     
+    @abstractmethod
     def __add__(self, other: IntervalType) -> Self:
         return NotImplemented
     

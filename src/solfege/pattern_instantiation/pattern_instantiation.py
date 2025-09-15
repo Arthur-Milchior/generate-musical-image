@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Generic, TypeVar
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
@@ -5,14 +6,14 @@ from solfege.value.note.abstract_note import AbstractNote, NoteType
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
 from solfege.pattern.pattern_with_interval_list import PatternType, PatternWithIntervalList
-from utils.util import assert_typing
+from utils.util import T, assert_typing
 
 
 NoteFrozenListType= TypeVar("NoteFrozenListType", bound = FrozenList)
 IntervalFrozenListType= TypeVar("IntervalFrozenListType", bound = FrozenList)
 
 @dataclass(frozen=True)
-class AbstractPatternInstantiation(DataClassWithDefaultArgument, Generic[PatternType, NoteType, IntervalType]):
+class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[PatternType, NoteType, IntervalType]):
     pattern: PatternType
     lowest_note: NoteType
 
@@ -27,6 +28,7 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, Generic[Pattern
         assert_typing(self.pattern, self.pattern_type)
         super().__post_init__()
 
+    @abstractmethod
     def get_intervals(self) -> IntervalFrozenListType:
         return NotImplemented
 

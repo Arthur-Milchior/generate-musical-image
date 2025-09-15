@@ -1,4 +1,5 @@
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 
@@ -10,7 +11,7 @@ from utils.util import assert_dict_typing, assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True)
-class IntervalListToPatterns(RecordKeeper[IntervalListPattern, PatternType, RecordedContainerType], Generic[PatternType, RecordedContainerType, ChromaticRecordedContainerType]):
+class IntervalListToPatterns(RecordKeeper[IntervalListPattern, PatternType, RecordedContainerType], ABC, Generic[PatternType, RecordedContainerType, ChromaticRecordedContainerType]):
     """Associate a Interval list to a list of PatternType stored in RecordedContainerType.
 
     Registering in this record keeper also register to the associated record keeper with interval keys.
@@ -19,6 +20,8 @@ class IntervalListToPatterns(RecordKeeper[IntervalListPattern, PatternType, Reco
 
     """Same but for chromatic interval as key"""
     chromatic: ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]
+
+    #Must be implemented by subclasses
     """Same as KeyType"""
     _key_type: ClassVar[Type] = IntervalListPattern
     """Same as RecordedType"""
@@ -28,8 +31,11 @@ class IntervalListToPatterns(RecordKeeper[IntervalListPattern, PatternType, Reco
     _chromatic_recorded_container_type: ClassVar[Type]
 
     @classmethod
-    def make_chromatic_container(self) -> ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]:
+    @abstractmethod
+    def make_chromatic_record_keeper(self) -> ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]:
         return NotImplemented
+    
+    #public
 
     def get_easiest_pattern_from_chromatic_interval(self, chromatic_interval_list: ChromaticIntervalListPattern):
         return self.chromatic.get_easiest_pattern_from_chromatic_interval(chromatic_interval_list)
@@ -54,7 +60,9 @@ class IntervalListToPatterns(RecordKeeper[IntervalListPattern, PatternType, Reco
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
         default = super()._default_arguments_for_constructor(args, kwargs)
-        default["chromatic"] = cls.make_chromatic_container()
+        chromatic = cls.make_chromatic_record_keeper()
+        assert_typing(chromatic, ChromaticIntervalListToPatterns)
+        default["chromatic"] = chromatic
         return default
 
     def __post_init__(self):

@@ -4,8 +4,9 @@ from typing import Callable, ClassVar, Dict, List, Type
 
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, DataClassWithDefaultArgument, IntervalListPattern
+from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from solfege.pattern.solfege_pattern import SolfegePattern
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
 from utils.util import assert_all_same_class, assert_typing
 
@@ -27,10 +28,6 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     name_to_pattern: ClassVar[Dict[str, "ChordPattern"]] = dict()
     all_patterns: ClassVar[List['ChordPattern']] = list()
 
-    "Associate to a set of interval the chord it represents."
-    set_of_interval_to_pattern: ClassVar[Dict[IntervalListPattern, "ChordPattern"]] = dict()
-    "associate to a set of chromatic interval the chord it represents."
-    set_of_chromatic_interval_to_pattern: ClassVar[Dict[ChromaticIntervalListPattern, "ChordPattern"]] = dict()
     _record_keeper: ClassVar[List]
 
     """Whether the 5th is optional"""

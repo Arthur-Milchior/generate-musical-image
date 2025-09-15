@@ -59,16 +59,6 @@ def generate_anki_notes(instrument: FrettedInstrument):
     folder_path = open_folder(instrument)
     for note_list, chromatic_note_and_its_fretted_instrument_chord in note_to_chord:
         chord_anki_notes.append(chromatic_note_and_its_fretted_instrument_chord.csv(folder_path, chord_decomposition_anki_notes))
-        # chromatic_interval_and_inversion = chromatic_note_and_its_fretted_instrument_chord.interval_and_its_inversions
-        # inversions = chromatic_interval_and_inversion.inversions
-        # easiest_inversion = inversions[0]
-        # chromatic_position_of_lowest_interval_in_base_octave = easiest_inversion.position_of_lowest_interval_in_base_octave.chromatic
-        # for fretted_instrument_chord in chromatic_note_and_its_fretted_instrument_chord.maximals():
-        #     pos_of_lowest_note = fretted_instrument_chord.get_most_grave_note()
-        #     lowest_note = pos_of_lowest_note.get_chromatic()
-        #     chromatic_tonic = lowest_note - chromatic_position_of_lowest_interval_in_base_octave
-        #     save_file(f"{open_folder(instrument)}/{fretted_instrument_chord.file_name(instrument, stroke_colored=False, absolute=True)}", fretted_instrument_chord.svg(instrument, absolute=True))
-        #     save_file(f"{open_folder(instrument)}/{fretted_instrument_chord.file_name(instrument, stroke_colored=True, absolute=True)}", fretted_instrument_chord.svg(instrument, absolute=True, colors=ChordColors(chromatic_tonic)))
     return chord_anki_notes, chord_decomposition_anki_notes, note_to_chord
 
 def generate_instruments():

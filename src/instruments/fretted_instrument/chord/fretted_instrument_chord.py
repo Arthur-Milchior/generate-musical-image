@@ -5,7 +5,7 @@ from instruments.fretted_instrument.chord.playable import Playable
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
-from instruments.fretted_instrument.position.set.abstract_set_of_fretted_instrument_positions import COLOR_FIFTH, COLOR_OTHER, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
+from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, COLOR_OTHER, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
 from instruments.fretted_instrument.position.string.string import String, StringFrozenList
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 import itertools

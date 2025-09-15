@@ -5,6 +5,7 @@ from utils.util import assert_typing
 
 _CLEANED = "_clean_arguments_for_constructor"
 _DEFAULT_ADDED = "_default_arguments_for_constructor"
+
 @dataclass(frozen=True)
 class DataClassWithDefaultArgument:
     """Must always be added as last ancestor."""

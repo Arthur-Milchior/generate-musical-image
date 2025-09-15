@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import math
 from typing import Self, TypeVar, ClassVar
@@ -10,7 +11,7 @@ from utils.util import assert_typing
 
 
 @dataclass(frozen=True, unsafe_hash=True, eq=False)
-class AbstractInterval(Abstract):
+class AbstractInterval(Abstract, ABC):
     """This class is the basis for each kind of interval. It should never be used directly.
     It allows to represent a number, access it.
     It also allows to add it to another such element, negate it, while generating an object of its subclass.
@@ -28,6 +29,7 @@ class AbstractInterval(Abstract):
     # must be implemented by subclasses
     
     @classmethod
+    @abstractmethod
     def unison(cls):
         return NotImplemented
 

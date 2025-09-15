@@ -1,8 +1,8 @@
 from __future__ import annotations
+from abc import abstractmethod
 from dataclasses import dataclass
 
 import dataclasses
-import itertools
 from pickle import EMPTY_SET
 from typing import Callable, ClassVar, Dict, FrozenSet, Generator, Generic, Iterable, List, Iterator, Optional, Self, Tuple, Type, Union
 
@@ -11,7 +11,7 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instruments impor
 from instruments.fretted_instrument.position.fretted_instrument_position import  PositionOnFrettedInstrumentFrozenList, PositionOnFrettedInstrumentType
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.consts import *
-from instruments.fretted_instrument.position.string.strings import Strings
+from instruments.fretted_instrument.position.set.colors import Colors
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from solfege.value.note.chromatic_note import ChromaticNote
@@ -24,50 +24,8 @@ from utils.svg import SvgGenerator
 from utils.util import T, assert_dict_typing, assert_increasing, assert_iterable_typing, assert_optional_typing, assert_typing, optional_max, optional_min, sorted_unique
 from instruments.fretted_instrument.position.string.string import String
 
-COLOR_TONIC = "red"
-COLOR_SECOND = "yellow"
-COLOR_THIRD = "blue"
-COLOR_FOURTH = "orange"
-COLOR_FIFTH = "grey"
-COLOR_QUALITY = "green"
-COLOR_OTHER = "purple"
-COLOR_UNINTERESTING = "black"
 
 open_fret = Guitar.fret( value=0)
-
-@dataclass(frozen=True)
-class Colors:
-    # Must be implemented by subclasses
-
-    name: ClassVar[str]
-    def get_color_from_note(self, chromatic_note: ChromaticNote) -> str:
-        return NotImplemented
-
-    def __post_init__(self):
-        assert_typing(self.name, str)
-
-
-@dataclass(frozen=True)
-class ColorsWithTonic(Colors):
-    tonic: ChromaticNote
-    #Must be implemented by subclasses
-
-    def get_color_from_interval(self, chromatic_interval: ChromaticInterval) -> str:
-        return NotImplemented
-    
-    #pragma mark - dataclass
-
-    def __post_init__(self):
-        assert_typing(self.tonic, ChromaticNote)
-        super().__post_init__()
-    
-    #Pragma mark Colors
-    
-    def get_color_from_note(self, chromatic_note: ChromaticNote):
-        assert_typing(chromatic_note, ChromaticNote)
-        return self.get_color_from_interval(chromatic_note - self.tonic)
-    
-
 
 @dataclass(frozen=True, eq=False)
 class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, DataClassWithDefaultArgument, Generic[PositionOnFrettedInstrumentType]):
@@ -278,7 +236,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
     
     # SVG
 
-    def svg_content(self, instrument: FrettedInstrument, absolute: bool, colors: Optional[Colors] = None, nbFretMin: Fret =open_fret) -> List[str]:
+    def _svg_content(self, instrument: FrettedInstrument, absolute: bool, colors: Optional[Colors] = None, nbFretMin: Fret =open_fret) -> List[str]:
         assert_optional_typing(colors, Colors)
         assert_typing(instrument, FrettedInstrument)
         """If tonic, add some colors depending on the role of the note compared to the tonic"""

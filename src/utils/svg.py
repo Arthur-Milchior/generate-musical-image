@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import re
 from typing import List
@@ -35,7 +36,7 @@ class SvgLine:
         return (" "*INDENT_SIZE * indent) + self.line
 
 
-class SvgGenerator:    
+class SvgGenerator(ABC):
     def svg_name(self, *args, **kwargs) -> str:
         return f"{self._svg_name_base(*args, **kwargs)}.svg"
     
@@ -48,9 +49,8 @@ class SvgGenerator:
         save_file(file_path, self.svg(*args, **kwargs))
         return svg_name
 
-
     def svg(self, *args, **kwargs)->str:
-        svg_content = self.svg_content(*args, **kwargs)
+        svg_content = self._svg_content(*args, **kwargs)
         width = int(self.svg_width(*args, **kwargs))
         height = int(self.svg_height(*args, **kwargs))
         all_svg_lines = [
@@ -73,17 +73,21 @@ class SvgGenerator:
         return "\n".join(f'{content}' for content in indented_content)
     
     #Must be implemented by subclasses
+    @abstractmethod
     def _svg_content(self) -> List[str]:
         """The content of the svg. Not containig svg itself and the white background."""
         return NotImplemented
     
+    @abstractmethod
     def _svg_name_base(self) -> str:
         return NotImplemented
     
+    @abstractmethod
     def svg_height(self) -> int: 
         "Returns the height of svg. Must accept same argument as svg"
         return NotImplemented
     
+    @abstractmethod
     def svg_width(self, *args, **kwargs) -> int: 
         "Returns the width of svg. Must accept same argument as svg"
         return NotImplemented

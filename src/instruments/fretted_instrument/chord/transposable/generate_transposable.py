@@ -1,5 +1,6 @@
 from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
-from instruments.fretted_instrument.chord.transposable.inversion_pattern_to_chords_on_fretted_instrument import ChordPatternToChordsOnFrettedInstrument, ChromaticIntervalListToFrettedInstrumentChords
+from instruments.fretted_instrument.chord.transposable.chromatic_inversion_pattern_to_chords_on_fretted_instrument import ChromaticIdenticalInversionPatternToItsTransposableChords
+from instruments.fretted_instrument.chord.transposable.inversion_pattern_to_chords_on_fretted_instrument import IdenticalInversionPatternToItsTransposableChords
 from instruments.fretted_instrument.chord.chord_utils import enumerate_fretted_instrument_chords
 from instruments.fretted_instrument.chord.playable import Playable
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import fretted_instruments
@@ -8,7 +9,7 @@ from instruments.fretted_instrument.position.fret.frets import Frets
 
 # Ensure that all chords are registered
 from solfege.pattern.chord.chord_patterns import *
-from solfege.pattern.inversion.interval_list_to_identical_inversion_patterns import IntervalListToIdenticalInversionPattern
+from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from consts import generate_root_folder
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
@@ -19,8 +20,8 @@ def transposable_folder(instrument: FrettedInstrument):
     ensure_folder(path)
     return path
 
-def register_all_chords(instrument: FrettedInstrument) -> ChordPatternToChordsOnFrettedInstrument:
-    interval_to_chord = ChordPatternToChordsOnFrettedInstrument.make(instrument=instrument)
+def register_all_chords(instrument: FrettedInstrument) -> IdenticalInversionPatternToItsTransposableChords:
+    interval_to_chord = ChromaticIdenticalInversionPatternToItsTransposableChords.make(instrument=instrument)
     for fretted_instrument_chord in enumerate_fretted_instrument_chords(instrument, Frets.make(closed_fret_interval=(1, 
                                                                                               4
                                                                                               ), allow_not_played=True, allow_open=False)):
@@ -36,12 +37,12 @@ def register_all_chords(instrument: FrettedInstrument) -> ChordPatternToChordsOn
         if chromatic_intervals is None:
             continue
         assert_typing(chromatic_intervals, ChromaticIntervalListPattern)
-        interval_to_inversion_patterns: IntervalListToIdenticalInversionPattern = InversionPattern.get_record_keeper()
-        assert_typing(interval_to_inversion_patterns, IntervalListToIdenticalInversionPattern)
+        interval_to_inversion_patterns: IntervalListToInversionPattern = InversionPattern.get_record_keeper()
+        assert_typing(interval_to_inversion_patterns, IntervalListToInversionPattern)
         chromatic_intervals_and_inversions = interval_to_inversion_patterns.get_from_chromatic_interval_list(chromatic_intervals)
         if chromatic_intervals_and_inversions is None:
             continue
-        interval_to_chord.register(chromatic_intervals, fretted_instrument_chord)
+        interval_to_chord.register(chromatic_intervals_and_inversions, fretted_instrument_chord)
     return interval_to_chord
 
 

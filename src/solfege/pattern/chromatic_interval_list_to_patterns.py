@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 
-from solfege.pattern.pattern_with_interval_list import PatternType, PatternWithIntervalList
+from solfege.pattern.pattern_with_interval_list import PatternType
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
 from utils.recordable import ChromaticRecordedContainerType, RecordKeeper
 from utils.util import assert_dict_typing, assert_typing, assert_iterable_typing

@@ -4,7 +4,8 @@ from typing import ClassVar, Optional, Type
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentType
 from instruments.fretted_instrument.position.fretted_instrument_position_with_fingers import PositionOnFrettedInstrumentWithFingers, FrettedInstrumentPositionWithFingersFrozenList
-from instruments.fretted_instrument.position.set.abstract_set_of_fretted_instrument_positions import COLOR_FIFTH, COLOR_UNINTERESTING, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, AbstractSetOfFrettedPositions, Colors, ColorsWithTonic
+from instruments.fretted_instrument.position.set.abstract_set_of_fretted_instrument_positions import AbstractSetOfFrettedPositions
+from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, COLOR_UNINTERESTING, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing

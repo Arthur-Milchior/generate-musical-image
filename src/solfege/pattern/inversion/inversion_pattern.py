@@ -1,22 +1,26 @@
 
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Type, TypeVar
+from typing import ClassVar, Dict, List, Type, TypeVar
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import DataClassWithDefaultArgument, IntervalListPattern
+from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_typing
 
 
-class InversionPatternGetter:
-    def get_inversion_pattern(self) -> "InversionPattern":
-        return NotImplemented
-    
-InversionPatternGetterType = TypeVar("InversionPatternGetterType", bound=InversionPatternGetter)
 
 @dataclass(frozen=True)
-class InversionPattern(InversionPatternGetter, PatternWithIntervalList["IntervalListToIdenticalInversionPattern"], DataClassWithDefaultArgument):
+class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversionPattern"],
+                       DataClassWithDefaultArgument):
+    #pragma mark - Recordable
+    _key_type: ClassVar[Type] = IntervalListPattern
+
+    # public
+
+
     """Order is considering not inversion first. Then with fifth. Then base."""
     inversion: int
     interval_list: IntervalListPattern
@@ -28,11 +32,8 @@ class InversionPattern(InversionPatternGetter, PatternWithIntervalList["Interval
 
     @classmethod
     def _new_record_keeper(cls):
-        from solfege.pattern.inversion.interval_list_to_identical_inversion_patterns import IntervalListToIdenticalInversionPattern
-        return IntervalListToIdenticalInversionPattern.make()
-    
-    def get_inversion_pattern(self) -> "InversionPattern":
-        return self
+        from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
+        return IntervalListToInversionPattern.make()
     
     def get_interval_list(self) -> IntervalListPattern:
         iv = self.interval_list

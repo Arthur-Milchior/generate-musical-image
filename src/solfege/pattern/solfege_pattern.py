@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import ClassVar, Dict, List, Type
 
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.pattern.pattern_with_name import PatternWithName
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import DataClassWithDefaultArgument, IntervalListPattern
+from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_typing
 from solfege.value.key.keys import nor_flat_nor_sharp
 
@@ -17,6 +18,9 @@ class SolfegePattern(IntervalListPattern, PatternWithName, PatternWithIntervalLi
     """The interval between the signature for this scale and the signature for the major scale with the same key.
     E.g. for minor, use three_flats"""
     interval_for_signature: Interval
+
+    #pragma mark - Recordable
+    _key_type: ClassVar[Type] = IntervalListPattern
 
     #pragma mark - DataClassWithDefaultArgument
 
