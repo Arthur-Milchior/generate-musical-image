@@ -43,7 +43,7 @@ class SetOfAccordinaNote(SvgGenerator):
     def __repr__(self):
         return f"{self.__class__.__name__}(value={self.value}, selected={self.selected})"
     
-    # SVG
+    #pragma mark - SvgGenerator
     def _svg_content(self) -> List[str]:
         """The content of the svg. Not containig svg itself and the white background."""
         return [note.svg(self.min) for note in self.pictured_notes()]
@@ -58,6 +58,3 @@ class SetOfAccordinaNote(SvgGenerator):
     def svg_width(self, *args, **kwargs) -> int: 
         "Returns the width of svg. Must accept same argument as svg"
         return width
-    
-    def svg(self, *args, **kwargs):
-        return super().svg(*args, **kwargs)

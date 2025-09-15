@@ -35,6 +35,9 @@ class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_relative_intervals", clean_intervals)
         return super()._clean_arguments_for_constructor(args, kwargs)
 class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[FakePattern, List]):
+
+    #pragma mark - RecordKeeper
+
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = FakePattern
     _recorded_container_type: ClassVar[Type] = list
@@ -47,6 +50,9 @@ class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[Fa
         return list()
 
 class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, List]):
+
+    #pragma mark - RecordKeeper
+    
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = FakePattern
     _recorded_container_type: ClassVar[Type] = list
@@ -56,12 +62,14 @@ class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, L
         return True
     
     @classmethod
-    def make_chromatic_container(self):
-        return FakeChromaticIntervalListToFakePatterns.make()
-    
-    @classmethod
     def _new_container(self, key: IntervalListPattern) -> List[FakePattern]:
         return list()
+    
+    #pragma mark - IntervalListToPatterns
+    
+    @classmethod
+    def make_chromatic_container(self):
+        return FakeChromaticIntervalListToFakePatterns.make()
 
     
 fake_pattern_second_major = FakePattern.make([(2,1)])

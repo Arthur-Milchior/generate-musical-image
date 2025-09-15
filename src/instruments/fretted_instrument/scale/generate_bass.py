@@ -32,6 +32,19 @@ class ScaleOnBassAnkiNote(CsvGenerator):
 
     def __post_init__(self):
         assert_typing(self.scale_pattern, ScalePattern)
+    
+    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
+        assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
+        scale, tranpsosition = scale.transpose_to_fret_one()
+        file_name = scale.svg_file_name(Bass, absolute=False)
+        svg = scale.svg(Bass, absolute=False, colors = ScaleColors(self.start_pos.get_chromatic()))
+        folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
+        path =f"{folder_path}/{file_name}"
+        ensure_folder(folder_path)
+        save_file(path, svg)
+        return file_name
+
+    #Pragma mark - CsvGenerator
 
     def csv_content(self) -> List[str]:
         l = []
@@ -51,17 +64,6 @@ class ScaleOnBassAnkiNote(CsvGenerator):
         else:
             l.append("")
         return l
-    
-    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
-        assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
-        scale, tranpsosition = scale.transpose_to_fret_one()
-        file_name = scale.svg_file_name(Bass, absolute=False)
-        svg = scale.svg(Bass, absolute=False, colors = ScaleColors(self.start_pos.get_chromatic()))
-        folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
-        path =f"{folder_path}/{file_name}"
-        ensure_folder(folder_path)
-        save_file(path, svg)
-        return file_name
 
 def generate_bass():
     anki_notes = []

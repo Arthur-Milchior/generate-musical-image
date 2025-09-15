@@ -10,8 +10,7 @@ class ChromaticIntervalListToChordPattern(ChromaticIntervalListToPatterns[ChordP
     """Associate to each Chromatic interval list the Chord it represents. The list sohuld contain at most one chord.
     It's returned as a list only for compatibliity with the api."""
 
-
-    """Same as RecordedType"""
+    #pragma mark - RecordKeeper
     _recorded_type: ClassVar[Type] = ChordPattern
     _recorded_container_type: ClassVar[Type] = list
 
@@ -22,6 +21,7 @@ class ChromaticIntervalListToChordPattern(ChromaticIntervalListToPatterns[ChordP
     def _new_container(self, key: ChromaticIntervalListPattern) -> List[ChordPattern]:
         return list()
     
+    # public 
     def get_chord(self, chromatic_interval_list: ChromaticIntervalListPattern):
         patterns = self.get_recorded_container(chromatic_interval_list)
         if patterns:

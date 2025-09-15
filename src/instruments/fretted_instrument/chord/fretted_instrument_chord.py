@@ -22,7 +22,10 @@ class Barred(Enum):
 
 @dataclass(frozen=True)
 class ChordColors(ColorsWithTonic):
+    #pragma mark - Colors
     name: ClassVar[str] = "chord_colors"
+    
+    #pragma mark - ColorsWithTonic
     def get_color_from_interval(self, chromatic_interval: ChromaticInterval):
         assert_typing(chromatic_interval, ChromaticInterval)
         return [COLOR_TONIC, 
@@ -126,6 +129,8 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
         if hand is None:
             return Playable.NO
         return hand.playable()
+
+    # Pragma mark - SetOfPositionOnFrettedInstrument
 
     def _svg_name_base(self, instrument:FrettedInstrument, absolute: bool, colors: Optional[Colors], *args, **kwargs):
         fret_values = [fret.value for fret in self.get_frets(instrument)]

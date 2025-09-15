@@ -8,10 +8,12 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True, eq=False)
 class Chromatic(Singleton, ChromaticGetter[Self], DiatonicGetter):
+    #Pragma mark - Singleton
+
     IntervalClass: ClassVar[type]
     number_of_interval_in_an_octave: ClassVar[int] = 12
     
-
+    #Public
 
     def __add__(self, other):
         from solfege.value.pair import Pair
@@ -19,12 +21,12 @@ class Chromatic(Singleton, ChromaticGetter[Self], DiatonicGetter):
             return self + other.get_chromatic()
         return super().__add__(self, other)
 
-#pragma mark - ChromaticGetter
+    #pragma mark - ChromaticGetter
 
     def get_chromatic(self):
         return self
     
-#pragma mark - DiatonicGetter
+    #pragma mark - DiatonicGetter
     
     def get_diatonic(self):
         """If this note belong to the diatonic scale, give it.

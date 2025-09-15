@@ -5,6 +5,8 @@ import unittest
 class FakeType(MakeableWithSingleArgument):
     value: int
 
+    #pragma mark - MakeableWithSingleArgument
+
     @classmethod
     def _make_single_argument(cls, arg) -> Self:
         assert_typing(arg, int)

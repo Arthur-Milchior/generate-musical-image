@@ -27,12 +27,24 @@ ChromaticRecordedContainerType = TypeVar("ChromaticRecordedContainerType", bound
 class RecordKeeper(Generic[KeyType, RecordedType, RecordedContainerType], DataClassWithDefaultArgument):
     """Associate a key to a set of RecordedType. The exact set is of type RecordedContainerType"""
 
+    # Must be implemented by subclasses
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type]
     """Same as KeyType"""
     _key_type: ClassVar[Type]
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type]
+    
+    # Must be implemented by subclass
+
+    def is_key_valid(self, key: KeyType) -> bool:
+        """Whether the key is a valid entry. assert if not."""
+        return NotImplemented
+
+    def _new_container(self, key: KeyType) -> RecordedContainerType:
+        return NotImplemented
+    
+    # public
     
     """Associate the key to the set of recorded type"""
     _records: Dict[KeyType, RecordedContainerType]
@@ -71,15 +83,6 @@ class RecordKeeper(Generic[KeyType, RecordedType, RecordedContainerType], DataCl
     
     def __repr__(self):
         return f"{self.__class__.__name__}(_recorded_type={self._recorded_type}, _key_type={self._key_type}, _recorded_container_type={self._recorded_container_type}, _records=...)"
-
-    # Must be implemented by subclass
-
-    def is_key_valid(self, key: KeyType) -> bool:
-        """Whether the key is a valid entry. assert if not."""
-        return NotImplemented
-
-    def _new_container(self, key: KeyType) -> RecordedContainerType:
-        return NotImplemented
 
     # pragma mark - DataClassWithDefaultArgument
 

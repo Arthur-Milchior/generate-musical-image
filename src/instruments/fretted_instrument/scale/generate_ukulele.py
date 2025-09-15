@@ -32,6 +32,15 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
 
     def __post_init__(self):
         assert_typing(self.scale_pattern, ScalePattern)
+    
+    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
+        assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
+        folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
+        scale, transposition = scale.transpose_to_fret_one()
+        file_name = scale.save_svg(folder_path, Ukulele, absolute=False)
+        return file_name
+
+    #Pragma mark - CsvGenerator
 
     def csv_content(self) -> List[str]:
         l = []
@@ -51,13 +60,6 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
         else:
             l.append("")
         return l
-    
-    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
-        assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
-        folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
-        scale, transposition = scale.transpose_to_fret_one()
-        file_name = scale.save_svg(folder_path, Ukulele, absolute=False)
-        return file_name
 
 def generate_ukulele():
     anki_notes = []

@@ -35,6 +35,19 @@ class ScaleOnGuitarGuitarNote(CsvGenerator):
 
     def __post_init__(self):
         assert_typing(self.scale_pattern, ScalePattern)
+    
+    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
+        assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
+        scale, transposition = scale.transpose_to_fret_one()
+        file_name = scale.svg_file_name(Guitar, absolute=False)
+        svg = scale.svg(Guitar, absolute=False, colors = ScaleColors(self.string_1_pos.get_chromatic()))
+        folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
+        path =f"{folder_path}/{file_name}"
+        ensure_folder(folder_path)
+        save_file(path, svg)
+        return file_name
+
+    #Pragma mark - CsvGenerator
 
     def csv_content(self) -> List[str]:
         l = []
@@ -75,17 +88,6 @@ class ScaleOnGuitarGuitarNote(CsvGenerator):
             file_name = self.generate_svg(scale)
             l.append(img_tag(file_name))
         return l
-    
-    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
-        assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
-        scale, transposition = scale.transpose_to_fret_one()
-        file_name = scale.svg_file_name(Guitar, absolute=False)
-        svg = scale.svg(Guitar, absolute=False, colors = ScaleColors(self.string_1_pos.get_chromatic()))
-        folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
-        path =f"{folder_path}/{file_name}"
-        ensure_folder(folder_path)
-        save_file(path, svg)
-        return file_name
 
 def generate_guitar():
     anki_notes = []

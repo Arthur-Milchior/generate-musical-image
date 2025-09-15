@@ -9,6 +9,8 @@ from utils.util import assert_typing
 class ChordPatternToChordsOnFrettedInstrument(RecordKeeper[ChordPattern, ChordOnFrettedInstrument, InversionPatternAndItsChordsOnFrettedInstrument]):
     instrument: FrettedInstrument
 
+    #pragma mark - RecordKeeper
+
     def is_key_valid(self, key: ChordPattern) -> bool:
         """Whether the key is a valid entry. assert if not."""
         assert_typing(key, ChordPattern)

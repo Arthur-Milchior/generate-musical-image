@@ -44,14 +44,6 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     Order is the same as its chromatic note, and in case of equality the string. Not played notes is maximal. This ensure that the minimal of a chord is its lowest note."""
     string: String
     fret: Fret
-    
-    def repr_single_argument(self) -> str:
-        return f"""{(self.string.value, self.fret.value)}"""
-
-    @classmethod
-    def _make_single_argument(cls, arg: Tuple[FrettedInstrument, Union[String, int], Union[Fret, int]]):
-        string, fret = arg
-        return cls.make(string= string, fret=fret)
 
     @staticmethod
     def from_chromatic(instrument: FrettedInstrument, note:ChromaticNote, strings: Optional[Strings] = None, frets: Optional[Frets] = None):
@@ -145,7 +137,17 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
         return dataclasses.replace(self, fret=self.fret.transpose(transpose, transpose_open, transpose_not_played))
 
-#pragma mark - ChromaticGetter
+    #pragma mark - MakeableWithSingleArgument
+    
+    def repr_single_argument(self) -> str:
+        return f"""{(self.string.value, self.fret.value)}"""
+
+    @classmethod
+    def _make_single_argument(cls, arg: Tuple[FrettedInstrument, Union[String, int], Union[Fret, int]]):
+        string, fret = arg
+        return cls.make(string= string, fret=fret)
+    
+    #pragma mark - ChromaticGetter
 
     def get_chromatic(self) -> Optional[ChromaticNote]:
         if self.fret.is_not_played():

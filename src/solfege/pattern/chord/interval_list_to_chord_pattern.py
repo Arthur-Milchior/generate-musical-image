@@ -8,7 +8,8 @@ from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalLi
 
 
 class IntervalListToChordPattern(IntervalListToPatterns["ChordPattern", List, List]):
-    """Same as RecordedType"""
+    #pragma mark - RecordKeeper
+    
     _recorded_type: ClassVar[Type] = ChordPattern
     _recorded_container_type: ClassVar[Type] = list
     _chromatic_recorded_container_type: ClassVar[Type] = list
@@ -17,9 +18,10 @@ class IntervalListToChordPattern(IntervalListToPatterns["ChordPattern", List, Li
         return key.is_in_base_octave()
     
     @classmethod
-    def make_chromatic_container(self):
-        return ChromaticIntervalListToChordPattern.make()
-    
-    @classmethod
     def _new_container(self, key: ChromaticIntervalListPattern) -> List[ChordPattern]:
         return list()
+    
+    #pragma mark - IntervalListToPatterns
+    @classmethod
+    def make_chromatic_container(self):
+        return ChromaticIntervalListToChordPattern.make()

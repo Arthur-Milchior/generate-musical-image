@@ -7,7 +7,7 @@ from instruments.fretted_instrument.chord.chord_decomposition_anki_note import C
 from instruments.fretted_instrument.chord.fretted_instrument_chord import ChordColors, ChordOnFrettedInstrument, FrettedInstrumentChordFrozenList
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-from solfege.pattern.inversion.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
+from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternGetterType, IdentiticalInversionPatterns
 from solfege.pattern.inversion.inversion_pattern import InversionPattern, InversionPatternGetter, InversionPatternGetterType
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from utils.csv import CsvGenerator
@@ -16,20 +16,20 @@ from utils.recordable import RecordedContainer, RecordedType
 from utils.util import assert_iterable_typing, assert_typing, img_tag
 
 @dataclass(frozen=True, unsafe_hash=True)
-class ChromaticListAndItsFrettedInstrumentChords(InversionPatternGetter, RecordedContainer[InversionPatternGetterType], CsvGenerator, DataClassWithDefaultArgument, Generic[InversionPatternGetterType]):
+class AbstractEquivalentInversionAndItsFrettedInstrumentChords(InversionPatternGetter, RecordedContainer[IdenticalInversionPatternGetterType], CsvGenerator, DataClassWithDefaultArgument, Generic[IdenticalInversionPatternGetterType]):
     """    Csv is:
     name, other name, open, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored, partition)
     """
     instrument: FrettedInstrument
-    key: InversionPatternGetterType
+    key: IdenticalInversionPatternGetterType
     fretted_instrument_chords: List[ChordOnFrettedInstrument] = field(hash=False, compare=False)
     # open: ClassVar[bool]
     # absolute: ClassVar[bool]
 
     #pragma mark - InversionPatternGetter
 
-    def get_inversion_pattern(self) -> InversionPattern:
-        return self.key.get_inversion_pattern()
+    def get_identical_inversion_pattern(self) -> IdentiticalInversionPatterns:
+        return self.key.get_identical_inversion_pattern()
 
     def append(self, fretted_instrument_chord: ChordOnFrettedInstrument):
         assert_typing(fretted_instrument_chord, ChordOnFrettedInstrument)
@@ -65,9 +65,6 @@ class ChromaticListAndItsFrettedInstrumentChords(InversionPatternGetter, Recorde
     def __len__(self):
         return len(self.fretted_instrument_chords)
     
-    def name(self, inversion: InversionPattern) -> List[str]:
-        return NotImplemented
-    
     def first_name(self):
         return self.names()[0]
     
@@ -78,10 +75,7 @@ class ChromaticListAndItsFrettedInstrumentChords(InversionPatternGetter, Recorde
         return ", ".join(other_names)
 
     def names(self):
-        return [self.name(inversion) for inversion in self.interval_and_its_inversions.inversions]
-    
-    def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
-        return NotImplemented
+        return [self.name(inversion) for inversion in self.get_identical_inversion_pattern().inversions]
     
     def triple_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument, chord_decompositions: List[str]):
         """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decmoposition in chord_decompositions"""
@@ -96,6 +90,8 @@ class ChromaticListAndItsFrettedInstrumentChords(InversionPatternGetter, Recorde
             img_tag(transposed_chord.save_svg(folder_path, self.instrument, colors=ChordColors(tonic), absolute=self.absolute)),
             self.lily_field(transposed_chord, self.interval_and_its_inversions.easiest_inversion().get_interval_list()),
         )
+
+    #Pragma mark - CsvGenerator
 
     def csv_content(self, folder_path: str, chord_decompositions: List[str]):
         l = []
@@ -130,3 +126,12 @@ class ChromaticListAndItsFrettedInstrumentChords(InversionPatternGetter, Recorde
         assert_typing(self.fretted_instrument_chords, list)
         assert_iterable_typing(self.fretted_instrument_chords, ChordOnFrettedInstrument)
         super().__post_init__()
+
+    # Must be implemented by subclasses
+
+    def name(self, inversion: InversionPattern) -> List[str]:
+        return NotImplemented
+
+    def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
+        # The anki field for the partition if any.
+        return NotImplemented

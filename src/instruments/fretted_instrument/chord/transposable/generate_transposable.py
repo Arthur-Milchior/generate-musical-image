@@ -8,7 +8,7 @@ from instruments.fretted_instrument.position.fret.frets import Frets
 
 # Ensure that all chords are registered
 from solfege.pattern.chord.chord_patterns import *
-from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
+from solfege.pattern.inversion.interval_list_to_identical_inversion_patterns import IntervalListToIdenticalInversionPattern
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from consts import generate_root_folder
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
@@ -36,8 +36,8 @@ def register_all_chords(instrument: FrettedInstrument) -> ChordPatternToChordsOn
         if chromatic_intervals is None:
             continue
         assert_typing(chromatic_intervals, ChromaticIntervalListPattern)
-        interval_to_inversion_patterns: IntervalListToInversionPattern = InversionPattern.get_record_keeper()
-        assert_typing(interval_to_inversion_patterns, IntervalListToInversionPattern)
+        interval_to_inversion_patterns: IntervalListToIdenticalInversionPattern = InversionPattern.get_record_keeper()
+        assert_typing(interval_to_inversion_patterns, IntervalListToIdenticalInversionPattern)
         chromatic_intervals_and_inversions = interval_to_inversion_patterns.get_from_chromatic_interval_list(chromatic_intervals)
         if chromatic_intervals_and_inversions is None:
             continue

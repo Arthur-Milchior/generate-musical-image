@@ -7,7 +7,8 @@ from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalLi
 
 
 class ChromaticIntervalListToScalePattern(ChromaticIntervalListToPatterns[ScalePattern, List]):
-    """Same as RecordedType"""
+    #pragma mark - RecordKeeper
+    
     _recorded_type: ClassVar[Type] = ScalePattern
     _recorded_container_type: ClassVar[Type] = list
 

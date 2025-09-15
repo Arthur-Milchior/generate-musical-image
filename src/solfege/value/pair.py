@@ -38,20 +38,6 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         if isinstance(diatonic, int):
             diatonic = cls.DiatonicClass(diatonic)
         return cls(chromatic, diatonic)
-    
-
-    def repr_single_argument(self) -> str:
-        return f"""{self.chromatic.value, self.diatonic.value}"""
-
-    @classmethod
-    def _make_single_argument(cls, arg: Union[Tuple[int, int], int]):
-        """If there are two arguments, it's chromatic, diatonic. If there is a single arg, it's chromatic, diatonic is one (useful for most scale). If it's already a Pair, return it."""
-        if isinstance(arg, tuple):
-            assert len(arg) == 2
-            chromatic, diatonic = arg
-            return cls.make(chromatic, diatonic)
-        assert_typing(arg, int)
-        return cls.make(arg, 1)
 
     def __eq__(self, other: "Pair"):
         diatonicEq = self.diatonic == other.diatonic
@@ -80,12 +66,27 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         assert_typing(other, self.__class__)
         return (self.chromatic, self.diatonic) < (other.chromatic, other.diatonic)
 
-#pragma mark - ChromaticGetter
+    #pragma mark - MakeableWithSingleArgument
+
+    def repr_single_argument(self) -> str:
+        return f"""{self.chromatic.value, self.diatonic.value}"""
+
+    @classmethod
+    def _make_single_argument(cls, arg: Union[Tuple[int, int], int]):
+        """If there are two arguments, it's chromatic, diatonic. If there is a single arg, it's chromatic, diatonic is one (useful for most scale). If it's already a Pair, return it."""
+        if isinstance(arg, tuple):
+            assert len(arg) == 2
+            chromatic, diatonic = arg
+            return cls.make(chromatic, diatonic)
+        assert_typing(arg, int)
+        return cls.make(arg, 1)
+    
+    #pragma mark - ChromaticGetter
 
     def get_chromatic(self):
         return self.chromatic
     
-#pragma mark - DiatonicGetter
+    #pragma mark - DiatonicGetter
 
     def get_diatonic(self) -> DiatonicType:
         return self.diatonic

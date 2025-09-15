@@ -13,7 +13,11 @@ class DiatonicInterval(AbstractSingletonInterval, Diatonic):
     and ignore the note which are absent. B and B# can't be
     distinguished, since A# does not really exist. However, this would
     allow to distinguish between B# and C"""
+
+    #Pragma mark - Singleton
     number_of_interval_in_an_octave: ClassVar[int] = 7
+
+    #public
 
     def get_interval_name(self, showOctave=True):
         if self.value == 0:

@@ -20,7 +20,6 @@ class SvgLine:
         assert self.line.strip() == self.line
         assert "<" not in line[1:]
         assert ">" not in line[:-1]
-        
 
     def indent(self):
         line = self._line_without_comment()
@@ -36,22 +35,7 @@ class SvgLine:
         return (" "*INDENT_SIZE * indent) + self.line
 
 
-class SvgGenerator:
-    def _svg_content(self) -> List[str]:
-        """The content of the svg. Not containig svg itself and the white background."""
-        return NotImplemented
-    
-    def _svg_name_base(self) -> str:
-        return NotImplemented
-    
-    def svg_height(self) -> int: 
-        "Returns the height of svg. Must accept same argument as svg"
-        return NotImplemented
-    
-    def svg_width(self, *args, **kwargs) -> int: 
-        "Returns the width of svg. Must accept same argument as svg"
-        return NotImplemented
-    
+class SvgGenerator:    
     def svg_name(self, *args, **kwargs) -> str:
         return f"{self._svg_name_base(*args, **kwargs)}.svg"
     
@@ -87,3 +71,19 @@ class SvgGenerator:
             total_indent += new_indent
             
         return "\n".join(f'{content}' for content in indented_content)
+    
+    #Must be implemented by subclasses
+    def _svg_content(self) -> List[str]:
+        """The content of the svg. Not containig svg itself and the white background."""
+        return NotImplemented
+    
+    def _svg_name_base(self) -> str:
+        return NotImplemented
+    
+    def svg_height(self) -> int: 
+        "Returns the height of svg. Must accept same argument as svg"
+        return NotImplemented
+    
+    def svg_width(self, *args, **kwargs) -> int: 
+        "Returns the width of svg. Must accept same argument as svg"
+        return NotImplemented

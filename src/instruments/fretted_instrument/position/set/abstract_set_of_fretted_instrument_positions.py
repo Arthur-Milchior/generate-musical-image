@@ -37,28 +37,36 @@ open_fret = Guitar.fret( value=0)
 
 @dataclass(frozen=True)
 class Colors:
+    # Must be implemented by subclasses
+
     name: ClassVar[str]
+    def get_color_from_note(self, chromatic_note: ChromaticNote) -> str:
+        return NotImplemented
 
     def __post_init__(self):
         assert_typing(self.name, str)
 
-    def get_color_from_note(self, chromatic_note: ChromaticNote) -> str:
-        return NotImplemented
 
 @dataclass(frozen=True)
 class ColorsWithTonic(Colors):
     tonic: ChromaticNote
-
-    def __post_init__(self):
-        assert_typing(self.tonic, ChromaticNote)
-        super().__post_init__()
+    #Must be implemented by subclasses
 
     def get_color_from_interval(self, chromatic_interval: ChromaticInterval) -> str:
         return NotImplemented
     
+    #pragma mark - dataclass
+
+    def __post_init__(self):
+        assert_typing(self.tonic, ChromaticNote)
+        super().__post_init__()
+    
+    #Pragma mark Colors
+    
     def get_color_from_note(self, chromatic_note: ChromaticNote):
         assert_typing(chromatic_note, ChromaticNote)
         return self.get_color_from_interval(chromatic_note - self.tonic)
+    
 
 
 @dataclass(frozen=True, eq=False)
@@ -77,14 +85,6 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
 
     def __hash__(self):
         return hash(frozenset(self.positions))
-
-    @classmethod
-    def _make_single_argument(cls, arg: List) -> Self:
-        return cls.make((cls.type.make_single_argument(pos) for pos in arg))
-
-    def repr_single_argument(self) -> str:
-        return f"""[{", ".join(position.repr_single_argument() for position in self.positions )}]"""
-
  
     def played_positions(self):
         return self._frozen_list_type(pos for pos in self.positions if pos.fret.is_played())
@@ -302,6 +302,15 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
     
     def _svg_name_base(self, instrument: FrettedInstrument, absolute: bool, colors: Optional[Colors], *args, **kwargs):
         return f"""{instrument.name}_{colors.name if colors is not None else "black"}_{"absolute" if absolute else "transposable"}_{"__".join(f"{pos.string.value}_{pos.fret.value}" for pos in self)}"""
+
+    #pragma mark - MakeableWithSingleArgument
+
+    @classmethod
+    def _make_single_argument(cls, arg: List) -> Self:
+        return cls.make((cls.type.make_single_argument(pos) for pos in arg))
+
+    def repr_single_argument(self) -> str:
+        return f"""[{", ".join(position.repr_single_argument() for position in self.positions )}]"""
 
     #pragma mark - DataClassWithDefaultArgument
 

@@ -10,6 +10,7 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True, eq=False)
 class SetOfPositionOnFrettedInstrument(AbstractSetOfFrettedPositions[PositionOnFrettedInstrument]):
+    # Must be implemented by subclasses
     type: ClassVar[Type[PositionOnFrettedInstrument]] = PositionOnFrettedInstrument
     _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]] = PositionOnFrettedInstrumentFrozenList
 

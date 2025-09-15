@@ -16,6 +16,12 @@ ALL_FINGERS = frozenset(range(1,5))
 class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, MakeableWithSingleArgument):
     fingers: FingersType
 
+    def restrict_fingers(self, fingers: FingersType):
+        assert fingers <= self.fingers
+        return dataclasses.replace(self, fingers=fingers)
+
+    #pragma mark - MakeableWithSingleArgument
+
     @classmethod
     def _make_single_argument(cls, arg) -> Self:
         (string, fret, fingers) = arg
@@ -23,10 +29,6 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
 
     def repr_single_argument(self) -> str:
         return f"""{(self.string.value, self.fret.value, set(self.fingers))}"""
-
-    def restrict_fingers(self, fingers: FingersType):
-        assert fingers <= self.fingers
-        return dataclasses.replace(self, fingers=fingers)
 
 
     @staticmethod

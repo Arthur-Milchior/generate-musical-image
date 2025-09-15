@@ -13,22 +13,19 @@ class AbstractDelta(Generic[Ts, T]):
     Otherwise, min_delta, max_delta = deltas.
     If min_delta is None, there is no lower bound limit, otherwise min_delta is the lower bound. Same for max bound. 
     """
+    #Properties
+    
     deltas: Optional[Tuple[Optional[int], Optional[int]]]
+
+    #Must be implemented by subclasses
 
     type_t: ClassVar[Type]
     type_ts: ClassVar[Type]
-
     min_t: ClassVar[int]
 
     @classmethod
     def max_t(cls, instrument: "FrettedInstrument") -> int:
         return NotImplemented
-
-    def __post_init__(self):
-        if self.deltas is not None:
-            min_delta, max_delta = self.deltas
-            assert_optional_typing(min_delta, int)
-            assert_optional_typing(max_delta, int)
 
     @classmethod
     def create_T(cls, instrument: "FrettedInstrument", i: int) -> T:
@@ -41,6 +38,8 @@ class AbstractDelta(Generic[Ts, T]):
     @classmethod
     def create_empty_ts(cls) -> Ts:
         return NotImplemented
+    
+    # Public
 
     def min(self, instrument: "FrettedInstrument", t: T) -> Optional[T]:
         """The minimal T that can be played, when delta is applied with reference point t. None if nothing can be played."""
@@ -103,3 +102,12 @@ class AbstractDelta(Generic[Ts, T]):
             if max_delta < delta:
                 return False
         return True
+
+    
+    #pragma mark - DataClass
+
+    def __post_init__(self):
+        if self.deltas is not None:
+            min_delta, max_delta = self.deltas
+            assert_optional_typing(min_delta, int)
+            assert_optional_typing(max_delta, int)

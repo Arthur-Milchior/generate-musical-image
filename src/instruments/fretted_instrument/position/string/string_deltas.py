@@ -11,15 +11,15 @@ from utils.util import assert_optional_typing
 class StringDelta(AbstractDelta[Strings, String]):
     """Represents a way to compute strings given a current string.
      For example, restricting a search of position to the current note, or string not far away, or only a different string."""
+
+    #pragma mark - AbstractDelta
     min_t: ClassVar[int] = 1
+    type_t: ClassVar[Type] = String
+    type_ts: ClassVar[Type] = Strings
 
     @classmethod
     def max_t(cls, instrument:FrettedInstrument) -> int:
         return instrument.number_of_strings()
-
-    type_t: ClassVar[Type] = String
-    type_ts: ClassVar[Type] = Strings
-
     @classmethod
     def create_T(cls, instrument: "FrettedInstrument", i: int) -> String:
         return instrument.string(i)
@@ -31,6 +31,8 @@ class StringDelta(AbstractDelta[Strings, String]):
     @classmethod
     def create_empty_ts(cls):
         return Strings.make([])
+    
+    #pragma mark - public
 
     @staticmethod
     def SAME_STRING_ONLY(instrument: "FrettedInstrument"):

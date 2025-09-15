@@ -27,9 +27,6 @@ class IntervalListToPatterns(RecordKeeper[IntervalListPattern, PatternType, Reco
     _recorded_container_type: ClassVar[Type]
     _chromatic_recorded_container_type: ClassVar[Type]
 
-    def is_key_valid(self, key: IntervalListPattern):
-        return NotImplemented
-    
     @classmethod
     def make_chromatic_container(self) -> ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]:
         return NotImplemented

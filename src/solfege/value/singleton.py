@@ -9,11 +9,14 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True, eq=False)
 class Singleton(Abstract, MakeableWithSingleArgument):
-    value: int
+    # Must be implemented by subclasses.
     IntervalClass: ClassVar[Type[Self]]
 
     """number of note by octave (7 for diatonic, 12 for chromatic)"""
     number_of_interval_in_an_octave: ClassVar[int]
+
+    #public
+    value: int
 
     @classmethod
     def make_instance_of_selfs_class(cls: Type[Self], value: int):
@@ -42,6 +45,8 @@ class Singleton(Abstract, MakeableWithSingleArgument):
     def __repr__(self):
         return f"{self.__class__.__name__}(value={self.value})"
     
+    #pragma mark - MakeableWithSingleArgument
+
     def repr_single_argument(self) -> str:
         return f"""{self.value}"""
 

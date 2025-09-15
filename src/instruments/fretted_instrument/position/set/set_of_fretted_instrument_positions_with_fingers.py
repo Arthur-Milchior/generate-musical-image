@@ -11,8 +11,10 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True)
 class ScaleColors(ColorsWithTonic):
+    #pragma mark - Colors
     name: ClassVar[str] = "scale_colors"
 
+    #pragma mark - ColorsWithTonic
     def get_color_from_interval(self, chromatic_interval: ChromaticInterval):
         color = [COLOR_TONIC, 
          COLOR_UNINTERESTING, COLOR_UNINTERESTING,

@@ -10,14 +10,16 @@ from utils.util import assert_optional_typing
 class FretDelta(AbstractDelta[Frets, Fret]):
     """Represents a way to compute frets given a current fret.
      For example, restricting a search of position to the current note, or fret not far away, or only a different fret."""
+    #pragma mark - AbstractDelta
+
     min_t: ClassVar[int] = 1
+    type_t: ClassVar[Type] = Fret
+    type_ts: ClassVar[Type] = Frets
+
 
     @classmethod
     def max_t(cls, instrument: "FrettedInstrument") -> int:
         return instrument.number_of_frets
-
-    type_t: ClassVar[Type] = Fret
-    type_ts: ClassVar[Type] = Frets
 
     @classmethod
     def create_T(cls, instrument: "FrettedInstrument", i: int) -> Fret:

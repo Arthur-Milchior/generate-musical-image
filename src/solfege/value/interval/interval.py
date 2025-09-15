@@ -25,9 +25,6 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval]):
         assert_typing(self.chromatic, ChromaticInterval)
         assert_typing(self.diatonic, DiatonicInterval)
 
-    def __neg__(self) -> Self:
-        return self.make_instance_of_selfs_class(chromatic=-self.chromatic, diatonic=-self.diatonic)
-
     def __mul__(self, other: int) -> Self:
         assert isinstance(other, int)
         diatonic = self.diatonic * other
@@ -40,6 +37,10 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval]):
         if not other.__class__ == self.__class__:
             return NotImplemented
         return self.make_instance_of_selfs_class(chromatic=self.chromatic + other.chromatic, diatonic=self.diatonic+other.diatonic)    
+
+    #pragma mark - AbstractInterval
+    def __neg__(self) -> Self:
+        return self.make_instance_of_selfs_class(chromatic=-self.chromatic, diatonic=-self.diatonic)
 
     @classmethod
     def unison(cls):

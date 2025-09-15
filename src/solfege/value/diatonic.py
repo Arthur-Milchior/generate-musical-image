@@ -10,9 +10,11 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True, eq=False)
 class Diatonic(Singleton, ChromaticGetter, DiatonicGetter[Self]):
+    #Pragma mark - Singleton
     IntervalClass: ClassVar[type]
     number_of_interval_in_an_octave: ClassVar[int] = 7
 
+    #Pragma public
     def __add__(self, other):
         from solfege.value.pair import Pair
         if isinstance(other, Pair):

@@ -32,6 +32,8 @@ class ChordDecompositionAnkiNote(CsvGenerator):
             return self.chord, ChromaticInterval(0)
         return self.chord.transpose_to_fret_one()
 
+    #Pragma mark - CsvGenerator
+
     def csv_content(self, folder_path:str):
         chord, transposed = self.transposed()
         tonic = self.tonic + transposed

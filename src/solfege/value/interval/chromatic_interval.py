@@ -16,14 +16,15 @@ class IntervalNameCreasing(Enum):
 @dataclass(frozen=True, eq=False)
 class ChromaticInterval(AbstractSingletonInterval, Chromatic):
     """A chromatic interval. Counting the number of half tone between two notes."""
+
+    #Pragma mark - Singleton
     number_of_interval_in_an_octave: ClassVar[int] = 12
     AlterationClass: ClassVar[type[ChromaticInterval]]  # more specific an alteration
 
     """the diatonic class to which such a chromatic class must be converted"""
 
-    # DiatonicClass = solfege.Interval.diatonic.DiatonicInterval
-    # moved to init because cyclic dependencies
-    
+    #Public
+
     def _add(self, other: ChromaticGetter):
         assert_typing(other, ChromaticGetter)
         return super()._add(other.get_chromatic())

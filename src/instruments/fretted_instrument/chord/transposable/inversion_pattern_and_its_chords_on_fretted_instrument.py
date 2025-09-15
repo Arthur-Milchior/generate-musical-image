@@ -7,5 +7,5 @@ from utils.util import img_tag
 
 
 @dataclass(frozen=True, unsafe_hash=True)
-class InversionPatternAndItsChordsOnFrettedInstrument(RecordedContainer[ChordOnFrettedInstrument]):
+class InversionPatternAndItsChordsOnFrettedInstrument(AbstractEquivalentInversionAndItsFrettedInstrumentChords):
     pass

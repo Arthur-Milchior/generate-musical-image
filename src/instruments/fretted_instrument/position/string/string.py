@@ -20,20 +20,6 @@ class String(MakeableWithSingleArgument):
     """The note when the string is played empty."""
     note_open: ChromaticNote
 
-    def __post_init__(self):
-        assert_typing(self.value, int)
-        assert_typing(self.note_open, ChromaticNote)
-
-    def repr_single_argument(self) -> str:
-        return f"""{self.value}"""
-    
-    @staticmethod
-    def _make_single_argument(arg: Tuple[FrettedInstrument, int]):
-        instrument, string = arg
-        assert_typing(instrument, FrettedInstrument)
-        assert_typing(string, int)
-        return instrument.string(string)
-
     def add(self, instrument: FrettedInstrument, other: int) -> Optional[Self]:
         assert_typing(other, int)
         new_string_value = self.value + other
@@ -94,6 +80,25 @@ class String(MakeableWithSingleArgument):
         y2 = int(lowest_fret.y_fret()+MARGIN)
         x = int(self.x())
         return f"""<line x1="{self.x()}" y1="{y1}" x2="{x}" y2="{y2}" stroke-width="{STRING_THICKNESS}" stroke="black" /><!-- String {self.value}-->"""
+
+    #pragma mark - MakeableWithSingleArgument
+
+    def repr_single_argument(self) -> str:
+        return f"""{self.value}"""
+    
+    @staticmethod
+    def _make_single_argument(arg: Tuple[FrettedInstrument, int]):
+        instrument, string = arg
+        assert_typing(instrument, FrettedInstrument)
+        assert_typing(string, int)
+        return instrument.string(string)
+
+    #pragma mark - MakeableWithSingleArgument
+    
+    def __post_init__(self):
+        assert_typing(self.value, int)
+        assert_typing(self.note_open, ChromaticNote)
+
 
 # ukulele_G4 = String(1, Note.from_name("G4").get_chromatic())
 # ukulele_C4 = String(2, Note.from_name("C4").get_chromatic())

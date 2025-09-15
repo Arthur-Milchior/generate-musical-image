@@ -1,7 +1,7 @@
 
 
 from dataclasses import dataclass
-from typing import ClassVar, Dict, List, Type, TypeVar
+from typing import Dict, List, Type, TypeVar
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.interval import Interval
@@ -16,7 +16,7 @@ class InversionPatternGetter:
 InversionPatternGetterType = TypeVar("InversionPatternGetterType", bound=InversionPatternGetter)
 
 @dataclass(frozen=True)
-class InversionPattern(InversionPatternGetter, PatternWithIntervalList["IntervalListToInversion"], DataClassWithDefaultArgument):
+class InversionPattern(InversionPatternGetter, PatternWithIntervalList["IntervalListToIdenticalInversionPattern"], DataClassWithDefaultArgument):
     """Order is considering not inversion first. Then with fifth. Then base."""
     inversion: int
     interval_list: IntervalListPattern
@@ -28,8 +28,8 @@ class InversionPattern(InversionPatternGetter, PatternWithIntervalList["Interval
 
     @classmethod
     def _new_record_keeper(cls):
-        from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
-        return IntervalListToInversionPattern.make()
+        from solfege.pattern.inversion.interval_list_to_identical_inversion_patterns import IntervalListToIdenticalInversionPattern
+        return IntervalListToIdenticalInversionPattern.make()
     
     def get_inversion_pattern(self) -> "InversionPattern":
         return self

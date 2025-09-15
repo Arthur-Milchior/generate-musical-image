@@ -14,6 +14,8 @@ class MakeableWithSingleArgument():
         r = cls._make_single_argument(arg)
         assert_typing(r, cls)
         return r
+    
+    # Must be implemented by subclasses
 
     @classmethod
     def _make_single_argument(cls, arg) -> Self:

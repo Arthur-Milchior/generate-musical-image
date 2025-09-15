@@ -22,11 +22,14 @@ class AbstractInterval(Abstract):
     * DiatonicClass: class to which a chromatic object must be converted when a diatonic object is required.
     * PairClass: the class to which a diatonic and chromatic object must be converted."""
     
+    def __neg__(self):
+        return self * -1
+    
+    # must be implemented by subclasses
+    
     @classmethod
     def unison(cls):
         return NotImplemented
-    
-    def __neg__(self):
-        return self * -1
+
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)

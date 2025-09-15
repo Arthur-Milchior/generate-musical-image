@@ -24,9 +24,6 @@ class ChromaticIntervalListToPatterns(RecordKeeper[ChromaticIntervalListPattern,
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = ChromaticRecordedContainerType
 
-    def is_key_valid(self, key: ChromaticIntervalListPattern):
-        return NotImplemented
-
     def get_easiest_pattern_from_chromatic_interval(self, chromatic_interval_list: ChromaticIntervalListPattern) -> Optional[PatternType]:
         """Given a set of interval, return the object having this set of intervals."""
         assert_typing(chromatic_interval_list, ChromaticIntervalListPattern, exact=True)

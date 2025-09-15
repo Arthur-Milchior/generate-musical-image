@@ -30,6 +30,8 @@ class PatternEmpty(SolfegePattern):
         return super()._clean_arguments_for_constructor(args, kwargs)
 
 class RecordKeeperForPatternEmpty(RecordKeeper[IntervalListPattern, PatternEmpty, List[PatternEmpty]]):
+    #pragma mark - RecordKeeper
+
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = PatternEmpty
     """Same as KeyType"""
@@ -67,6 +69,9 @@ class PatternDeux(SolfegePattern):
         return super()._clean_arguments_for_constructor(args, kwargs)
 
 class RecordKeeperForPatternDeux(RecordKeeper[IntervalListPattern, PatternDeux, List[PatternDeux]]):
+
+    #pragma mark - RecordKeeper
+    
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = PatternDeux
     """Same as KeyType"""

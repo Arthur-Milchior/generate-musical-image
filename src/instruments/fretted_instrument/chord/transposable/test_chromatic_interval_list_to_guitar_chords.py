@@ -1,6 +1,6 @@
 import unittest
 
-from solfege.pattern.inversion.chromatic_intervals_and_its_inversions import ChromaticIntervalListAndItsInversions
+from solfege.pattern.inversion.identical_inversion_patterns import IdentiticalInversionPatterns
 
 from .inversion_pattern_to_chords_on_fretted_instrument import * 
 from ..test_constants import *
@@ -20,7 +20,7 @@ class TestChromaticIntervalListToFrettedInstrumentChord(unittest.TestCase):
         fretted_instrument_chords = chromatic_interval_list_and_its_fretted_instrument_chords.fretted_instrument_chords
         self.assertEqual(fretted_instrument_chords, [F4M])
         interval_and_its_inversions = chromatic_interval_list_and_its_fretted_instrument_chords.interval_and_its_inversions
-        self.assertIsInstance(interval_and_its_inversions, ChromaticIntervalListAndItsInversions)
+        self.assertIsInstance(interval_and_its_inversions, IdentiticalInversionPatterns)
         inversions = interval_and_its_inversions.inversions
         self.assertEqual(len(inversions), 1)
         inversion = inversions[0]
