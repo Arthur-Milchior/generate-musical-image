@@ -1,6 +1,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from functools import cache
 from typing import ClassVar, Dict, Generic, List, Optional, Type
 
 from instruments.fretted_instrument.chord import chord_decomposition_anki_note
@@ -17,7 +18,7 @@ from utils.recordable import RecordedContainer, RecordedType
 from utils.util import T, assert_iterable_typing, assert_typing, img_tag
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractEquivalentInversionAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrettedInstrument], CsvGenerator, DataClassWithDefaultArgument, ABC, Generic[IdenticalInversionPatternsGetterType]):
+class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrettedInstrument], CsvGenerator, DataClassWithDefaultArgument, ABC, Generic[IdenticalInversionPatternsGetterType]):
     """    Csv is:
     name, other name, open, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored, partition)
     """
@@ -73,6 +74,7 @@ class AbstractEquivalentInversionAndItsFrettedInstrumentChords(RecordedContainer
         other_names = names[1:]
         return ", ".join(other_names)
 
+    @cache
     def names(self):
         return [self.name(inversion) for inversion in self.get_identical_inversion_pattern().inversions]
     
@@ -81,7 +83,8 @@ class AbstractEquivalentInversionAndItsFrettedInstrumentChords(RecordedContainer
         transposed_chord, transposition = fretted_chord, 0 if self.absolute else fretted_chord.transpose_to_fret_one()
         pos_of_lowest_note = transposed_chord.get_most_grave_note()
         lowest_note = pos_of_lowest_note.get_chromatic()
-        tonic = lowest_note - self.key.get_identical_inversion_pattern().easiest_inversion().position_of_lowest_interval_in_base_octave.chromatic
+        delta_due_to_inversion = self.key.get_identical_inversion_pattern().easiest_inversion().interval_in_base_corresponding_to_interval_0_in_inversion
+        tonic = lowest_note - delta_due_to_inversion.chromatic
         cdan = ChordDecompositionAnkiNote(self.names(), transposed_chord, absolute=self.absolute, tonic=tonic)
         chord_decompositions.append(cdan.csv(folder_path = folder_path))
         return (
@@ -101,11 +104,8 @@ class AbstractEquivalentInversionAndItsFrettedInstrumentChords(RecordedContainer
         individual_maximals, other_maximals = maximals[:7], maximals[7:]
         for fretted_chord in individual_maximals:
             l += self.triple_field(folder_path, fretted_chord, chord_decompositions)
-        for _ in range(7- len(maximals)):
-            l.append("")
-            l.append("")
-            l.append("")
-
+        nb_empty = 7- len(maximals)
+        l += [""] * (3 * nb_empty)
         # Remaining maximals
         triples = [self.triple_field(folder_path, fretted_chord, chord_decompositions) for fretted_chord in other_maximals]
         l.append(", ".join(blacks for blacks, _, _ in triples))

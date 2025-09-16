@@ -12,6 +12,7 @@ from utils.frozenlist import FrozenList
 from utils.util import T, assert_typing
 
 
+@dataclass(frozen=True, eq=True)
 class AbstractChromaticInstantiation(AbstractPatternInstantiation[T, ChromaticNote, ChromaticInterval], Generic[T]):
     note_type: ClassVar[AbstractNote] = ChromaticNote
     interval_type: ClassVar[AbstractInterval] = ChromaticInterval

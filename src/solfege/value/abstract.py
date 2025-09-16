@@ -3,24 +3,23 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Self
 
-from solfege.value.getters import ChromaticGetter, DiatonicGetter
 from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
 
 
 @dataclass(frozen=True, unsafe_hash=True, eq=False)
-class Abstract(MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter, ABC):
+class Abstract(MakeableWithSingleArgument, ABC):
     """The class of interval similar to the current class"""
     IntervalClass: ClassVar[type] #abstract interval
 
-    """The diatonic class similar to the current class"""
-    DiatonicClass: ClassVar[type["Abstract"]]
-    """The chromatic class similar to the current class"""
-    ChromaticClass: ClassVar[type["Abstract"]]
+    # """The diatonic class similar to the current class"""
+    # DiatonicClass: ClassVar[type["Abstract"]]
+    # """The chromatic class similar to the current class"""
+    # ChromaticClass: ClassVar[type["Abstract"]]
 
-    """The class with both Chromatic and Diatonic similar to the current class"""
-    PairClass: ClassVar[type]# abstract interval
+    # """The class with both Chromatic and Diatonic similar to the current class"""
+    # PairClass: ClassVar[type]# abstract interval
 
     def __radd__(self, other):
         return self.__add__(other)
@@ -44,9 +43,6 @@ class Abstract(MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter, ABC)
     
     def __sub__(self, other):
         return self + (-other)
-    
-    def get_pair(self) -> "Pair":
-        return self.PairClass(self.get_chromatic(), self.get_diatonic())
     
     def is_in_base_octave(self, accepting_octave: bool) -> bool:
         """Whether the value is in base octave. Used to check value is canonify when octave don't matter."""

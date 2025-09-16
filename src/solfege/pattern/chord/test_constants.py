@@ -13,12 +13,12 @@ interval_to_chord = IntervalListToChordPattern.make()
 
 dominant_seventh_chord._associate_keys_to_self(record_keeper=interval_to_chord)
 
-def make_inversion(inversion: int, interval_list: IntervalListPattern, base: ChordPattern, position_of_lowest_interval_in_base_octave, fifth_omitted:bool = False):
-    position_of_lowest_interval_in_base_octave = Interval.make_single_argument(position_of_lowest_interval_in_base_octave)
+def make_inversion(inversion: int, interval_list: IntervalListPattern, base: ChordPattern, interval_in_base_corresponding_to_interval_0_in_inversion, fifth_omitted:bool = False):
+    interval_in_base_corresponding_to_interval_0_in_inversion = Interval.make_single_argument(interval_in_base_corresponding_to_interval_0_in_inversion)
     inversion_pattern = InversionPattern.make(inversion=inversion,
                                               base=base, interval_list=interval_list,
                                               fifth_omitted=fifth_omitted,
-                                              position_of_lowest_interval_in_base_octave = position_of_lowest_interval_in_base_octave,
+                                              interval_in_base_corresponding_to_interval_0_in_inversion = interval_in_base_corresponding_to_interval_0_in_inversion,
                                               record=False)
     #inversion_pattern._associate_intervals_to_self(interval_to_pattern=interval_to_inversion)
     return inversion_pattern

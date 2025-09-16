@@ -3,7 +3,7 @@ import unittest
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatterns
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 
-from .inversion_pattern_to_chords_on_fretted_instrument import * 
+from .identical_inversion_pattern_to_chords_on_fretted_instrument import * 
 from ..test_constants import *
 from solfege.pattern.chord.chord_patterns import major_triad
 

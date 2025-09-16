@@ -50,7 +50,6 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
     def closed_positions(self):
         return self._frozen_list_type(pos for pos in self.positions if pos.fret.is_closed())
 
-
     def get_most_grave_note(self) -> Optional[PositionOnFrettedInstrumentType]:
         """The fretted_instrument position of the lowest note"""
         return optional_min(self.positions)

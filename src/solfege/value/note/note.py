@@ -49,7 +49,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], LocalLilya
         alteration_name = "".join(letter for letter in name if letter in alteration_symbols)
         diatonic = DiatonicNote.from_name(diatonic_name)
         alteration = Alteration.from_name(alteration_name)
-        chromatic = diatonic.get_chromatic() + alteration
+        chromatic = Note.from_diatonic(diatonic).chromatic + alteration
         return Note(chromatic, diatonic)
     
     def __sub__(self, other: Union[Self, Interval]) -> Union[Self, Interval]:

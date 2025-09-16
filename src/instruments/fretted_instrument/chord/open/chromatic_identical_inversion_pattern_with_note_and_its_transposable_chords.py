@@ -1,18 +1,14 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, Generic, List, Type
+from typing import ClassVar, Type
 
-from instruments.fretted_instrument.chord.abstract_equivalent_inversion_and_its_fretted_instrument_chords import AbstractEquivalentInversionAndItsFrettedInstrumentChords
+from instruments.fretted_instrument.chord.abstract_equivalent_inversion_and_its_fretted_instrument_chords import AbstractIdenticalInversionAndItsFrettedInstrumentChords
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-import lily
-from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatternGetter, ChromaticIdenticalInversionPatterns
-from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternGetterType, IdenticalInversionPatterns
+from lily import lily
+from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatternGetter
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern_instantiation.inversion.abstract_Identical_inversions import AbstractIdenticalInversionType
-from solfege.pattern_instantiation.inversion.chromatic_identical_inversion import ChromaticIdenticalInversion
-from solfege.pattern_instantiation.inversion.chromatic_inversion import ChromaticInversion
-from solfege.pattern_instantiation.inversion.identical_inversions import IdenticalInversion
-from solfege.pattern_instantiation.inversion.inversion import Inversion
+from solfege.pattern_instantiation.inversion.chromatic_identical_inversions import ChromaticIdenticalInversions
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.value.note.chromatic_note import ChromaticNote
@@ -23,19 +19,20 @@ from utils.util import assert_typing, ensure_folder, img_tag
 
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractEquivalentInversionWithNoteAndItsFrettedInstrumentChords(AbstractEquivalentInversionAndItsFrettedInstrumentChords[AbstractIdenticalInversionType]):
+class AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords(AbstractIdenticalInversionAndItsFrettedInstrumentChords[AbstractIdenticalInversionType]):
     #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
-    absolute: ClassVar[bool] = False
+    absolute: ClassVar[bool] = True
     key: AbstractIdenticalInversionType
 
     def name(self, inversion: InversionPattern):
         lowest_note: ChromaticNote = self.key.lowest_note
-        tonic: ChromaticNote = lowest_note - inversion.position_of_lowest_interval_in_base_octave.chromatic
+        delta_due_to_inversion = inversion.interval_in_base_corresponding_to_interval_0_in_inversion.chromatic
+        tonic: ChromaticNote = lowest_note - delta_due_to_inversion
         note_name = tonic.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
         lowest_note_name = lowest_note.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
         chord_pattern_notation = inversion.base.notation
         if chord_pattern_notation is None:
-            chord_pattern_notation = f" inversion.base.first_of_the_names()"
+            chord_pattern_notation = inversion.base.first_of_the_names()
         chord_notation = f"{note_name}{chord_pattern_notation}"
         if inversion.inversion == 0:
             assert tonic == lowest_note
@@ -45,7 +42,7 @@ class AbstractEquivalentInversionWithNoteAndItsFrettedInstrumentChords(AbstractE
 
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
         lowest_chromatic_note: ChromaticNote = self.key.lowest_note
-        lowest_note: Note = lowest_chromatic_note.get_pair()
+        lowest_note: Note = Note.from_chromatic(lowest_chromatic_note)
         note_list: NoteList = interval_list.from_note(lowest_note)
         file_prefix = note_list.lily_file_name()
         lily_folder_path = f"""{self.instrument.generated_folder_name()}/open"""
@@ -56,8 +53,8 @@ class AbstractEquivalentInversionWithNoteAndItsFrettedInstrumentChords(AbstractE
         return img_tag(f"{file_prefix}.svg")
 
 @dataclass(frozen=True, unsafe_hash=True)
-class ChromaticIdenticalInversionPatternAndItsTransposableChords(AbstractEquivalentInversionWithNoteAndItsFrettedInstrumentChords[ChromaticIdenticalInversion]):
+class ChromaticIdenticalInversionAndItsOpenChords(AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords[ChromaticIdenticalInversions]):
     #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
 
-    identical_inversion_pattern_getter_type: ClassVar[Type[ChromaticIdenticalInversionPatternGetter]] = ChromaticIdenticalInversion
+    identical_inversion_pattern_getter_type: ClassVar[Type[ChromaticIdenticalInversionPatternGetter]] = ChromaticIdenticalInversions
     

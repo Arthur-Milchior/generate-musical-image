@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, TypeVar, Union
+from typing import ClassVar, TypeVar
 from enum import Enum
-from solfege.value.chromatic import Chromatic, ChromaticGetter
+from solfege.value.chromatic import Chromatic
+from solfege.value.getters import ChromaticGetter
 from solfege.value.interval.singleton_interval import AbstractSingletonInterval
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing

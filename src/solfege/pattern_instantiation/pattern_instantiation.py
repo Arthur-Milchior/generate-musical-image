@@ -12,7 +12,7 @@ from utils.util import T, assert_typing
 NoteFrozenListType= TypeVar("NoteFrozenListType", bound = FrozenList)
 IntervalFrozenListType= TypeVar("IntervalFrozenListType", bound = FrozenList)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[PatternType, NoteType, IntervalType]):
     pattern: PatternType
     lowest_note: NoteType
@@ -26,6 +26,7 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[Pa
     def __post_init__(self):
         assert_typing(self.lowest_note, self.note_type)
         assert_typing(self.pattern, self.pattern_type)
+        assert self.lowest_note.is_in_base_octave(accepting_octave=False)
         super().__post_init__()
 
     @abstractmethod

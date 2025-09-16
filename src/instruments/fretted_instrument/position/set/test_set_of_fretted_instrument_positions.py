@@ -7,7 +7,9 @@ from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import empty_set_of_position, SetOfPositionOnFrettedInstrument
 from instruments.fretted_instrument.position.string.string import String
+from instruments.fretted_instrument.chord.fretted_instrument_chord import ChordOnFrettedInstrument
 from solfege.value.interval.chromatic_interval import ChromaticInterval
+from solfege.value.interval.set.chromatic_interval_list_pattern import ChromaticIntervalListPattern
 from utils.util import assert_typing
 
 @dataclass(frozen=True)
@@ -139,3 +141,15 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
     def test_transpose_to_fret_one(self):
         self.assertEqual(G4M.transpose_to_fret_one(), (F4M, ChromaticInterval(-2)))
         self.assertEqual(F4M.transpose_to_fret_one(), (F4M, ChromaticInterval(0)))
+
+    def test_intervals_frow_lowest_note(self):
+        frets = [0, 2, 1, 1, None, None]
+        chord = ChordOnFrettedInstrument.make(instrument=Guitar, frets=frets)
+        actual = chord.intervals_frow_lowest_note()
+        relatives = ChromaticIntervalListPattern.make_relative([7, 4, 5])
+        absolute = ChromaticIntervalListPattern.make_absolute([0, 7, 11, 16])
+        self.assertEqual(actual, relatives)
+        self.assertEqual(actual, absolute)
+        actual = chord.intervals_frow_lowest_note_in_base_octave()
+        absolute = ChromaticIntervalListPattern.make_absolute([0, 4, 7, 11])
+        self.assertEqual(actual, absolute)

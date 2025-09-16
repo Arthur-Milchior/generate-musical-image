@@ -10,9 +10,13 @@ from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval, IntervalFrozenList
 from solfege.value.note.abstract_note import NoteType
 from solfege.value.note.note import Note, NoteFrozenList
+from utils.recordable import Recordable
 from utils.util import assert_typing
 
 
-class Inversion(AbstractInversion[Note, Interval, NoteFrozenList, IntervalFrozenList], AbstractPairInstantiation[InversionPattern]):
+@dataclass(frozen=True)
+class Inversion(
+    AbstractInversion[Note, Interval, NoteFrozenList, IntervalFrozenList],
+    AbstractPairInstantiation[InversionPattern]):
     
     chromatic_instantiation_type: ClassVar = ChromaticInversionPattern

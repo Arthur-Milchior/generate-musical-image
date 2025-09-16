@@ -28,9 +28,8 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], Chromatic):
     def get_note(self, cls=None):
         """A solfège note. Diatonic note is guessed. The default class is
         Note. May return None if no diatonic note can be guessed. """
-        diatonic = self.get_diatonic()
-        if diatonic is None:
-            return None
+        from solfege.value.note.note import Note
+        diatonic = Note.from_chromatic(self).diatonic
         if cls is None:
             from solfege.value.note.note import Note
             cls = Note

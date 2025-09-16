@@ -78,7 +78,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
             assert new_index_of_fifth > 0 # don't remove the lowest note of the inversion
             absolute_intervals.pop(new_index_of_fifth)
         inversion_interval_list = IntervalListPattern.make_absolute(absolute_intervals, increasing=self.increasing)
-        return InversionPattern.make(inversion=inversion_number, interval_list=inversion_interval_list, base=self, fifth_omitted = omit_fifth, record=record, position_of_lowest_interval_in_base_octave=new_lower)
+        return InversionPattern.make(inversion=inversion_number, interval_list=inversion_interval_list, base=self, fifth_omitted = omit_fifth, record=record, interval_in_base_corresponding_to_interval_0_in_inversion=new_lower)
     
     def compute_all_inversions(self, record=False):
         l = []

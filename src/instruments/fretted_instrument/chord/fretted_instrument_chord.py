@@ -74,7 +74,7 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
         return [frets.get(string, Fret(None)) for string in range(1, max_string+1)]
 
     def __repr__(self):
-        return f"""FrettedInstrumentChord.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
+        return f"""{self.__class__}.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
 
     def chord_pattern_is_redundant(self):
         """Whether the same fingering pattern can be played higher on the fretted_instrument"""

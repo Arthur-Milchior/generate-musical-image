@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import ClassVar, Generic, List, Type
 
-from instruments.fretted_instrument.chord.abstract_equivalent_inversion_and_its_fretted_instrument_chords import AbstractEquivalentInversionAndItsFrettedInstrumentChords
+from instruments.fretted_instrument.chord.abstract_equivalent_inversion_and_its_fretted_instrument_chords import AbstractIdenticalInversionAndItsFrettedInstrumentChords
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatternGetter, ChromaticIdenticalInversionPatterns
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternsGetterType, IdenticalInversionPatterns
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
@@ -11,7 +11,7 @@ from utils.util import assert_typing
 
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractEquivalentInversionWithoutNoteAndItsFrettedInstrumentChords(AbstractEquivalentInversionAndItsFrettedInstrumentChords[IdenticalInversionPatternsGetterType], Generic[IdenticalInversionPatternsGetterType]):
+class AbstractEquivalentInversionWithoutNoteAndItsFrettedInstrumentChords(AbstractIdenticalInversionAndItsFrettedInstrumentChords[IdenticalInversionPatternsGetterType], Generic[IdenticalInversionPatternsGetterType]):
     #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
     absolute: ClassVar[bool] = False
 
@@ -23,7 +23,7 @@ class AbstractEquivalentInversionWithoutNoteAndItsFrettedInstrumentChords(Abstra
         return ""
 
 @dataclass(frozen=True, unsafe_hash=True)
-class ChromaticIdenticalInversionPatternAndItsTransposableChords(AbstractEquivalentInversionAndItsFrettedInstrumentChords[ChromaticIdenticalInversionPatterns]):
+class ChromaticIdenticalInversionPatternAndItsTransposableChords(AbstractIdenticalInversionAndItsFrettedInstrumentChords[ChromaticIdenticalInversionPatterns]):
     #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
     absolute: ClassVar[bool] = False
 

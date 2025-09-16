@@ -27,8 +27,8 @@ class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversion
     base: ChordPattern
     fifth_omitted: bool
 
-    """For a scale whose lowest note is n, you get the position of the tonic with n+position_of_lowest_interval_in_base_octave."""
-    position_of_lowest_interval_in_base_octave: Interval
+    """For a scale whose lowest note is n, you get the position of the tonic with n+interval_in_base_corresponding_to_interval_0_in_inversion."""
+    interval_in_base_corresponding_to_interval_0_in_inversion: Interval
 
     @classmethod
     def _new_record_keeper(cls):
@@ -63,6 +63,15 @@ class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversion
         return Inversion
 
     # pragma mark - DataClassWithDefaultArgument
+
+    def __post_init__(self):
+        number_of_notes = len(self.interval_list) + (1 if self.fifth_omitted else 0)
+        assert self.inversion < number_of_notes
+        absolute_intervals = self.interval_list.absolute_intervals()
+        assert absolute_intervals[0] == Interval.make(0, 0)
+        for interval in absolute_intervals:
+            assert interval.is_in_base_octave(accepting_octave=False)
+        super().__post_init__()
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):

@@ -17,6 +17,10 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
     _frozen_list_type: ClassVar[Type[FrozenList[IntervalType]]]
     increasing: bool
 
+    
+    def __len__(self):
+        return len(self._absolute_intervals)
+
     @classmethod
     def make_absolute(cls, absolute_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]], *args, add_implicit_zero: bool = True, **kwargs):
         absolute_intervals = [cls.interval_type.make_single_argument(absolute_interval) for absolute_interval in absolute_intervals]
