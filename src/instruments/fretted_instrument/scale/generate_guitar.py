@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Generator
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar, fretted_instruments
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
@@ -49,12 +50,11 @@ class ScaleOnGuitarGuitarNote(CsvGenerator):
 
     #Pragma mark - CsvGenerator
 
-    def csv_content(self) -> List[str]:
-        l = []
+    def csv_content(self) -> Generator[str]:
         names = list(self.scale_pattern.names)
         first_name = names.pop(0)
-        l.append(first_name)
-        l.append(", ".join(names))
+        yield first_name
+        yield ", ".join(names)
 
         two_octaves_scales = generate_scale(Guitar, self.string_1_pos, self.scale_pattern, number_of_octaves=2).best_for_each_finger()
         avoid = {two_octave_scale for two_octave_scale in two_octaves_scales if two_octave_scale is not None}
@@ -83,11 +83,10 @@ class ScaleOnGuitarGuitarNote(CsvGenerator):
         potential_scales: List[Optional[SetOfFrettedInstrumentPositionsWithFingers]] = [*two_octaves_scales, *first_string_scales, best_second_string_scale_with_fifth_string, *third_string_scales, *fourth_string_scales] 
         for scale in potential_scales:
             if scale is None:
-                l.append("")
+                yield ""
                 continue
             file_name = self.generate_svg(scale)
-            l.append(img_tag(file_name))
-        return l
+            yield img_tag(file_name)
 
 def generate_guitar():
     anki_notes = []

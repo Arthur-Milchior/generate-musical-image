@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Generator
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Bass
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
@@ -46,24 +47,22 @@ class ScaleOnBassAnkiNote(CsvGenerator):
 
     #Pragma mark - CsvGenerator
 
-    def csv_content(self) -> List[str]:
-        l = []
+    def csv_content(self) -> Generator[str]:
         names = list(self.scale_pattern.names)
         first_name = names.pop(0)
-        l.append(first_name)
-        l.append(", ".join(names))
+        yield first_name
+        yield ", ".join(names)
 
         scales = generate_scale(Bass, self.start_pos, self.scale_pattern, number_of_octaves=1).all_scales()
         scale_tags = []
         for fingers, scale in scales:
             file_name = self.generate_svg(scale)
             scale_tags.append(img_tag(file_name))
-        l+=scale_tags[:min(3, len(scale_tags))]
+        yield from scale_tags[:min(3, len(scale_tags))]
         if len(scale_tags) >3: 
-            l.append(", ".join(scale_tags[3:]))
+            yield ", ".join(scale_tags[3:])
         else:
-            l.append("")
-        return l
+            yield ""
 
 def generate_bass():
     anki_notes = []

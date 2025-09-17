@@ -25,7 +25,7 @@ class AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords(Abstr
     absolute: ClassVar[bool] = True
     key: AbstractIdenticalInversionType
 
-    def name(self, inversion: InversionPattern):
+    def names_from_inversion(self, inversion: InversionPattern):
         lowest_note: ChromaticNote = self.key.lowest_note
         delta_due_to_inversion = inversion.tonic_minus_lowest_note.chromatic
         tonic: ChromaticNote = lowest_note - delta_due_to_inversion
@@ -37,9 +37,9 @@ class AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords(Abstr
         chord_notation = f"{note_name}{chord_pattern_notation}"
         if inversion.inversion == 0:
             assert tonic == lowest_note
-            return chord_notation
+            return [chord_notation]
         else:
-            return f"""{chord_notation}/{lowest_note_name}"""
+            return [f"""{chord_notation}/{lowest_note_name}"""]
 
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
         lowest_chromatic_note: ChromaticNote = self.key.lowest_note
@@ -58,10 +58,3 @@ class ChromaticIdenticalInversionAndItsOpenChords(AbstractIdenticalInversionInst
     #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
 
     identical_inversion_pattern_getter_type: ClassVar[Type[ChromaticIdenticalInversionPatternGetter]] = ChromaticIdenticalInversions
-    
-    def decompositions(self):
-        """Return ChordDecompositionAnkiNote for all maximal chords sorted by easyness"""
-        return sorted([
-            ChordDecompositionAnkiNote(self.instrument, self.key, chord)
-            for chord in self.maximals()
-        ], key=lambda decomposition: decomposition.easy_key())

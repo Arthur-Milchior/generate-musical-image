@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Generator
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Ukulele
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
@@ -42,12 +43,11 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
 
     #Pragma mark - CsvGenerator
 
-    def csv_content(self) -> List[str]:
-        l = []
+    def csv_content(self) -> Generator[str]:
         names = list(self.scale_pattern.names)
         first_name = names.pop(0)
-        l.append(first_name)
-        l.append(", ".join(names))
+        yield first_name
+        yield ", ".join(names)
 
         scales = generate_scale(Ukulele, self.start_pos, self.scale_pattern, number_of_octaves=1).all_scales()
         scale_tags = []
@@ -56,10 +56,9 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
             scale_tags.append(img_tag(file_name))
         l+=scale_tags[:min(3, len(scale_tags))]
         if len(scale_tags) >3: 
-            l.append(", ".join(scale_tags[3:]))
+            yield ", ".join(scale_tags[3:])
         else:
-            l.append("")
-        return l
+            yield ""
 
 def generate_ukulele():
     anki_notes = []

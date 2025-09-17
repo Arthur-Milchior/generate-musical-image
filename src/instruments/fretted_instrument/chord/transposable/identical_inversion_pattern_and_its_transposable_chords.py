@@ -16,8 +16,8 @@ class IdenticalInversionPatternAndItsTransposableChords(AbstractIdenticalInversi
 
     identical_inversion_pattern_getter_type:ClassVar[Type[IdenticalInversionPatternsGetter]] = IdenticalInversionPatterns
 
-    def name(self, inversion: InversionPattern) -> List[str]:
-        return inversion.name()
+    def names_from_inversion(self, inversion: InversionPattern) -> List[str]:
+        return inversion.names()
 
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
         return ""

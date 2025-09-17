@@ -18,6 +18,10 @@ class MinimalChordDecompositionInput(ClassWithEasyness, ABC):
     @abstractmethod
     def notations(self) -> List[str]:
         return NotImplemented
+    
+    @abstractmethod
+    def get_inversion_patterns(self) -> List[InversionPattern]:
+        return NotImplemented
 
 class ChromaticIdenticalInversionPatternGetter(ABC):
     @abstractmethod
@@ -48,3 +52,6 @@ class ChromaticIdenticalInversionPatterns(AbstractIdenticalInversionPatterns[Chr
     
     def notations(self) -> List[str]:
         return [inversion_pattern.notation() for inversion_pattern in self.inversion_patterns]
+    
+    def get_inversion_patterns(self) -> List[InversionPattern]:
+        return self.inversion_patterns

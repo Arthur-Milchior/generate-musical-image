@@ -1,7 +1,8 @@
 
 from dataclasses import dataclass
-from typing import Generic
+from typing import Generic, List
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatterns, MinimalChordDecompositionInput
+from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern_instantiation.abstract_chromatic_instantiation import AbstractChromaticInstantiation
 from solfege.pattern_instantiation.inversion.abstract_Identical_inversions import AbstractIdenticalInversion
 from solfege.value.interval.chromatic_interval import ChromaticInterval
@@ -34,6 +35,9 @@ class ChromaticIdenticalInversions(AbstractIdenticalInversion[Note, Interval], A
         
     def get_tonic_minus_lowest_note(self) -> ChromaticInterval:
         return self.pattern.inversion_patterns[0].tonic_minus_lowest_note.chromatic
+    
+    def get_inversion_patterns(self) -> List[InversionPattern]:
+        return self.pattern.inversion_patterns
 
     #pragma mark - ClassWithEasyness
 

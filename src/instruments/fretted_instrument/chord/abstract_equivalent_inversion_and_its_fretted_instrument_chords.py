@@ -54,6 +54,13 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         """Return the elements of the list that are not strictly contained in other elements of the list."""
         self.sort()
         return FrettedInstrumentChordFrozenList(fretted_instrument_chord for fretted_instrument_chord in self.fretted_instrument_chords if not self.is_smaller_than_known_chord(fretted_instrument_chord))
+    
+    def decompositions(self):
+        """Return ChordDecompositionAnkiNote for all maximal chords sorted by easyness"""
+        return sorted([
+            ChordDecompositionAnkiNote(self.instrument, self.key, chord)
+            for chord in self.maximals()
+        ], key=lambda decomposition: decomposition.easy_key())
 
     def all_fretted_instrument_chords(self):
         return FrettedInstrumentChordFrozenList(self.fretted_instrument_chords)
@@ -78,7 +85,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
 
     @cache
     def names(self):
-        return [self.name(inversion) for inversion in self.get_identical_inversion_pattern().inversion_patterns]
+        return [name for inversion in self.get_identical_inversion_pattern().inversion_patterns for name in self.names_from_inversion(inversion)]
     
     def triple_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument):
         """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decomposition in chord_decompositions"""
@@ -101,22 +108,20 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     #Pragma mark - CsvGenerator
 
     def csv_content(self, folder_path: str):
-        l = []
-        l.append(self.first_name())
-        l.append(self.other_names())
-        l.append("x" if self.absolute else "")
+        yield self.first_name()
+        yield self.other_names()
+        yield "x" if self.absolute else ""
         maximals = self.maximals()
         individual_maximals, other_maximals = maximals[:7], maximals[7:]
         for fretted_chord in individual_maximals:
-            l += self.triple_field(folder_path, fretted_chord)
+            yield from self.triple_field(folder_path, fretted_chord)
         nb_empty = 7- len(maximals)
-        l += [""] * (3 * nb_empty)
+        yield from [""] * (3 * nb_empty)
         # Remaining maximals
         triples = [self.triple_field(folder_path, fretted_chord) for fretted_chord in other_maximals]
-        l.append(", ".join(blacks for blacks, _, _ in triples))
-        l.append(", ".join(colored for _, colored, _ in triples))
-        l.append(", ".join(partition for _, _, partition in triples) if self.absolute else "")
-        return l
+        yield ", ".join(blacks for blacks, _, _ in triples)
+        yield ", ".join(colored for _, colored, _ in triples)
+        yield ", ".join(partition for _, _, partition in triples) if self.absolute else ""
     
     #pragma mark - DataClassWithDefaultArgument
 
@@ -139,7 +144,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     absolute: ClassVar[bool]
 
     @abstractmethod
-    def name(self, inversion: InversionPattern) -> List[str]:
+    def names_from_inversion(self, inversion: InversionPattern) -> List[str]:
         return NotImplemented
 
     @abstractmethod

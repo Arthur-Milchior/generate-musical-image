@@ -61,9 +61,11 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
                 fret = pos.fret
         return fret if fret else Fret(None)
  
-    def get_frets(self, instrument: Optional[FrettedInstrument]= None) -> List[Optional[Fret]]:
+    def get_frets(self, instrument: Optional[FrettedInstrument]= None) -> List[Fret]:
+        """the list of frets used in this string. Fret(none) for not played string."""
         if instrument is not None:
-            return [self.get_fret(string) for string in instrument.strings()]
+            frets = [self.get_fret(string) for string in instrument.strings()]
+            return [Fret(None) if fret is None else fret for fret in frets]
         frets = dict()
         max_string = 0
         for pos in self:

@@ -233,7 +233,7 @@ class AnkiNote:
         for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2), (2,1), (1,2), (0,3)]:
             for direction in [Direction.INCREASING, Direction.DECREASING, Direction.TOTAL, Direction.REVERSE]:
                 anki_field = AnkiField(self, start_octave, number_of_octaves, direction)
-                fields.append(anki_field.field())
+                yield anki_field.field())
                 anki_field.generate_and_compile_lily()
         return fields
     

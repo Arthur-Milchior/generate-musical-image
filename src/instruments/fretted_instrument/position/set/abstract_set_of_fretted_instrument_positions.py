@@ -124,7 +124,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
             transpose_interval = 0
         return f(transposed), transpose_interval
     
-    def restricte_to_note_up_to_octave(self, restricteds: Iterable[ChromaticNote]) -> Optional[Self]:
+    def restrict_to_note_up_to_octave(self, restricteds: Iterable[ChromaticNote]) -> Optional[Self]:
         """Self, but only position in `restricted`"""
         for restricted in restricteds:
             assert restricted == restricted.in_base_octave()
