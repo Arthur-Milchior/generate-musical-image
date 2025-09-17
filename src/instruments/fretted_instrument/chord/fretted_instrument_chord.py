@@ -35,7 +35,7 @@ class ChordColors(ColorsWithTonic):
          COLOR_FIFTH, COLOR_FIFTH, COLOR_FIFTH,
          COLOR_QUALITY, COLOR_QUALITY, COLOR_QUALITY][chromatic_interval.in_base_octave().value]
     
-@dataclass(frozen=True, eq=False)
+@dataclass(frozen=True, eq=False, order=False)
 class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
     @classmethod
     def make(cls, instrument: FrettedInstrument, frets: List[Union[Fret, int, None]]) -> Self:

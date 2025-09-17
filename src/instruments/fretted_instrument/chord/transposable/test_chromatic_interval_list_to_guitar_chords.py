@@ -23,7 +23,7 @@ class TestIdenticalInversionPatternToItsTransposableChords(unittest.TestCase):
         self.assertIsInstance(chromatic_interval_list_and_its_fretted_instrument_chords, IdenticalInversionPatternAndItsTransposableChords)
         fretted_instrument_chords = chromatic_interval_list_and_its_fretted_instrument_chords.fretted_instrument_chords
         self.assertEqual(fretted_instrument_chords, [F4M])
-        inversions = chromatic_interval_list_and_its_fretted_instrument_chords.key.get_identical_inversion_pattern().inversions
+        inversions = chromatic_interval_list_and_its_fretted_instrument_chords.key.get_identical_inversion_pattern().inversion_patterns
         self.assertEqual(len(inversions), 1)
         inversion = inversions[0]
         self.assertEqual(inversion.inversion, 0)

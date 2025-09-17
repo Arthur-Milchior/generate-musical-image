@@ -13,12 +13,13 @@ from solfege.value.pair import Pair
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.alteration import *
 from solfege.value.note.diatonic_note import DiatonicNote
+from utils.easyness import ClassWithEasyness
 from utils.frozenlist import FrozenList
 from utils.util import assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True, repr=False, eq=True)
-class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], LocalLilyable):
+class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], ClassWithEasyness, LocalLilyable):
     """A note of the scale, as an interval from middle C."""
     DiatonicClass: ClassVar[Type[DiatonicNote]] = DiatonicNote
     ChromaticClass: ClassVar[Type[ChromaticNote]] = ChromaticNote
@@ -189,6 +190,11 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], LocalLilya
         if clef is None:
             clef = Clef.TREBLE if self.chromatic >= Chromatic(0) else Clef.BASS
         return f"_{clef}_{name}"
+
+    #pragma mark - ClassWithEasyness
+
+    def easy_key(self):
+        return self.get_alteration().easy_key()
 
 ChromaticNote.PairClass = Note
 DiatonicNote.PairClass = Note

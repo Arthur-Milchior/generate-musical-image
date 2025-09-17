@@ -41,3 +41,9 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[Pa
         for interval in self.get_absolute_intervals():
             l.append(self.lowest_note + interval)
         return self.note_list_type(l)
+
+    #pragma mark - ClassWithEasyness
+
+    def easy_key(self):
+        # Defined only if the pattern defines it.
+        return self.pattern.easy_key()

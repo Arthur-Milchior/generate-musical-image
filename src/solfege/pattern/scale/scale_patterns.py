@@ -6,25 +6,24 @@ from solfege.pattern.scale.scale_pattern import ScalePattern
 
 
 
+pentatonic_major = ScalePattern.make_relative(names=["Pentatonic major"], relative_intervals=[2, 2, (3, 2), 2, (3, 2)], interval_for_signature=nor_flat_nor_sharp)
 major_scale = ScalePattern.make_relative(names=["Major"], relative_intervals=[2, 2, 1, 2, 2, 2, 1], interval_for_signature=nor_flat_nor_sharp)
-blues = ScalePattern.make_relative(names=["Blues"], relative_intervals=[(3, 2), 2, (1, 0), 1, (3, 2), 2], interval_for_signature=three_flats)
-minor_harmonic = ScalePattern.make_relative(names=["Minor harmonic"], relative_intervals=[2, 1, 2, 2, 1, 3, 1], interval_for_signature=three_flats)
 pentatonic_minor = ScalePattern.make_relative(names=["Pentatonic minor"], relative_intervals=[(3, 2), 2, 2, (3, 2), 2],
                                           interval_for_signature=three_flats)
-pentatonic_major = ScalePattern.make_relative(names=["Pentatonic major"], relative_intervals=[2, 2, (3, 2), 2, (3, 2)], interval_for_signature=nor_flat_nor_sharp)
-whole_tone = ScalePattern.make_relative(names=["Whole tone"], relative_intervals=[(2, 1), (2, 1), (2, 1), (2, 1), (2, 1), (2, 2)], interval_for_signature=one_sharp)
+minor_natural = ScalePattern.make_relative(names=["Minor natural", "Aeolian mode"], relative_intervals=[2, 1, 2, 2, 1, 2, 2], interval_for_signature=three_flats)
+blues = ScalePattern.make_relative(names=["Blues"], relative_intervals=[(3, 2), 2, (1, 0), 1, (3, 2), 2], interval_for_signature=three_flats)
+minor_harmonic = ScalePattern.make_relative(names=["Minor harmonic"], relative_intervals=[2, 1, 2, 2, 1, 3, 1], interval_for_signature=three_flats)
 chromatic_scale_pattern = ScalePattern.make_relative(names=["Chromatic"], relative_intervals=
                                                  [(1, 0), (1, 1), (1, 0), (1, 1), (1, 1), (1, 0), (1, 1), (1, 0),
                                                   (1, 1), (1, 0), (1, 1),
                                                   (1, 1), ], interval_for_signature=nor_flat_nor_sharp)
-minor_natural = ScalePattern.make_relative(names=["Minor natural", "Aeolian mode"], relative_intervals=[2, 1, 2, 2, 1, 2, 2], interval_for_signature=three_flats)
 minor_melodic = ScalePattern.make_relative(names=["Minor melodic"], relative_intervals=[2, 1, 2, 2, 2, 2, 1], interval_for_signature=three_flats, _descending=minor_natural)
 
 chord_patterns_as_scales = [chord_pattern.to_arpeggio_pattern() for chord_pattern in chord_patterns]
-scale_patterns_I_practice: List[ScalePattern] = [major_scale, blues, minor_natural, minor_harmonic, minor_melodic, chromatic_scale_pattern,
-                             whole_tone, pentatonic_major, pentatonic_minor] + chord_patterns_as_scales
+scale_patterns_I_practice: List[ScalePattern] = [pentatonic_major, major_scale, pentatonic_minor, minor_natural, blues, minor_harmonic, chromatic_scale_pattern,  minor_melodic] + chord_patterns_as_scales
 
-scale_patterns = scale_patterns_I_practice + [
+whole_tone = ScalePattern.make_relative(names=["Whole tone"], relative_intervals=[(2, 1), (2, 1), (2, 1), (2, 1), (2, 1), (2, 2)], interval_for_signature=one_sharp)
+scale_patterns = scale_patterns_I_practice + [whole_tone,
     ScalePattern.make_relative(names=["Greek Dorian tonos (chromatic genus)"], relative_intervals=[1, 1, 3, 2, 1, 1, 3],
                            interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Acoustic", "overtone", "lydian dominant", "Lydian ♭7"], relative_intervals=[2, 2, 2, 1, 2, 1, 2], interval_for_signature=one_sharp),

@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Self, Type
+from dataclasses import dataclass, field
+from typing import Callable, ClassVar, Dict, List, Optional, Self, Type
 
 from utils.util import assert_typing
 
@@ -8,7 +8,10 @@ _DEFAULT_ADDED = "_default_arguments_for_constructor"
 
 @dataclass(frozen=True)
 class DataClassWithDefaultArgument:
-    """Must always be added as last ancestor."""
+    """Must always be added as last ancestor. Order is creation time."""
+
+    """The maximal value of `index`"""
+    max_index: ClassVar[int] = 0
 
     @classmethod
     def make(cls, *args, **kwargs) -> Self:
@@ -20,7 +23,7 @@ class DataClassWithDefaultArgument:
         del new_kwargs[_CLEANED]
         del new_kwargs[_DEFAULT_ADDED]
         return cls(*cleaned_args, **new_kwargs)
-    
+
     # Protected methods
     
     @classmethod
@@ -61,7 +64,7 @@ class DataClassWithDefaultArgument:
     def _default_arguments_for_constructor(cls, args, kwargs):
         """Returns the association from argument name to default argument value.
         Class inheriting must call super."""
-        return {_DEFAULT_ADDED: True }
+        return {_DEFAULT_ADDED: True}
     
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):

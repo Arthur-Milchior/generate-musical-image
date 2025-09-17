@@ -25,28 +25,29 @@ class AbstractIdenticalInversionPatterns(RecordedContainer[InversionPattern],
 
     #public
     intervals: AbstractIntervalListPattern[IntervalType]
-    inversions: List[InversionPattern] = field(default_factory=list, hash=False)
+    inversion_patterns: List[InversionPattern] = field(default_factory=list, hash=False)
 
     def __len__(self):
-        return len(self.inversions)
+        return len(self.inversion_patterns)
 
     def append(self, inversion: InversionPattern):
         expected = self.intervals
         actuals = self.get_interval_list_from_inversion(inversion)
         assert expected == actuals, f"{expected} != {actuals}"
-        self.inversions.append(inversion)
+        self.inversion_patterns.append(inversion)
+        self.inversion_patterns.sort(key = lambda inversion_pattern: inversion_pattern.easy_key())
 
     def easiest_inversion(self):
-        return min(self.inversions)
+        return min(self.inversion_patterns)
     
     def easiest_name(self):
         return self.easiest_inversion().name()
     
     def alternative_names(self):
-        return ",".join(inversion.name() for inversion in self.inversions[1:])
+        return ",".join(inversion.name() for inversion in self.inversion_patterns[1:])
     
     def __iter__(self):
-        return iter(self.inversions)
+        return iter(self.inversion_patterns)
     
     # Must be implemented by subclasses
     @classmethod
@@ -54,8 +55,13 @@ class AbstractIdenticalInversionPatterns(RecordedContainer[InversionPattern],
     def get_interval_list_from_inversion(cls, inversion: InversionPattern):
         return NotImplemented
     
+    #pragma mark - ClassWithEasyness
+
+    def easy_key(self):
+        return self.inversion_patterns[0].easy_key()
+    
     # pragma mark - DataClassWithDefaultArgument
     def __post_init__(self):
         assert_typing(self.intervals, self.interval_list_type)
-        assert_iterable_typing(self.inversions, InversionPattern)
+        assert_iterable_typing(self.inversion_patterns, InversionPattern)
         super().__post_init__()

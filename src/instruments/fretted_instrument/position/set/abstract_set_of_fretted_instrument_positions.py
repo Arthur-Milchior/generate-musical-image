@@ -19,6 +19,7 @@ from solfege.value.note.note import Note
 from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
 from solfege.value.note.set.note_list import NoteList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import ClassWithEasyness
 from utils.frozenlist import FrozenList, MakeableWithSingleArgument
 from utils.svg import SvgGenerator
 from utils.util import T, assert_dict_typing, assert_increasing, assert_iterable_typing, assert_optional_typing, assert_typing, optional_max, optional_min, sorted_unique
@@ -28,7 +29,7 @@ from instruments.fretted_instrument.position.string.string import String
 open_fret = Guitar.fret( value=0)
 
 @dataclass(frozen=True, eq=False)
-class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, DataClassWithDefaultArgument, Generic[PositionOnFrettedInstrumentType]):
+class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, ClassWithEasyness, DataClassWithDefaultArgument, Generic[PositionOnFrettedInstrumentType]):
     """
     A set of positions on instrument.
 
@@ -232,6 +233,11 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Da
             lowest_note: Note = self.get_most_grave_note().get_chromatic().get_note()
         notes_to_imitate: NoteList = interval_list.from_note(lowest_note)
         return self.notes_from_note_list(notes_to_imitate)
+    
+    #pragma mark - ClassWithEasyness
+
+    def easy_key(self):
+        return self.number_of_frets(allow_open=False)
     
     # SVG
 

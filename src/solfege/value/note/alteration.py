@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+import math
 from typing import assert_never
 from solfege.value.interval.interval_mode import IntervalMode
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.value.note.chromatic_note import ChromaticNote
+from utils.easyness import ClassWithEasyness
 from utils.util import assert_equal_length
 
 LILY = "LILY"
@@ -37,7 +39,7 @@ symbols = [s.replace(" ", "") for s in fixed_length_symbol_space_double]
 
 
 @dataclass(frozen=True)
-class Alteration(IntervalMode):
+class Alteration(IntervalMode, ClassWithEasyness):
     def lily_in_scale(self):
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.value + 2]
@@ -90,6 +92,11 @@ class Alteration(IntervalMode):
             "♭♭": DOUBLE_FLAT,
             "𝄪": DOUBLE_SHARP,
         }[name]
+
+    #pragma mark - ClassWithEasyness
+
+    def easy_key(self):
+        return self.value if self.value > 0 else -self.value
 
 
 alteration_symbols = "𝄪♭#"

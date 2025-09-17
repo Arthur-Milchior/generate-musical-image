@@ -8,18 +8,19 @@ from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import ClassWithEasyness
 from utils.util import assert_typing
 
 
 
 @dataclass(frozen=True)
 class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversionPattern"],
+                       ClassWithEasyness,
                        DataClassWithDefaultArgument):
     #pragma mark - Recordable
     _key_type: ClassVar[Type] = IntervalListPattern
 
     # public
-
 
     """Order is considering not inversion first. Then with fifth. Then base."""
     inversion: int
@@ -27,8 +28,8 @@ class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversion
     base: ChordPattern
     fifth_omitted: bool
 
-    """For a scale whose lowest note is n, you get the position of the tonic with n+interval_in_base_corresponding_to_interval_0_in_inversion."""
-    interval_in_base_corresponding_to_interval_0_in_inversion: Interval
+    """For a scale whose lowest note is n, you get the position of the tonic with n+tonic_minus_lowest_note."""
+    tonic_minus_lowest_note: Interval
 
     @classmethod
     def _new_record_keeper(cls):
@@ -40,19 +41,26 @@ class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversion
         assert_typing(iv, IntervalListPattern, exact=True)
         return iv
     
-    def name(self):
-        if self.inversion == 0:
-            suffix = ""
-        elif self.inversion == 1:
-            suffix = " first inversion"
-        elif self.inversion == 2:
-            suffix = " second inversion"
-        elif self.inversion == 3:
-            suffix = " third inversion"
-        else:
-            assert self.inversion < 10
-            suffix = f" {self.inversion}th inversion"
-        return f"""{self.base.first_of_the_names()}{suffix}"""
+    def names(self):
+        names = []
+        for chord_name in self.base.names:
+            if self.inversion == 0:
+                suffix = ""
+            elif self.inversion == 1:
+                suffix = " first inversion"
+            elif self.inversion == 2:
+                suffix = " second inversion"
+            elif self.inversion == 3:
+                suffix = " third inversion"
+            else:
+                assert self.inversion < 10
+                suffix = f" {self.inversion}th inversion"
+            names.append(f"""{chord_name}{suffix}""")
+        return names
+
+    def notation(self):
+        suffix = "" if self.inversion == 0 else f"/{self.inversion}"
+        return f"""{self.base.notation}{suffix}"""
     
     def __lt__(self, other: "InversionPattern"):
         return (self.inversion, not self.fifth_omitted, self.base) < (other.inversion, not other.fifth_omitted, other.base)
@@ -61,6 +69,11 @@ class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversion
     def _get_instantiation_type(cls) -> Type["Inversion"]:
         from solfege.pattern_instantiation.inversion.inversion import Inversion
         return Inversion
+    
+    #pragma mark - ClassWithEasyness
+    def easy_key(self):
+        return (self.inversion, self.base.easy_key())
+
 
     # pragma mark - DataClassWithDefaultArgument
 

@@ -5,12 +5,13 @@ from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput
 from solfege.value.chromatic import Chromatic
 from solfege.value.note.singleton_note import AbstractSingletonNote
 from solfege.value.singleton import Singleton
+from utils.easyness import ClassWithEasyness
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing, img_tag
 
 
 @dataclass(frozen=True, repr=False, eq=False)
-class ChromaticNote(AbstractSingletonNote[ChromaticInterval], Chromatic):
+class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness, Chromatic):
     AlterationClass: ClassVar[Type[Chromatic]]
     IntervalClass: ClassVar[Type[Singleton]] = ChromaticInterval
     @staticmethod
@@ -52,7 +53,12 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], Chromatic):
             return Note.from_name(value).get_chromatic()
         assert_typing(value, int)
         return cls(value)
-    
+
+    #pragma mark - ClassWithEasyness
+
+    def easy_key(self):
+        return self.get_note().easy_key()
+
 ChromaticNote.ChromaticClass = ChromaticNote
 
 class ChromaticNoteFrozenList(FrozenList[ChromaticNote]):

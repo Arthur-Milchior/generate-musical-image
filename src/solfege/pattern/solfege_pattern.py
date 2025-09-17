@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import ClassVar, Dict, List, Type
+from dataclasses import dataclass, field
+from typing import ClassVar, Dict, List, Self, Type
 
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.pattern.pattern_with_name import PatternWithName
@@ -17,8 +17,26 @@ class SolfegePattern(IntervalListPattern, PatternWithName, PatternWithIntervalLi
 
     """The interval between the signature for this scale and the signature for the major scale with the same key.
     E.g. for minor, use three_flats"""
+
     interval_for_signature: Interval
 
+    """A unique id, in order of creations. For values of the same class, the smallest index is the first pattern to learn."""
+    _pattern_index: int = field(compare=False, hash=False)
+
+    
+    def __lt__(self, other: Self):
+        assert_typing(other, self.__class__)
+        return self._pattern_index < other._pattern_index
+    
+    def __le__(self, other: Self):
+        assert_typing(other, self.__class__)
+        return self._pattern_index <= other._pattern_index
+    
+    #pragma mark - ClassWithEasyness
+
+    def easy_key(self):
+        return self._pattern_index
+    
     #pragma mark - Recordable
     _key_type: ClassVar[Type] = IntervalListPattern
 
@@ -28,6 +46,8 @@ class SolfegePattern(IntervalListPattern, PatternWithName, PatternWithIntervalLi
     def _default_arguments_for_constructor(cls, args, kwargs):
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["interval_for_signature"] = nor_flat_nor_sharp
+        SolfegePattern.max_index += 1
+        default_dict["_pattern_index"] = SolfegePattern.max_index
         return default_dict
 
     @classmethod

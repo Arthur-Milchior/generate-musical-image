@@ -14,13 +14,14 @@ from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from utils.csv import CsvGenerator
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import ClassWithEasyness
 from utils.recordable import RecordedContainer, RecordedType
 from utils.util import T, assert_iterable_typing, assert_typing, img_tag
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrettedInstrument], CsvGenerator, DataClassWithDefaultArgument, ABC, Generic[IdenticalInversionPatternsGetterType]):
+class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrettedInstrument], CsvGenerator, DataClassWithDefaultArgument, ClassWithEasyness, ABC, Generic[IdenticalInversionPatternsGetterType]):
     """    Csv is:
-    name, other name, open, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored, partition)
+    name, other names, open, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored, partition)
     """
     instrument: FrettedInstrument
     key: IdenticalInversionPatternsGetterType
@@ -37,6 +38,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         actual_chromatic_intervals = fretted_instrument_chord.intervals_frow_lowest_note_in_base_octave()
         assert expected_chromatic_intervals == actual_chromatic_intervals, f"""{expected_chromatic_intervals}\n!=\n{actual_chromatic_intervals}"""
         self.fretted_instrument_chords.append(fretted_instrument_chord)
+        self.fretted_instrument_chords.sort(key = lambda chord: chord.easy_key())
 
     def is_smaller_than_known_chord(self, small_chord: ChordOnFrettedInstrument):
         for big_chord in self.fretted_instrument_chords:
@@ -76,26 +78,29 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
 
     @cache
     def names(self):
-        return [self.name(inversion) for inversion in self.get_identical_inversion_pattern().inversions]
+        return [self.name(inversion) for inversion in self.get_identical_inversion_pattern().inversion_patterns]
     
-    def triple_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument, chord_decompositions: List[str]):
-        """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decmoposition in chord_decompositions"""
+    def triple_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument):
+        """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decomposition in chord_decompositions"""
         transposed_chord, transposition = fretted_chord, 0 if self.absolute else fretted_chord.transpose_to_fret_one()
         pos_of_lowest_note = transposed_chord.get_most_grave_note()
         lowest_note = pos_of_lowest_note.get_chromatic()
-        delta_due_to_inversion = self.key.get_identical_inversion_pattern().easiest_inversion().interval_in_base_corresponding_to_interval_0_in_inversion
+        delta_due_to_inversion = self.key.get_identical_inversion_pattern().easiest_inversion().tonic_minus_lowest_note
         tonic = lowest_note - delta_due_to_inversion.chromatic
-        cdan = ChordDecompositionAnkiNote(self.names(), transposed_chord, absolute=self.absolute, tonic=tonic)
-        chord_decompositions.append(cdan.csv(folder_path = folder_path))
         return (
             img_tag(transposed_chord.save_svg(folder_path, self.instrument, colors=None, absolute=self.absolute)),
             img_tag(transposed_chord.save_svg(folder_path, self.instrument, colors=ChordColors(tonic), absolute=self.absolute)),
             self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
         )
+    
+    #pragma mark - ClassWithEasyness
+
+    def easy_key(self):
+        return (self.key.easy_key(), self.fretted_instrument_chords[0].easy_key())
 
     #Pragma mark - CsvGenerator
 
-    def csv_content(self, folder_path: str, chord_decompositions: List[str]):
+    def csv_content(self, folder_path: str):
         l = []
         l.append(self.first_name())
         l.append(self.other_names())
@@ -103,11 +108,11 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         maximals = self.maximals()
         individual_maximals, other_maximals = maximals[:7], maximals[7:]
         for fretted_chord in individual_maximals:
-            l += self.triple_field(folder_path, fretted_chord, chord_decompositions)
+            l += self.triple_field(folder_path, fretted_chord)
         nb_empty = 7- len(maximals)
         l += [""] * (3 * nb_empty)
         # Remaining maximals
-        triples = [self.triple_field(folder_path, fretted_chord, chord_decompositions) for fretted_chord in other_maximals]
+        triples = [self.triple_field(folder_path, fretted_chord) for fretted_chord in other_maximals]
         l.append(", ".join(blacks for blacks, _, _ in triples))
         l.append(", ".join(colored for _, colored, _ in triples))
         l.append(", ".join(partition for _, _, partition in triples) if self.absolute else "")
@@ -141,3 +146,4 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
         # The anki field for the partition if any.
         return NotImplemented
+        

@@ -25,11 +25,6 @@ class Key(DataClassWithDefaultArgument):
     """Map each note to the simplest enharmonic of this note."""
     _key_to_simplest_enharmonic: ClassVar[Dict[Note, Note]] = {}
 
-    @classmethod
-    def make(cls, note: Note, *args, **kwargs) -> Self:
-        note = note.in_base_octave()
-        return cls(note, *args, **kwargs)
-
     def simplest_enharmonic_major(self):
         return self.from_note(self._key_to_simplest_enharmonic[self.note.in_base_octave()])
 

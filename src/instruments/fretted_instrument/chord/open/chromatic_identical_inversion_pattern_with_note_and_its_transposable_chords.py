@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import ClassVar, Type
 
 from instruments.fretted_instrument.chord.abstract_equivalent_inversion_and_its_fretted_instrument_chords import AbstractIdenticalInversionAndItsFrettedInstrumentChords
+from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from lily import lily
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatternGetter
@@ -26,7 +27,7 @@ class AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords(Abstr
 
     def name(self, inversion: InversionPattern):
         lowest_note: ChromaticNote = self.key.lowest_note
-        delta_due_to_inversion = inversion.interval_in_base_corresponding_to_interval_0_in_inversion.chromatic
+        delta_due_to_inversion = inversion.tonic_minus_lowest_note.chromatic
         tonic: ChromaticNote = lowest_note - delta_due_to_inversion
         note_name = tonic.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
         lowest_note_name = lowest_note.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
@@ -52,9 +53,15 @@ class AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords(Abstr
         lily.compile_(code, path_prefix, wav=False)
         return img_tag(f"{file_prefix}.svg")
 
-@dataclass(frozen=True, unsafe_hash=True)
+@dataclass(frozen=True, unsafe_hash=True, order=False)
 class ChromaticIdenticalInversionAndItsOpenChords(AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords[ChromaticIdenticalInversions]):
     #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
 
     identical_inversion_pattern_getter_type: ClassVar[Type[ChromaticIdenticalInversionPatternGetter]] = ChromaticIdenticalInversions
     
+    def decompositions(self):
+        """Return ChordDecompositionAnkiNote for all maximal chords sorted by easyness"""
+        return sorted([
+            ChordDecompositionAnkiNote(self.instrument, self.key, chord)
+            for chord in self.maximals()
+        ], key=lambda decomposition: decomposition.easy_key())

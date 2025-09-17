@@ -7,6 +7,7 @@ from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import ClassWithEasyness
 from utils.frozenlist import FrozenList
 from utils.util import assert_all_same_class, assert_typing
 
@@ -78,7 +79,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
             assert new_index_of_fifth > 0 # don't remove the lowest note of the inversion
             absolute_intervals.pop(new_index_of_fifth)
         inversion_interval_list = IntervalListPattern.make_absolute(absolute_intervals, increasing=self.increasing)
-        return InversionPattern.make(inversion=inversion_number, interval_list=inversion_interval_list, base=self, fifth_omitted = omit_fifth, record=record, interval_in_base_corresponding_to_interval_0_in_inversion=new_lower)
+        return InversionPattern.make(inversion=inversion_number, interval_list=inversion_interval_list, base=self, fifth_omitted = omit_fifth, record=record, tonic_minus_lowest_note=new_lower)
     
     def compute_all_inversions(self, record=False):
         l = []
@@ -101,6 +102,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     def _get_instantiation_type(cls) -> Type["Chord"]:
         from solfege.pattern_instantiation.chord.chord import Chord
         return Chord
+
 
     # pragma mark - DataClassWithDefaultArgument
  

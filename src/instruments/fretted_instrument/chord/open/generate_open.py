@@ -1,3 +1,8 @@
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from functools import cache
+from typing import List
+from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
 from instruments.fretted_instrument.chord.chord_utils import enumerate_fretted_instrument_chords
 from instruments.fretted_instrument.chord.open.chromatic_identical_inversion_to_chords_on_fretted_instrument import ChromaticIdenticalInversionToItsOpenChords
 from instruments.fretted_instrument.chord.playable import Playable
@@ -12,7 +17,7 @@ from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern_instantiation.inversion.chromatic_identical_inversions import ChromaticIdenticalInversions
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
 from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
-from utils.util import assert_typing, ensure_folder, save_file
+from utils.util import assert_typing, ensure_folder, img_tag, save_file
 
 def open_folder(instrument: FrettedInstrument):
     path = f"{instrument.generated_folder_name()}/chord/open"
@@ -59,24 +64,24 @@ def register_all_chords(instrument: FrettedInstrument):
 
 def generate_anki_notes(instrument: FrettedInstrument):
     chromatic_identical_inversion_to_chords = register_all_chords(instrument)
-    chord_anki_notes = []
-    chord_decomposition_anki_notes = []
+    chord_anki_notes: List[str] = []
+    decomposition_anki_notes: List[str] = []
+    folder_path = open_folder(instrument)
     instrument_folder_path = open_folder(instrument)
-    for chromatic_identical_inversion, chromatic_identical_inversion_and_its_open_chords in chromatic_identical_inversion_to_chords:
-        chord_anki_notes.append(chromatic_identical_inversion_and_its_open_chords.csv(instrument_folder_path, chord_decomposition_anki_notes))
-    return chord_anki_notes, chord_decomposition_anki_notes, chromatic_identical_inversion_to_chords
+    chromatic_identical_inversion_and_its_open_chordss = [chromatic_identical_inversion_and_its_open_chords for chromatic_identical_inversion, chromatic_identical_inversion_and_its_open_chords in chromatic_identical_inversion_to_chords]
+    chromatic_identical_inversion_and_its_open_chordss.sort(key = lambda chromatic_identical_inversion_and_its_open_chords: chromatic_identical_inversion_and_its_open_chords.easy_key())
+    for chromatic_identical_inversion_and_its_open_chords in chromatic_identical_inversion_and_its_open_chordss:
+        chord_anki_notes.append(chromatic_identical_inversion_and_its_open_chords.csv(instrument_folder_path))
+        chord_decompositions = chromatic_identical_inversion_and_its_open_chords.decompositions()
+        for chord_decomposition in chord_decompositions:
+            decomposition_anki_notes.append(chord_decomposition.csv(folder_path))
+    return chord_anki_notes, decomposition_anki_notes
 
 def generate_instruments():
     for instrument in fretted_instruments:
         register_all_chords(instrument)
-        anki_notes, chord_decomposition_anki_notes, note_to_chord = generate_anki_notes(instrument)
+        anki_notes, chord_decompositions = generate_anki_notes(instrument)
         save_file(f"{open_folder(instrument)}/anki_open_chords.csv", "\n".join(anki_notes))
-        save_file(f"{open_folder(instrument)}/anki_decomposition.csv", "\n".join(chord_decomposition_anki_notes))
-
-        biggest_anki_note = max((anki_note_content for note_list, anki_note_content in note_to_chord), 
-                                key=lambda anki_note_content: len(anki_note_content.maximals()))
-        print(f"=================\n{instrument.name}\n=======================")
-        print(f"{len(biggest_anki_note)=}")
-        print(f"{biggest_anki_note=}")
+        save_file(f"{open_folder(instrument)}/anki_decomposition.csv", "\n".join(chord_decompositions))
 
 generate_instruments()

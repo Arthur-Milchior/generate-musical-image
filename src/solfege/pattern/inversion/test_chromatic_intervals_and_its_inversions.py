@@ -4,5 +4,5 @@ from solfege.pattern.chord.chord_patterns import major_triad
 
 major_chromatic_interval_list_and_its_inversion = IdenticalInversionPatterns(
     intervals=IntervalListPattern.make_absolute([(0,0), (4, 2), (7, 4)]),
-    inversions = [major_triad.inversion(0)]
+    inversion_patterns = [major_triad.inversion(0)]
     )

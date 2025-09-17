@@ -4,64 +4,64 @@ from solfege.value.key.key import Key
 from solfege.value.note.note import Note
 
 
-key_of_C = Key.make(Note.from_name("C"))
-key_of_A = Key.make(Note.from_name("A3"), number_of_sharps=3)
+key_of_C = Key.make(note=Note.from_name("C"))
+key_of_A = Key.make(note=Note.from_name("A3"), number_of_sharps=3)
 
 """All keys, grouped by enharmonic, sorted by minimal number of alteration"""
 sets_of_enharmonic_keys = [
     [
         key_of_C,
-        Key.make(Note.from_name("D♭♭"), number_of_flats=12),
-        Key.make(Note.from_name("B#3"), number_of_flats=12),
+        Key.make(note=Note.from_name("D♭♭"), number_of_flats=12),
+        Key.make(note=Note.from_name("B#3"), number_of_flats=12),
     ],
     [
-        Key.make(Note.from_name("F3"), number_of_flats=1),
-        Key.make(Note.from_name("E#"), number_of_sharps=11),
-        Key.make(Note.from_name("G♭♭3"), number_of_flats=13),
+        Key.make(note=Note.from_name("F3"), number_of_flats=1),
+        Key.make(note=Note.from_name("E#"), number_of_sharps=11),
+        Key.make(note=Note.from_name("G♭♭3"), number_of_flats=13),
     ],
     [
-        Key.make(Note.from_name("G"), number_of_sharps=1),
-        Key.make(Note.from_name("A♭♭3"), number_of_flats=11),
-        Key.make(Note.from_name("F𝄪3"), number_of_flats=13),
+        Key.make(note=Note.from_name("G"), number_of_sharps=1),
+        Key.make(note=Note.from_name("A♭♭3"), number_of_flats=11),
+        Key.make(note=Note.from_name("F𝄪3"), number_of_flats=13),
     ],
     [
-        Key.make(Note.from_name("B♭3"), number_of_flats=2),
-        Key.make(Note.from_name("A#3"), number_of_sharps=10),
-        Key.make(Note.from_name("C♭♭"), number_of_flats=14),
+        Key.make(note=Note.from_name("B♭3"), number_of_flats=2),
+        Key.make(note=Note.from_name("A#3"), number_of_sharps=10),
+        Key.make(note=Note.from_name("C♭♭"), number_of_flats=14),
     ],
     [
-        Key.make(Note.from_name("D"), number_of_sharps=2),
-        Key.make(Note.from_name("E♭♭"), number_of_flats=10),
-        Key.make(Note.from_name("C𝄪"), number_of_flats=14),
+        Key.make(note=Note.from_name("D"), number_of_sharps=2),
+        Key.make(note=Note.from_name("E♭♭"), number_of_flats=10),
+        Key.make(note=Note.from_name("C𝄪"), number_of_flats=14),
     ],
     [
-        Key.make(Note.from_name("E♭"), number_of_flats=3),
-        Key.make(Note.from_name("D#"), number_of_sharps=9),
+        Key.make(note=Note.from_name("E♭"), number_of_flats=3),
+        Key.make(note=Note.from_name("D#"), number_of_sharps=9),
     ],
     [
         key_of_A,
-        Key.make(Note.from_name("B♭♭3"), number_of_flats=9),
+        Key.make(note=Note.from_name("B♭♭3"), number_of_flats=9),
     ],
     [
-        Key.make(Note.from_name("A♭3"), number_of_flats=4),
-        Key.make(Note.from_name("G#3"), number_of_sharps=8),
+        Key.make(note=Note.from_name("A♭3"), number_of_flats=4),
+        Key.make(note=Note.from_name("G#3"), number_of_sharps=8),
     ],
     [
-        Key.make(Note.from_name("E"), number_of_sharps=4),
-        Key.make(Note.from_name("F♭"), number_of_flats=8),
+        Key.make(note=Note.from_name("E"), number_of_sharps=4),
+        Key.make(note=Note.from_name("F♭"), number_of_flats=8),
     ],
     [
-        Key.make(Note.from_name("D♭"), number_of_flats=5),
-        Key.make(Note.from_name("C#"), number_of_sharps=7),
+        Key.make(note=Note.from_name("D♭"), number_of_flats=5),
+        Key.make(note=Note.from_name("C#"), number_of_sharps=7),
     ],
     [
-        Key.make(Note.from_name("B3"), number_of_sharps=5),
-        Key.make(Note.from_name("C♭"), number_of_flats=7),
-        Key.make(Note.from_name("A𝄪3"), number_of_sharps=7),
+        Key.make(note=Note.from_name("B3"), number_of_sharps=5),
+        Key.make(note=Note.from_name("C♭"), number_of_flats=7),
+        Key.make(note=Note.from_name("A𝄪3"), number_of_sharps=7),
     ],
     [
-        Key.make(Note.from_name("F#3"), number_of_flats=6),
-        Key.make(Note.from_name("G♭3"), number_of_sharps=6),
+        Key.make(note=Note.from_name("F#3"), number_of_flats=6),
+        Key.make(note=Note.from_name("G♭3"), number_of_sharps=6),
     ],
 ]
 
