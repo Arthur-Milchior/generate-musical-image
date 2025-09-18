@@ -2,20 +2,19 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Dict, List, Type, TypeVar
+from typing import ClassVar, Dict, Generic, List, Tuple, Type, TypeVar
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.note.note import Note
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.easyness import ClassWithEasyness
 from utils.util import assert_typing
 
 
 
 @dataclass(frozen=True)
-class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversionPattern"],
-                       ClassWithEasyness,
+class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversionPattern", Tuple[int, int]],
                        DataClassWithDefaultArgument):
     #pragma mark - Recordable
     _key_type: ClassVar[Type] = IntervalListPattern
@@ -30,6 +29,10 @@ class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversion
 
     """For a scale whose lowest note is n, you get the position of the tonic with n+tonic_minus_lowest_note."""
     tonic_minus_lowest_note: Interval
+
+    def get_tonic(self, lowest_note: Note):
+        assert_typing(lowest_note, Note)
+        return lowest_note - self.tonic_minus_lowest_note
 
     @classmethod
     def _new_record_keeper(cls):
@@ -71,7 +74,7 @@ class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversion
         return Inversion
     
     #pragma mark - ClassWithEasyness
-    def easy_key(self):
+    def easy_key(self) -> Tuple[int, int]:
         return (self.inversion, self.base.easy_key())
 
 

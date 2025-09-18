@@ -54,3 +54,20 @@ class TestHandForFrettedInstrumentChord(unittest.TestCase):
             ),
             HandForChordForFrettedInstrument.compute_hand(Guitar, F4M),
         )
+
+
+    def test_regression_502220(self):
+        chord = ChordOnFrettedInstrument.make(Guitar, [5, 0, 2, 2, 2, 0])
+        hand = HandForChordForFrettedInstrument.compute_hand(Guitar, chord)
+        expected= HandForChordForFrettedInstrument(
+            instrument=Guitar,
+              zero_fret=None,
+                one=position_make(3, 2), 
+                barred=Barred.NO, 
+                two=position_make(4, 2),
+                three=position_make(5, 2),
+                four=position_make(1, 5),
+                opens=StringFrozenList([Guitar.string(2), Guitar.string(6)]))
+        self.assertEqual(hand, expected)
+        playable = expected.playable()
+        self.assertEqual(playable, Playable.NO)

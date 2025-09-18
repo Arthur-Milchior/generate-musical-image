@@ -47,6 +47,27 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         return cls(chromatic, diatonic)
 
     @classmethod
+    def all_from_chromatic(cls, chromatic: ChromaticType):
+        assert_typing(chromatic, cls.ChromaticClass)
+        diatonic_array = [
+            [0, -1, 1], #C, B#, Dbb
+            [0, 1],  # C#, Db
+            [1, 0, 2], # D, C##, Ebb 
+            [2, 1], #  Eb, D#
+            [2, 3, 1], # E, Fb, D##
+            [3, 2, 4], # F, E#, Gbb
+            [3, 4], # F#, Gb
+            [4, 3, 5], #G, F##, Abb
+            [5, 4], # Ab, G#
+            [5, 6, 4], # A, Bbb, G##s 
+            [6, 5], # Bb, A#
+            [6, 7, 5], # B, Cb, A## 
+            ]
+        diatonics = [cls.DiatonicClass(diatonic + 7 * chromatic.octave()) 
+                     for diatonic in diatonic_array[chromatic.in_base_octave().value]]
+        return [cls(chromatic, diatonic) for diatonic in diatonics]
+
+    @classmethod
     def from_diatonic(cls, diatonic: DiatonicType, scale: str="Major"):
         assert_typing(diatonic, cls.DiatonicClass)
         assert scale == "Major"
@@ -59,13 +80,18 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         chromaticEq = self.chromatic == other.chromatic
         return diatonicEq and chromaticEq
 
-    def get_alteration(self) -> ChromaticType:
+    def _get_alteration_value(self) -> int:
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
         from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
         diatonic = self.get_diatonic()
         chromatic_from_diatonic = self.__class__.from_diatonic(diatonic).chromatic
+        return self.chromatic.value - chromatic_from_diatonic.value
+
+    def get_alteration(self) -> ChromaticType:
+        """The alteration, added to `self.getDiatonic()` to obtain `self`"""
+        from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
         try:
-            return self.AlterationClass(self.chromatic.value - chromatic_from_diatonic.value)
+            return self.AlterationClass(self._get_alteration_value())
         except TooBigAlterationException as tba:
             tba["The note which is too big"] = self
             raise
@@ -114,3 +140,4 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
     @classmethod
     def one_octave(cls)-> Self:
         return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.one_octave(), diatonic=cls.DiatonicClass.one_octave())
+    

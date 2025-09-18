@@ -4,6 +4,7 @@ from solfege.pattern.chord.chord_pattern import *
 
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern.interval_list_to_patterns import IntervalListToPatterns
+from solfege.value.interval.set.chromatic_interval_list_pattern import ChromaticIntervalListPattern
 from solfege.value.key.key import *
 from solfege.pattern.chord.test_constants import *
 

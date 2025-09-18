@@ -1,11 +1,13 @@
 from dataclasses import dataclass, field
-from typing import Callable, Dict, FrozenSet, Generator, List, Optional, Set, Tuple
+from typing import Callable, Dict, FrozenSet, Generator, List, Optional, Set, Tuple, Union
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position_with_fingers import FingersType, PositionOnFrettedInstrumentWithFingers, FrettedInstrumentPositionWithFingersFrozenList
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument, SetOfPositionsOnFrettedInstrumentFrozenList
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import SetOfFrettedInstrumentPositionsWithFingers, SetOfFrettedInstrumentPositionsWithFingersFrozenList
 from instruments.fretted_instrument.position.string.string import String
+from instruments.fretted_instrument.position.string.string_deltas import StringDelta
+from instruments.fretted_instrument.position.string.strings import Strings
 from solfege.pattern.scale.scale_pattern import ScalePattern
 from solfege.value.interval.chromatic_interval import ChromaticIntervalFrozenList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
@@ -153,15 +155,18 @@ class AnkiScaleWithString(DataClassWithDefaultArgument):
         super().__post_init__()
 
 
-def _generate_scale(instrument: FrettedInstrument, starting_note: PositionOnFrettedInstrumentWithFingers, relative_intervals: ChromaticIntervalFrozenList) -> Generator[List[PositionOnFrettedInstrumentWithFingers]]:
+def _generate_scale(instrument: FrettedInstrument,
+                    starting_note: PositionOnFrettedInstrumentWithFingers,
+                    relative_intervals: ChromaticIntervalFrozenList,
+                    string_delta: Optional[Union[StringDelta]] = None, ) -> Generator[List[PositionOnFrettedInstrumentWithFingers]]:
     assert_typing(starting_note, PositionOnFrettedInstrumentWithFingers)
     if not relative_intervals:
         yield [starting_note]
         return
     relative_interval, remaining_relative_intervals = relative_intervals.head_tail()
-    for fingers_for_current_note, next_note in starting_note.positions_for_interval(instrument, interval=relative_interval):
+    for fingers_for_current_note, next_note in starting_note.positions_for_interval(instrument, interval=relative_interval, string_delta=string_delta):
         starting_note_fingered = starting_note.restrict_fingers(fingers_for_current_note)
-        for notes_for_remaining_intervals in _generate_scale(instrument, next_note, remaining_relative_intervals):
+        for notes_for_remaining_intervals in _generate_scale(instrument, next_note, remaining_relative_intervals, string_delta=string_delta):
             assert_iterable_typing(notes_for_remaining_intervals, PositionOnFrettedInstrumentWithFingers)
             yield [starting_note_fingered, *notes_for_remaining_intervals]
 
@@ -170,7 +175,8 @@ def generate_scale(instrument: FrettedInstrument,
                 scale_pattern: ScalePattern,
             number_of_octaves: int,
             filter: Callable[[SetOfFrettedInstrumentPositionsWithFingers], bool] = lambda x: True,
-        pattern_to_avoid_list: List[SetOfFrettedInstrumentPositionsWithFingers] = []) -> AnkiScaleWithString:
+        pattern_to_avoid_list: List[SetOfFrettedInstrumentPositionsWithFingers] = [],
+        string_delta: Optional[Union[StringDelta]] = None, ) -> AnkiScaleWithString:
     """
     patter_to_avoid - don't return any position that is a subset of this one.
     filter: keep only the value for which the answer is true."""
@@ -178,7 +184,10 @@ def generate_scale(instrument: FrettedInstrument,
     fingers_to_scales: Dict[FingersType, List[SetOfFrettedInstrumentPositionsWithFingers]] = dict()
     starting_note = PositionOnFrettedInstrumentWithFingers.from_fretted_instrument_position(starting_note)
     assert_typing(scale_pattern, ScalePattern)
-    for scale in _generate_scale(instrument, starting_note, scale_pattern.multiple_octaves(number_of_octaves).get_chromatic_interval_list().relative_intervals()):
+    for scale in _generate_scale(instrument, 
+                                 starting_note, 
+                                 scale_pattern.multiple_octaves(number_of_octaves).get_chromatic_interval_list().relative_intervals(),
+                                 string_delta=string_delta):
         first_pos = scale[0]
         first_fingers = first_pos.fingers
         if first_fingers not in fingers_to_scales:

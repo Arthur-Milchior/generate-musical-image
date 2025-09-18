@@ -1,4 +1,4 @@
-from instruments.fretted_instrument.chord.fretted_instrument_chord import *
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import *
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 
 def _make(l):

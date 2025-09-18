@@ -46,10 +46,6 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
     def __radd__(self, other: IntervalType) -> Self:
         return self + other
     
-    @abstractmethod
-    def __add__(self, other: IntervalType) -> Self:
-        return NotImplemented
-    
     @overload
     def __sub__(self, other: IntervalType) -> Self: ...
     
@@ -68,20 +64,8 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
             return "," * (-self.octave() - 1)
         raise assert_never(octave_notation)
 
-    def get_name_up_to_octave(self,
-                              **kwargs
-                               # potential argument. alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput = FixedLengthOutput.NOT_FIXED_LENGTH
-                              ) -> str:
-        return NotImplemented
-
-    def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs):
-        return f"{self.get_name_up_to_octave(**kwargs)}{str(self.get_octave_name(octave_notation=octave_notation))}"
-    
-    def file_name(self) -> str:
-        return NotImplemented    
-
     def image_file_name(self, clef: Optional[Clef]  = None):
-        """Return the file name without folder"""
+        """Return the file for a lily partition of this note only in this clef."""
         assert_optional_typing(clef, Clef)
         return f"{self.file_name(clef)}.svg"
 
@@ -89,6 +73,24 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
         """Return the html tag for the image."""
         assert_optional_typing(clef, Clef)
         return img_tag(self.image_file_name(clef))
+
+    def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs):
+        return f"{self.get_name_up_to_octave(**kwargs)}{str(self.get_octave_name(octave_notation=octave_notation))}"
+    
+    # Must be implemented by subclasses
+    
+    @abstractmethod
+    def __add__(self, other: IntervalType) -> Self:
+        return NotImplemented
+
+    def get_name_up_to_octave(self,
+                              **kwargs
+                               # potential argument. alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput = FixedLengthOutput.NOT_FIXED_LENGTH
+                              ) -> str:
+        return NotImplemented
+    
+    def file_name(self) -> str:
+        return NotImplemented
 
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)

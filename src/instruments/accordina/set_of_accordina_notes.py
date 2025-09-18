@@ -48,7 +48,7 @@ class SetOfAccordinaNote(SvgGenerator):
         """The content of the svg. Not containig svg itself and the white background."""
         return [note.svg(self.min) for note in self.pictured_notes()]
     
-    def _svg_name_base(self) -> str:
+    def _svg_name_base(self, **kwargs) -> str:
         return NotImplemented
     
     def svg_height(self, *args, **kwargs) -> int: 

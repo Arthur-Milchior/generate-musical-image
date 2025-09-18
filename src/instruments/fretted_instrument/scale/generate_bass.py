@@ -27,8 +27,6 @@ class ScaleOnBassAnkiNote(CsvGenerator):
 
     """
     scale_pattern: ScalePattern
-    # note 3 and 4 are the same. One octave higher than note 1. This ensure that 
-    # if we generate a scale starting on note 3 and 4 and it's the same pattern than a two-octave scale on note 1, the actual positions are the same. 
     start_pos = PositionOnFrettedInstrument.make(Bass.string(1), 12)
 
     def __post_init__(self):
@@ -37,12 +35,10 @@ class ScaleOnBassAnkiNote(CsvGenerator):
     def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
         assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
         scale, tranpsosition = scale.transpose_to_fret_one()
-        file_name = scale.svg_file_name(Bass, absolute=False)
-        svg = scale.svg(Bass, absolute=False, colors = ScaleColors(self.start_pos.get_chromatic()))
+        first_note = scale.get_most_grave_note().get_chromatic()
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
-        path =f"{folder_path}/{file_name}"
         ensure_folder(folder_path)
-        save_file(path, svg)
+        file_name = scale.save_svg(folder_path=folder_path, instrument=Bass, absolute=False, colors = ScaleColors(first_note))
         return file_name
 
     #Pragma mark - CsvGenerator

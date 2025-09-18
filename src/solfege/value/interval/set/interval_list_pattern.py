@@ -32,5 +32,11 @@ class IntervalListPattern(AbstractIntervalListPattern[Interval]):
     def get_interval_list(self) -> "IntervalListPattern":
         return IntervalListPattern(self._absolute_intervals, self.increasing)
 
+    def best_enharmonic_starting_note(self, chromatic_note: "ChromaticNote"):
+        """The chord with a note with this chromatic."""
+        from solfege.value.note.chromatic_note import ChromaticNote
+        from solfege.value.note.note import Note
+        return min(Note.all_from_chromatic(chromatic_note), key = lambda note: self.from_note(note).easy_key())
+
 class IntervalListFrozenList(FrozenList[IntervalListPattern]):
     type = IntervalListPattern

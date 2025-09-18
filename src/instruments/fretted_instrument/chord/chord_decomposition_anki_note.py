@@ -1,15 +1,16 @@
 from dataclasses import dataclass, field
 from tkinter.font import names
-from typing import Generator, List
+from typing import Generator, List, Tuple
 
-from instruments.fretted_instrument.chord.fretted_instrument_chord import ChordColors, ChordOnFrettedInstrument
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordColors, ChordOnFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
+from instruments.fretted_instrument.position.set.colors import RestrictedColorsWithTonic
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import ScaleColors
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import MinimalChordDecompositionInput
 from solfege.pattern_instantiation.inversion.inversion import Inversion
-from solfege.value.interval.chromatic_interval import ChromaticInterval
+from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
 from solfege.value.note.chromatic_note import ChromaticNote
 from lily import lily
 from solfege.value.note.note import Note
@@ -20,7 +21,7 @@ from utils.frozenlist import StrFrozenList
 from utils.util import assert_iterable_typing, assert_typing, ensure_folder, img_tag
 
 @dataclass(frozen=True)
-class ChordDecompositionAnkiNote(ClassWithEasyness, CsvGenerator):
+class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]], CsvGenerator):
     instrument: FrettedInstrument
     identical_inversions: MinimalChordDecompositionInput
     chord: ChordOnFrettedInstrument
@@ -43,16 +44,22 @@ class ChordDecompositionAnkiNote(ClassWithEasyness, CsvGenerator):
         lowest_note = Note.from_chromatic(self.chord.get_most_grave_note().get_chromatic())
         inversion_patterns = self.identical_inversions.get_inversion_patterns()
         inversion_pattern = inversion_patterns[0]
-        note_list: NoteList = inversion_pattern.interval_list.from_note(lowest_note)
+        note_to_use: NoteList = inversion_pattern.interval_list.from_note(lowest_note)
+
+
+        chromatic_note_list = self.chord.chromatic_notes()
+        note_list = note_to_use.change_octave_to_be_enharmonic(chromatic_note_list)
+
+
         ensure_folder(path)
-        file_prefix = note_list.lily_file_name()
+        file_prefix = note_list.lily_file_name(self.instrument.clef)
         path_prefix = f"{path}/{file_prefix}"
-        code = note_list.lily_file_with_only_chord()
+        code = note_list.lily_file_with_only_chord(self.instrument.clef)
         lily.compile_(code, path_prefix, wav=False)
         return img_tag(f"{file_prefix}.svg")
     
     def open(self):
-        self.chord.is_open()
+        return self.chord.is_open()
     
     def colors(self):
         return ChordColors(self.tonic())
@@ -69,7 +76,12 @@ class ChordDecompositionAnkiNote(ClassWithEasyness, CsvGenerator):
         restricted_chord = transposed.restrict_to_note_up_to_octave(notes_in_base_octave)
         if restricted_chord is None:
             return ""
-        return img_tag(restricted_chord.save_svg(folder_path, self.instrument, colors=self.colors(), absolute=self.open()))
+        open = self.open()
+        all_colors = self.colors()
+        colors = RestrictedColorsWithTonic(all_colors, ChromaticIntervalFrozenList(interval_values))
+        minimal_number_of_frets = self.last_shown_fret()
+        svg_file_name = transposed.save_svg(folder_path, instrument=self.instrument, colors=colors, absolute=open, minimal_number_of_frets=minimal_number_of_frets)
+        return img_tag(svg_file_name)
 
     def first_string(self):
         for string_number, fret in enumerate(self.chord.get_frets(self.instrument)):
@@ -77,13 +89,16 @@ class ChordDecompositionAnkiNote(ClassWithEasyness, CsvGenerator):
                 return string_number + 1
         assert False
 
-    def first_string(self):
+    def last_string(self):
         last_string = None
         for string_number, fret in enumerate(self.chord.get_frets(self.instrument)):
             if fret.is_played():
                 last_string = string_number + 1
         assert last_string
         return last_string
+    
+    def last_shown_fret(self):
+        return self.chord.last_shown_fret()
 
     #pragma mark - CsvGenerator
 
@@ -93,14 +108,16 @@ class ChordDecompositionAnkiNote(ClassWithEasyness, CsvGenerator):
 
         yield notations[0] # notation
         yield ", ".join(notations[1:]) # other notations
-        yield img_tag(transposed.save_svg(folder_path, self.instrument, colors=None, absolute=self.open())) # Chord
-        yield img_tag(transposed.save_svg(folder_path, self.instrument, colors=self.colors(), absolute=self.open())) # Colored chord
-        yield img_tag(self.lily_field(f"{folder_path}/lily")) # partition
+        yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, colors=None, absolute=self.open())) # Chord
+        yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, colors=self.colors(), absolute=self.open())) # Colored chord
+        yield self.lily_field(f"{folder_path}/lily") # partition
+        yield "x" if self.open else ""
         yield str(self.first_string())
         yield str(self.last_string())
-        yield from [self.single_role_field(interval_values) for interval_values in [[0], [1, 2], [3, 4], [5], [6, 7, 8], [9, 10, 11]]]
+        yield from [self.single_role_field(folder_path, interval_values) for interval_values in [[0], [1, 2], [3, 4], [5], [6, 7, 8], [9, 10, 11]]]
+        yield self.instrument.name
 
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
+    def easy_key(self) -> Tuple[Tuple[int, int], int]:
         return (self.identical_inversions.easy_key(), self.chord.easy_key())

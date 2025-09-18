@@ -10,5 +10,5 @@ from solfege.value.note.abstract_note import NoteType
 
 
 @dataclass(frozen=True)
-class AbstractChord(AbstractPatternInstantiation[ChordPattern, NoteType, IntervalType],  Generic[NoteType, IntervalType]): 
+class AbstractChord(AbstractPatternInstantiation[ChordPattern, NoteType, IntervalType, int],  Generic[NoteType, IntervalType]): 
     pattern_type: ClassVar[PatternWithIntervalList] = ChordPattern

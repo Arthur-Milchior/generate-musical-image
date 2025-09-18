@@ -19,7 +19,7 @@ from utils.util import assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True, repr=False, eq=True)
-class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], ClassWithEasyness, LocalLilyable):
+class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], ClassWithEasyness[int], LocalLilyable):
     """A note of the scale, as an interval from middle C."""
     DiatonicClass: ClassVar[Type[DiatonicNote]] = DiatonicNote
     ChromaticClass: ClassVar[Type[ChromaticNote]] = ChromaticNote
@@ -30,11 +30,6 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], ClassWithE
         super().__post_init__()
         assert_typing(self.chromatic, ChromaticNote)
         assert_typing(self.diatonic, DiatonicNote)
- 
-    def __add__(self, other: Interval) -> Self:
-        if isinstance(other, Interval):
-            return dataclasses.replace(self, chromatic=self.chromatic + other.chromatic, diatonic=self.diatonic + other.diatonic)
-        return NotImplemented
 
     @classmethod
     def _make_single_argument(cls, value: Union[Tuple[int, int], str]) -> Self:
@@ -53,15 +48,6 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], ClassWithE
         chromatic = Note.from_diatonic(diatonic).chromatic + alteration
         return Note(chromatic, diatonic)
     
-    def __sub__(self, other: Union[Self, Interval]) -> Union[Self, Interval]:
-        chromatic = self.chromatic - other.chromatic
-        diatonic = self.diatonic - other.diatonic
-        if self.__class__ == other.__class__:
-            return Interval(chromatic, diatonic)
-        else:
-            assert other.__class__ == Interval
-            return dataclasses.replace(self, chromatic=chromatic, diatonic=diatonic)
-    
     def __repr__(self):
         return f"Note.make({self.chromatic.value}, {self.diatonic.value})"
 
@@ -70,13 +56,6 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], ClassWithE
         chromatic = self.chromatic - other.chromatic
 
         return self.IntervalClass.make_instance_of_selfs_class(chromatic, diatonic)
-
-    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput):
-        diatonic_note: DiatonicNote = self.get_diatonic()
-        diatonic_name = diatonic_note.get_name_up_to_octave(note_output=note_output, fixed_length=fixed_length)
-        alteration: Alteration = self.get_alteration()
-        alteration_name = alteration.get_name(alteration_output=alteration_output, fixed_length=fixed_length)
-        return f"""{diatonic_name}{alteration_name}"""
 
     def correctAlteration(self):
         """Whether the note has a printable alteration."""
@@ -177,6 +156,31 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], ClassWithE
             return None
         number_octave = chromatic_distance.value // Chromatic.number_of_interval_in_an_octave
         return self.add_octave(number_octave)
+    
+    #pragma mark - Abstract
+    
+    def __sub__(self, other: Union[Self, Interval]) -> Union[Self, Interval]:
+        chromatic = self.chromatic - other.chromatic
+        diatonic = self.diatonic - other.diatonic
+        if self.__class__ == other.__class__:
+            return Interval(chromatic, diatonic)
+        else:
+            assert other.__class__ == Interval
+            return dataclasses.replace(self, chromatic=chromatic, diatonic=diatonic)
+        
+    #Pragma mark - AbstractNote
+
+    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput):
+        diatonic_note: DiatonicNote = self.get_diatonic()
+        diatonic_name = diatonic_note.get_name_up_to_octave(note_output=note_output, fixed_length=fixed_length)
+        alteration: Alteration = self.get_alteration()
+        alteration_name = alteration.get_name(alteration_output=alteration_output, fixed_length=fixed_length)
+        return f"""{diatonic_name}{alteration_name}"""
+ 
+    def __add__(self, other: Interval) -> Self:
+        if isinstance(other, Interval):
+            return dataclasses.replace(self, chromatic=self.chromatic + other.chromatic, diatonic=self.diatonic + other.diatonic)
+        return NotImplemented
 
     def file_name(self, clef: Optional[Clef] = None):
         """Return the file name without extension nor folder"""
@@ -193,8 +197,8 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote], ClassWithE
 
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
-        return self.get_alteration().easy_key()
+    def easy_key(self) -> int:
+        return abs(self._get_alteration_value())
 
 ChromaticNote.PairClass = Note
 DiatonicNote.PairClass = Note

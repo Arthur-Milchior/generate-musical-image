@@ -7,7 +7,8 @@ from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import empty_set_of_position, SetOfPositionOnFrettedInstrument
 from instruments.fretted_instrument.position.string.string import String
-from instruments.fretted_instrument.chord.fretted_instrument_chord import ChordOnFrettedInstrument
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
+from lily.lily_svg import display_svg_file
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.set.chromatic_interval_list_pattern import ChromaticIntervalListPattern
 from utils.util import assert_typing

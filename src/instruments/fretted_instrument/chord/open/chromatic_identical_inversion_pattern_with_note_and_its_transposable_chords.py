@@ -26,17 +26,17 @@ class AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords(Abstr
     key: AbstractIdenticalInversionType
 
     def names_from_inversion(self, inversion: InversionPattern):
-        lowest_note: ChromaticNote = self.key.lowest_note
-        delta_due_to_inversion = inversion.tonic_minus_lowest_note.chromatic
-        tonic: ChromaticNote = lowest_note - delta_due_to_inversion
+        chromatic_lowest_note: ChromaticNote = self.key.lowest_note
+        lowest_note = inversion.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
+        tonic = inversion.get_tonic(lowest_note)
         note_name = tonic.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
-        lowest_note_name = lowest_note.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
+        lowest_note_name = chromatic_lowest_note.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
         chord_pattern_notation = inversion.base.notation
         if chord_pattern_notation is None:
             chord_pattern_notation = inversion.base.first_of_the_names()
         chord_notation = f"{note_name}{chord_pattern_notation}"
         if inversion.inversion == 0:
-            assert tonic == lowest_note
+            assert tonic.chromatic == chromatic_lowest_note
             return [chord_notation]
         else:
             return [f"""{chord_notation}/{lowest_note_name}"""]
@@ -45,11 +45,11 @@ class AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords(Abstr
         lowest_chromatic_note: ChromaticNote = self.key.lowest_note
         lowest_note: Note = Note.from_chromatic(lowest_chromatic_note)
         note_list: NoteList = interval_list.from_note(lowest_note)
-        file_prefix = note_list.lily_file_name()
+        file_prefix = note_list.lily_file_name(self.instrument.clef)
         lily_folder_path = f"""{self.instrument.generated_folder_name()}/open"""
         ensure_folder(lily_folder_path)
         path_prefix = f"{lily_folder_path}/{file_prefix}"
-        code = note_list.lily_file_with_only_chord()
+        code = note_list.lily_file_with_only_chord(self.instrument.clef)
         lily.compile_(code, path_prefix, wav=False)
         return img_tag(f"{file_prefix}.svg")
 

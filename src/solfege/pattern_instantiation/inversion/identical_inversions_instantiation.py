@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, List
+from typing import ClassVar, List, Tuple
 
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatterns
 from solfege.pattern_instantiation.inversion.abstract_Identical_inversions import AbstractIdenticalInversion
@@ -13,7 +13,7 @@ from solfege.value.note.note import Note
 from utils.util import assert_typing
 
 
-class IdenticalInversion(AbstractIdenticalInversion[Note, Interval], AbstractPairInstantiation[IdenticalInversionPatterns]):
+class IdenticalInversion(AbstractIdenticalInversion[Note, Interval], AbstractPairInstantiation[IdenticalInversionPatterns, Tuple[int, int]]):
     
     chromatic_instantiation_type: ClassVar = ChromaticIdenticalInversions
 

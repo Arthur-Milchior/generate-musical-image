@@ -6,12 +6,13 @@ from solfege.pattern.pattern_with_name import PatternWithName
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import ClassWithEasyness
 from utils.util import assert_typing
 from solfege.value.key.keys import nor_flat_nor_sharp
 
 
 @dataclass(frozen=True)
-class SolfegePattern(IntervalListPattern, PatternWithName, PatternWithIntervalList, DataClassWithDefaultArgument):
+class SolfegePattern(IntervalListPattern, PatternWithName, PatternWithIntervalList, ClassWithEasyness[int], DataClassWithDefaultArgument):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
@@ -34,7 +35,7 @@ class SolfegePattern(IntervalListPattern, PatternWithName, PatternWithIntervalLi
     
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
+    def easy_key(self) -> int:
         return self._pattern_index
     
     #pragma mark - Recordable

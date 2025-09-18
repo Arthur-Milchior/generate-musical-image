@@ -6,12 +6,12 @@ from dataclasses import dataclass
 from pickletools import string1
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import fretted_instruments
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
-from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.string.string import String
 from solfege.value.interval.chromatic_interval import ChromaticInterval, IntervalNameCreasing
+from utils.csv import CsvGenerator
 from utils.util import *
 from consts import generate_root_folder
 
@@ -20,10 +20,8 @@ Generate an image for each pair of notes between fret 0 and LAST_FRET on distinc
 Also a card for each note. Used for the card type "fretted_instrument interval"
 """
 
-
-
 @dataclass(frozen=True)
-class AnkiNote:
+class AnkiNote(CsvGenerator):
     instrument: FrettedInstrument
     pos1: PositionOnFrettedInstrument
     pos2: PositionOnFrettedInstrument
@@ -38,7 +36,7 @@ class AnkiNote:
         return f"{self.pos1.string.value}{self.pos1.fret.value}-{self.pos2.string.value}{self.pos2.fret.value}"
     
     def svg_name(self):
-        return f"fretted_instrument_{self.key()}.svg"
+        return f"{self.instrument.name}_{self.key()}.svg"
     
     def interval(self):
         return self.pos2 - self.pos1
@@ -55,7 +53,15 @@ class AnkiNote:
     def difference_name(self):
         return self.interval().get_interval_name(side = IntervalNameCreasing.DECREASING_ONLY)
     
-    def anki_fields(self):
+    def svg(self):
+        absolute = self.pos1.fret.is_open() or self.pos2.fret.is_open()
+        if not absolute:
+            assert 1 in [self.pos1.fret.value, self.pos2.fret.value]
+        return SetOfPositionOnFrettedInstrument(PositionOnFrettedInstrumentFrozenList({self.pos1, self.pos2})).svg(instrument=self.instrument, absolute=absolute)
+    
+    #pragma mark CsvGenerator
+    
+    def csv_content(self):
         return [
             self.key(),
             str(self.pos1.string.value),
@@ -64,16 +70,8 @@ class AnkiNote:
             self.pos_difference(),
             str(self.interval().value),
             self.difference_name(),
+            self.instrument.name
         ]
-    
-    def anki_csv(self):
-        return ",".join(self.anki_fields())
-    
-    def svg(self):
-        absolute = self.pos1.fret.is_open() or self.pos2.fret.is_open()
-        if not absolute:
-            assert 1 in [self.pos1.fret.value, self.pos2.fret.value]
-        return SetOfPositionOnFrettedInstrument(PositionOnFrettedInstrumentFrozenList({self.pos1, self.pos2})).svg(instrument, absolute=absolute)
 
 def pairs_of_frets_values(last_fret: Fret):
     assert_typing(last_fret, Fret)
@@ -92,18 +90,21 @@ def anki_note_(instrument: FrettedInstrument, low_string: int, high_string: int,
         PositionOnFrettedInstrument(instrument.string(high_string), high_fret,),
         )
 
-def generate(instrument: FrettedInstrument, folder_path:str):
+def generate_instrument(instrument: FrettedInstrument, folder_path:str):
     anki_notes = []
     number_of_strings = instrument.number_of_strings()
     for low_string in range(1, number_of_strings):
         for high_string in range(low_string + 1, number_of_strings + 1):
             for (low_fret, high_fret) in pair_of_frets(instrument):
-                anki_note = anki_note_(Guitar, low_string, high_string, low_fret, high_fret)
+                anki_note = anki_note_(instrument, low_string, high_string, low_fret, high_fret)
                 save_file(f"{folder_path}/{anki_note.svg_name()}", anki_note.svg())
-                anki_notes.append(anki_note.anki_csv())
+                anki_notes.append(anki_note.csv())
     return anki_notes
 
-for instrument in fretted_instruments:
-    folder_path = f"{instrument.generated_folder_name()}/pair"
-    ensure_folder(folder_path)
-    save_file(f"{folder_path}/anki.csv", "\n".join(generate(instrument, folder_path)))
+def generate():
+    for instrument in fretted_instruments:
+        folder_path = f"{instrument.generated_folder_name()}/pair"
+        ensure_folder(folder_path)
+        save_file(f"{folder_path}/anki.csv", "\n".join(generate_instrument(instrument, folder_path)))
+
+generate()

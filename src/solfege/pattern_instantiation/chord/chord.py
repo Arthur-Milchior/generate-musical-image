@@ -13,7 +13,7 @@ from solfege.value.note.note import Note, NoteFrozenList
 from utils.util import assert_typing
 
 
-class Chord(AbstractChord[Note, Interval], AbstractPairInstantiation[ChordPattern]):
+class Chord(AbstractChord[Note, Interval], AbstractPairInstantiation[ChordPattern, int]):
     
     chromatic_instantiation_type: ClassVar = ChromaticChord
 
@@ -25,6 +25,6 @@ class Chord(AbstractChord[Note, Interval], AbstractPairInstantiation[ChordPatter
         return names
 
     def notation(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
-        note_name = self.lowest_note.get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
-        return f"{note_name} {self.pattern.notation}"
+        note_notation = self.lowest_note.get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
+        return f"{note_notation}{self.pattern.notation}"
     

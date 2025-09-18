@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, Generic
+from typing import ClassVar, Generic, Tuple
 
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternsGetterType
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
@@ -12,5 +12,5 @@ from solfege.value.note.abstract_note import NoteType
 
 
 @dataclass(frozen=True)
-class AbstractInversion(AbstractPatternInstantiation[InversionPattern, NoteType, IntervalType],  Generic[NoteType, IntervalType]): 
+class AbstractInversionInstantiation(AbstractPatternInstantiation[InversionPattern, NoteType, IntervalType, Tuple[int, int]],  Generic[NoteType, IntervalType]): 
     pattern_type: ClassVar[PatternWithIntervalList] = InversionPattern

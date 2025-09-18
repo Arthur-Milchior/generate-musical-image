@@ -1,19 +1,20 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import ClassVar, Generator, Generic, List, Type
+from typing import ClassVar, Generator, Generic, List, Tuple, Type
 
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.set.abstract_interval_ilst_pattern import AbstractIntervalListPattern, IntervalListPatternType
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import ClassWithEasyness
 from utils.recordable import RecordedContainer
 from utils.util import assert_iterable_typing, assert_typing
 
 
 @dataclass(frozen=True, unsafe_hash=True)
 class AbstractIdenticalInversionPatterns(RecordedContainer[InversionPattern], 
-                                 DataClassWithDefaultArgument, 
+                                 DataClassWithDefaultArgument, ClassWithEasyness[Tuple[int, int]],
                                  ABC, Generic[IntervalListPatternType]):
     """A (chromatic) interval list and all chord inversion associated to it.
     """
@@ -57,7 +58,7 @@ class AbstractIdenticalInversionPatterns(RecordedContainer[InversionPattern],
     
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
+    def easy_key(self) -> Tuple[int, int]:
         return self.inversion_patterns[0].easy_key()
     
     # pragma mark - DataClassWithDefaultArgument

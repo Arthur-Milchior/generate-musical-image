@@ -9,6 +9,7 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instrument import
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fret.fret_deltas import FretDelta
 from instruments.fretted_instrument.position.fret.frets import Frets
+from instruments.fretted_instrument.position.set.colors import DEFAUL_COLOR
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
 from instruments.fretted_instrument.position.string.strings import Strings
@@ -84,15 +85,15 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     def svg(self, absolute: bool, stroke_color: Optional[str]) -> List[str]:
         """Draw this position, assuming that f already contains the svg for the fret"""
         if stroke_color is None:
-            stroke_color = "black"
-        fill_color = "white" if self.fret.is_open() else "black"
+            stroke_color = DEFAUL_COLOR
+        fill_color = "white" if self.fret.is_open() else (stroke_color)
         x = self.string.x()
         if self.fret.is_not_played():
             if absolute:
                 return [f"""<text x="{int(x)-15}" y="{int(MARGIN)-10}" font-size="50">""", """x<!-- string {self.string.value}, not played-->""", """</text>"""]
             return [f"""<!-- string {self.string.value} not played. Not shown as it's transposable-->"""]
         y = self.fret.y_dots()
-        return [f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{stroke_color}" stroke="{stroke_color}" stroke-width="3"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""]
+        return [f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{fill_color}" stroke="{stroke_color}" stroke-width="{STROKE_WIDTH}"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""]
 
     def __eq__(self, other: PositionOnFrettedInstrument):
         assert_typing(other, PositionOnFrettedInstrument)
@@ -132,7 +133,7 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         """The svg for a diagram with only this note"""
         assert_typing(instrument, FrettedInstrument)
         from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
-        return SetOfPositionOnFrettedInstrument.make({self}).svg(instrument, absolute=True)
+        return SetOfPositionOnFrettedInstrument.make({self}).svg(instrument=instrument, absolute=True)
     
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
         return dataclasses.replace(self, fret=self.fret.transpose(transpose, transpose_open, transpose_not_played))

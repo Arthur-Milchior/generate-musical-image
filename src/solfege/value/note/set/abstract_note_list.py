@@ -15,7 +15,7 @@ from utils.util import assert_decreasing, assert_increasing, assert_iterable_typ
 
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractNoteList(Generic[NoteType, IntervalType, IntervalListPatternType], DataClassWithDefaultArgument):
+class AbstractNoteList(DataClassWithDefaultArgument, Generic[NoteType, IntervalType, IntervalListPatternType]):
     interval_list_type: ClassVar[Type[AbstractIntervalListPattern]]
     note_type: ClassVar[Type[AbstractNote]]
     _frozen_list_type: ClassVar[Type[FrozenList[AbstractNote]]]

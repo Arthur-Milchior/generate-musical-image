@@ -4,6 +4,7 @@ from typing import ClassVar, Generic, TypeVar
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import KeyType
 from utils.frozenlist import FrozenList
 from solfege.pattern.pattern_with_interval_list import PatternType, PatternWithIntervalList
 from utils.util import T, assert_typing
@@ -13,7 +14,7 @@ NoteFrozenListType= TypeVar("NoteFrozenListType", bound = FrozenList)
 IntervalFrozenListType= TypeVar("IntervalFrozenListType", bound = FrozenList)
 
 @dataclass(frozen=True, eq=True)
-class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[PatternType, NoteType, IntervalType]):
+class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[PatternType, NoteType, IntervalType, KeyType]):
     pattern: PatternType
     lowest_note: NoteType
 
@@ -44,6 +45,6 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[Pa
 
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
+    def easy_key(self) -> KeyType:
         # Defined only if the pattern defines it.
         return self.pattern.easy_key()

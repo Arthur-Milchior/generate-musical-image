@@ -9,7 +9,7 @@ from solfege.value.note.chromatic_note import ChromaticNoteFrozenList
 from solfege.value.note.note import Note
 
 
-class ChromaticChord(AbstractChord[Note, Interval], AbstractChromaticInstantiation[ChordPattern]):
+class ChromaticChord(AbstractChord[Note, Interval], AbstractChromaticInstantiation[ChordPattern, int]):
 
     def _get_chord(self):
         """The chord with a note with this chromatic."""

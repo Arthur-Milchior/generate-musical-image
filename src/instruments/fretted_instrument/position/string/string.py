@@ -10,7 +10,6 @@ from utils.frozenlist import FrozenList, MakeableWithSingleArgument
 from utils.util import assert_typing
 from instruments.fretted_instrument.position.consts import *
 
-STRING_THICKNESS = 5
 
 @dataclass(frozen=True)
 class String(MakeableWithSingleArgument):

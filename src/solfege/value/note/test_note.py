@@ -17,6 +17,11 @@ class TestNote(unittest.TestCase):
     E4 = Note.make(4, 2)
     F4 = Note.make(5, 3)
     C5 = Note.make(12, 7)
+
+    def test_all_from_chromatic(self):
+        self.assertEqual(Note.all_from_chromatic(ChromaticNote(0)), [Note.make(0, 0), Note.make(0, -1), Note.make(0, 1)])
+        self.assertEqual(Note.all_from_chromatic(ChromaticNote(11)), [Note.make(11, 6), Note.make(11, 7), Note.make(11, 5)])
+        self.assertEqual(Note.all_from_chromatic(ChromaticNote(4)), [Note.make(4, 2), Note.make(4, 3), Note.make(4, 1)])
     
     def test_lily(self):
         self.assertEqual(self.C4.lily_in_scale(), "c'")

@@ -6,12 +6,13 @@ from typing import ClassVar, Dict, Generic, List, Optional, Type
 
 from instruments.fretted_instrument.chord import chord_decomposition_anki_note
 from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
-from instruments.fretted_instrument.chord.fretted_instrument_chord import ChordColors, ChordOnFrettedInstrument, FrettedInstrumentChordFrozenList
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordColors, ChordOnFrettedInstrument, FrettedInstrumentChordFrozenList
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternsGetter, IdenticalInversionPatternsGetterType, IdenticalInversionPatterns
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.note.note import Note
 from utils.csv import CsvGenerator
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import ClassWithEasyness
@@ -37,6 +38,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         expected_chromatic_intervals = self.get_identical_inversion_pattern().easiest_inversion().get_interval_list().get_chromatic_interval_list()
         actual_chromatic_intervals = fretted_instrument_chord.intervals_frow_lowest_note_in_base_octave()
         assert expected_chromatic_intervals == actual_chromatic_intervals, f"""{expected_chromatic_intervals}\n!=\n{actual_chromatic_intervals}"""
+        assert fretted_instrument_chord not in self.fretted_instrument_chords
         self.fretted_instrument_chords.append(fretted_instrument_chord)
         self.fretted_instrument_chords.sort(key = lambda chord: chord.easy_key())
 
@@ -91,12 +93,14 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decomposition in chord_decompositions"""
         transposed_chord, transposition = fretted_chord, 0 if self.absolute else fretted_chord.transpose_to_fret_one()
         pos_of_lowest_note = transposed_chord.get_most_grave_note()
-        lowest_note = pos_of_lowest_note.get_chromatic()
-        delta_due_to_inversion = self.key.get_identical_inversion_pattern().easiest_inversion().tonic_minus_lowest_note
-        tonic = lowest_note - delta_due_to_inversion.chromatic
+        chromatic_lowest_note = pos_of_lowest_note.get_chromatic()
+        easiest_inversion = self.key.get_identical_inversion_pattern().easiest_inversion()
+        lowest_note = easiest_inversion.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
+        tonic = easiest_inversion.get_tonic(lowest_note)
+        chromatic_tonic = tonic.chromatic
         return (
-            img_tag(transposed_chord.save_svg(folder_path, self.instrument, colors=None, absolute=self.absolute)),
-            img_tag(transposed_chord.save_svg(folder_path, self.instrument, colors=ChordColors(tonic), absolute=self.absolute)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=None, absolute=self.absolute)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=ChordColors(chromatic_tonic), absolute=self.absolute)),
             self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
         )
     
@@ -110,6 +114,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     def csv_content(self, folder_path: str):
         yield self.first_name()
         yield self.other_names()
+        yield self.instrument.name
         yield "x" if self.absolute else ""
         maximals = self.maximals()
         individual_maximals, other_maximals = maximals[:7], maximals[7:]

@@ -11,10 +11,15 @@ from solfege.value.singleton import Singleton
 
 @dataclass(frozen=True)
 class AbstractSingletonNote(AbstractNote[IntervalType], Singleton, Generic[IntervalType]):
+
+    #Pragma mark - AbstractNote
+
     def __add__(self, other: IntervalType) -> Self:
         if isinstance(other, self.IntervalClass):
             return dataclasses.replace(self, value = self.value + other.value)
         return NotImplemented
+
+    #Pragma mark - Abstract
 
     def __sub__(self, other: Union[Self, IntervalType]) -> Union[Self, IntervalType]:
         new_value = self.value - other.value

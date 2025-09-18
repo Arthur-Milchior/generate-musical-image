@@ -5,7 +5,7 @@ from instruments.fretted_instrument.chord.playable import Playable
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
-from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, COLOR_OTHER, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
+from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, COLOR_FOURTH, COLOR_QUALITY, COLOR_SECOND, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
 from instruments.fretted_instrument.position.string.string import String, StringFrozenList
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 import itertools
@@ -20,18 +20,17 @@ class Barred(Enum):
     PARTIALLY = "PARTIALLY"
     FULLY = "FULLY"
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class ChordColors(ColorsWithTonic):
     #pragma mark - Colors
-    name: ClassVar[str] = "chord_colors"
     
     #pragma mark - ColorsWithTonic
     def get_color_from_interval(self, chromatic_interval: ChromaticInterval):
         assert_typing(chromatic_interval, ChromaticInterval)
         return [COLOR_TONIC, 
-         COLOR_OTHER, COLOR_OTHER,
+         COLOR_SECOND, COLOR_SECOND,
          COLOR_THIRD, COLOR_THIRD,
-         COLOR_OTHER,
+         COLOR_FOURTH,
          COLOR_FIFTH, COLOR_FIFTH, COLOR_FIFTH,
          COLOR_QUALITY, COLOR_QUALITY, COLOR_QUALITY][chromatic_interval.in_base_octave().value]
     
@@ -76,7 +75,7 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
         return [frets.get(string, Fret(None)) for string in range(1, max_string+1)]
 
     def __repr__(self):
-        return f"""{self.__class__}.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
+        return f"""{self.__class__.__name__}.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
 
     def chord_pattern_is_redundant(self):
         """Whether the same fingering pattern can be played higher on the fretted_instrument"""
@@ -134,10 +133,12 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
 
     # Pragma mark - SetOfPositionOnFrettedInstrument
 
-    def _svg_name_base(self, instrument:FrettedInstrument, absolute: bool, colors: Optional[Colors], *args, **kwargs):
+    def _svg_name_base(self, instrument:FrettedInstrument, absolute: bool, colors: Optional[Colors], minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs):
         fret_values = [fret.value for fret in self.get_frets(instrument)]
         frets = "_".join(str(value) if value is not None else "x" for value in fret_values)
-        return f"{instrument.name}_chord_{"absolute" if absolute else "transposable"}_{colors.name if colors else "black"}_{frets}"
+        if minimal_number_of_frets is None:
+            minimal_number_of_frets = self.last_shown_fret()
+        return f"{instrument.name}_chord_{"open" if absolute else "transposable"}_{minimal_number_of_frets.value}_frets_{repr(colors) if colors else "black"}_{frets}"
         
 
 intervals_in_base_octave_to_fretted_instrument_chord: Dict[ChromaticIntervalListPattern, List[ChordOnFrettedInstrument]] = dict()

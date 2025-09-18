@@ -7,12 +7,13 @@ from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalLi
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import ClassWithEasyness, KeyType
 from utils.recordable import RecordKeeperType, Recordable
 from utils.util import assert_iterable_typing, assert_typing
 
 
 @dataclass(frozen=True)
-class PatternWithIntervalList(Recordable[IntervalListPattern, RecordKeeperType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType]):
+class PatternWithIntervalList(Recordable[IntervalListPattern, RecordKeeperType], ClassWithEasyness[KeyType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType, KeyType]):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 

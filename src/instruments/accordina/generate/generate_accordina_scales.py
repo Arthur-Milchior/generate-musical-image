@@ -13,7 +13,7 @@ class SetOfAccordinaNoteForScale(SetOfAccordinaNote):
         super().__init__(notes)
         self.number_of_octaves = number_of_octaves
 
-    def _svg_name_base(self) -> str:
+    def _svg_name_base(self, **kwargs) -> str:
         low_note = self.notes[0]
         return f"""accordina_{self.scale.first_of_the_names()}_position_{low_note.value}_{"one_octave" if self.number_of_octave == 1 else "two_octaves"}"""
 

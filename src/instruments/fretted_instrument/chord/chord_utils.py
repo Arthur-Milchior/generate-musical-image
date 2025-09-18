@@ -1,5 +1,5 @@
 from typing import Generator, Optional
-from instruments.fretted_instrument.chord.fretted_instrument_chord import ChordOnFrettedInstrument
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument

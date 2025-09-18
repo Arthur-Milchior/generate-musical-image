@@ -1,7 +1,7 @@
 
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Generic, TypeVar
+from typing import ClassVar, Generic, Tuple, TypeVar
 
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatterns
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatterns, IdenticalInversionPatternsGetter
@@ -12,7 +12,7 @@ from solfege.value.note.abstract_note import NoteType
 
 
 @dataclass(frozen=True)
-class AbstractIdenticalInversion(AbstractPatternInstantiation[IdenticalInversionPatterns, NoteType, IntervalType],  IdenticalInversionPatternsGetter, Generic[NoteType, IntervalType]): 
+class AbstractIdenticalInversion(AbstractPatternInstantiation[IdenticalInversionPatterns, NoteType, IntervalType, Tuple[int, int]],  IdenticalInversionPatternsGetter, Generic[NoteType, IntervalType]): 
     pattern_type: ClassVar[PatternWithIntervalList] = ChromaticIdenticalInversionPatterns
 
     def get_identical_inversion_pattern(self) -> ChromaticIdenticalInversionPatterns:

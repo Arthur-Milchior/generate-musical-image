@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 import dataclasses
-from typing import Dict, FrozenSet, List, Self, Set, Tuple
+from typing import Dict, FrozenSet, List, Optional, Self, Set, Tuple, Union
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
+from instruments.fretted_instrument.position.string.string_deltas import StringDelta
+from instruments.fretted_instrument.position.string.strings import Strings
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.frozenlist import FrozenList, MakeableWithSingleArgument
 from utils.util import assert_typing
@@ -38,7 +40,10 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
         assert_typing(fret, Fret)
         return PositionOnFrettedInstrumentWithFingers.make(fingers=fingers, string=pos.string, fret=fret)
 
-    def positions_for_interval(self, instrument: FrettedInstrument, interval: ChromaticInterval) -> List[Tuple[FingersType, "PositionOnFrettedInstrumentWithFingers"]]:
+    def positions_for_interval(self, 
+                               instrument: FrettedInstrument, 
+                               interval: ChromaticInterval,
+                               string_delta: Optional[Union[StringDelta, Strings]] = None,) -> List[Tuple[FingersType, "PositionOnFrettedInstrumentWithFingers"]]:
         """Returns the set of next note to play this interval, and the fingers that could be used to reach it on current note."""
         # Associate to each position the fingers for the current and the next note.
         assert_typing(instrument, FrettedInstrument)
@@ -48,7 +53,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
                 if new_finger== current_finger:
                     continue
                 fret_delta = instrument.finger_to_fret_delta[current_finger][new_finger]
-                for pos in self.positions_for_interval_with_restrictions(instrument=instrument, interval=interval, frets=fret_delta):
+                for pos in self.positions_for_interval_with_restrictions(instrument=instrument, interval=interval, frets=fret_delta, strings=string_delta):
                     if pos not in pos_to_fingers:
                         pos_to_fingers[pos] = (set(), set())
                     fingers_for_current_note, fingers_for_next_note = pos_to_fingers[pos]

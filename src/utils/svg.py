@@ -37,22 +37,23 @@ class SvgLine:
 
 
 class SvgGenerator(ABC):
-    def svg_name(self, *args, **kwargs) -> str:
-        return f"{self._svg_name_base(*args, **kwargs)}.svg"
+    def svg_name(self, **kwargs) -> str:
+        return f"{self._svg_name_base(**kwargs)}.svg"
     
-    def save_svg(self, folder_path: str, *args, **kwargs) -> str:
+    def save_svg(self, folder_path: str, **kwargs) -> str:
         """Save the svg in `folder_path`. Return the file name."""
         assert_typing(folder_path, str)
         ensure_folder(folder_path)
-        svg_name = self.svg_name(*args, **kwargs)
+        svg_name = self.svg_name(**kwargs)
         file_path = f"{folder_path}/{svg_name}"
-        save_file(file_path, self.svg(*args, **kwargs))
+        svg = self.svg(**kwargs)
+        save_file(file_path, svg)
         return svg_name
 
-    def svg(self, *args, **kwargs)->str:
-        svg_content = self._svg_content(*args, **kwargs)
-        width = int(self.svg_width(*args, **kwargs))
-        height = int(self.svg_height(*args, **kwargs))
+    def svg(self, **kwargs)->str:
+        svg_content = self._svg_content(**kwargs)
+        width = int(self.svg_width(**kwargs))
+        height = int(self.svg_height(**kwargs))
         all_svg_lines = [
             f"""<svg version='1.1' width='{width}' height='{height}' xmlns='http://www.w3.org/2000/svg'>""",
             """<rect width='100%' height='100%' fill='white'/>""",
@@ -79,7 +80,7 @@ class SvgGenerator(ABC):
         return NotImplemented
     
     @abstractmethod
-    def _svg_name_base(self) -> str:
+    def _svg_name_base(self, **kwargs) -> str:
         return NotImplemented
     
     @abstractmethod
@@ -88,6 +89,6 @@ class SvgGenerator(ABC):
         return NotImplemented
     
     @abstractmethod
-    def svg_width(self, *args, **kwargs) -> int: 
+    def svg_width(self, **kwargs) -> int: 
         "Returns the width of svg. Must accept same argument as svg"
         return NotImplemented

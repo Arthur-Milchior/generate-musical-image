@@ -5,12 +5,12 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instrument import
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentType
 from instruments.fretted_instrument.position.fretted_instrument_position_with_fingers import PositionOnFrettedInstrumentWithFingers, FrettedInstrumentPositionWithFingersFrozenList
 from instruments.fretted_instrument.position.set.abstract_set_of_fretted_instrument_positions import AbstractSetOfFrettedPositions
-from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, COLOR_UNINTERESTING, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
+from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, DEFAUL_COLOR, COLOR_QUALITY, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class ScaleColors(ColorsWithTonic):
     #pragma mark - Colors
     name: ClassVar[str] = "scale_colors"
@@ -18,11 +18,11 @@ class ScaleColors(ColorsWithTonic):
     #pragma mark - ColorsWithTonic
     def get_color_from_interval(self, chromatic_interval: ChromaticInterval):
         color = [COLOR_TONIC, 
-         COLOR_UNINTERESTING, COLOR_UNINTERESTING,
+         DEFAUL_COLOR, DEFAUL_COLOR,
          COLOR_THIRD, COLOR_THIRD,
-         COLOR_UNINTERESTING,
+         DEFAUL_COLOR,
          COLOR_FIFTH, COLOR_FIFTH, COLOR_FIFTH,
-         COLOR_UNINTERESTING, COLOR_QUALITY, COLOR_QUALITY][chromatic_interval.in_base_octave().value]
+         DEFAUL_COLOR, COLOR_QUALITY, COLOR_QUALITY][chromatic_interval.in_base_octave().value]
         assert_typing(color, str)
         return color
         

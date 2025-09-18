@@ -11,22 +11,23 @@ from solfege.value.interval.interval import Interval, IntervalFrozenList
 from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, IntervalListPattern
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from solfege.value.note.note import Note, NoteFrozenList
+from utils.easyness import KeyType
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
 
-class AbstractPairInstantiation(AbstractPatternInstantiation[PatternType, Note, Interval], Generic[PatternType]):
+class AbstractPairInstantiation(AbstractPatternInstantiation[PatternType, Note, Interval, KeyType], Generic[PatternType, KeyType]):
     note_type: ClassVar[AbstractNote] = Note
     interval_type: ClassVar[AbstractInterval] = Interval
     interval_list_type: ClassVar[FrozenList[IntervalType]] = IntervalListPattern
     note_list_type: ClassVar[FrozenList[NoteType]] = NoteFrozenList
     chromatic_instantiation_type: ClassVar[Type[AbstractChromaticInstantiation]]
 
-    related_chromatic_type: ClassVar[AbstractChromaticInstantiation[PatternType]]
+    related_chromatic_type: ClassVar[AbstractChromaticInstantiation[PatternType, KeyType]]
 
     def get_intervals(self) -> AbstractIntervalListPattern[Interval]:
         return self.pattern.get_interval_list()
     
-    def get_chromatic_instantiation(self) -> AbstractChromaticInstantiation[PatternType]:
+    def get_chromatic_instantiation(self) -> AbstractChromaticInstantiation[PatternType, KeyType]:
         # Note that for c4-flat, and c4-double flat, `self` is in base octave but the returned value is not.
         return self.chromatic_instantiation_type(self.pattern, self.lowest_note.get_chromatic())

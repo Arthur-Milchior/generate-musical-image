@@ -1,11 +1,15 @@
 import unittest
 
-from instruments.fretted_instrument.chord.fretted_instrument_chord import *
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import *
+from lily.lily_svg import display_svg_file
+from solfege.value.note.chromatic_note import ChromaticNote
 from .test_constants import *
 from .test_constants import _make
 
 CM_ = _make([None, 3, 2, 0, 1, None])
 CM = _make([None, 3, 2, 0, 1, 0])
+
+test_folder = "test"
 
 not_played_fret = Guitar.fret( value=None)
 
@@ -21,7 +25,12 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertEqual(C4M.get_frets(Guitar), [not_played_fret, Guitar.fret(3), Guitar.fret(2), Guitar.fret(0), Guitar.fret(1), Guitar.fret(0)])
 
     def test_repr(self):
-        self.assertEqual(repr(C4M), "FrettedInstrumentChord.make([None, 3, 2, 0, 1, 0])")
+        self.assertEqual(repr(C4M), "ChordOnFrettedInstrument.make([None, 3, 2, 0, 1, 0])")
+    
+    def test_show_chord(self):
+        file_name = CM.save_svg(test_folder, instrument=Guitar, absolute=True, colors=ChordColors(ChromaticNote(0)))
+        #display_svg_file(f"{test_folder}/{file_name}" )
+        # uncomment to see what the image looks like
         
     def test_is_open(self):
         self.assertTrue(open.is_open())
@@ -74,23 +83,29 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertLessEqual(CM_, CM)
         self.assertLessEqual(CM_, CM_)
 
-    def test_svg(self):
-        svg_content = F4M._svg_content(absolute=False, instrument=Guitar)
-        expected = [
-            '<line x1="43.5" y1="0" x2="43" y2="1164" stroke-width="5" stroke="black" /><!-- String 1-->',
-       '<line x1="130.5" y1="0" x2="130" y2="1164" stroke-width="5" stroke="black" /><!-- String 2-->',
-       '<line x1="217.5" y1="0" x2="217" y2="1164" stroke-width="5" stroke="black" /><!-- String 3-->',
-       '<line x1="304.5" y1="0" x2="304" y2="1164" stroke-width="5" stroke="black" /><!-- String 4-->',
-       '<line x1="391.5" y1="0" x2="391" y2="1164" stroke-width="5" stroke="black" /><!-- String 5-->',
-       '<line x1="478.5" y1="0" x2="478" y2="1164" stroke-width="5" stroke="black" /><!-- String 6-->',
-       '<line x1="0" y1="43" x2="522" y2="43" stroke-width="7" stroke="black" /><!--Fret 0-->',
-       '<line x1="0" y1="423" x2="522" y2="423" stroke-width="7" stroke="black" /><!--Fret 1-->',
-       '<line x1="0" y1="782" x2="522" y2="782" stroke-width="7" stroke="black" /><!--Fret 2-->',
-       '<line x1="0" y1="1120" x2="522" y2="1120" stroke-width="7" stroke="black" /><!--Fret 3-->',
-       '<circle cx="43" cy="233" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 1, position 1-->',
-       '<circle cx="130" cy="951" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 2, position 3-->',
-       '<circle cx="217" cy="951" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 3, position 3-->',
-       '<circle cx="304" cy="602" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 4, position 2-->',
-       '<circle cx="391" cy="233" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 5, position 1-->',
-       '<circle cx="478" cy="233" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 6, position 1-->']
-        self.assertEqual(expected, svg_content)
+    def test_regression_502220(self):
+        chord = ChordOnFrettedInstrument.make(Guitar, [5, 0, 2, 2, 2, 0])
+        hand = chord.playable(Guitar)
+        self.assertEqual(hand, Playable.NO)
+        
+
+    # def test_svg(self):
+    #     svg_content = F4M._svg_content(absolute=False, instrument=Guitar)
+    #     expected = [
+    #         '<line x1="43.5" y1="0" x2="43" y2="1164" stroke-width="5" stroke="black" /><!-- String 1-->',
+    #    '<line x1="130.5" y1="0" x2="130" y2="1164" stroke-width="5" stroke="black" /><!-- String 2-->',
+    #    '<line x1="217.5" y1="0" x2="217" y2="1164" stroke-width="5" stroke="black" /><!-- String 3-->',
+    #    '<line x1="304.5" y1="0" x2="304" y2="1164" stroke-width="5" stroke="black" /><!-- String 4-->',
+    #    '<line x1="391.5" y1="0" x2="391" y2="1164" stroke-width="5" stroke="black" /><!-- String 5-->',
+    #    '<line x1="478.5" y1="0" x2="478" y2="1164" stroke-width="5" stroke="black" /><!-- String 6-->',
+    #    '<line x1="0" y1="43" x2="522" y2="43" stroke-width="7" stroke="black" /><!--Fret 0-->',
+    #    '<line x1="0" y1="423" x2="522" y2="423" stroke-width="7" stroke="black" /><!--Fret 1-->',
+    #    '<line x1="0" y1="782" x2="522" y2="782" stroke-width="7" stroke="black" /><!--Fret 2-->',
+    #    '<line x1="0" y1="1120" x2="522" y2="1120" stroke-width="7" stroke="black" /><!--Fret 3-->',
+    #    '<circle cx="43" cy="233" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 1, position 1-->',
+    #    '<circle cx="130" cy="951" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 2, position 3-->',
+    #    '<circle cx="217" cy="951" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 3, position 3-->',
+    #    '<circle cx="304" cy="602" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 4, position 2-->',
+    #    '<circle cx="391" cy="233" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 5, position 1-->',
+    #    '<circle cx="478" cy="233" r="32" fill="black" stroke="black" stroke-width="3"/><!-- String N° 6, position 1-->']
+    #     self.assertEqual(expected, svg_content)

@@ -11,7 +11,7 @@ second_major = IntervalListPattern.make_relative([(2, 1)])
 tone = ChromaticIntervalListPattern.make_relative([2])
 
 @dataclass(frozen=True, eq = True)
-class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
+class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns", int]):
     #pragma mark - Recordable
     _key_type: ClassVar[Type] = IntervalListPattern
     #???
@@ -27,6 +27,10 @@ class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns"]):
     @classmethod
     def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
         return NotImplemented
+    
+    #pragma mark - ClassWithEasyness
+    def easy_key(self) -> int:
+        return 0
 
     #pragma mark - DataClassWithDefaultArgument
 

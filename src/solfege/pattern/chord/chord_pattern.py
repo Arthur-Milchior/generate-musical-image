@@ -4,11 +4,9 @@ from typing import Callable, ClassVar, Dict, List, Type
 
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.easyness import ClassWithEasyness
-from utils.frozenlist import FrozenList
 from utils.util import assert_all_same_class, assert_typing
 
 def chord_to_arpeggio_name(name: str):

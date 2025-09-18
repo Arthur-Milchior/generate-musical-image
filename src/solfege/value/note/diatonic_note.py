@@ -19,20 +19,6 @@ assert_equal_length(french_fixed_length_space)
 class DiatonicNote(AbstractSingletonNote[DiatonicInterval], Diatonic):
     """A diatonic note. Implemented as interval from C4"""
     IntervalClass: ClassVar[Type[Singleton]] = DiatonicInterval
-
-    def get_name_up_to_octave(self, note_output: NoteOutput, fixed_length: FixedLengthOutput) -> str:
-        if note_output == NoteOutput.LILY:
-            return ["c", "d", "e", "f", "g", "a", "b"][self.value % 7]
-        elif note_output == NoteOutput.FRENCH:
-            if fixed_length == FixedLengthOutput.NO:
-                return ["do", "re", "mi", "fa", "sol", "la", "si"][self.value % 7]
-            else:
-                return french_fixed_length_space[self.value % 7]
-        elif note_output == NoteOutput.LETTER:
-            return ["C", "D", "E", "F", "G", "A", "B"][self.value % 7]
-        elif note_output == NoteOutput.NUMBER:
-            return ["1", "2", "3", "4", "5", "6", "7"][self.value % 7]
-        assert_never(note_output)
     
     @classmethod
     def _make_single_argument(cls, value: Union[int, str]) -> Self:
@@ -52,6 +38,25 @@ class DiatonicNote(AbstractSingletonNote[DiatonicInterval], Diatonic):
             octave = int(name[1])
             note = note.add_octave(octave - 4)
         return note
+    
+    #pragma mark - AbstractNote
+
+    def get_name_up_to_octave(self, note_output: NoteOutput, fixed_length: FixedLengthOutput) -> str:
+        if note_output == NoteOutput.LILY:
+            return ["c", "d", "e", "f", "g", "a", "b"][self.value % 7]
+        elif note_output == NoteOutput.FRENCH:
+            if fixed_length == FixedLengthOutput.NO:
+                return ["do", "re", "mi", "fa", "sol", "la", "si"][self.value % 7]
+            else:
+                return french_fixed_length_space[self.value % 7]
+        elif note_output == NoteOutput.LETTER:
+            return ["C", "D", "E", "F", "G", "A", "B"][self.value % 7]
+        elif note_output == NoteOutput.NUMBER:
+            return ["1", "2", "3", "4", "5", "6", "7"][self.value % 7]
+        assert_never(note_output)
+
+    def file_name(self, fixed_length: FixedLengthOutput = FixedLengthOutput.NO) -> str:
+        return self.get_name_up_to_octave(note_output=NoteOutput.LETTER, fixed_length=fixed_length)
 
 DiatonicNote.DiatonicClass = DiatonicNote
 

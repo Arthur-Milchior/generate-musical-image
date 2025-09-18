@@ -4,6 +4,7 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instruments impor
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import ScaleColors, SetOfFrettedInstrumentPositionsWithFingers
+from instruments.fretted_instrument.position.string.string_deltas import StringDelta
 from instruments.fretted_instrument.scale.generate_scale import generate_scale
 from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.csv import CsvGenerator
@@ -38,7 +39,8 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
         assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
         scale, transposition = scale.transpose_to_fret_one()
-        file_name = scale.save_svg(folder_path, Ukulele, absolute=False)
+        first_note = scale.get_most_grave_note().get_chromatic()
+        file_name = scale.save_svg(folder_path, instrument=Ukulele, absolute=False, colors=ScaleColors(first_note))
         return file_name
 
     #Pragma mark - CsvGenerator
@@ -49,12 +51,12 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
         yield first_name
         yield ", ".join(names)
 
-        scales = generate_scale(Ukulele, self.start_pos, self.scale_pattern, number_of_octaves=1).all_scales()
+        scales = generate_scale(Ukulele, self.start_pos, self.scale_pattern, number_of_octaves=1, string_delta=StringDelta.SAME_STRING_OR_GREATER(Ukulele)).all_scales()
         scale_tags = []
         for fingers, scale in scales:
             file_name = self.generate_svg(scale)
             scale_tags.append(img_tag(file_name))
-        l+=scale_tags[:min(3, len(scale_tags))]
+        yield from scale_tags[:min(3, len(scale_tags))]
         if len(scale_tags) >3: 
             yield ", ".join(scale_tags[3:])
         else:

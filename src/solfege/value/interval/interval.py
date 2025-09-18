@@ -11,7 +11,7 @@ from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
 
-@dataclass(frozen=True, unsafe_hash=True, eq=False)
+@dataclass(frozen=True, unsafe_hash=True, eq=False, repr=False)
 class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval]):
     """A solfège interval. Composed of both a diatonic interval and a chromatic interval."""
     DiatonicClass: ClassVar[Type[DiatonicInterval]] = DiatonicInterval

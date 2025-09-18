@@ -34,12 +34,12 @@ fixed_length_ascii_underscore_simple = [s.replace(" ", "_") for s in fixed_lengt
 fixed_length_ascii_underscore_double = [s.replace(" ", "_") for s in fixed_length_ascii_space_double]
 fixed_length_symbol_underscore_simple = [s.replace(" ", "_") for s in fixed_length_symbol_space_simple]
 fixed_length_symbol_underscore_double = [s.replace(" ", "_") for s in fixed_length_symbol_space_double]
-asciis = [s.replace(" ", "") for s in fixed_length_symbol_space_simple]
+asciis = [s.replace(" ", "") for s in fixed_length_ascii_space_double]
 symbols = [s.replace(" ", "") for s in fixed_length_symbol_space_double]
 
 
 @dataclass(frozen=True)
-class Alteration(IntervalMode, ClassWithEasyness):
+class Alteration(IntervalMode, ClassWithEasyness[int]):
     def lily_in_scale(self):
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.value + 2]
@@ -95,8 +95,8 @@ class Alteration(IntervalMode, ClassWithEasyness):
 
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
-        return self.value if self.value > 0 else -self.value
+    def easy_key(self) -> int:
+        return abs(self.value)
 
 
 alteration_symbols = "𝄪♭#"

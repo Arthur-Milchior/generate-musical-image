@@ -1,7 +1,11 @@
 Order of inheritance is:
-* chromatic before diatonic
 * the class actually inherited before protocols declaration
 * MakeWithSingleArgument
 * getter
-* dataclass with default argument
+* ClassWithEasyness
+* DataClassWithDefaultArgument
+* ABC
 * Generic at the end
+
+
+chromatic before diatonic

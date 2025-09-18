@@ -14,6 +14,9 @@ class MinimalChordDecompositionInput(ClassWithEasyness, ABC):
     @abstractmethod
     def get_tonic_minus_lowest_note(self) -> ChromaticInterval:
         return NotImplemented
+
+    def get_tonic(self, lowest_note) -> ChromaticInterval:
+        return lowest_note - self.get_tonic_minus_lowest_note()
     
     @abstractmethod
     def notations(self) -> List[str]:

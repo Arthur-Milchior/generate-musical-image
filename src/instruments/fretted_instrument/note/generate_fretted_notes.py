@@ -12,6 +12,7 @@ from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.alteration import Alteration
 from solfege.value.note.diatonic_note import DiatonicNote
 from solfege.value.note.note import Note
+from utils.csv import CsvGenerator
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_typing, img_tag, save_file
 from consts import generate_root_folder
@@ -20,7 +21,7 @@ from utils.util import ensure_folder
 
 
 @dataclass(frozen=True)
-class AnkiNote(DataClassWithDefaultArgument):
+class AnkiNote(DataClassWithDefaultArgument, CsvGenerator):
     instrument: FrettedInstrument
     note: ChromaticNote
     string_to_pos: Dict[String, PositionOnFrettedInstrument] = field(hash=False)
@@ -50,7 +51,7 @@ class AnkiNote(DataClassWithDefaultArgument):
         return self.note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output = AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
 
     def svg_name_for_all_positions(self):
-        return f"fretted_instrument{self.note.file_name()}.svg"
+        return f"{self.instrument.name}_{self.note.file_name()}.svg"
     
     def strings(self):
         return frozenset(pos.string for pos in self.positions())
@@ -64,7 +65,7 @@ class AnkiNote(DataClassWithDefaultArgument):
         return img_tag(pos.singleton_diagram_svg_name(self.instrument))
     
     def svg(self):
-        return SetOfPositionOnFrettedInstrument(self.positions()).svg(instrument, absolute=True)
+        return SetOfPositionOnFrettedInstrument(self.positions()).svg(instrument=instrument, absolute=True)
     
     def all_notes_field(self):
         return img_tag(self.svg_name_for_all_positions())
@@ -84,13 +85,20 @@ class AnkiNote(DataClassWithDefaultArgument):
     def height(self):
         return str(self._note().get_octave_name(octave_notation=OctaveOutput.MIDDLE_IS_4))
     
-    def anki_fields(self):
+    def partition_field(self):
+        return img_tag(Note.from_chromatic(self.note).image_file_name(self.instrument.clef))
+
+    #pragma mark - CsvGenerator
+    
+    def csv_content(self):
         strings = list(self.instrument.strings())
         while len(strings) < 6:
             strings.append(None)
         return [
             self.name_for_field(),
+            self.partition_field(),
             self.all_notes_field(),
+            self.instrument.name,
             self.field_for_string(strings[0]),
             self.field_for_string(strings[1]),
             self.field_for_string(strings[2]),
@@ -102,9 +110,6 @@ class AnkiNote(DataClassWithDefaultArgument):
             self.height(),
         ]
     
-    def anki_csv(self):
-        return ",".join(self.anki_fields())
-    
 for instrument in fretted_instruments:
     anki_notes = []
     current_note = instrument.lowest_note()
@@ -112,6 +117,6 @@ for instrument in fretted_instruments:
         anki_note = AnkiNote.make_note(instrument, current_note)
         folder_path = anki_note.folder_path()
         save_file(f"{folder_path}/{anki_note.svg_name_for_all_positions()}", anki_note.svg())
-        anki_notes.append(anki_note.anki_csv())
+        anki_notes.append(anki_note.csv())
         current_note += ChromaticInterval(1)
     save_file(f"{folder_path}/anki.csv", "\n".join(anki_notes))

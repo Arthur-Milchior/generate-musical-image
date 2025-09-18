@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import ClassVar, Optional, Self, Type, Union
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
+from solfege.value.note.clef import Clef
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from solfege.value.chromatic import Chromatic
 from solfege.value.note.singleton_note import AbstractSingletonNote
@@ -11,7 +12,7 @@ from utils.util import assert_typing, img_tag
 
 
 @dataclass(frozen=True, repr=False, eq=False)
-class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness, Chromatic):
+class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness[int], Chromatic):
     AlterationClass: ClassVar[Type[Chromatic]]
     IntervalClass: ClassVar[Type[Singleton]] = ChromaticInterval
     @staticmethod
@@ -22,9 +23,6 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness,
     def get_color(self, color=True):
         """Color to print the note in lilypond"""
         return "black"
-
-    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput):
-        return self.get_note().get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
 
     def get_note(self, cls=None):
         """A solfège note. Diatonic note is guessed. The default class is
@@ -53,10 +51,20 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness,
             return Note.from_name(value).get_chromatic()
         assert_typing(value, int)
         return cls(value)
+    
+    #Pragma mark - AbstractNote
+
+    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput):
+        return self.get_note().get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
+    
+    def file_name(self, clef: Clef= Clef.TREBLE) -> str:
+        from solfege.value.note.note import Note
+        note = Note.from_chromatic(self)
+        return note.file_name(clef)
 
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
+    def easy_key(self) -> int:
         return self.get_note().easy_key()
 
 ChromaticNote.ChromaticClass = ChromaticNote

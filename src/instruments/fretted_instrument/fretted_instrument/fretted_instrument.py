@@ -23,6 +23,11 @@ class FrettedInstrument(DataClassWithDefaultArgument):
     finger_to_fret_delta: Dict[int, Dict[int, FretDelta]]=field(compare=False)
     number_of_scales_reachable_per_string: IntFrozenList
 
+    def __repr__(self):
+        initial = self.name[0]
+        initial = initial.upper()
+        return f"{initial}{self.name[1:]}"
+
     def string(self, index):
         from instruments.fretted_instrument.position.string.string import String
         # String 1 is at position 0 in the array, and so on. So removing 1 to index.

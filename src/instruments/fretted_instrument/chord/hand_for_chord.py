@@ -5,7 +5,7 @@ from enum import Enum
 from turtle import done
 from typing import List, Optional, Tuple
 
-from instruments.fretted_instrument.chord.fretted_instrument_chord import Barred, ChordOnFrettedInstrument
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import Barred, ChordOnFrettedInstrument
 from instruments.fretted_instrument.chord.playable import Playable
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
@@ -88,14 +88,14 @@ class HandForChordForFrettedInstrument:
         return HandForChordForFrettedInstrument(instrument = instrument, zero_fret = None, one=one, barred=barred, two=two, three=three, four=four, opens=StringFrozenList(opens))
 
     def playable(self) -> Playable:
-        non_zero_position = [self.one, self.two, self.three, self.four]
-        optional_frets = [self.zero_fret] + [pos.fret if pos is not None else None for pos in non_zero_position]
+        non_thumb_position = [self.one, self.two, self.three, self.four]
+        finger_to_optional_fret = [self.zero_fret] + [pos.fret if pos is not None else None for pos in non_thumb_position]
         for lower_finger in range(4): #e.g. index
-            lower_fret = optional_frets[lower_finger] # expected to be the lowest fret value.
+            lower_fret = finger_to_optional_fret[lower_finger] # expected to be the lowest fret value.
             if lower_fret is None:
                 continue
             for higher_finger in range(lower_finger+1, 5): # e.g. pink
-                higher_fret = optional_frets[higher_finger-1] #expected to be the greatest fret value
+                higher_fret = finger_to_optional_fret[higher_finger] #expected to be the greatest fret value
                 if higher_fret is None or lower_fret is None:
                     continue
                 delta = higher_fret.sub(self.instrument, lower_fret) # expected to be non negative. (Exception if lower finger is the thumb)

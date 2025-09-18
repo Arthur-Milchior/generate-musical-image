@@ -8,14 +8,16 @@ from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, IntervalListPattern
 from solfege.value.note.abstract_note import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput, NoteType, OctaveOutput
 from solfege.value.note.chromatic_note import ChromaticNote
+from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note, NoteFrozenList
 from solfege.value.note.set.abstract_note_list import AbstractNoteList
+from utils.easyness import ClassWithEasyness
 from utils.frozenlist import FrozenList
 from utils.util import assert_iterable_typing, assert_typing, indent
 from .chromatic_note_list import ChromaticNoteList
 
 
-class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern]):
+class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern], ClassWithEasyness[int]):
     interval_list_type: ClassVar[Type[AbstractIntervalListPattern]] = IntervalListPattern
     _frozen_list_type: ClassVar[Type[FrozenList[AbstractNote]]] = NoteFrozenList
 
@@ -38,7 +40,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern]):
         """Lily code for this chord."""
         return f"""<{" ".join(note.lily_in_scale() for note in self)}>"""
     
-    def lily_file_with_only_chord(self):
+    def lily_file_with_only_chord(self, clef: Clef):
         """Lily code for a file containing just this as a chord"""
         return f"""\\version "2.20.0"
 \\score{{
@@ -48,12 +50,12 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern]):
     \\omit PianoStaff.SpanBar
     \\time 30/4
     \\set Staff.printKeyCancellation = ##f
-    \\clef treble
+    \\clef {str(clef)}
 {indent(self.lily_chord(), 6)}
   }}
 }}"""
     
-    def lily_file_name(self):
+    def lily_file_name(self, clef: Clef):
         """Return a name for the file containing those notes, without extension"""
         notes = list(self)
         notes.sort()
@@ -63,7 +65,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern]):
             fixed_length=FixedLengthOutput.UNDERSCORE_DOUBLE,
             octave_notation=OctaveOutput.MIDDLE_IS_4
             ) for note in self)
-        return f"chord_{notes_str}"
+        return f"chord_{str(clef)}_{notes_str}"
     
     def chromatic(self):
         return ChromaticNoteList.make(note.chromatic for note in self)
@@ -82,3 +84,6 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern]):
 
     def __repr__(self):
         return f"""NoteList.make([{", ".join(f"({note.chromatic.value}, {note.diatonic.value})" for note in self)}])"""
+    
+    def easy_key(self) -> int:
+        return sum(note.easy_key() for note in self)

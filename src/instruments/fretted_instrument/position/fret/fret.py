@@ -9,8 +9,6 @@ from instruments.fretted_instrument.position.consts import *
 
 from math import pow
 
-FRET_THICKNESS = 7
-TOP_FRET_THICKNESS = FRET_THICKNESS*1.4
 
 @dataclass(frozen=True)
 class Fret(ChromaticInterval, DataClassWithDefaultArgument):
@@ -97,7 +95,7 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         return f"""<line x1="{0}" y1="{y}" x2="{instrument.width()}" y2="{y}" stroke-width="{self.thickness(absolute)}" stroke="black" /><!--Fret {self.value}-->"""
 
     def dot_svg(self, x:float):
-        return f"""<circle cx="{int(x)}" cy="{int(self.y_dots())}" r="{int(CIRCLE_RADIUS)}" fill="grey" stroke="black" stroke-width="4"/>"""
+        return f"""<circle cx="{int(x)}" cy="{int(self.y_dots())}" r="{int(CIRCLE_RADIUS*.80)}" fill="url(#diagonalHatch)" stroke-width="4"/>"""
     
     def dots_svg(self, instrument: "FrettedInstrument") -> List[str]:
         return [self.dot_svg(x) for x in self.x_dots(instrument)]

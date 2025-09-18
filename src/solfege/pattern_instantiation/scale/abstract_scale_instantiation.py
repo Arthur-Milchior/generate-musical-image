@@ -10,5 +10,5 @@ from solfege.value.note.abstract_note import NoteType
 
 
 @dataclass(frozen=True)
-class AbstractScale(AbstractPatternInstantiation[ScalePattern, NoteType, IntervalType],  Generic[NoteType, IntervalType]): 
+class AbstractScale(AbstractPatternInstantiation[ScalePattern, NoteType, IntervalType, int],  Generic[NoteType, IntervalType]): 
     pattern_type: ClassVar[PatternWithIntervalList] = ScalePattern

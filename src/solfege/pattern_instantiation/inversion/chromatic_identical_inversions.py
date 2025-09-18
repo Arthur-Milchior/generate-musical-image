@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import Generic, List
+from typing import Generic, List, Tuple
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatterns, MinimalChordDecompositionInput
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern_instantiation.abstract_chromatic_instantiation import AbstractChromaticInstantiation
@@ -14,14 +14,14 @@ from utils.util import T
 
 
 @dataclass(frozen=True, eq=True)
-class ChromaticIdenticalInversions(AbstractIdenticalInversion[Note, Interval], AbstractChromaticInstantiation[ChromaticIdenticalInversionPatterns], MinimalChordDecompositionInput):
+class ChromaticIdenticalInversions(AbstractIdenticalInversion[Note, Interval], AbstractChromaticInstantiation[ChromaticIdenticalInversionPatterns, Tuple[int, int]], MinimalChordDecompositionInput):
 
     def get_tonic(self) -> ChromaticNote:
         return self._get_identical_inversion().get_tonic().chromatic
 
     def _get_identical_inversion(self):
         """The identiacl_inversion with a note with this chromatic."""
-        from solfege.pattern_instantiation.inversion.identical_inversions import IdenticalInversion
+        from solfege.pattern_instantiation.inversion.identical_inversions_instantiation import IdenticalInversion
         note = Note.from_chromatic(self.lowest_note)
         return IdenticalInversion.make(self.pattern, note)
     
@@ -41,5 +41,5 @@ class ChromaticIdenticalInversions(AbstractIdenticalInversion[Note, Interval], A
 
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
-        return (self.pattern.easy_key(), self.get_tonic().easy_key())
+    def easy_key(self) -> Tuple[int, int]:
+        return self.pattern.easy_key()
