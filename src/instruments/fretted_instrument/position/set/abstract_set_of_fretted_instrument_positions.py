@@ -26,7 +26,7 @@ from utils.util import T, assert_dict_typing, assert_increasing, assert_iterable
 from instruments.fretted_instrument.position.string.string import String
 
 
-open_fret = Guitar.fret( value=0)
+open_fret = Fret(0, True)
 
 @dataclass(frozen=True, eq=False)
 class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, ClassWithEasyness[int], DataClassWithDefaultArgument, Generic[PositionOnFrettedInstrumentType]):
@@ -41,6 +41,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
     positions: FrozenList[PositionOnFrettedInstrumentType]
     type: ClassVar[Type[PositionOnFrettedInstrumentType]]
     _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]]
+    absolute: bool
 
     def __hash__(self):
         return hash(frozenset(self.positions))
@@ -116,9 +117,9 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
     def strings_at_min_fret(self, allow_open: bool):
         return self.strings_at_fret(self._min_fret(allow_open=allow_open))
     
-    def execute_on_maybe_transposed(self, absolute: bool, f: Callable[[AbstractSetOfFrettedPositions], T]) -> T:
+    def execute_on_maybe_transposed(self, f: Callable[[AbstractSetOfFrettedPositions], T]) -> T:
         """Execute `f` on `self` if `absolute` otherwise on self transposed to first fret."""
-        if not absolute:
+        if not self.absolute:
             transposed, transpose_interval = self.transpose_to_fret_one()
         else:
             transposed = self
@@ -244,30 +245,33 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
 
     def _svg_content(self, 
                      instrument: FrettedInstrument, 
-                     absolute: bool, 
                      colors: Optional[Colors] = None, 
-                     minimal_number_of_frets: Fret =Fret(1)) -> Generator[str]:
+                     minimal_number_of_frets: Fret =None) -> Generator[str]:
         assert_optional_typing(colors, Colors)
         assert_typing(instrument, FrettedInstrument)
+        if minimal_number_of_frets is None:
+            minimal_number_of_frets = Fret(1, self.absolute)
         """If tonic, add some colors depending on the role of the note compared to the tonic"""
         max_fret = self.last_shown_fret(minimal_number_of_frets)
-        yield from instrument.strings().svg(lowest_fret=max_fret, show_open_fret=absolute)
-        yield from max_fret.all_frets_up_to_here(allow_open=True).svg(instrument, absolute)
+        yield from instrument.strings().svg(lowest_fret=max_fret, show_open_fret=self.absolute)
+        yield from max_fret.all_frets_up_to_here(allow_open=True).svg(instrument, self.absolute)
         for pos in self:
             chromatic = pos.get_chromatic()
             color = colors.get_color_from_note(chromatic_note = chromatic) if colors and chromatic else None
             assert_optional_typing(color, str)
-            svg = pos.svg(absolute, color)
+            svg = pos.svg(self.absolute, color)
             yield from svg
     
     def svg_width(self, instrument: FrettedInstrument, *args, **kwargs):
         return instrument.width()
     
-    def svg_height(self, minimal_number_of_frets: Fret =Fret(1), *args, **kwargs):
+    def svg_height(self, minimal_number_of_frets: Fret =None, *args, **kwargs):
+        if minimal_number_of_frets is None:
+            minimal_number_of_frets = Fret(1, self.absolute)
         return self.last_shown_fret(minimal_number_of_frets).y_fret() + MARGIN
     
-    def _svg_name_base(self, instrument: FrettedInstrument, absolute: bool, colors: Optional[Colors], **kwargs):
-        return f"""{instrument.name}_{colors.name if colors is not None else "black"}_{"absolute" if absolute else "transposable"}_{"__".join(f"{pos.string.value}_{pos.fret.value}" for pos in self)}"""
+    def _svg_name_base(self, instrument: FrettedInstrument, colors: Optional[Colors], **kwargs):
+        return f"""{instrument.name}_{colors.name if colors is not None else "black"}_{"absolute" if self.absolute else "transposable"}_{"__".join(f"{pos.string.value}_{pos.fret.value}" for pos in self)}"""
 
     #pragma mark - MakeableWithSingleArgument
 
@@ -288,3 +292,5 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
     def __post_init__(self):
         assert_typing(self.positions, self._frozen_list_type)
         assert_iterable_typing(self.positions, self.type)
+        for pos in self:
+            assert pos.fret.absolute == self.absolute, f"{pos} has not the same absolute value as {self}"

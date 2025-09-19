@@ -12,16 +12,16 @@ from instruments.fretted_instrument.position.string.strings import Strings
 no_strings = Strings.make([])
 last_string_only = Strings.make([Guitar.string(6)])
 
-contradiction = Frets.make(closed_fret_interval=None, allow_not_played=False, allow_open=False)
-empty_fret = Frets.make(closed_fret_interval=None, allow_not_played=False, allow_open=True)
+contradiction = Frets.make(closed_fret_interval=None, allow_not_played=False, allow_open=False, absolute=True)
+empty_fret = Frets.make(closed_fret_interval=None, allow_not_played=False, allow_open=True, absolute=True)
 
 def set_of_pos_make(arg: Set[Tuple[int, int]]):
     poss = set()
     for string, fret in arg:
-        poss.add(PositionOnFrettedInstrument.make(string=Guitar.string(string), fret=Fret(fret)))
+        poss.add(PositionOnFrettedInstrument.make(string=Guitar.string(string), fret=Fret(fret, True)))
     return SetOfPositionOnFrettedInstrument.make(poss)
 
-empty_set_of_fretted_instrument_position = empty_set_of_position(Guitar)
+empty_set_of_fretted_instrument_position = empty_set_of_position(Guitar, True)
 class TestGenerate(unittest.TestCase):
     def test_empty_set(self):
         self.assertEqual(
@@ -40,7 +40,7 @@ class TestGenerate(unittest.TestCase):
 
     def test_one_fret_one_strings(self):
         self.assertEqual(
-            frozenset(enumerate_frets(Guitar, Strings.make(last_string_only), Frets.make(closed_fret_interval=(1, 1), allow_not_played=False, allow_open=False))),
+            frozenset(enumerate_frets(Guitar, Strings.make(last_string_only), Frets.make(closed_fret_interval=(1, 1), allow_not_played=False, allow_open=False, absolute=True))),
             frozenset({
                 set_of_pos_make({(6, 1)}),
             })
@@ -48,7 +48,7 @@ class TestGenerate(unittest.TestCase):
 
     def test_two_fret_two_strings(self):
         self.assertEqual(
-            frozenset(enumerate_frets(Guitar, Strings.make([Guitar.string(5), Guitar.string(6)]), Frets.make(closed_fret_interval=(1, 2), allow_not_played=False, allow_open=False))),
+            frozenset(enumerate_frets(Guitar, Strings.make([Guitar.string(5), Guitar.string(6)]), Frets.make(closed_fret_interval=(1, 2), allow_not_played=False, allow_open=False, absolute=True))),
             frozenset({
                 set_of_pos_make({(5, 1), (6, 1)}),
                 set_of_pos_make({(5, 1), (6, 2)}),

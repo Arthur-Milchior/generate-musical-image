@@ -1,1 +1,1 @@
-from instruments.fretted_instrument.pair import generate
+from instruments.fretted_instrument.pair import generate_fretted_instrument_interval

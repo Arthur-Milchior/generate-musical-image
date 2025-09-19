@@ -10,22 +10,21 @@ from utils.util import assert_typing
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import empty_set_of_position
 
 
-def enumerate_frets(instrument: FrettedInstrument, strings: Optional[Strings]= None, frets: Optional[Frets]=None) -> Generator[SetOfPositionOnFrettedInstrument]:
+def enumerate_frets(instrument: FrettedInstrument, frets: Frets, strings: Optional[Strings]= None) -> Generator[SetOfPositionOnFrettedInstrument]:
     """Generate a maping from each string to one of the fret."""
     assert_typing(instrument, FrettedInstrument)
     if strings is None:
         strings = instrument.strings()
     assert_typing(strings, Strings)
-    frets = frets if frets else Frets.make(closed_fret_interval=(1, 5), allow_not_played=True, allow_open=True) 
     s_ss = strings.pop()
     if s_ss is None:
         """There is no string to play at all. End case of the recursion."""
-        yield empty_set_of_position(instrument)
+        yield empty_set_of_position(instrument, absolute=frets.allow_open)
         return
     if frets.is_contradiction():
         return
     string, strings = s_ss
-    for set_of_fretted_instrument_position in enumerate_frets(instrument, strings, frets):
+    for set_of_fretted_instrument_position in enumerate_frets(instrument, strings=strings, frets=frets):
         for fret in frets:
             fretted_instrument_position = PositionOnFrettedInstrument(string, fret)
             yield set_of_fretted_instrument_position.add(fretted_instrument_position)

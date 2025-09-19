@@ -33,7 +33,7 @@ class AnkiNote(DataClassWithDefaultArgument, CsvGenerator):
 
     @classmethod
     def make_note(cls, instrument, note):
-        positions = PositionOnFrettedInstrument.from_chromatic(instrument, note)
+        positions = PositionOnFrettedInstrument.from_chromatic(instrument, note, True)
         string_to_pos = {
             pos.string: pos for pos in positions
         }

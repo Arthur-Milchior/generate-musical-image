@@ -2,10 +2,10 @@ from instruments.fretted_instrument.chord.chord_on_fretted_instrument import *
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 
 def _make(l):
-    return ChordOnFrettedInstrument.make(Guitar, l)
+    return ChordOnFrettedInstrument.make(Guitar, l, True)
 
 def fret(value):
-    return Guitar.fret(value)
+    return Fret(value, True)
 
 open = _make([fret(0)] * 6)
 ones = _make([fret(1)] * 6)

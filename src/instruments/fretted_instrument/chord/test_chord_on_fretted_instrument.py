@@ -11,7 +11,7 @@ CM = _make([None, 3, 2, 0, 1, 0])
 
 test_folder = "test"
 
-not_played_fret = Guitar.fret( value=None)
+not_played_fret = Fret(None, True)
 
 class TestFrettedInstrumentChord(unittest.TestCase):
     def test_eq(self):
@@ -19,10 +19,10 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertNotEqual(_make([not_played_fret] * 6), open)
 
     def test_get_fret(self):
-        self.assertEqual(open.get_fret(Guitar.string(1)), Guitar.fret( value=0))
+        self.assertEqual(open.get_fret(Guitar.string(1)), Fret( 0, True))
 
     def test_get_frets(self):
-        self.assertEqual(C4M.get_frets(Guitar), [not_played_fret, Guitar.fret(3), Guitar.fret(2), Guitar.fret(0), Guitar.fret(1), Guitar.fret(0)])
+        self.assertEqual(C4M.get_frets(Guitar), [not_played_fret, Fret(3, True), Fret(2, True), Fret(0, True), Fret(1, True), Fret(0, True)])
 
     def test_repr(self):
         self.assertEqual(repr(C4M), "ChordOnFrettedInstrument.make([None, 3, 2, 0, 1, 0])")

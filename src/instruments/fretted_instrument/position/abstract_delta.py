@@ -30,12 +30,12 @@ class AbstractDelta(ABC, Generic[Ts, T]):
 
     @classmethod
     @abstractmethod
-    def create_T(cls, instrument: "FrettedInstrument", i: int) -> T:
+    def create_T(cls, instrument: "FrettedInstrument", i: int, origine: T) -> T:
         return NotImplemented
 
     @classmethod
     @abstractmethod
-    def create_Ts(cls, instrument: "FrettedInstrument", min: T, max: T) -> Ts:
+    def create_Ts(cls, instrument: "FrettedInstrument", min: T, max: T, original: T) -> Ts:
         return NotImplemented
 
     @classmethod
@@ -45,36 +45,36 @@ class AbstractDelta(ABC, Generic[Ts, T]):
     
     # Public
 
-    def min(self, instrument: "FrettedInstrument", t: T) -> Optional[T]:
+    def min(self, instrument: "FrettedInstrument", origine: T) -> Optional[T]:
         """The minimal T that can be played, when delta is applied with reference point t. None if nothing can be played."""
         from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
         assert_typing(instrument, FrettedInstrument)
-        assert_typing(t, self.type_t)
+        assert_typing(origine, self.type_t)
         if self.deltas is None:
             return None
         min_delta, max_delta = self.deltas
         if min_delta is None:
-            return self.create_T(instrument, self.min_t)
-        theoretical_min = t.value + min_delta
+            return self.create_T(instrument, self.min_t, origine=origine)
+        theoretical_min = origine.value + min_delta
         if theoretical_min > self.max_t(instrument):
             return None
-        return self.create_T(instrument, max(self.min_t, theoretical_min))
+        return self.create_T(instrument, max(self.min_t, theoretical_min), origine=origine)
 
-    def max(self, instrument: "FrettedInstrument", t: T) -> Optional[T]:
+    def max(self, instrument: "FrettedInstrument", origine: T) -> Optional[T]:
         """The maximal T that can be played, when delta is applied with reference point t. None if nothing can be played."""
         from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
         assert_typing(instrument, FrettedInstrument)
-        assert_typing(t, self.type_t)
+        assert_typing(origine, self.type_t)
         if self.deltas is None:
             return None
         min_delta, max_delta = self.deltas
         if max_delta is None:
-            return self.create_T(instrument, self.max_t(instrument))
-        theoretical_max = t.value + max_delta
+            return self.create_T(instrument, self.max_t(instrument), origine=origine)
+        theoretical_max = origine.value + max_delta
         if theoretical_max < self.min_t:
             return None
         new_max = min(self.max_t(instrument), theoretical_max)
-        return self.create_T(instrument, new_max)
+        return self.create_T(instrument, new_max, origine=origine)
     
     def range(self, instrument: "FrettedInstrument", t: T) -> Ts:
         from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
@@ -84,7 +84,7 @@ class AbstractDelta(ABC, Generic[Ts, T]):
         max = self.max(instrument, t)
         if min is None or max is None:
             return self.create_empty_ts()
-        return self.create_Ts(instrument, min, max)
+        return self.create_Ts(instrument, min, max, t)
     
     def __neg__(self) -> Self:
         if self.deltas is None:

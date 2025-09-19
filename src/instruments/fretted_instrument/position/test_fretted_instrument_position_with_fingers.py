@@ -10,7 +10,7 @@ def position_make(string: int, fret: int, fingers: Union[int, Set[int]]):
     if isinstance(string, int):
         string = Guitar.string(string)
     if isinstance(fret, int):
-        fret = Fret(fret)
+        fret = Fret(fret, True)
     if isinstance(fingers, int):
         fingers = {fingers}
     return PositionOnFrettedInstrumentWithFingers.make(string=string, fret=fret, fingers=fingers)

@@ -61,10 +61,13 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
         return path
 
     def register_all_chords(self):
-        for fretted_instrument_chord in enumerate_fretted_instrument_chords(self.instrument, Frets.make(
+        frets = Frets.make(
             closed_fret_interval=(self.min_fret(), self.max_fret()),
             allow_not_played=True, 
-            allow_open=self.open_chord)):
+            allow_open=self.open_chord,
+            absolute = self.open_chord
+            )
+        for fretted_instrument_chord in enumerate_fretted_instrument_chords(self.instrument, frets):
             if fretted_instrument_chord.number_of_distinct_notes() < 4:
                 continue
             if fretted_instrument_chord.has_not_played_in_middle():

@@ -10,13 +10,14 @@ from instruments.fretted_instrument.position.consts import *
 from math import pow
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=False)
 class Fret(ChromaticInterval, DataClassWithDefaultArgument):
     """
     Represents one of the fret of the fretted_instrument.
 
     None represents a string that is not played and is assumed to be greater than any played string."""
     value: Optional[int]
+    absolute: bool
 
     def require_value(self):
         """Assert this fret corresponds to a played note."""
@@ -25,9 +26,11 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         return self.value
     
     @classmethod
-    def _make_single_argument(cls, arg: int) -> Self:
-        assert_optional_typing(arg, int)
-        return cls(arg)
+    def _make_single_argument(cls, arg: Tuple[int, bool]) -> Self:
+        value, absolute = arg
+        assert_typing(value, int)
+        assert_typing(absolute, bool)
+        return cls(value, absolute)
 
     def name(self):
         if self.value is None:
@@ -38,14 +41,13 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         return isinstance(self.value, int)
     
     def is_open(self):
-        return self.value == 0
+        return self.value == 0 and self.absolute
     
     def is_not_played(self):
         return self.value == None
     
     def is_closed(self):
-        return isinstance(self.value, int) and self.value > 0
-
+        return isinstance(self.value, int) and (self.absolute is False or self.value > 0)
 
     def add(self, instrument: "FrettedInstrument", other: Union[ChromaticInterval, int]) -> Self:
         return self.sub(instrument, -other)
@@ -57,6 +59,9 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         return FRET_THICKNESS
     
     def __lt__(self, other: "Fret"):
+        if not isinstance(other, Fret):
+            return NotImplemented
+        assert self.absolute == other.absolute
         if self.value is None:
             return False
         if other.value is None:
@@ -64,7 +69,9 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         return self.value < other.value
     
     def __eq__(self, other: "Fret"):
-        assert_typing(other, Fret)
+        if not isinstance(other, Fret):
+            return NotImplemented
+        assert self.absolute == other.absolute
         return self.value == other.value
     
     def height(self):
@@ -80,6 +87,9 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         return self.y_fret() - self.height() / 2
     
     def x_dots(self, instrument: "FrettedInstrument") -> List[float]:
+        """The x position of the dots, if any."""
+        if not self.absolute:
+            return []
         value = self.require_value()
         if value == 0: 
             return []
@@ -97,16 +107,15 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
     def dot_svg(self, x:float):
         return f"""<circle cx="{int(x)}" cy="{int(self.y_dots())}" r="{int(CIRCLE_RADIUS*.80)}" fill="url(#diagonalHatch)" stroke-width="4"/>"""
     
-    def dots_svg(self, instrument: "FrettedInstrument") -> List[str]:
-        return [self.dot_svg(x) for x in self.x_dots(instrument)]
+    def dots_svg(self, instrument: "FrettedInstrument") -> Generator[str]:
+        for x in self.x_dots(instrument):
+            yield self.dot_svg(x)
 
-    def svg(self, instrument: "FrettedInstrument", absolute: bool) -> List[str]:
+    def svg(self, instrument: "FrettedInstrument", absolute: bool) -> Generator[str]:
         """The SVG tag for the fret itself. 
         Also, if absolute is true, for the dot that indicate which line it is."""
-        l = [self.fret_svg(instrument, absolute)]
-        if absolute:
-            l += self.dots_svg(instrument)
-        return l
+        yield self.fret_svg(instrument, absolute)
+        yield from self.dots_svg(instrument)
 
     def all_frets_up_to_here(self, allow_open: bool):
         """The set of all frets up to here."""
@@ -114,8 +123,8 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         if self.value in (None, 0):
             closed_fret_interval = None
         else:
-            closed_fret_interval = (Fret(1), self.value)
-        return Frets.make(closed_fret_interval=closed_fret_interval, allow_open=allow_open)
+            closed_fret_interval = (Fret(1, self.absolute), self.value)
+        return Frets.make(closed_fret_interval=closed_fret_interval, allow_open=allow_open, absolute=self.absolute)
     
     def transpose(self, transpose: Union[int, ChromaticInterval], transpose_open: bool, transpose_not_played: bool):
         transpose = ChromaticInterval.make_single_argument(transpose)
@@ -139,6 +148,7 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
             return NotImplemented
         delta = self.value - other.value
         if isinstance(other, Fret):
+            assert other.absolute == self.absolute
             return ChromaticInterval(delta)
         
         if delta < 0:
@@ -148,7 +158,7 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         if delta > instrument.number_of_frets:
             return None
 
-        return Fret(delta)
+        return Fret(delta, self.absolute)
     
     def __sub__(self, other):
         raise Exception("Use .sub")
@@ -157,11 +167,12 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
     
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "value")
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "absolute")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
         # not calling super because we accept None value
         #super().__post_init__()
         assert_optional_typing(self.value, int)
+        assert_optional_typing(self.absolute, bool)

@@ -47,22 +47,20 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     fret: Fret
 
     @staticmethod
-    def from_chromatic(instrument: FrettedInstrument, note:ChromaticNote, strings: Optional[Strings] = None, frets: Optional[Frets] = None):
+    def from_chromatic(instrument: FrettedInstrument, note:ChromaticNote, absolute: bool, strings: Optional[Strings] = None, frets: Optional[Frets] = None):
         assert_typing(instrument, FrettedInstrument)
         """Return all the position for `note` in `frets` and `strings`"""
         if frets is None:
-            frets = Frets.all_played(instrument)
+            frets = Frets.all_played(instrument, absolute)
         if strings is None:
             strings = instrument.strings()
         assert_typing(note, ChromaticNote)
         positions: List[PositionOnFrettedInstrument] = []
         for string in strings:
-            fret = string.fret_for_note(instrument, note)
-            if fret is None:
+            pos = string.position_for_note(instrument, note, absolute)
+            if pos.fret not in frets:
                 continue
-            if fret not in frets:
-                continue
-            positions.append(PositionOnFrettedInstrument(string, fret))
+            positions.append(pos)
         return positions
     
     def positions_for_interval_with_restrictions(self,
@@ -74,13 +72,13 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         if strings is None:
             strings = StringDelta.ANY_STRING(instrument)
         if frets is None:
-            frets = Frets.all_played(instrument)
+            frets = Frets.all_played(instrument, self.fret.absolute)
         if isinstance(strings, StringDelta):
             strings = strings.range(instrument, self.string)
         if isinstance(frets, FretDelta):
             frets = frets.range(instrument, self.fret)
         chromatic_note = self.get_chromatic() + interval
-        return PositionOnFrettedInstrument.from_chromatic(instrument, chromatic_note, strings, frets)
+        return PositionOnFrettedInstrument.from_chromatic(instrument, chromatic_note, self.fret.absolute, strings, frets)
 
     def svg(self, absolute: bool, stroke_color: Optional[str]) -> List[str]:
         """Draw this position, assuming that f already contains the svg for the fret"""

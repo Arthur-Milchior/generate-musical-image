@@ -36,7 +36,7 @@ class DataClassWithDefaultArgument:
         Value is moved from args to kwargs.
         """
         if args:
-            assert name not in kwargs
+            assert name not in kwargs, f"{name} already present in {kwargs}"
             arg = args[0]
             args = args[1:]
         else:

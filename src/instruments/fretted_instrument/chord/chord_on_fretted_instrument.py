@@ -36,8 +36,9 @@ class ChordColors(ColorsWithTonic):
     
 @dataclass(frozen=True, eq=False, order=False)
 class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
+
     @classmethod
-    def make(cls, instrument: FrettedInstrument, frets: List[Union[Fret, int, None]]) -> Self:
+    def make(cls, instrument: FrettedInstrument, frets: List[Union[Fret, int, None]], absolute: bool) -> Self:
         assert len(frets) == instrument.number_of_strings()
         l = []
         for fret in frets:
@@ -45,9 +46,9 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
                 l.append(fret)
             else:
                 assert_optional_typing(fret, int)
-                l.append(instrument.fret(fret))
+                l.append(Fret(fret, absolute))
         fretted_positions = [PositionOnFrettedInstrument(string, fret) for string, fret in itertools.zip_longest(instrument.strings(), l)]
-        return cls(positions=PositionOnFrettedInstrumentFrozenList(fretted_positions))
+        return cls(positions=PositionOnFrettedInstrumentFrozenList(fretted_positions), absolute=absolute)
     
     def get_fret(self, string: String) -> Optional[Fret]:
         """Return the note played on this string, if any."""
@@ -58,13 +59,13 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
             if pos.string == string:
                 assert fret is None
                 fret = pos.fret
-        return fret if fret else Fret(None)
+        return fret if fret else Fret(None, self.absolute)
  
     def get_frets(self, instrument: Optional[FrettedInstrument]= None) -> List[Fret]:
-        """the list of frets used in this string. Fret(none) for not played string."""
+        """the list of frets used in this string. Fret(none, a) for not played string."""
         if instrument is not None:
             frets = [self.get_fret(string) for string in instrument.strings()]
-            return [Fret(None) if fret is None else fret for fret in frets]
+            return [Fret(None, self.absolute) if fret is None else fret for fret in frets]
         frets = dict()
         max_string = 0
         for pos in self:
@@ -72,14 +73,14 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
             max_string = max(max_string, string)
             assert string not in frets
             frets[string] = pos.fret
-        return [frets.get(string, Fret(None)) for string in range(1, max_string+1)]
+        return [frets.get(string, Fret(None, self.absolute)) for string in range(1, max_string+1)]
 
     def __repr__(self):
         return f"""{self.__class__.__name__}.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
 
     def chord_pattern_is_redundant(self):
         """Whether the same fingering pattern can be played higher on the fretted_instrument"""
-        return self._min_fret(allow_open=True) > Fret(1)
+        return self._min_fret(allow_open=True) > Fret(1, self.absolute)
 
     def is_open(self):
         return self._min_fret(allow_open=True).is_open()

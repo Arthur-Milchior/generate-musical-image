@@ -21,11 +21,11 @@ class StringDelta(AbstractDelta[Strings, String]):
     def max_t(cls, instrument:FrettedInstrument) -> int:
         return instrument.number_of_strings()
     @classmethod
-    def create_T(cls, instrument: "FrettedInstrument", i: int) -> String:
+    def create_T(cls, instrument: FrettedInstrument, i: int, original: String) -> String:
         return instrument.string(i)
 
     @classmethod
-    def create_Ts(cls, instrument: "FrettedInstrument", min_string: String, max_string: String) -> Strings:
+    def create_Ts(cls, instrument: FrettedInstrument, min_string: String, max_string: String, original: String) -> Strings:
         return Strings.make_interval(instrument, min_string, max_string)
     
     @classmethod

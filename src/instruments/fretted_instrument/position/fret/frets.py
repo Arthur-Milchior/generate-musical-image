@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import dataclasses
-from typing import Dict, Generator, List, Optional, Tuple
+from typing import Dict, Generator, List, Optional, Tuple, Union
 from instruments.fretted_instrument.position.fret.fret import Fret
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
@@ -18,6 +18,7 @@ class Frets(DataClassWithDefaultArgument):
     """If `closed_fret_interval` is None, no closed fret can be played.
     If it's [m, M], it's all frets betwee m and M included.
     """
+    absolute: bool
     closed_fret_interval: Optional[Tuple[Fret, Fret]]
     allow_open: bool
     allow_not_played: bool
@@ -66,12 +67,12 @@ class Frets(DataClassWithDefaultArgument):
     
     def __iter__(self) -> Generator[Fret]:
         if self.allow_not_played:
-            yield Fret(None)
+            yield Fret(None, self.absolute)
         if self.allow_open:
-            yield Fret(0)
+            yield Fret(0, self.absolute)
         if self.closed_fret_interval is not None:
             min_fret, max_fret = self.closed_fret_interval
-            yield from [Fret(fret) for fret in range(min_fret.value, max_fret.value + 1)]
+            yield from [Fret(fret, self.absolute) for fret in range(min_fret.value, max_fret.value + 1)]
 
     # def restrict_around(self, fret: Fret, interval_size: ChromaticInterval = ChromaticInterval(4)) -> "Frets":
     #     assert_typing(fret, Fret)
@@ -97,8 +98,8 @@ class Frets(DataClassWithDefaultArgument):
         return cls(None, False, False)
     
     @classmethod
-    def all_played(cls, instrument: "FrettedInstrument"):
-        return cls.make((Fret(1), instrument.last_fret()), allow_open=True)
+    def all_played(cls, instrument: "FrettedInstrument", absolute: bool):
+        return cls.make((Fret(1, absolute), instrument.last_fret()), allow_open=True)
 
     #pragma mark - DataClassWithDefaultArgument
 
@@ -112,14 +113,20 @@ class Frets(DataClassWithDefaultArgument):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        def clean_closed_fret_interval(closed_fret_interval):
+        def clean_closed_fret_interval(closed_fret_interval: Optional[Union[Fret, ]]):
             if closed_fret_interval is None:
                 return None
             m, M = closed_fret_interval
+            if isinstance(m, int):
+                m = m, absolute
+            if isinstance(M, int):
+                M = M, absolute
             m = Fret.make_single_argument(m)
             M = Fret.make_single_argument(M)
             return (m, M)
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "absolute")
+        absolute = kwargs["absolute"]
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "closed_fret_interval", clean_closed_fret_interval)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_open")
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_not_played")
@@ -132,7 +139,10 @@ class Frets(DataClassWithDefaultArgument):
             assert_typing(self.closed_fret_interval, tuple)
             m, M = self.closed_fret_interval
             assert_typing(m, Fret)
-            assert_optional_typing(M, Fret)
+            assert_typing(M, Fret)
+            if self.allow_open:
+                assert m.absolute
+            assert m.absolute == M.absolute
             assert m.is_closed()
             assert M.is_closed()
             assert m <= M, f"wrong interval {m}, {M}"

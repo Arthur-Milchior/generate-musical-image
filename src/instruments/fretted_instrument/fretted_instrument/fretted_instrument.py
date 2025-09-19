@@ -1,8 +1,6 @@
-
 import copy
 from dataclasses import dataclass, field
-import dataclasses
-from typing import Dict, List, Optional, Union
+from typing import Dict, List
 
 from instruments.fretted_instrument.position.consts import DISTANCE_BETWEEN_STRING
 from instruments.fretted_instrument.position.fret.fret_deltas import FretDelta
@@ -37,19 +35,13 @@ class FrettedInstrument(DataClassWithDefaultArgument):
         from instruments.fretted_instrument.position.string.string import StringFrozenList
         from instruments.fretted_instrument.position.string.strings import Strings
         return Strings.make((self.string(index) for index in range(1, len(self.open_string_chromatic_note)+1)))
-
-    def fret(self, value: Optional[Union[int, "Fret"]]):
-        from instruments.fretted_instrument.position.fret.fret import Fret
-        if isinstance(value, Fret):
-            return value
-        assert_optional_typing(value, int)
-        return Fret(value)
     
     def number_of_strings(self):
         return len(self.open_string_chromatic_note)
 
     def last_fret(self):
-        return self.fret(self.number_of_frets)
+        from instruments.fretted_instrument.position.fret.fret import Fret
+        return Fret(self.number_of_frets, True)
     
     def last_string(self):
         return self.string(self.number_of_strings())

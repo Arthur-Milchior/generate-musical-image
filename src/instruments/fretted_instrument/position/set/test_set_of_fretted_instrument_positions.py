@@ -5,7 +5,7 @@ import unittest
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import empty_set_of_position, SetOfPositionOnFrettedInstrument
+from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 from instruments.fretted_instrument.position.string.string import String
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
 from lily.lily_svg import display_svg_file
@@ -22,17 +22,17 @@ class SetOfPositionOnGuitar(SetOfPositionOnFrettedInstrument):
             if isinstance(string, int):
                 string = Guitar.string(string)
             if isinstance(fret, int):
-                fret = Fret(fret)
+                fret = Fret(fret, True)
             assert_typing(fret, Fret)
             assert_typing(string, String)
             arg = (string, fret)
         return super().add(arg)
     
 def pos_make(string, fret):
-    return PositionOnFrettedInstrument(Guitar.string(string), Fret(fret))
+    return PositionOnFrettedInstrument(Guitar.string(string), Fret(fret, True))
 
 def _make(l):
-    return SetOfPositionOnGuitar.make(positions=l)
+    return SetOfPositionOnGuitar.make(positions=l, absolute=True)
 
 
 CM_ = _make(pos_make(*pos) for pos in [(2, 3), (3, 2), (4, 0), (5, 1)])
@@ -43,8 +43,8 @@ G4M = _make(pos_make(*pos) for pos in [(1, 3), (2, 5), (3, 5), (4, 4), (5, 3), (
 
 strings = list(Guitar.strings())
 
-empty_set_of_fretted_instrument_position = SetOfPositionOnGuitar.make([])
-not_played = Guitar.fret( value=None)
+empty_set_of_fretted_instrument_position = SetOfPositionOnGuitar.make(positions=[], absolute=True)
+not_played = Fret( None, True)
 
 instrument = Guitar
 
@@ -79,14 +79,14 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
     def test_iter(self):
         self.assertEqual(list(empty_set_of_fretted_instrument_position),
                           [])
-        self.assertEqual(list(empty_set_of_fretted_instrument_position.add(position_make(strings[0], instrument.fret(1)))),
-                          [position_make(strings[0], instrument.fret(1))])
-        self.assertEqual(list(empty_set_of_fretted_instrument_position.add(position_make(strings[0], instrument.fret(1)))
-                               .add(position_make(strings[1], instrument.fret(2)))),
-                          [position_make(strings[0], instrument.fret(1)), position_make(strings[1], instrument.fret(2))])
-        self.assertEqual(list(empty_set_of_fretted_instrument_position.add(position_make(strings[1], instrument.fret(2)))
-                               .add(position_make(strings[0], instrument.fret(1)))),
-                          [position_make(strings[0], instrument.fret(1)), position_make(strings[1], instrument.fret(2))])
+        self.assertEqual(list(empty_set_of_fretted_instrument_position.add(position_make(strings[0], Fret(1, True)))),
+                          [position_make(strings[0], Fret(1, True))])
+        self.assertEqual(list(empty_set_of_fretted_instrument_position.add(position_make(strings[0], Fret(1, True)))
+                               .add(position_make(strings[1], Fret(2, True)))),
+                          [position_make(strings[0], Fret(1, True)), position_make(strings[1], Fret(2, True))])
+        self.assertEqual(list(empty_set_of_fretted_instrument_position.add(position_make(strings[1], Fret(2, True)))
+                               .add(position_make(strings[0], Fret(1, True)))),
+                          [position_make(strings[0], Fret(1, True)), position_make(strings[1], Fret(2, True))])
 
     def test_max_fret(self):
         self.assertEqual(empty_set_of_fretted_instrument_position._max_fret(), None)
@@ -95,12 +95,12 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                          ._max_fret(), None)
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add((0, 1))
-                         ._max_fret(), instrument.fret(1))
+                         ._max_fret(), Fret(1, True))
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add((0, 1))
                          .add((1, 2))
                          .add((3, 0))
-                         ._max_fret(), instrument.fret(2))
+                         ._max_fret(), Fret(2, True))
         
     def test_min_fret_open(self):
         self.assertEqual(empty_set_of_fretted_instrument_position._min_fret(allow_open=True), None)
@@ -109,15 +109,15 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                          ._min_fret(allow_open=True), None)
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add((0, 1))
-                         ._min_fret(allow_open=True), instrument.fret(1))
+                         ._min_fret(allow_open=True), Fret(1, True))
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add((0, 0))
-                         ._min_fret(allow_open=True), instrument.fret(0))
+                         ._min_fret(allow_open=True), Fret(0, True))
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add((0, 1))
                          .add((1, 2))
                          .add((3, 0))
-                         ._min_fret(allow_open=True), instrument.fret(0))
+                         ._min_fret(allow_open=True), Fret(0, True))
         
     def test_min_fret_closed(self):
         self.assertEqual(empty_set_of_fretted_instrument_position._min_fret(allow_open=False), None)
@@ -126,7 +126,7 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                          ._min_fret(allow_open=False), None)
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add((0, 1))
-                         ._min_fret(allow_open=False), instrument.fret(1))
+                         ._min_fret(allow_open=False), Fret(1, True))
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add((0, 0))
                          ._min_fret(allow_open=False), None)
@@ -134,7 +134,7 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                          .add((0, 1))
                          .add((1, 2))
                          .add((3, 0))
-                         ._min_fret(allow_open=False), instrument.fret(1))
+                         ._min_fret(allow_open=False), Fret(1, True))
         
     def test_transpose(self):
         self.assertEqual(G4M.transpose_same_string(-2, False, False), F4M)

@@ -9,7 +9,7 @@ DISTANCE_BETWEEN_STRING = 87 * RATIO_IMAGE
 
 MARGIN = DISTANCE_BETWEEN_STRING/2
 FRET_THICKNESS = 7* RATIO_IMAGE 
-TOP_FRET_THICKNESS = FRET_THICKNESS*1.4
+TOP_FRET_THICKNESS = round(FRET_THICKNESS*1.4)
 
 
 STRING_THICKNESS = 5 * RATIO_IMAGE
@@ -17,7 +17,7 @@ STROKE_WIDTH = 10 * RATIO_IMAGE
 """
 The ration by which each fret height is reduced.
 
-instrument.fret(i+1).height() = instrument.fret(i).height() * RATIO_FRET_HEIGHT"""
+Fret(i+1, a).height() = Fret(i, a).height() * RATIO_FRET_HEIGHT"""
 RATIO_FRET_HEIGHT = 1/pow(2, 1/12)
 
 

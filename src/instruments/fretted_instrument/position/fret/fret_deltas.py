@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import ClassVar, Optional, Type
+#from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.abstract_delta import AbstractDelta
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fret.frets import Frets
-from utils.util import assert_optional_typing
+from utils.util import assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True)
@@ -22,12 +23,13 @@ class FretDelta(AbstractDelta[Frets, Fret]):
         return instrument.number_of_frets
 
     @classmethod
-    def create_T(cls, instrument: "FrettedInstrument", i: int) -> Fret:
-        return instrument.fret(i)
+    def create_T(cls, instrument: "FrettedInstrument", i: int, original: Fret) -> Fret:
+        assert_typing(original, Fret)
+        return Fret(i, original.absolute)
 
     @classmethod
-    def create_Ts(cls, instrument: "FrettedInstrument", min_t: Fret, max_t: Fret) -> Frets:
-        return Frets.make((min_t, max_t), False, False)
+    def create_Ts(cls, instrument: "FrettedInstrument", min_t: Fret, max_t: Fret, original: Fret) -> Frets:
+        return Frets.make((min_t, max_t), False, False, absolute=original.absolute)
     
     @classmethod
     def create_empty_ts(cls):

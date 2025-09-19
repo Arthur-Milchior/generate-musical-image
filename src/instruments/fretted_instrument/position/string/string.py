@@ -31,22 +31,22 @@ class String(MakeableWithSingleArgument):
     def __sub__(self, other: int):
         return self + (-other)
     
-    def fret_for_note(self, instrument: FrettedInstrument, note: ChromaticNote) -> Optional[Fret]:
+    def fret_for_note(self, instrument: FrettedInstrument, note: ChromaticNote, absolute: bool) -> Optional[Fret]:
         """The fret to play `note` on `self`. None if it can't be done withing the limit of the instrument."""
         assert_typing(instrument, FrettedInstrument)
         assert_typing(note, ChromaticNote)
         if note < self.note_open:
             return None
         interval = note-self.note_open
-        fret = instrument.fret(interval.value)
+        fret = Fret(interval.value, absolute)
         if fret > instrument.last_fret():
             return None
         return fret
     
-    def position_for_note(self, instrument: FrettedInstrument, note:ChromaticNote):
+    def position_for_note(self, instrument: FrettedInstrument, note:ChromaticNote, absolute: bool):
         """The position to play `note` on `self`. None if it can't be done on `instrument`."""
         from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-        fret = self.fret_for_note(instrument, note)
+        fret = self.fret_for_note(instrument, note, absolute)
         if fret is None:
             return None
         return PositionOnFrettedInstrument(self, fret)

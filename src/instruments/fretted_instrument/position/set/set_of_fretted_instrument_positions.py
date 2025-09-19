@@ -22,6 +22,6 @@ class SetOfPositionsOnFrettedInstrumentFrozenList(FrozenList[SetOfPositionOnFret
     type = SetOfPositionOnFrettedInstrument
 
 
-def empty_set_of_position(instrument: FrettedInstrument):
+def empty_set_of_position(instrument: FrettedInstrument, absolute: bool):
     assert_typing(instrument, FrettedInstrument)
-    return SetOfPositionOnFrettedInstrument.make([])
+    return SetOfPositionOnFrettedInstrument.make([], absolute=absolute)

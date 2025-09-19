@@ -30,7 +30,7 @@ class TestInterval(unittest.TestCase):
         self.assertLessEqual(second_major, second_major)
 
     def test_repr(self):
-        self.assertEqual(repr(second_major), "Interval(chromatic=ChromaticInterval(value=2), diatonic=DiatonicInterval(value=1))")
+        self.assertEqual(repr(second_major), "Interval.make(2, 1)")
 
     def test_octave(self):
         self.assertEqual(unison.octave(), 0)

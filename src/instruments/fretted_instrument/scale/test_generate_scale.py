@@ -12,7 +12,7 @@ from .generate_scale import _generate_scale
 
 def position_make(string: int, fret:int, fingers:Set[int]):
     string = Guitar.string(string)
-    fret = Fret(fret)
+    fret = Fret(fret, True)
     return PositionOnFrettedInstrumentWithFingers.make(string = string, fret=fret, fingers=fingers)
 
 major_1_1 = ([
