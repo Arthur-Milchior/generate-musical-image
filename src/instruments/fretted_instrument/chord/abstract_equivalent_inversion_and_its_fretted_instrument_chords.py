@@ -101,7 +101,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         return (
             img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=None, absolute=self.absolute)),
             img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=ChordColors(chromatic_tonic), absolute=self.absolute)),
-            self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
+            #self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
         )
     
     #pragma mark - ClassWithEasyness
@@ -121,7 +121,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         for fretted_chord in individual_maximals:
             yield from self.triple_field(folder_path, fretted_chord)
         nb_empty = 7- len(maximals)
-        yield from [""] * (3 * nb_empty)
+        yield from [""] * (2 * nb_empty)
         # Remaining maximals
         triples = [self.triple_field(folder_path, fretted_chord) for fretted_chord in other_maximals]
         yield ", ".join(blacks for blacks, _, _ in triples)

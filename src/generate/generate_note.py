@@ -17,8 +17,8 @@ scale = [Note.from_name(f"{diatonic_letter}4{alteration_symbol}")
          for diatonic_letter in "ABCDEFG"
          for alteration_symbol in alteration.symbols
          ]
-right_notes = [note.add_octave(o) for note in scale for o in range(-1, 5)]
-left_notes = [note.add_octave(o) for note in scale for o in range(-4,1)]
+right_notes = [note.add_octave(o) for note in scale for o in range(-2, 5)]
+left_notes = [note.add_octave(o) for note in scale for o in range(-4,2)]
 
 def single_note(clef: Clef, note: Note):
     return f"""

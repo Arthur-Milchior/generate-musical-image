@@ -50,6 +50,7 @@ def show_file(file_prefix: str, extension: str = "svg") -> Callable[[], object]:
 
 def compile_(code: str, file_prefix: str, wav: bool, extension="svg", execute_lily: bool = True, force_recompile: bool = False) -> \
         Callable[[], object]:
+        
     """Write `code` in `filename`. If `execute_lily`, compile it in a file with the given extension
 
     return a function that shows the generated file.

@@ -40,7 +40,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
             return self.chord, ChromaticInterval(0)
         return self.chord.transpose_to_fret_one()
     
-    def lily_field(self, path:str):
+    def decomposition_lily_field(self, path:str):
         lowest_note = Note.from_chromatic(self.chord.get_most_grave_note().get_chromatic())
         inversion_patterns = self.identical_inversions.get_inversion_patterns()
         inversion_pattern = inversion_patterns[0]
@@ -110,7 +110,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         yield ", ".join(notations[1:]) # other notations
         yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, colors=None, absolute=self.open())) # Chord
         yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, colors=self.colors(), absolute=self.open())) # Colored chord
-        yield self.lily_field(f"{folder_path}/lily") # partition
+        yield self.decomposition_lily_field(f"{folder_path}/lily") # partition
         yield "x" if self.open else ""
         yield str(self.first_string())
         yield str(self.last_string())

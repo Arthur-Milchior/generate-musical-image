@@ -26,7 +26,7 @@ class Colors(ABC):
         return NotImplemented
 
     @abstractmethod
-    def __repr__(self) -> str: ...
+    def __str__(self) -> str: ...
 
 
 @dataclass(frozen=True)
@@ -45,8 +45,8 @@ class ColorsWithTonic(Colors, ABC):
     
     #Pragma mark Colors
     
-    def __repr__(self) -> str: 
-        return f"{self.__class__.__name__}({self.tonic.value})"
+    def __str__(self) -> str: 
+        return f"{self.__class__.__name__}_with_tonic_{self.tonic.value}"
     
     def get_color_from_note(self, chromatic_note: ChromaticNote):
         assert_typing(chromatic_note, ChromaticNote)
@@ -60,8 +60,8 @@ class RestrictedColorsWithTonic(Colors):
 
     # pragma mark - Colors
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.colors}, [{", ".join(str(interval.value) for interval in self.colored_intervals)}])"
+    def __str__(self):
+        return f"{self.__class__.__name__}_with_tonic_{self.colors.tonic}_restricted_to_intervals_[{"_".join(str(interval.value) for interval in self.colored_intervals)}])"
     
     def get_color_from_note(self, chromatic_note: ChromaticNote):
         interval = chromatic_note - self.colors.tonic
