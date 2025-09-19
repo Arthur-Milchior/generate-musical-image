@@ -28,7 +28,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertEqual(repr(C4M), "ChordOnFrettedInstrument.make([None, 3, 2, 0, 1, 0])")
     
     def test_show_chord(self):
-        file_name = CM.save_svg(test_folder, instrument=Guitar, absolute=True, colors=ChordColors(ChromaticNote(0)))
+        file_name = CM.save_svg(test_folder, instrument=Guitar, colors=ChordColors(ChromaticNote(0)))
         #display_svg_file(f"{test_folder}/{file_name}" )
         # uncomment to see what the image looks like
         
@@ -84,7 +84,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertLessEqual(CM_, CM_)
 
     def test_regression_502220(self):
-        chord = ChordOnFrettedInstrument.make(Guitar, [5, 0, 2, 2, 2, 0])
+        chord = ChordOnFrettedInstrument.make(Guitar, [5, 0, 2, 2, 2, 0], absolute=True)
         hand = chord.playable(Guitar)
         self.assertEqual(hand, Playable.NO)
         

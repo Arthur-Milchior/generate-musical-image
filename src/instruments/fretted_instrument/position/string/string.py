@@ -46,6 +46,9 @@ class String(MakeableWithSingleArgument):
     def position_for_note(self, instrument: FrettedInstrument, note:ChromaticNote, absolute: bool):
         """The position to play `note` on `self`. None if it can't be done on `instrument`."""
         from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
+        assert_typing(instrument, FrettedInstrument)
+        assert_typing(note, ChromaticNote)
+        assert_typing(absolute, bool)
         fret = self.fret_for_note(instrument, note, absolute)
         if fret is None:
             return None

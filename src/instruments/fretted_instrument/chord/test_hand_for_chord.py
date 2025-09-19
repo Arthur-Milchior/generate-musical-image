@@ -11,7 +11,8 @@ strings = list(Guitar.strings())
 def position_make(string, fret):
     if isinstance(string, int):
         string = Guitar.string(string)
-    fret = Fret.make_single_argument(fret)
+    if isinstance(fret, int):
+        fret = Fret(fret, True)
     return PositionOnFrettedInstrument.make(string=string, fret=fret)
 
 class TestHandForFrettedInstrumentChord(unittest.TestCase):
@@ -57,7 +58,7 @@ class TestHandForFrettedInstrumentChord(unittest.TestCase):
 
 
     def test_regression_502220(self):
-        chord = ChordOnFrettedInstrument.make(Guitar, [5, 0, 2, 2, 2, 0])
+        chord = ChordOnFrettedInstrument.make(Guitar, [5, 0, 2, 2, 2, 0], absolute=True)
         hand = HandForChordForFrettedInstrument.compute_hand(Guitar, chord)
         expected= HandForChordForFrettedInstrument(
             instrument=Guitar,

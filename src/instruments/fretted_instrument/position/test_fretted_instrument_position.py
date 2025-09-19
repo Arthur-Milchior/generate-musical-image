@@ -25,7 +25,9 @@ E5_6 = position_make(strings[5], Fret(0, True))
 not_played = Fret( None, True)
 
 def frets_make(*args, **kwargs):
-    return Frets.make(*args, **kwargs, absolute=True)
+    if "absolute" not in kwargs:
+        args = [True] + list(args) 
+    return Frets.make(*args, **kwargs)
 
 class TestFrettedInstrumentPosition(unittest.TestCase):
     def test_get_chromatic(self):
@@ -114,8 +116,10 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
                          [E5_1, E5_2, E5_3, E5_4, E5_5, E5_6])
         self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, strings=StringDelta.NEXT_STRING_OR_GREATER(Guitar)),
                          [E5_2, E5_3, E5_4, E5_5, E5_6])
-        self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, frets=frets_make((1, 5), allow_open =True)),
-                         [E5_5, E5_6])
+        frets = frets_make((1, 5), allow_open =True)
+        expected = [E5_5, E5_6]
+        actual = C5.positions_for_interval_with_restrictions(Guitar, third_major, frets=frets)
+        self.assertEqual(actual, expected)
         self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, frets=frets_make((1, 5), False)),
                          [E5_5])
         

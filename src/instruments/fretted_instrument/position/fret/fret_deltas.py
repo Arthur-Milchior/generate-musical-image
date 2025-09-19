@@ -23,13 +23,13 @@ class FretDelta(AbstractDelta[Frets, Fret]):
         return instrument.number_of_frets
 
     @classmethod
-    def create_T(cls, instrument: "FrettedInstrument", i: int, original: Fret) -> Fret:
-        assert_typing(original, Fret)
-        return Fret(i, original.absolute)
+    def create_T(cls, instrument: "FrettedInstrument", i: int, origine: Fret) -> Fret:
+        assert_typing(origine, Fret)
+        return Fret(i, origine.absolute)
 
     @classmethod
-    def create_Ts(cls, instrument: "FrettedInstrument", min_t: Fret, max_t: Fret, original: Fret) -> Frets:
-        return Frets.make((min_t, max_t), False, False, absolute=original.absolute)
+    def create_Ts(cls, instrument: "FrettedInstrument", min_t: Fret, max_t: Fret, origine: Fret) -> Frets:
+        return Frets.make(closed_fret_interval=(min_t, max_t), allow_open=False, allow_not_played=False, absolute=origine.absolute)
     
     @classmethod
     def create_empty_ts(cls):

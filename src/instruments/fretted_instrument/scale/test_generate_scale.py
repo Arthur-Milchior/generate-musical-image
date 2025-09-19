@@ -88,7 +88,7 @@ def anki_scale_make(*args, **kwargs):
     return AnkiScaleWithFingersAndString.make(Guitar, *args, **kwargs)
 
 def set_of_pos_make(*args, **kwargs):
-    return SetOfPositionOnFrettedInstrument.make(*args, **kwargs)
+    return SetOfPositionOnFrettedInstrument.make(*args, **kwargs, absolute=True)
 
 chromatic_relative_intervals = major_scale.get_interval_list().get_chromatic_interval_list().relative_intervals()
 chromatic_relative_intervals_2_octaves = major_scale.multiple_octaves(2).get_chromatic_interval_list().relative_intervals()

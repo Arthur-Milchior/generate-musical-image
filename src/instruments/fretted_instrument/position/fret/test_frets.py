@@ -14,7 +14,7 @@ instrument = Guitar
 ALL_PLAYED = frets_make(closed_fret_interval=(1, Guitar.last_fret()), allow_open=True)
 ALL = frets_make(allow_not_played=True)
 ALL_CLOSED = ALL_PLAYED.disallow_open()
-FIRST_FOUR = frets_make(closed_fret_interval=(1, 4), allow_open=False)
+FIRST_FOUR = frets_make(closed_fret_interval=(1, 4), allow_open=True)
 
 # AROUND_SEVEN = ALL_PLAYED.restrict_around(Fret(7, True))
 # AROUND_FIVE_SEVEN = AROUND_SEVEN.restrict_around(Fret(5, True))

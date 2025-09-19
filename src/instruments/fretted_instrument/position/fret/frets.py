@@ -98,8 +98,10 @@ class Frets(DataClassWithDefaultArgument):
         return cls(None, False, False)
     
     @classmethod
-    def all_played(cls, instrument: "FrettedInstrument", absolute: bool):
-        return cls.make((Fret(1, absolute), instrument.last_fret()), allow_open=True)
+    def all_played(cls, instrument: "FrettedInstrument"):
+        first_fret = Fret(1, True)
+        last_fret = instrument.last_fret()
+        return cls.make(closed_fret_interval=(first_fret, last_fret), allow_open=True, absolute=True)
 
     #pragma mark - DataClassWithDefaultArgument
 
@@ -135,6 +137,7 @@ class Frets(DataClassWithDefaultArgument):
     def __post_init__(self):
         assert_typing(self.allow_open, int)
         assert_typing(self.allow_not_played, bool)
+        assert_typing(self.absolute, bool)
         if self.closed_fret_interval is not None:
             assert_typing(self.closed_fret_interval, tuple)
             m, M = self.closed_fret_interval

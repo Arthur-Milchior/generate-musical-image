@@ -134,12 +134,12 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
 
     # Pragma mark - SetOfPositionOnFrettedInstrument
 
-    def _svg_name_base(self, instrument:FrettedInstrument, absolute: bool, colors: Optional[Colors], minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs):
+    def _svg_name_base(self, instrument:FrettedInstrument, colors: Optional[Colors], minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs):
         fret_values = [fret.value for fret in self.get_frets(instrument)]
         frets = "_".join(str(value) if value is not None else "x" for value in fret_values)
         if minimal_number_of_frets is None:
             minimal_number_of_frets = self.last_shown_fret()
-        return f"{instrument.name}_chord_{"open" if absolute else "transposable"}_{minimal_number_of_frets.value}_frets_{str(colors) if colors else "black"}_{frets}"
+        return f"{instrument.name}_chord_{"open" if self.absolute else "transposable"}_{minimal_number_of_frets.value}_frets_{str(colors) if colors else "black"}_{frets}"
         
 
 intervals_in_base_octave_to_fretted_instrument_chord: Dict[ChromaticIntervalListPattern, List[ChordOnFrettedInstrument]] = dict()

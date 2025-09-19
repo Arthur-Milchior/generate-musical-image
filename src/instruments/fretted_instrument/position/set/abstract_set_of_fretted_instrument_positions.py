@@ -277,7 +277,9 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
 
     @classmethod
     def _make_single_argument(cls, arg: List) -> Self:
-        return cls.make((cls.type.make_single_argument(pos) for pos in arg))
+        poss = [cls.type.make_single_argument(pos) for pos in arg]
+        absolute = poss[0].fret.absolute 
+        return cls.make(positions=poss, absolute=absolute)
 
     def repr_single_argument(self) -> str:
         return f"""[{", ".join(position.repr_single_argument() for position in self.positions )}]"""

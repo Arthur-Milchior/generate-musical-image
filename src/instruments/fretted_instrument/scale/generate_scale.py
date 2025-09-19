@@ -192,7 +192,8 @@ def generate_scale(instrument: FrettedInstrument,
         first_fingers = first_pos.fingers
         if first_fingers not in fingers_to_scales:
             fingers_to_scales[first_fingers] = []
-        set_of_pos = SetOfFrettedInstrumentPositionsWithFingers.make(positions=scale)
+        absolute = scale[0].fret.absolute
+        set_of_pos = SetOfFrettedInstrumentPositionsWithFingers.make(positions=scale, absolute=absolute )
         if not filter(set_of_pos):
             continue
         must_be_avoided = False

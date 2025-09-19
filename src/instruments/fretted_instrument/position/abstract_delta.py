@@ -35,7 +35,7 @@ class AbstractDelta(ABC, Generic[Ts, T]):
 
     @classmethod
     @abstractmethod
-    def create_Ts(cls, instrument: "FrettedInstrument", min: T, max: T, original: T) -> Ts:
+    def create_Ts(cls, instrument: "FrettedInstrument", min: T, max: T, origine: T) -> Ts:
         return NotImplemented
 
     @classmethod

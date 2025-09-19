@@ -145,7 +145,7 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
 
     def test_intervals_frow_lowest_note(self):
         frets = [0, 2, 1, 1, None, None]
-        chord = ChordOnFrettedInstrument.make(instrument=Guitar, frets=frets)
+        chord = ChordOnFrettedInstrument.make(instrument=Guitar, frets=frets, absolute=True)
         actual = chord.intervals_frow_lowest_note()
         relatives = ChromaticIntervalListPattern.make_relative([7, 4, 5])
         absolute = ChromaticIntervalListPattern.make_absolute([0, 7, 11, 16])

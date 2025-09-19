@@ -13,13 +13,14 @@ from instruments.fretted_instrument.position.set.set_of_fretted_instrument_posit
 def enumerate_frets(instrument: FrettedInstrument, frets: Frets, strings: Optional[Strings]= None) -> Generator[SetOfPositionOnFrettedInstrument]:
     """Generate a maping from each string to one of the fret."""
     assert_typing(instrument, FrettedInstrument)
+    assert_typing(frets, Frets)
     if strings is None:
         strings = instrument.strings()
     assert_typing(strings, Strings)
     s_ss = strings.pop()
     if s_ss is None:
         """There is no string to play at all. End case of the recursion."""
-        yield empty_set_of_position(instrument, absolute=frets.allow_open)
+        yield empty_set_of_position(instrument, absolute=frets.absolute)
         return
     if frets.is_contradiction():
         return

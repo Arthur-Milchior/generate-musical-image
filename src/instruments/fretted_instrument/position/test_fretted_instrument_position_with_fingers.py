@@ -15,15 +15,17 @@ def position_make(string: int, fret: int, fingers: Union[int, Set[int]]):
         fingers = {fingers}
     return PositionOnFrettedInstrumentWithFingers.make(string=string, fret=fret, fingers=fingers)
 
+any_string = StringDelta.ANY_STRING(Guitar)
 class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
     def test_positions_minus_tone_finger_1(self):
-        first_pos = position_make(string=2, fret=9, fingers=4)
-        self.assertEqual(([
-            (frozenset({1}), first_pos),
-            ]),
-            position_make(string=3, fret=6, fingers=1)
-            .positions_for_interval(Guitar, ChromaticInterval(-2))
-            )
+        expected_position = position_make(string=2, fret=9, fingers=4)
+        start_position = position_make(string=3, fret=6, fingers=1)
+        interval =ChromaticInterval(-2)
+        fingers_position_list = start_position.positions_for_interval(instrument=Guitar, interval=interval, string_delta=any_string)
+        self.assertEqual(len(fingers_position_list), 1)
+        fingers, position = fingers_position_list[0]
+        self.assertEqual(fingers, frozenset({1}))
+        self.assertEqual(position, expected_position)
 
     def test_positions_minus_half_tone_finger_1(self):
         self.assertEqual([],
