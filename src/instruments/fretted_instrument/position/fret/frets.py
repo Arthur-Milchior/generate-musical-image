@@ -143,9 +143,5 @@ class Frets(DataClassWithDefaultArgument):
             m, M = self.closed_fret_interval
             assert_typing(m, Fret)
             assert_typing(M, Fret)
-            if self.allow_open:
-                assert m.absolute
-            assert m.absolute == M.absolute
-            assert m.is_closed()
-            assert M.is_closed()
+            assert m.absolute == M.absolute == self.absolute
             assert m <= M, f"wrong interval {m}, {M}"

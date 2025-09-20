@@ -6,9 +6,10 @@ from typing import ClassVar, Dict, Generic, List, Optional, Type
 
 from instruments.fretted_instrument.chord import chord_decomposition_anki_note
 from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
-from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordColors, ChordOnFrettedInstrument, FrettedInstrumentChordFrozenList
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument, FrettedInstrumentChordFrozenList
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
+from instruments.fretted_instrument.position.set.colors import BlackOnly, PositionWithIntervalLetters
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternsGetter, IdenticalInversionPatternsGetterType, IdenticalInversionPatterns
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
@@ -89,7 +90,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     def names(self):
         return [name for inversion in self.get_identical_inversion_pattern().inversion_patterns for name in self.names_from_inversion(inversion)]
     
-    def triple_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument):
+    def plain_and_numbered_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument):
         """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decomposition in chord_decompositions"""
         transposed_chord, transposition = fretted_chord, 0 if self.absolute else fretted_chord.transpose_to_fret_one()
         pos_of_lowest_note = transposed_chord.get_most_grave_note()
@@ -97,10 +98,10 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         easiest_inversion = self.key.get_identical_inversion_pattern().easiest_inversion()
         lowest_note = easiest_inversion.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
         tonic = easiest_inversion.get_tonic(lowest_note)
-        chromatic_tonic = tonic.chromatic
+        chromatic_tonic = tonic.chromatic.in_base_octave()
         return (
-            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=None, absolute=self.absolute)),
-            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=ChordColors(chromatic_tonic), absolute=self.absolute)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=BlackOnly(), absolute=self.absolute)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=PositionWithIntervalLetters(chromatic_tonic), absolute=self.absolute)),
             #self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
         )
     
@@ -119,14 +120,13 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         maximals = self.maximals()
         individual_maximals, other_maximals = maximals[:7], maximals[7:]
         for fretted_chord in individual_maximals:
-            yield from self.triple_field(folder_path, fretted_chord)
+            yield from self.plain_and_numbered_field(folder_path, fretted_chord)
         nb_empty = 7- len(maximals)
         yield from [""] * (2 * nb_empty)
         # Remaining maximals
-        triples = [self.triple_field(folder_path, fretted_chord) for fretted_chord in other_maximals]
-        yield ", ".join(blacks for blacks, _, _ in triples)
-        yield ", ".join(colored for _, colored, _ in triples)
-        yield ", ".join(partition for _, _, partition in triples) if self.absolute else ""
+        triples = [self.plain_and_numbered_field(folder_path, fretted_chord) for fretted_chord in other_maximals]
+        yield ", ".join(blacks for blacks, _ in triples)
+        yield ", ".join(colored for _, colored in triples)
     
     #pragma mark - DataClassWithDefaultArgument
 

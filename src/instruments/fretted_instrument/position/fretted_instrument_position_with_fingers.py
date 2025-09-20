@@ -18,7 +18,22 @@ ALL_FINGERS = frozenset(range(1,5))
 class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, MakeableWithSingleArgument):
     fingers: FingersType
 
-    def restrict_fingers(self, fingers: FingersType):
+    def restrict_to_compatible_fingering(self, instrument:FrettedInstrument, next_note: Self):
+        assert_typing(instrument, FrettedInstrument)
+        assert_typing(next_note, PositionOnFrettedInstrumentWithFingers)
+        acceptable_fingers = set()
+        delta = next_note.fret.value - self.fret.value
+        for self_finger in self.fingers:
+            for next_finger in next_note.fingers:
+                if self_finger == next_finger:
+                    continue
+                if instrument.finger_to_fret_delta[self_finger][next_finger].contains_delta(delta):
+                    acceptable_fingers.add(self_finger)
+        return self.restrict_to_specific_fingers(frozenset(acceptable_fingers))
+
+
+    def restrict_to_specific_fingers(self, fingers: FingersType):
+        """Return `self` with `fingers`. Assert that the new set is smaller than the old one."""
         assert fingers <= self.fingers
         return dataclasses.replace(self, fingers=fingers)
 
@@ -34,7 +49,11 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
 
 
     @staticmethod
-    def from_fretted_instrument_position(pos: PositionOnFrettedInstrument, fingers: FingersType = ALL_FINGERS):
+    def from_fretted_instrument_position(pos: PositionOnFrettedInstrument, fingers: Optional[FingersType] = None):
+        if isinstance(pos, PositionOnFrettedInstrumentWithFingers):
+            return pos
+        if fingers is None:
+            fingers = ALL_FINGERS
         assert_typing(pos, PositionOnFrettedInstrument)
         fret = pos.fret
         assert_typing(fret, Fret)

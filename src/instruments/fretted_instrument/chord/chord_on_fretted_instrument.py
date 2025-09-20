@@ -5,7 +5,7 @@ from instruments.fretted_instrument.chord.playable import Playable
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
-from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, COLOR_FOURTH, COLOR_QUALITY, COLOR_SECOND, COLOR_THIRD, COLOR_TONIC, Colors, ColorsWithTonic
+from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, COLOR_FOURTH, COLOR_QUALITY, COLOR_SECOND, COLOR_THIRD, COLOR_TONIC, ColorsWithTonic, FretPositionSvgGenerator
 from instruments.fretted_instrument.position.string.string import String, StringFrozenList
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 import itertools
@@ -134,7 +134,7 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
 
     # Pragma mark - SetOfPositionOnFrettedInstrument
 
-    def _svg_name_base(self, instrument:FrettedInstrument, colors: Optional[Colors], minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs):
+    def _svg_name_base(self, instrument:FrettedInstrument, colors: FretPositionSvgGenerator, minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs):
         fret_values = [fret.value for fret in self.get_frets(instrument)]
         frets = "_".join(str(value) if value is not None else "x" for value in fret_values)
         if minimal_number_of_frets is None:

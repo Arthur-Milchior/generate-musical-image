@@ -1,6 +1,7 @@
 import unittest
 
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import *
+from instruments.fretted_instrument.position.set.colors import PositionWithIntervalLetters
 from lily.lily_svg import display_svg_file
 from solfege.value.note.chromatic_note import ChromaticNote
 from .test_constants import *
@@ -8,6 +9,7 @@ from .test_constants import _make
 
 CM_ = _make([None, 3, 2, 0, 1, None])
 CM = _make([None, 3, 2, 0, 1, 0])
+AM = _make([None, 0, 2, 2, 2, 0])
 
 test_folder = "test"
 
@@ -28,8 +30,8 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertEqual(repr(C4M), "ChordOnFrettedInstrument.make([None, 3, 2, 0, 1, 0])")
     
     def test_show_chord(self):
-        file_name = CM.save_svg(test_folder, instrument=Guitar, colors=ChordColors(ChromaticNote(0)))
-        #display_svg_file(f"{test_folder}/{file_name}" )
+        file_name = AM.save_svg(test_folder, instrument=Guitar, colors=PositionWithIntervalLetters(ChromaticNote(9)))
+        display_svg_file(f"{test_folder}/{file_name}" )
         # uncomment to see what the image looks like
         
     def test_is_open(self):

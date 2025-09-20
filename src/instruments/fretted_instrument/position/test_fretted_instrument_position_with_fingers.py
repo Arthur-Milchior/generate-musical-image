@@ -128,3 +128,9 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         position_make(string=3, fret=6, fingers=4)
         .positions_for_interval(Guitar, ChromaticInterval(4))
         )
+
+    def test_restrict_to_compatible(self):
+        current_note = position_make(1, 12, {1, 2, 3})
+        next_note = position_make(1, 14, {3})
+        expected_note = position_make(1, 12, {1})
+        self.assertEqual(expected_note, current_note.restrict_to_compatible_fingering(Guitar, next_note))

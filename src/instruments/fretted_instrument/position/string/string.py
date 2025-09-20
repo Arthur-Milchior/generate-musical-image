@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional, Self, Tuple, Union
+from typing import Generator, Optional, Self, Tuple
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
-from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
-from solfege.value.note.note import Note
 from utils.frozenlist import FrozenList, MakeableWithSingleArgument
+from utils.svg.svg_atom import svg_text
 from utils.util import assert_typing
 from instruments.fretted_instrument.position.consts import *
 
@@ -39,7 +38,7 @@ class String(MakeableWithSingleArgument):
             return None
         interval = note-self.note_open
         fret = Fret(interval.value, absolute)
-        if fret > instrument.last_fret():
+        if fret.absolute and fret > instrument.last_fret():
             return None
         return fret
     
@@ -69,6 +68,13 @@ class String(MakeableWithSingleArgument):
     
     def x(self):
         return MARGIN + (self.value-1) * DISTANCE_BETWEEN_STRING
+    
+    def svg_for_x(self, absolute: bool) -> Generator[str]:
+        if absolute:
+            yield from svg_text(text= "x", x=int(self.x()), y=int(MARGIN)-3, font_size=FONT_SIZE, comment=f"<!-- string {self.value}, not played-->")
+        else:
+            yield f"""<!-- string {self.value} not played. Not shown as it's transposable-->"""
+
     
     def svg(self, lowest_fret: Fret, show_open_fret: bool):
         """

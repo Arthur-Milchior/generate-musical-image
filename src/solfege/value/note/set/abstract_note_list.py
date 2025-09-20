@@ -32,6 +32,12 @@ class AbstractNoteList(DataClassWithDefaultArgument, Generic[NoteType, IntervalT
     
     def __len__(self):
         return len(self.notes)
+    
+    def is_in_base_octave(self, accepting_octave: bool = False):
+        for note in self.notes:
+            if not note.is_in_base_octave(accepting_octave):
+                return False
+        return True
 
     # pragma mark - DataClassWithDefaultArgument
     

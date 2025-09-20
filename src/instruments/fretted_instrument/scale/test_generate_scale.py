@@ -6,7 +6,7 @@ from instruments.fretted_instrument.position.fretted_instrument_position_with_fi
 from lily.lily_svg import display_svg_file
 from utils.util import ensure_folder, save_file
 from .generate_scale import *
-from solfege.pattern.scale.scale_patterns import major_scale
+from solfege.pattern.scale.scale_patterns import major_scale, pentatonic_major
 
 from .generate_scale import _generate_scale
 
@@ -165,3 +165,8 @@ class TestGenerateScale(unittest.TestCase):
             actual
         )
         
+    def test_pentatonic_major_finger_2(self):
+        actual = generate_scale(instrument= Guitar,
+                                start_pos=position_make(string=1, fret=12, fingers=[2]),
+                                scale_pattern=pentatonic_major, number_of_octaves=2)
+        self.assertEqual(actual, None)

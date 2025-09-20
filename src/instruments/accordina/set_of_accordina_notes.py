@@ -1,7 +1,7 @@
 from typing import Generator, List, Set
 from instruments.accordina.accordina_note import *
 from solfege.value.interval.chromatic_interval import ChromaticInterval
-from utils.svg import SvgGenerator
+from utils.svg.svg_generator import SvgGenerator
 
 width = 2 * margin + 2 * x_distance_between_columns
 

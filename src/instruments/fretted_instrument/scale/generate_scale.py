@@ -7,7 +7,6 @@ from instruments.fretted_instrument.position.set.set_of_fretted_instrument_posit
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import SetOfFrettedInstrumentPositionsWithFingers, SetOfFrettedInstrumentPositionsWithFingersFrozenList
 from instruments.fretted_instrument.position.string.string import String
 from instruments.fretted_instrument.position.string.string_deltas import StringDelta
-from instruments.fretted_instrument.position.string.strings import Strings
 from solfege.pattern.scale.scale_pattern import ScalePattern
 from solfege.value.interval.chromatic_interval import ChromaticIntervalFrozenList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
@@ -159,19 +158,23 @@ def _generate_scale(instrument: FrettedInstrument,
                     starting_note: PositionOnFrettedInstrumentWithFingers,
                     relative_intervals: ChromaticIntervalFrozenList,
                     string_delta: Optional[Union[StringDelta]] = None, ) -> Generator[List[PositionOnFrettedInstrumentWithFingers]]:
+    """
+    Generates the list of fingered notes, such that the first note is starting_note_fingered, the intervals are in `relative_intervals`, each next string 
+    """
     assert_typing(starting_note, PositionOnFrettedInstrumentWithFingers)
     if not relative_intervals:
         yield [starting_note]
         return
     relative_interval, remaining_relative_intervals = relative_intervals.head_tail()
     for fingers_for_current_note, next_note in starting_note.positions_for_interval(instrument, interval=relative_interval, string_delta=string_delta):
-        starting_note_fingered = starting_note.restrict_fingers(fingers_for_current_note)
+        starting_note_fingered = starting_note.restrict_to_specific_fingers(fingers_for_current_note)
         for notes_for_remaining_intervals in _generate_scale(instrument, next_note, remaining_relative_intervals, string_delta=string_delta):
             assert_iterable_typing(notes_for_remaining_intervals, PositionOnFrettedInstrumentWithFingers)
-            yield [starting_note_fingered, *notes_for_remaining_intervals]
+            restricted_starting_note = starting_note_fingered.restrict_to_compatible_fingering(instrument, notes_for_remaining_intervals[0])
+            yield [restricted_starting_note, *notes_for_remaining_intervals]
 
 def generate_scale(instrument: FrettedInstrument, 
-                starting_note: PositionOnFrettedInstrument,
+                start_pos: PositionOnFrettedInstrument,
                 scale_pattern: ScalePattern,
             number_of_octaves: int,
             filter: Callable[[SetOfFrettedInstrumentPositionsWithFingers], bool] = lambda x: True,
@@ -182,7 +185,7 @@ def generate_scale(instrument: FrettedInstrument,
     filter: keep only the value for which the answer is true."""
     assert_iterable_typing(pattern_to_avoid_list, SetOfFrettedInstrumentPositionsWithFingers)
     fingers_to_scales: Dict[FingersType, List[SetOfFrettedInstrumentPositionsWithFingers]] = dict()
-    starting_note = PositionOnFrettedInstrumentWithFingers.from_fretted_instrument_position(starting_note)
+    starting_note = PositionOnFrettedInstrumentWithFingers.from_fretted_instrument_position(start_pos)
     assert_typing(scale_pattern, ScalePattern)
     for scale in _generate_scale(instrument, 
                                  starting_note, 

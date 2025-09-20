@@ -2,22 +2,19 @@ from dataclasses import dataclass, field
 from tkinter.font import names
 from typing import Generator, List, Tuple
 
-from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordColors, ChordOnFrettedInstrument
+from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-from instruments.fretted_instrument.position.set.colors import RestrictedColorsWithTonic
-from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import ScaleColors
+from instruments.fretted_instrument.position.set.colors import BlackOnly, ConditionalFretPositionSvgGenerator, ConditionalFretPositionWithTonicSvgGenerator, PositionWithIntervalLetters
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import MinimalChordDecompositionInput
-from solfege.pattern_instantiation.inversion.inversion import Inversion
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
-from solfege.value.note.chromatic_note import ChromaticNote
 from lily import lily
+from solfege.value.interval.set.chromatic_interval_list_pattern import ChromaticIntervalListPattern
 from solfege.value.note.note import Note
 from solfege.value.note.set.note_list import NoteList
 from utils.csv import CsvGenerator
 from utils.easyness import ClassWithEasyness
-from utils.frozenlist import StrFrozenList
 from utils.util import assert_iterable_typing, assert_typing, ensure_folder, img_tag
 
 @dataclass(frozen=True)
@@ -62,7 +59,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         return self.chord.is_open()
     
     def colors(self):
-        return ChordColors(self.tonic())
+        return PositionWithIntervalLetters(self.tonic().in_base_octave())
     
     def tonic(self):
         lowest_note = self.chord.get_most_grave_note().get_chromatic()
@@ -78,7 +75,8 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
             return ""
         open = self.open()
         all_colors = self.colors()
-        colors = RestrictedColorsWithTonic(all_colors, ChromaticIntervalFrozenList(interval_values))
+        #interval_values = ChromaticIntervalListPattern.make_absolute(interval_values)
+        colors = ConditionalFretPositionWithTonicSvgGenerator(all_colors, interval_values, BlackOnly(), self.tonic())
         minimal_number_of_frets = self.last_shown_fret()
         svg_file_name = transposed.save_svg(folder_path, instrument=self.instrument, colors=colors, absolute=open, minimal_number_of_frets=minimal_number_of_frets)
         return img_tag(svg_file_name)
@@ -108,7 +106,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
 
         yield notations[0] # notation
         yield ", ".join(notations[1:]) # other notations
-        yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, colors=None, absolute=self.open())) # Chord
+        yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, colors=BlackOnly(), absolute=self.open())) # Chord
         yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, colors=self.colors(), absolute=self.open())) # Colored chord
         yield self.decomposition_lily_field(f"{folder_path}/lily") # partition
         yield "x" if self.open else ""

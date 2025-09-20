@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 import unittest
 
-from utils.svg import SvgGenerator, SvgLine
+from utils.svg.svg_generator import SvgGenerator, SvgLine
 from utils.util import assert_iterable_typing, assert_typing
 
 @dataclass(frozen=True)

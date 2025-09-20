@@ -33,4 +33,4 @@ def enumerate_frets(instrument: FrettedInstrument, frets: Frets, strings: Option
 def enumerate_fretted_instrument_chords(instrument: FrettedInstrument, frets: Optional[Frets] = None) ->Generator[ChordOnFrettedInstrument]:
     assert_typing(instrument, FrettedInstrument)
     for fret in enumerate_frets(instrument, frets = frets):
-        yield ChordOnFrettedInstrument(fret.positions)
+        yield ChordOnFrettedInstrument(fret.positions, absolute=frets.absolute)

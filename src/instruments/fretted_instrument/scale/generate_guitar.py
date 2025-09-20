@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import Generator
-from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar, fretted_instruments
-from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
+from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import ScaleColors, SetOfFrettedInstrumentPositionsWithFingers
+from instruments.fretted_instrument.position.set.colors import PositionWithIntervalLetters
+from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import SetOfFrettedInstrumentPositionsWithFingers
 from instruments.fretted_instrument.scale.generate_scale import generate_scale
 from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.csv import CsvGenerator
@@ -29,10 +30,10 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
     scale_pattern: ScalePattern
     # note 3 and 4 are the same. One octave higher than note 1. This ensure that 
     # if we generate a scale starting on note 3 and 4 and it's the same pattern than a two-octave scale on note 1, the actual positions are the same. 
-    string_1_pos = PositionOnFrettedInstrument.make(Guitar.string(1), 12)
-    string_2_pos = PositionOnFrettedInstrument.make(Guitar.string(2), 12)
-    string_3_pos = PositionOnFrettedInstrument.make(Guitar.string(3), 14)
-    string_4_pos = PositionOnFrettedInstrument.make(Guitar.string(4), 9)
+    string_1_pos = PositionOnFrettedInstrument.make(Guitar.string(1), Fret(12, absolute=False))
+    string_2_pos = PositionOnFrettedInstrument.make(Guitar.string(2), Fret(12, absolute=False))
+    string_3_pos = PositionOnFrettedInstrument.make(Guitar.string(3), Fret(14, absolute=False))
+    string_4_pos = PositionOnFrettedInstrument.make(Guitar.string(4), Fret(9, absolute=False))
 
     def __post_init__(self):
         assert_typing(self.scale_pattern, ScalePattern)
@@ -43,7 +44,7 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
         first_note = scale.get_most_grave_note().get_chromatic()
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
         ensure_folder(folder_path)
-        return scale.save_svg(folder_path=folder_path, instrument=Guitar, absolute=False, colors = ScaleColors(first_note))
+        return scale.save_svg(folder_path=folder_path, instrument=Guitar, absolute=False, colors = PositionWithIntervalLetters(first_note.in_base_octave()))
 
     #Pragma mark - CsvGenerator
 
@@ -58,10 +59,10 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
 
         first_string_scales = generate_scale(Guitar, self.string_1_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
 
-        def keep_chord_with_fifth_string(chord: SetOfFrettedInstrumentPositionsWithFingers):
-            return 5 in [pos.string.value for pos in chord]
+        def keep_scale_with_fifth_string(scale: SetOfFrettedInstrumentPositionsWithFingers):
+            return 5 in [pos.string.value for pos in scale]
 
-        second_string_scales = generate_scale(Guitar, self.string_2_pos, self.scale_pattern, number_of_octaves=1, filter=keep_chord_with_fifth_string, pattern_to_avoid_list=avoid).all_scales()
+        second_string_scales = generate_scale(Guitar, self.string_2_pos, self.scale_pattern, number_of_octaves=1, filter=keep_scale_with_fifth_string, pattern_to_avoid_list=avoid).all_scales()
         # The only case where it's interesting to start on second string without repeating the first string is if we end on string 5
         best_second_string_scale_with_fifth_string = None
         if second_string_scales:

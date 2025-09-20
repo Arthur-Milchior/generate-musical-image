@@ -9,7 +9,6 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instrument import
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fret.fret_deltas import FretDelta
 from instruments.fretted_instrument.position.fret.frets import Frets
-from instruments.fretted_instrument.position.set.colors import DEFAUL_COLOR
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
 from instruments.fretted_instrument.position.string.strings import Strings
@@ -29,14 +28,6 @@ string_number_to_note_played_when_free = {
     5: ChromaticNote(11),
     6: ChromaticNote(16),
 }
-# COLOR_TONIC = "red"
-# COLOR_THIRD = "blue"
-# COLOR_FIFTH = "grey"
-# COLOR_QUALITY = "green"
-# COLOR_OTHER = "purple"
-
-# colors = [COLOR_TONIC, COLOR_OTHER, COLOR_OTHER, COLOR_THIRD, COLOR_THIRD, ]
-
 @dataclass(frozen=True)
 class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefaultArgument):
     """A position on the fretted_instrument, that is, a string and a fret.
@@ -79,19 +70,6 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
             frets = frets.range(instrument, self.fret)
         chromatic_note = self.get_chromatic() + interval
         return PositionOnFrettedInstrument.from_chromatic(instrument, chromatic_note, self.fret.absolute, strings, frets)
-
-    def svg(self, absolute: bool, stroke_color: Optional[str]) -> List[str]:
-        """Draw this position, assuming that f already contains the svg for the fret"""
-        if stroke_color is None:
-            stroke_color = DEFAUL_COLOR
-        fill_color = "white" if self.fret.is_open() else (stroke_color)
-        x = self.string.x()
-        if self.fret.is_not_played():
-            if absolute:
-                return [f"""<text x="{int(x)-15}" y="{int(MARGIN)-10}" font-size="50">""", """x<!-- string {self.string.value}, not played-->""", """</text>"""]
-            return [f"""<!-- string {self.string.value} not played. Not shown as it's transposable-->"""]
-        y = self.fret.y_dots()
-        return [f"""<circle cx="{int(x)}" cy="{int(y)}" r="{int(CIRCLE_RADIUS)}" fill="{fill_color}" stroke="{stroke_color}" stroke-width="{STROKE_WIDTH}"/><!-- String N° {self.string.value}, position {self.fret.value}-->"""]
 
     def __eq__(self, other: PositionOnFrettedInstrument):
         assert_typing(other, PositionOnFrettedInstrument)

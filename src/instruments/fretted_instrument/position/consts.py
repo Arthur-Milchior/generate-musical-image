@@ -22,6 +22,7 @@ RATIO_FRET_HEIGHT = 1/pow(2, 1/12)
 
 
 """Ensuring that two nearby circle have a little separation"""
-CIRCLE_RADIUS = DISTANCE_BETWEEN_STRING * 3/8
+CIRCLE_RADIUS = DISTANCE_BETWEEN_STRING * .47
+CIRCLE_STROKE_WIDTH = 5 * RATIO_IMAGE
 
-
+FONT_SIZE =12
