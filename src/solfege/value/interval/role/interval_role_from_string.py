@@ -12,7 +12,8 @@ class IntervalRoleFromString(IntervalRole):
     role: str
 
     #pragma mark - IntervalRole
-    def text_for_guitar_image(self) -> str: ...
+    def text_for_guitar_image(self) -> str: 
+        return self.role
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod

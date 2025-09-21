@@ -13,5 +13,5 @@ class IntervalAlteration(Alteration):
         """The letter to display on guitar image"""
 
     @abstractmethod
-    def letter(self) -> str:
+    def name(self) -> str:
         """The name of this alteration"""

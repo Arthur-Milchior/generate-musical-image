@@ -80,4 +80,3 @@ four_flats = Interval.make(_diatonic=5, _chromatic=8)  # when playing a C scale,
 five_flats = Interval.make(_diatonic=1, _chromatic=1)  # when playing a C scale, have Bb major signature, 5 flats
 height_flats = Interval.make(_diatonic=3, _chromatic=4)  # when playing a C scale, have Fb major signature, 8 flats including Bbb
 
-

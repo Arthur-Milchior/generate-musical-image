@@ -5,6 +5,7 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instruments impor
 from instruments.fretted_instrument.position.fretted_position_maker.conditional_fretted_position_maker import ConditionalFrettedPositionMaker
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
 from lily.lily_svg import display_svg_file
+from solfege.pattern.chord.chord_patterns import major_triad
 from solfege.value.note.chromatic_note import ChromaticNote
 from instruments.fretted_instrument.chord.test_constants import C4M, F4M, _make, fret, ones, diag_two, diag , entirely_open_chord
 
@@ -32,8 +33,8 @@ class TestFrettedInstrumentChord(unittest.TestCase):
     
     def test_show_chord(self):
         tonic = ChromaticNote(9)
-        black_letter_maker = FrettedPositionMakerForInterval.make(tonic=tonic)
-        colored_letter_maker = FrettedPositionMakerForInterval.make(tonic=tonic, style="fill: red;font: italic 12px serif;", circle_color="red")
+        black_letter_maker = FrettedPositionMakerForInterval.make(tonic=tonic, pattern=major_triad)
+        colored_letter_maker = FrettedPositionMakerForInterval.make(tonic=tonic, pattern=major_triad, style="fill: red;font: italic 12px serif;", circle_color="red")
         maker = ConditionalFrettedPositionMaker(
             maker_for_selected_interval=colored_letter_maker,
             selected_intervals=[4],

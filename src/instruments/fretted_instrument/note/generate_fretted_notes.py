@@ -43,7 +43,7 @@ class NoteOnFrettedInstrumentAnkiNote(DataClassWithDefaultArgument, CsvGenerator
         return cls(instrument, note, string_to_pos) 
 
     def folder_path(self):
-        folder_path =  f"{generate_root_folder}/{self.instrument.name}/note"
+        folder_path =  f"{generate_root_folder}/{self.instrument.get_name()}/note"
         ensure_folder(folder_path)
         return folder_path
 
@@ -54,7 +54,7 @@ class NoteOnFrettedInstrumentAnkiNote(DataClassWithDefaultArgument, CsvGenerator
         return self.note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output = AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
 
     def svg_name_for_all_positions(self):
-        return f"{self.instrument.name}_{self.note.non_ambiguous_string_for_file_name()}.svg"
+        return f"{self.instrument.get_name()}_{self.note.non_ambiguous_string_for_file_name()}.svg"
     
     def strings(self):
         return frozenset(pos.string for pos in self.positions())
@@ -103,7 +103,7 @@ class NoteOnFrettedInstrumentAnkiNote(DataClassWithDefaultArgument, CsvGenerator
             self.name_for_field(),
             self.partition_field(),
             self.all_notes_field(),
-            self.instrument.name,
+            self.instrument.get_name(),
             self.field_for_string(strings[0]),
             self.field_for_string(strings[1]),
             self.field_for_string(strings[2]),

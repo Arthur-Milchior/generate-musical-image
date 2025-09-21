@@ -265,7 +265,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return self.last_shown_fret(minimal_number_of_frets).y_fret() + MARGIN
     
     def _svg_name_base(self, instrument: FrettedInstrument, fretted_position_maker: FrettedPositionMaker, **kwargs):
-        return f"""{instrument.name}_{str(fretted_position_maker) if fretted_position_maker is not None else "black"}_{"absolute" if self.absolute else "transposable"}_{"__".join(f"{pos.string.value}_{pos.fret.value}" for pos in self)}"""
+        return f"""{instrument.get_name()}_{str(fretted_position_maker) if fretted_position_maker is not None else "black"}_{"absolute" if self.absolute else "transposable"}_{"__".join(f"{pos.string.value}_{pos.fret.value}" for pos in self)}"""
 
     #pragma mark - MakeableWithSingleArgument
 

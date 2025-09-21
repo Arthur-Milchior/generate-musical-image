@@ -22,7 +22,7 @@ class IntervalListPattern(AbstractIntervalListPattern[Interval]):
     @staticmethod
     def interval_repr(interval: Interval) -> str:
         "How to display the interval in make."
-        return f"""({interval._chromatic.value}, {interval._diatonic.value})"""
+        return f"""({interval.get_chromatic().value}, {interval._diatonic.value})"""
 
     def get_chromatic_interval_list(self) -> ChromaticIntervalListPattern:
         chromatic_interval_list = ChromaticIntervalListPattern.make_absolute([interval.get_chromatic() for interval in self._absolute_intervals], increasing=self.increasing)

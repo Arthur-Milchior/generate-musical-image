@@ -68,7 +68,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern], ClassWithE
         return f"chord_{str(clef)}_{notes_str}"
     
     def chromatic(self):
-        return ChromaticNoteList.make(note._chromatic for note in self)
+        return ChromaticNoteList.make(note.get_chromatic() for note in self)
         
     def change_octave_to_be_enharmonic(self, chromatic_note_list: ChromaticNoteList) -> Optional[Self]:
         """Return a list of note, enharmonic to `chromatic_note_list`, containing notes equals to note of the current list, up to octave.
@@ -83,7 +83,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern], ClassWithE
         return self.__class__.make(notes)
 
     def __repr__(self):
-        return f"""NoteList.make([{", ".join(f"({note._chromatic.value}, {note._diatonic.value})" for note in self)}])"""
+        return f"""NoteList.make([{", ".join(f"({note.get_chromatic().value}, {note._diatonic.value})" for note in self)}])"""
     
     def easy_key(self) -> int:
         return sum(note.easy_key() for note in self)

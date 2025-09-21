@@ -58,7 +58,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     def fretted_position_maker(self, all_marked:bool):
         style = "fill: red;font: italic 12px serif;" if all_marked else None
         color = "red" if all_marked else None
-        return FrettedPositionMakerForInterval.make(self.tonic().in_base_octave(), style=style, circle_color=color)
+        return FrettedPositionMakerForInterval.make(self.tonic().in_base_octave(), pattern=self.identical_inversions.get_inversion_patterns()[0].base, style=style, circle_color=color)
     
     def tonic(self):
         lowest_note = self.chord.get_most_grave_note().get_chromatic()
@@ -112,7 +112,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         yield str(self.first_string())
         yield str(self.last_string())
         yield from [self.single_role_field(folder_path, interval_values) for interval_values in [[0], [1, 2], [3, 4], [5], [6, 7, 8], [9, 10, 11]]]
-        yield self.instrument.name
+        yield self.instrument.get_name()
 
     #pragma mark - ClassWithEasyness
 

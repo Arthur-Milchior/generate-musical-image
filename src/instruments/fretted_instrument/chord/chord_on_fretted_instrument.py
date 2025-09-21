@@ -141,7 +141,7 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
         frets = "_".join(str(value) if value is not None else "x" for value in fret_values)
         if minimal_number_of_frets is None:
             minimal_number_of_frets = self.last_shown_fret()
-        return f"{instrument.name}_chord_{"open" if self.absolute else "transposable"}_{minimal_number_of_frets.value}_frets_{str(fretted_position_maker) if fretted_position_maker else "black"}_{frets}"
+        return f"{instrument.get_name()}_chord_{"open" if self.absolute else "transposable"}_{minimal_number_of_frets.value}_frets_{str(fretted_position_maker) if fretted_position_maker else "black"}_{frets}"
         
 
 intervals_in_base_octave_to_fretted_instrument_chord: Dict[ChromaticIntervalListPattern, List[ChordOnFrettedInstrument]] = dict()

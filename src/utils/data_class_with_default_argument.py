@@ -34,7 +34,7 @@ class DataClassWithDefaultArgument:
         if clean is not None:
             value = clean(value)
         if type is not None:
-            assert_typing(kwargs, type)
+            assert_typing(value, type)
         kwargs[name] = value
         return kwargs
     

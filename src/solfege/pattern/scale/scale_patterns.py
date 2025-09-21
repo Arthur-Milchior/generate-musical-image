@@ -12,7 +12,7 @@ major_scale = ScalePattern.make_relative(names=["Major"], relative_intervals=[2,
 pentatonic_minor = ScalePattern.make_relative(names=["Pentatonic minor"], relative_intervals=[(3, 2), 2, 2, (3, 2), 2],
                                           interval_for_signature=three_flats)
 minor_natural = ScalePattern.make_relative(names=["Minor natural", "Aeolian mode"], relative_intervals=[2, 1, 2, 2, 1, 2, 2], interval_for_signature=three_flats)
-blues = ScalePattern.make_relative(names=["Blues"], relative_intervals=[(3, 2), 2, (1, 0, "b"), 1, (3, 2), 2], interval_for_signature=three_flats)
+blues = ScalePattern.make_relative(names=["Blues"], relative_intervals=[(3, 2), 2, (1, 0, "BN"), 1, (3, 2), 2], interval_for_signature=three_flats)
 minor_harmonic = ScalePattern.make_relative(names=["Minor harmonic"], relative_intervals=[2, 1, 2, 2, 1, 3, 1], interval_for_signature=three_flats)
 chromatic_scale_pattern = ScalePattern.make_relative(names=["Chromatic"], relative_intervals=
                                                  [(1, 0), (1, 1), (1, 0), (1, 1), (1, 1), (1, 0), (1, 1), (1, 0),

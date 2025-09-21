@@ -94,13 +94,13 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         transposed_chord, transposition = fretted_chord, 0 if self.absolute else fretted_chord.transpose_to_fret_one()
         pos_of_lowest_note = transposed_chord.get_most_grave_note()
         chromatic_lowest_note = pos_of_lowest_note.get_chromatic()
-        easiest_inversion = self.key.get_identical_inversion_pattern().easiest_inversion()
-        lowest_note = easiest_inversion.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
-        tonic = easiest_inversion.get_tonic(lowest_note)
-        chromatic_tonic = tonic._chromatic.in_base_octave()
+        easiest_inversion_pattern = self.key.get_identical_inversion_pattern().easiest_inversion()
+        lowest_note = easiest_inversion_pattern.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
+        tonic = easiest_inversion_pattern.get_tonic(lowest_note)
+        chromatic_tonic = tonic.get_chromatic().in_base_octave()
         return (
             img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=self.absolute)),
-            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=FrettedPositionMakerForInterval.make(chromatic_tonic), absolute=self.absolute)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=FrettedPositionMakerForInterval.make(tonic=chromatic_tonic, pattern=easiest_inversion_pattern.base), absolute=self.absolute)),
             #self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
         )
     
@@ -114,7 +114,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     def csv_content(self, folder_path: str):
         yield self.first_name()
         yield self.other_names()
-        yield self.instrument.name
+        yield self.instrument.get_name()
         yield "x" if self.absolute else ""
         maximals = self.maximals()
         individual_maximals, other_maximals = maximals[:7], maximals[7:]

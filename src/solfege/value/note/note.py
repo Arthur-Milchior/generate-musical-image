@@ -29,7 +29,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
 
     def __post_init__(self):
         super().__post_init__()
-        assert_typing(self._chromatic, ChromaticNote)
+        assert_typing(self.get_chromatic(), ChromaticNote)
         assert_typing(self._diatonic, DiatonicNote)
 
     @classmethod
@@ -45,15 +45,15 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
         alteration_name = "".join(letter for letter in name if letter in alteration_symbols)
         diatonic = DiatonicNote.from_name(diatonic_name)
         alteration = NoteAlteration.from_name(alteration_name)
-        chromatic = Note.from_diatonic(diatonic)._chromatic + alteration
+        chromatic = Note.from_diatonic(diatonic).get_chromatic() + alteration
         return Note(chromatic, diatonic)
     
     def __repr__(self):
-        return f"Note.make({self._chromatic.value}, {self._diatonic.value})"
+        return f"Note.make({self.get_chromatic().value}, {self._diatonic.value})"
 
     def _sub_note(self, other: Note) -> Interval:
         diatonic = self._diatonic - other._diatonic
-        chromatic = self._chromatic - other._chromatic
+        chromatic = self.get_chromatic() - other.get_chromatic()
 
         return self.IntervalClass.make_instance_of_selfs_class(chromatic, diatonic)
 
@@ -66,13 +66,13 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
         lower, higher = low_and_high(self, other)
         from solfege.value.interval.interval import Interval
         diff: Interval = higher - lower
-        value = diff._chromatic.value
+        value = diff.get_chromatic().value
         assert value > 0
         if value <= 2:
             return True
         if value > 3:
             return False
-        if higher.in_base_octave()._chromatic.value in [0, 1, 2, 5, 6, 7]:  # C or F natural
+        if higher.in_base_octave().get_chromatic().value in [0, 1, 2, 5, 6, 7]:  # C or F natural
             return False
         return True
 
@@ -144,14 +144,14 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
         return self.get_alteration() == DOUBLE_FLAT
     
     def is_black_key_on_piano(self):
-        return self._chromatic.is_black_key_on_piano()
+        return self.get_chromatic().is_black_key_on_piano()
     
     def is_white_key_on_piano(self):
-        return self._chromatic.is_white_key_on_piano()
+        return self.get_chromatic().is_white_key_on_piano()
     
     def change_octave_to_be_enharmonic(self, chromatic_note: ChromaticNote) -> Optional[Self]:
         from solfege.value.interval.chromatic_interval import ChromaticInterval
-        chromatic_distance: ChromaticInterval = chromatic_note - self._chromatic 
+        chromatic_distance: ChromaticInterval = chromatic_note - self.get_chromatic() 
         if chromatic_distance.value % Chromatic.number_of_interval_in_an_octave != 0:
             return None
         number_octave = chromatic_distance.value // Chromatic.number_of_interval_in_an_octave
@@ -160,7 +160,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
     #pragma mark - Abstract
     
     def __sub__(self, other: Union[Self, Interval]) -> Union[Self, Interval]:
-        chromatic = self._chromatic - other._chromatic
+        chromatic = self.get_chromatic() - other.get_chromatic()
         diatonic = self._diatonic - other._diatonic
         if self.__class__ == other.__class__:
             return Interval.make(chromatic, diatonic)
@@ -179,7 +179,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
  
     def __add__(self, other: Interval) -> Self:
         if isinstance(other, Interval):
-            return dataclasses.replace(self, _chromatic=self._chromatic + other._chromatic, _diatonic=self._diatonic + other._diatonic)
+            return dataclasses.replace(self, _chromatic=self.get_chromatic() + other.get_chromatic(), _diatonic=self._diatonic + other._diatonic)
         return NotImplemented
 
     def non_ambiguous_string_for_file_name(self):

@@ -36,7 +36,7 @@ class AbstractIdenticalInversionInstantiationAndItsFrettedInstrumentChords(Abstr
             chord_pattern_notation = inversion.base.first_of_the_names()
         chord_notation = f"{note_name}{chord_pattern_notation}"
         if inversion.inversion == 0:
-            assert tonic._chromatic == chromatic_lowest_note
+            assert tonic.get_chromatic() == chromatic_lowest_note
             return [chord_notation]
         else:
             return [f"""{chord_notation}/{lowest_note_name}"""]

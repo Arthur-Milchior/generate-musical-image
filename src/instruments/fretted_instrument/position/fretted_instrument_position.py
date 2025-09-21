@@ -103,7 +103,7 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     def singleton_diagram_key(self, instrument: FrettedInstrument):
         assert_typing(instrument, FrettedInstrument)
         """A unique name short name for this position."""
-        return f"""{instrument.name}_{self.string.value}_{self.fret.value}"""
+        return f"""{instrument.get_name()}_{self.string.value}_{self.fret.value}"""
 
     def singleton_diagram_svg(self, instrument: FrettedInstrument):
         """The svg for a diagram with only this note"""

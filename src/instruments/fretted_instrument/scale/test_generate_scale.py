@@ -3,13 +3,15 @@ import unittest
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fret.fret import Fret
+from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrumentFrozenList
 from instruments.fretted_instrument.position.fretted_instrument_position_with_fingers import FrettedInstrumentPositionWithFingersFrozenList
+from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
 from lily.lily_svg import display_svg_file
 from utils.util import ensure_folder, save_file
-from .generate_scale import *
-from solfege.pattern.scale.scale_patterns import major_scale, pentatonic_major
+from .anki_scale import *
+from solfege.pattern.scale.scale_patterns import major_scale, blues
 
-from .generate_scale import _generate_scale
+from .anki_scale import _generate_scale
 
 def position_make(string: int, fret:int, fingers:Set[int]):
     string = Guitar.string(string)
@@ -77,6 +79,7 @@ major_3_path = f"{folder_path}/major_3.svg"
 major_4_path = f"{folder_path}/major_4.svg"
 major_5_path = f"{folder_path}/major_5.svg"
 ensure_folder(folder_path)
+
 
 strings = list(Guitar.strings())
 
@@ -165,6 +168,27 @@ class TestGenerateScale(unittest.TestCase):
             expected_scale_with_string,
             actual
         )
+
+    
+    def test_show_scale(self):
+        first_position = PositionOnFrettedInstrument.make(Guitar.string(2), Fret(3, absolute=False))
+        tonic = first_position.get_chromatic()
+        maker = FrettedPositionMakerForInterval.make(tonic=tonic, pattern=blues)
+        position_list = PositionOnFrettedInstrumentFrozenList(
+            [
+              first_position, 
+              (Guitar.string(2), Fret(6, absolute=False)),
+              (Guitar.string(3), Fret(3, absolute=False)),
+              (Guitar.string(3), Fret(4, absolute=False)),
+              (Guitar.string(3), Fret(5, absolute=False)),
+              (Guitar.string(4), Fret(3, absolute=False)),
+              (Guitar.string(5), Fret(1, absolute=False)),
+             ]
+        )
+        scale = SetOfPositionOnFrettedInstrument.make(position_list, absolute=False)
+        file_name = scale.save_svg(folder_path, instrument=Guitar, fretted_position_maker=maker)
+        display_svg_file(f"{folder_path}/{file_name}" )
+        # uncomment to see what the image looks like
         
     # def test_pentatonic_major_finger_2(self):
     #     actual = generate_scale(instrument= Guitar,

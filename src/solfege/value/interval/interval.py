@@ -26,16 +26,16 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval, Inter
 
     def __post_init__(self):
         super().__post_init__()
-        chromatic_role = self._chromatic._role
+        chromatic_role = self.get_chromatic()._role
         if chromatic_role is not None:
             assert self.get_role() == chromatic_role
-        assert_typing(self._chromatic, ChromaticInterval)
+        assert_typing(self.get_chromatic(), ChromaticInterval)
         assert_typing(self._diatonic, DiatonicInterval)
 
     def __mul__(self, other: int) -> Self:
         assert isinstance(other, int)
         diatonic = self._diatonic * other
-        chromatic = self._chromatic * other
+        chromatic = self.get_chromatic() * other
         assert_typing(diatonic, diatonic.__class__)
         assert_typing(chromatic, chromatic.__class__)
         return self.make_instance_of_selfs_class(_chromatic=chromatic, _diatonic=diatonic)
@@ -43,21 +43,22 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval, Inter
     def __add__(self, other: Self) -> Self:
         if not other.__class__ == self.__class__:
             return NotImplemented
-        return self.make_instance_of_selfs_class(_chromatic=self._chromatic + other._chromatic, _diatonic=self._diatonic+other._diatonic)
+        return self.make_instance_of_selfs_class(_chromatic=self.get_chromatic() + other.get_chromatic(), _diatonic=self._diatonic+other._diatonic)
     
     #pragma mark - ChromaticGetter
     
     def get_chromatic(self)-> ChromaticInterval:
         role = self.get_role()
-        chromatic_role = self._chromatic._role
+        current_chromatic = self._chromatic
+        chromatic_role = current_chromatic._role
         if chromatic_role is not None:
             assert chromatic_role == role
-        return dataclasses.replace(self._chromatic, _role = role)
+        return dataclasses.replace(current_chromatic, _role = role)
 
     #pragma mark - AbstractInterval
 
     def __neg__(self) -> Self:
-        return self.make_instance_of_selfs_class(_chromatic=-self._chromatic, _diatonic=-self._diatonic)
+        return self.make_instance_of_selfs_class(_chromatic=-self.get_chromatic(), _diatonic=-self._diatonic)
     
     def get_role(self) -> IntervalRole:
         if self._role is None:
@@ -83,18 +84,13 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval, Inter
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         kwargs["_role"] = None
         return kwargs
-    
-    @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
-        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        return args, kwargs
 
 
 class IntervalFrozenList(FrozenList[Interval]):
     type = Interval
 
     def get_chromatic_intervals(self) ->ChromaticIntervalFrozenList:
-        return ChromaticIntervalFrozenList.make(interval._chromatic for interval in self)
+        return ChromaticIntervalFrozenList.make(interval.get_chromatic() for interval in self)
 
 Interval.IntervalClass = Interval
 Interval.PairClass = Interval

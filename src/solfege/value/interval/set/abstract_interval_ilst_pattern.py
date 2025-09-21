@@ -47,6 +47,8 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
             next_interval = absolute_intervals[-1] + relative_interval
             if role_maker:
                 next_interval = dataclasses.replace(next_interval, _role=role_maker(index_relative + 1 ))
+            if relative_interval._role:
+                next_interval = dataclasses.replace(next_interval, _role=relative_interval._role)
             absolute_intervals.append(next_interval)
         return cls.make(*args, _absolute_intervals=cls._frozen_list_type(absolute_intervals), **kwargs)
 

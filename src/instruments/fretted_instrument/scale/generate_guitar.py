@@ -3,9 +3,9 @@ from typing import Generator
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_with_letters import FrettedPositionMakerForInterval
+from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import SetOfFrettedInstrumentPositionsWithFingers
-from instruments.fretted_instrument.scale.generate_scale import generate_scale
+from instruments.fretted_instrument.scale.anki_scale import generate_scale
 from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.csv import CsvGenerator
 from utils.util import *
@@ -44,7 +44,8 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
         first_note = scale.get_most_grave_note().get_chromatic()
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
         ensure_folder(folder_path)
-        return scale.save_svg(folder_path=folder_path, instrument=Guitar, absolute=False, fretted_position_maker = FrettedPositionMakerForInterval.make(first_note.in_base_octave()))
+        maker = FrettedPositionMakerForInterval.make(tonic=first_note.in_base_octave(), pattern=self.scale_pattern)
+        return scale.save_svg(folder_path=folder_path, instrument=Guitar, absolute=False, fretted_position_maker = maker)
 
     #Pragma mark - CsvGenerator
 

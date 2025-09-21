@@ -1,8 +1,9 @@
 import unittest
 from solfege.pattern.scale.scale_pattern import *
-from solfege.pattern.scale.scale_patterns import *
+from solfege.value.interval.role.interval_role_from_string import IntervalRoleFromString
 from utils.util import assert_typing
 
+from solfege.value.key.keys import *
 
 class TestScalePattern(unittest.TestCase):
 
@@ -21,6 +22,7 @@ class TestScalePattern(unittest.TestCase):
         self.assertEqual(scale1.notes, scale2.notes)
 
     def test_ne(self):
+        from solfege.pattern.scale.scale_patterns import minor_melodic
         self.assertNotEqual(minor_melodic,
                              ScalePattern.make_relative([2, 1, 2, 2, 2, 2, 1], names=["Minor melodic"], interval_for_signature=four_flats, record=False))
         self.assertNotEqual(minor_melodic, ScalePattern.make_relative( [2, 1, 2, 2, 2, 2],names=["Minor melodic"],
@@ -29,6 +31,7 @@ class TestScalePattern(unittest.TestCase):
                                                                    interval_for_signature=three_flats, record=False))
 
     def test_eq(self):
+        from solfege.pattern.scale.scale_patterns import minor_melodic
         self.assertEqual(minor_melodic.interval_for_signature, three_flats)
         self.assertEqual(list(minor_melodic.relative_intervals()), [
             Interval.make(_chromatic=2, _diatonic=1),
@@ -42,6 +45,7 @@ class TestScalePattern(unittest.TestCase):
 
     def test_get_notes(self):
         tonic = Note.make(0, 0)
+        from solfege.pattern.scale.scale_patterns import minor_melodic
         self.assertEqual(minor_melodic.from_note(tonic).notes,
                           ([
                               Note.make(0, 0),
@@ -55,6 +59,7 @@ class TestScalePattern(unittest.TestCase):
                           ]))
 
     def test_neg(self):
+        from solfege.pattern.scale.scale_patterns import minor_melodic, minor_natural
         reversed = -minor_melodic
         expected = ScalePattern.make_relative(names=["Minor melodic"],
                                           relative_intervals=[
@@ -70,6 +75,7 @@ class TestScalePattern(unittest.TestCase):
                           expected)
 
     def test_generate(self):
+        from solfege.pattern.scale.scale_patterns import minor_melodic
         expected = Scale(notes=[
             Note.make(0, 0),
             Note.make(2, 1),
@@ -84,6 +90,7 @@ class TestScalePattern(unittest.TestCase):
         self.assertScaleEqual(expected, generated)
 
     def test_generate_two(self):
+        from solfege.pattern.scale.scale_patterns import minor_melodic
         expected = Scale(notes=[
             Note.make(0, 0),
             Note.make(2, 1),
@@ -105,6 +112,7 @@ class TestScalePattern(unittest.TestCase):
         self.assertScaleEqual(expected, generated)
 
     def test_generate_two_extra(self):
+        from solfege.pattern.scale.scale_patterns import minor_melodic
         expected = Scale(notes=[
             Note.make(0, 0),
             Note.make(2, 1),
@@ -127,6 +135,7 @@ class TestScalePattern(unittest.TestCase):
         self.assertEqual(expected, generated)
 
     def test_generate_minus_two(self):
+        from solfege.pattern.scale.scale_patterns import minor_melodic
         expected = Scale(notes=[
             Note.make(0, 0),
             Note.make(-1, -1),
@@ -148,6 +157,7 @@ class TestScalePattern(unittest.TestCase):
         self.assertScaleEqual(expected, generated)
 
     def test_generate_minus_two_extra(self):
+        from solfege.pattern.scale.scale_patterns import minor_melodic
         expected = Scale(notes=[
             Note.make(0, 0),
             Note.make(-1, -1),
@@ -170,6 +180,7 @@ class TestScalePattern(unittest.TestCase):
         self.assertEqual(expected, generated)
 
     def test_multiple_octave(self):
+        from solfege.pattern.scale.scale_patterns import major_scale
         self.assertEqual(
             IntervalListPattern.make_relative([]), 
             major_scale.multiple_octaves(0))
@@ -181,3 +192,11 @@ class TestScalePattern(unittest.TestCase):
         self.assertEqual(
             IntervalListPattern.make_relative([2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, ]), 
             major_scale.multiple_octaves(2))
+        
+    def test_keep_role(self):
+        blues = ScalePattern.make_relative(names=["Blues"], relative_intervals=[(3, 2), 2, (1, 0, "b"), 1, (3, 2), 2], interval_for_signature=three_flats, record=False)
+        absolute_intervals = blues.absolute_intervals()
+        blue_note = absolute_intervals[3]
+        self.assertEqual(blue_note.get_chromatic().value, 6)
+        self.assertEqual(blue_note.get_diatonic().value, 3)
+        self.assertEqual(blue_note._role, IntervalRoleFromString("b"))

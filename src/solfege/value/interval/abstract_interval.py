@@ -7,7 +7,8 @@ from typing import Dict, List, Optional, TypeVar
 
 from solfege.value.abstract import Abstract
 from solfege.value.interval.role.interval_role import IntervalRole
-from utils.util import assert_typing
+from solfege.value.interval.role.interval_role_from_string import IntervalRoleFromString
+from utils.util import assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True, unsafe_hash=True, eq=False, repr=False)
@@ -40,11 +41,17 @@ class AbstractInterval(Abstract, ABC):
     
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        def clean_role(role):
+            if isinstance(role, str):
+                return IntervalRoleFromString(role)
+            assert_typing(role, IntervalRole)
+            return role
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_role")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_role", clean_role)
         return args, kwargs
 
     def __post_init__(self):
+        assert_optional_typing(self._role, IntervalRole)
         super().__post_init__()
     
     # must be implemented by subclasses
@@ -53,6 +60,7 @@ class AbstractInterval(Abstract, ABC):
     @abstractmethod
     def unison(cls):
         return NotImplemented
+        
 
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)

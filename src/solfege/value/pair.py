@@ -56,21 +56,21 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
     def from_diatonic(cls, diatonic: DiatonicType, scale: str="Major"):
         assert_typing(diatonic, cls.DiatonicClass)
         assert scale == "Major"
-        chromatic = cls.ChromaticClass([0, 2, 4, 5, 7, 9, 11][
+        chromatic = cls.ChromaticClass.make([0, 2, 4, 5, 7, 9, 11][
                                              diatonic.in_base_octave().value] + 12 * diatonic.octave())
-        return cls(chromatic, diatonic)
+        return cls.make(chromatic, diatonic)
 
     def __eq__(self, other: "Pair"):
         diatonicEq = self._diatonic == other._diatonic
-        chromaticEq = self._chromatic == other._chromatic
+        chromaticEq = self.get_chromatic() == other.get_chromatic()
         return diatonicEq and chromaticEq
 
     def _get_alteration_value(self) -> int:
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
         from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
         diatonic = self.get_diatonic()
-        chromatic_from_diatonic = self.__class__.from_diatonic(diatonic)._chromatic
-        return self._chromatic.value - chromatic_from_diatonic.value
+        chromatic_from_diatonic = self.__class__.from_diatonic(diatonic).get_chromatic()
+        return self.get_chromatic().value - chromatic_from_diatonic.value
 
     def get_alteration(self) -> AlterationType:
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
@@ -82,20 +82,20 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
             raise
 
     def __repr__(self):
-        return f"{self.__class__.__name__}.make({self._chromatic.value}, {self._diatonic.value})"
+        return f"{self.__class__.__name__}.make({self.get_chromatic().value}, {self._diatonic.value})"
 
     def __le__(self, other: "Pair"):
         assert_typing(other, self.__class__)
-        return (self._chromatic, self._diatonic) <= (other._chromatic, other._diatonic)
+        return (self.get_chromatic(), self._diatonic) <= (other.get_chromatic(), other._diatonic)
 
     def __lt__(self, other: "Pair"):
         assert_typing(other, self.__class__)
-        return (self._chromatic, self._diatonic) < (other._chromatic, other._diatonic)
+        return (self.get_chromatic(), self._diatonic) < (other.get_chromatic(), other._diatonic)
 
     #pragma mark - MakeableWithSingleArgument
 
     def repr_single_argument(self) -> str:
-        return f"""{self._chromatic.value, self._diatonic.value}"""
+        return f"""{self.get_chromatic().value, self._diatonic.value}"""
 
     @classmethod
     def _make_single_argument(cls, arg: Union[Tuple[int, int], int]):
@@ -131,7 +131,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
 
     # Pragma mark - DataClassWithDefaultArgument
     def __post_init__(self):
-        assert_typing(self._chromatic, self.ChromaticClass)
+        assert_typing(self.get_chromatic(), self.ChromaticClass)
         assert_typing(self._diatonic, self.DiatonicClass)
         super().__post_init__()
     

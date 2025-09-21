@@ -1,4 +1,7 @@
+from typing import List, Optional
+from instruments.fretted_instrument.fretted_instrument.abstract_fretted_instrument import AbstractFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+from instruments.fretted_instrument.fretted_instrument.tuning import Tuning
 from instruments.fretted_instrument.position.fret.fret_deltas import FretDelta
 from solfege.value.note.clef import Clef
 from utils.util import assert_typing
@@ -74,29 +77,44 @@ for lower, dic in ukulele_finger_to_fret_delta.items():
 # }
 
 
-Ukulele = FrettedInstrument.make(
-    name= "ukulele",
+abstract_ukulele = AbstractFrettedInstrument.make(
+    _name= "ukulele",
     number_of_frets=12, 
-    open_string_chromatic_note= ["G4", "C4", "E4", "A4"],
     clef=Clef.TREBLE, 
     finger_to_fret_delta=ukulele_finger_to_fret_delta,
+    number_of_strings = 4,
     number_of_scales_reachable_per_string = [0, 1, 0, 0],
     )
-Guitar = FrettedInstrument.make(
-    name="guitar",
-    number_of_frets=24, 
-    open_string_chromatic_note= ["E3", "A3", "D4", "G4", "B4", "E5"],
-    clef=Clef.TREBLE,
-    finger_to_fret_delta=finger_to_fret_delta,
-    number_of_scales_reachable_per_string = [2, 2, 1, 1, 0, 0],
-    )
-Bass = FrettedInstrument.make(
-    name = "bass",
+ukulele_tuning = Tuning.make(["G4", "C4", "E4", "A4"])
+Ukulele = FrettedInstrument(abstract_ukulele, ukulele_tuning)
+
+abstract_bass = AbstractFrettedInstrument.make(
+    _name = "bass",
     number_of_frets=20, 
-    open_string_chromatic_note= ["E2", "A2", "D3", "G3"],
     clef=Clef.BASS,
     finger_to_fret_delta=finger_to_fret_delta,
+    number_of_strings = 4,
     number_of_scales_reachable_per_string = [1, 1, 0, 0],
     )
+bass_tuning = Tuning.make(["E2", "A2", "D3", "G3"])
+Bass = FrettedInstrument(abstract_bass, bass_tuning)
+
+abstract_guitar = AbstractFrettedInstrument.make(
+        _name="guitar",
+        number_of_frets=24, 
+        clef=Clef.TREBLE,
+        finger_to_fret_delta=finger_to_fret_delta,
+        number_of_strings = 6,
+        number_of_scales_reachable_per_string = [2, 2, 1, 1, 0, 0],
+    )
+guitar_default_tuning = Tuning.make(["E3", "A3", "D4", "G4", "B4", "E5"])
+ 
+Guitar  = FrettedInstrument(abstract_guitar, guitar_default_tuning)
+drop_d = Tuning.make(["D3", "A3", "D4", "G4", "B4", "E5"], "drop D")
+double_drop_d = Tuning.make(["D3", "A3", "D4", "G4", "B4", "E5"], "Douple drop d")
+vestapol = Tuning.make(["D3", "A3", "D4", "F4#", "A4", "D5"], "Vestapol")
+english_guitar = Tuning.make(["C3", "E3", "G3", "C4", "E4", "G4"], "English Guitar")
+overtone_G = Tuning.make(["G3", "G4", "D5", "G5", "B5", "D6"], "Overtone G")
 
 fretted_instruments = [Guitar, Ukulele, Bass]
+
