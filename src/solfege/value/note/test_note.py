@@ -40,10 +40,10 @@ class TestNote(unittest.TestCase):
             _ = self.D4 + self.C4
         self.assertEqual(self.D4 + third_minor, self.F4)
         self.assertEqual(third_minor + self.D4, self.F4)
-        # self.assertEqual(self.D4 + ChromaticInterval(1), ChromaticNote(3))
-        # self.assertEqual(ChromaticInterval(1) + self.D4, ChromaticNote(3))
-        # self.assertEqual(self.D4 + DiatonicInterval(1), DiatonicNote(2))
-        # self.assertEqual(DiatonicInterval(1) + self.D4, DiatonicNote(2))
+        # self.assertEqual(self.D4 + ChromaticInterval.make(1), ChromaticNote(3))
+        # self.assertEqual(ChromaticInterval.make(1) + self.D4, ChromaticNote(3))
+        # self.assertEqual(self.D4 + DiatonicInterval.make(1), DiatonicNote(2))
+        # self.assertEqual(DiatonicInterval.make(1) + self.D4, DiatonicNote(2))
 
     def test_neg(self):
         with self.assertRaises(Exception):

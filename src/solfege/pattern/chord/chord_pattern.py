@@ -43,7 +43,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     def _index_of_fifth(self):
         index = None
         for i in range(len(self._absolute_intervals)):
-            if self._absolute_intervals[i].diatonic.value == 4:
+            if self._absolute_intervals[i]._diatonic.value == 4:
                 assert index is None
                 index = i
         assert index is not None

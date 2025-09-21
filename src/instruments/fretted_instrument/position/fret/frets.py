@@ -2,7 +2,6 @@ from dataclasses import dataclass
 import dataclasses
 from typing import Dict, Generator, List, Optional, Tuple, Union
 from instruments.fretted_instrument.position.fret.fret import Fret
-from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_optional_typing, assert_typing
 
@@ -67,14 +66,14 @@ class Frets(DataClassWithDefaultArgument):
     
     def __iter__(self) -> Generator[Fret]:
         if self.allow_not_played:
-            yield Fret(None, self.absolute)
+            yield Fret.make(None, self.absolute)
         if self.allow_open:
-            yield Fret(0, self.absolute)
+            yield Fret.make(0, self.absolute)
         if self.closed_fret_interval is not None:
             min_fret, max_fret = self.closed_fret_interval
-            yield from [Fret(fret, self.absolute) for fret in range(min_fret.value, max_fret.value + 1)]
+            yield from [Fret.make(fret, self.absolute) for fret in range(min_fret.value, max_fret.value + 1)]
 
-    # def restrict_around(self, fret: Fret, interval_size: ChromaticInterval = ChromaticInterval(4)) -> "Frets":
+    # def restrict_around(self, fret: Fret, interval_size: ChromaticInterval = ChromaticInterval.make(4)) -> "Frets":
     #     assert_typing(fret, Fret)
     #     assert_typing()
     #     if fret.value is None:
@@ -99,7 +98,7 @@ class Frets(DataClassWithDefaultArgument):
     
     @classmethod
     def all_played(cls, instrument: "FrettedInstrument"):
-        first_fret = Fret(1, True)
+        first_fret = Fret.make(1, True)
         last_fret = instrument.last_fret()
         return cls.make(closed_fret_interval=(first_fret, last_fret), allow_open=True, absolute=True)
 

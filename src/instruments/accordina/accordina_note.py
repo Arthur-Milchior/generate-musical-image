@@ -48,20 +48,16 @@ class AccordinaNote(ChromaticNote):
         return self._column() + 2* self._diagonal_number()
     
     def first_note_of_diagonal(self):
-        return max(self - ChromaticInterval(self._column()), min_accordina_note).copy(selected=False)
+        return max(self - ChromaticInterval.make(self._column()), min_accordina_note).copy(selected=False)
 
     def last_note_of_diagonal(self):
-        return min(self + ChromaticInterval(2 - self._column()), max_accordina_note).copy(selected=False)
+        return min(self + ChromaticInterval.make(2 - self._column()), max_accordina_note).copy(selected=False)
     
     def copy(self, selected: Optional[bool] = None, absolute: Optional[bool] = None):
         return AccordinaNote(value = self.value,
                               selected=selected if selected is not None else self.selected,
                               absolute=absolute if absolute is not None else self.absolute
                               )
-
-    def _add(self, other):
-        note = super()._add(other)
-        return AccordinaNote(note.value, selected=self.selected, absolute = self.absolute)
     
     def fill_color(self):
         if self.absolute:

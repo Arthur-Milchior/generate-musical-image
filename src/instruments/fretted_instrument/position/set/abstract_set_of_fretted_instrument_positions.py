@@ -3,15 +3,13 @@ from abc import abstractmethod
 from dataclasses import dataclass
 
 import dataclasses
-from pickle import EMPTY_SET
 from typing import Callable, ClassVar, Dict, FrozenSet, Generator, Generic, Iterable, List, Iterator, Optional, Self, Tuple, Type, Union
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
-from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fretted_instrument_position import  PositionOnFrettedInstrumentFrozenList, PositionOnFrettedInstrumentType
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.consts import *
-from instruments.fretted_instrument.position.set.colors import BlackOnly, Colors, FretPositionSvgGenerator
+from instruments.fretted_instrument.position.fretted_position_maker.fretted_position_maker import FrettedPositionMaker
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from solfege.value.note.chromatic_note import ChromaticNote
@@ -102,7 +100,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
     def last_shown_fret(self, minimal_number_of_frets: Fret =None) -> Optional[Fret]:
         """Return the last fret that is shown. Such that the returned value is at least minimal_number_of_frets and contains all frets of this set."""
         if minimal_number_of_frets is None:
-            minimal_number_of_frets = Fret(0, self.absolute)
+            minimal_number_of_frets = Fret.make(0, self.absolute)
         mf = self._max_fret()
         if mf is None:
             return minimal_number_of_frets
@@ -112,7 +110,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return [pos.string for pos in self.positions if pos.fret == fret]
     
     def open_strings(self):
-        return self.strings_at_fret(Fret(0, self.absolute))
+        return self.strings_at_fret(Fret.make(0, self.absolute))
 
     def strings_at_min_fret(self, allow_open: bool):
         return self.strings_at_fret(self._min_fret(allow_open=allow_open))
@@ -220,7 +218,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
     
     def transpose_to_fret_one(self):
         assert not self.open_strings()
-        transpose = ChromaticInterval(-(self._min_fret(allow_open=False).value-1))
+        transpose = ChromaticInterval.make(-(self._min_fret(allow_open=False).value-1))
         return self.transpose_same_string(transpose=transpose, transpose_open=False, transpose_not_played=True), transpose
 
     def notes_from_note_list(self, note_list: NoteList):
@@ -245,29 +243,29 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
 
     def _svg_content(self, 
                      instrument: FrettedInstrument, 
-                     colors: FretPositionSvgGenerator, 
+                     fretted_position_maker: FrettedPositionMaker, 
                      minimal_number_of_frets: Fret =None, *args, **kwargs) -> Generator[str]:
-        assert_typing(colors, FretPositionSvgGenerator)
+        assert_typing(fretted_position_maker, FrettedPositionMaker)
         assert_typing(instrument, FrettedInstrument)
         if minimal_number_of_frets is None:
-            minimal_number_of_frets = Fret(1, self.absolute)
-        """If tonic, add some colors depending on the role of the note compared to the tonic"""
+            minimal_number_of_frets = Fret.make(1, self.absolute)
+        """If tonic, add some fretted_position_maker depending on the role of the note compared to the tonic"""
         max_fret = self.last_shown_fret(minimal_number_of_frets)
         yield from instrument.strings().svg(lowest_fret=max_fret, show_open_fret=self.absolute)
         yield from max_fret.all_frets_up_to_here(allow_open=True).svg(instrument, self.absolute)
         for pos in self:
-            yield from colors.svg_content(instrument, pos)
+            yield from fretted_position_maker.svg_content(instrument, pos)
     
     def svg_width(self, instrument: FrettedInstrument, *args, **kwargs):
         return instrument.width()
     
     def svg_height(self, minimal_number_of_frets: Fret =None, *args, **kwargs):
         if minimal_number_of_frets is None:
-            minimal_number_of_frets = Fret(1, self.absolute)
+            minimal_number_of_frets = Fret.make(1, self.absolute)
         return self.last_shown_fret(minimal_number_of_frets).y_fret() + MARGIN
     
-    def _svg_name_base(self, instrument: FrettedInstrument, colors: FretPositionSvgGenerator, **kwargs):
-        return f"""{instrument.name}_{str(colors) if colors is not None else "black"}_{"absolute" if self.absolute else "transposable"}_{"__".join(f"{pos.string.value}_{pos.fret.value}" for pos in self)}"""
+    def _svg_name_base(self, instrument: FrettedInstrument, fretted_position_maker: FrettedPositionMaker, **kwargs):
+        return f"""{instrument.name}_{str(fretted_position_maker) if fretted_position_maker is not None else "black"}_{"absolute" if self.absolute else "transposable"}_{"__".join(f"{pos.string.value}_{pos.fret.value}" for pos in self)}"""
 
     #pragma mark - MakeableWithSingleArgument
 

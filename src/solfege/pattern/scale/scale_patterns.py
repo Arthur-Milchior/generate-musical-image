@@ -1,6 +1,7 @@
 
 from typing import List
 from solfege.pattern.chord.chord_patterns import chord_patterns
+from solfege.value.interval.role.interval_role_from_string import role_from_interval_index
 from solfege.value.key.keys import *
 from solfege.pattern.scale.scale_pattern import ScalePattern
 
@@ -11,18 +12,18 @@ major_scale = ScalePattern.make_relative(names=["Major"], relative_intervals=[2,
 pentatonic_minor = ScalePattern.make_relative(names=["Pentatonic minor"], relative_intervals=[(3, 2), 2, 2, (3, 2), 2],
                                           interval_for_signature=three_flats)
 minor_natural = ScalePattern.make_relative(names=["Minor natural", "Aeolian mode"], relative_intervals=[2, 1, 2, 2, 1, 2, 2], interval_for_signature=three_flats)
-blues = ScalePattern.make_relative(names=["Blues"], relative_intervals=[(3, 2), 2, (1, 0), 1, (3, 2), 2], interval_for_signature=three_flats)
+blues = ScalePattern.make_relative(names=["Blues"], relative_intervals=[(3, 2), 2, (1, 0, "b"), 1, (3, 2), 2], interval_for_signature=three_flats)
 minor_harmonic = ScalePattern.make_relative(names=["Minor harmonic"], relative_intervals=[2, 1, 2, 2, 1, 3, 1], interval_for_signature=three_flats)
 chromatic_scale_pattern = ScalePattern.make_relative(names=["Chromatic"], relative_intervals=
                                                  [(1, 0), (1, 1), (1, 0), (1, 1), (1, 1), (1, 0), (1, 1), (1, 0),
                                                   (1, 1), (1, 0), (1, 1),
-                                                  (1, 1), ], interval_for_signature=nor_flat_nor_sharp)
+                                                  (1, 1), ], interval_for_signature=nor_flat_nor_sharp, role_maker=role_from_interval_index)
 minor_melodic = ScalePattern.make_relative(names=["Minor melodic"], relative_intervals=[2, 1, 2, 2, 2, 2, 1], interval_for_signature=three_flats, _descending=minor_natural)
 
 chord_patterns_as_scales = [chord_pattern.to_arpeggio_pattern() for chord_pattern in chord_patterns]
 scale_patterns_I_practice: List[ScalePattern] = [pentatonic_major, major_scale, pentatonic_minor, minor_natural, blues, minor_harmonic, chromatic_scale_pattern,  minor_melodic] + chord_patterns_as_scales
 
-whole_tone = ScalePattern.make_relative(names=["Whole tone"], relative_intervals=[(2, 1), (2, 1), (2, 1), (2, 1), (2, 1), (2, 2)], interval_for_signature=one_sharp)
+whole_tone = ScalePattern.make_relative(names=["Whole tone"], relative_intervals=[(2, 1), (2, 1), (2, 1), (2, 1), (2, 1), (2, 2)], interval_for_signature=one_sharp, role_maker=role_from_interval_index)
 scale_patterns = scale_patterns_I_practice + [whole_tone,
     ScalePattern.make_relative(names=["Greek Dorian tonos (chromatic genus)"], relative_intervals=[1, 1, 3, 2, 1, 1, 3],
                            interval_for_signature=nor_flat_nor_sharp),

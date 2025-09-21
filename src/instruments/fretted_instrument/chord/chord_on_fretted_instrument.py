@@ -5,7 +5,9 @@ from instruments.fretted_instrument.chord.playable import Playable
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument, PositionOnFrettedInstrumentFrozenList
-from instruments.fretted_instrument.position.set.colors import COLOR_FIFTH, COLOR_FOURTH, COLOR_QUALITY, COLOR_SECOND, COLOR_THIRD, COLOR_TONIC, ColorsWithTonic, FretPositionSvgGenerator
+from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.constants import COLOR_FIFTH, COLOR_FOURTH, COLOR_QUALITY, COLOR_SECOND, COLOR_THIRD, COLOR_TONIC
+from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.interval_dependant_colored_position_maker import ColorsWithTonic
+from instruments.fretted_instrument.position.fretted_position_maker.fretted_position_maker import FrettedPositionMaker
 from instruments.fretted_instrument.position.string.string import String, StringFrozenList
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
 import itertools
@@ -46,7 +48,7 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
                 l.append(fret)
             else:
                 assert_optional_typing(fret, int)
-                l.append(Fret(fret, absolute))
+                l.append(Fret.make(fret, absolute=absolute))
         fretted_positions = [PositionOnFrettedInstrument(string, fret) for string, fret in itertools.zip_longest(instrument.strings(), l)]
         return cls(positions=PositionOnFrettedInstrumentFrozenList(fretted_positions), absolute=absolute)
     
@@ -59,13 +61,13 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
             if pos.string == string:
                 assert fret is None
                 fret = pos.fret
-        return fret if fret else Fret(None, self.absolute)
+        return fret if fret else Fret.make(None, self.absolute)
  
     def get_frets(self, instrument: Optional[FrettedInstrument]= None) -> List[Fret]:
-        """the list of frets used in this string. Fret(none, a) for not played string."""
+        """the list of frets used in this string. Fret.make(none, a) for not played string."""
         if instrument is not None:
             frets = [self.get_fret(string) for string in instrument.strings()]
-            return [Fret(None, self.absolute) if fret is None else fret for fret in frets]
+            return [Fret.make(None, self.absolute) if fret is None else fret for fret in frets]
         frets = dict()
         max_string = 0
         for pos in self:
@@ -73,14 +75,14 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
             max_string = max(max_string, string)
             assert string not in frets
             frets[string] = pos.fret
-        return [frets.get(string, Fret(None, self.absolute)) for string in range(1, max_string+1)]
+        return [frets.get(string, Fret.make(None, self.absolute)) for string in range(1, max_string+1)]
 
     def __repr__(self):
         return f"""{self.__class__.__name__}.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
 
     def chord_pattern_is_redundant(self):
         """Whether the same fingering pattern can be played higher on the fretted_instrument"""
-        return self._min_fret(allow_open=True) > Fret(1, self.absolute)
+        return self._min_fret(allow_open=True) > Fret.make(1, self.absolute)
 
     def is_open(self):
         return self._min_fret(allow_open=True).is_open()
@@ -134,12 +136,12 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
 
     # Pragma mark - SetOfPositionOnFrettedInstrument
 
-    def _svg_name_base(self, instrument:FrettedInstrument, colors: FretPositionSvgGenerator, minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs):
+    def _svg_name_base(self, instrument:FrettedInstrument, fretted_position_maker: FrettedPositionMaker, minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs):
         fret_values = [fret.value for fret in self.get_frets(instrument)]
         frets = "_".join(str(value) if value is not None else "x" for value in fret_values)
         if minimal_number_of_frets is None:
             minimal_number_of_frets = self.last_shown_fret()
-        return f"{instrument.name}_chord_{"open" if self.absolute else "transposable"}_{minimal_number_of_frets.value}_frets_{str(colors) if colors else "black"}_{frets}"
+        return f"{instrument.name}_chord_{"open" if self.absolute else "transposable"}_{minimal_number_of_frets.value}_frets_{str(fretted_position_maker) if fretted_position_maker else "black"}_{frets}"
         
 
 intervals_in_base_octave_to_fretted_instrument_chord: Dict[ChromaticIntervalListPattern, List[ChordOnFrettedInstrument]] = dict()

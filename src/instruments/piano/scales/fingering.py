@@ -154,9 +154,9 @@ class Fingering:
     def __repr__(self):
         text = f"""scales(for_right_hand={self.for_right_hand})"""
         if self.tonic:
-            text += f""".\n  add_pinky_side(PianoNote.make(chromatic={self.tonic.get_chromatic().value}, diatonic={self.tonic.get_diatonic().value}, finger={self.pinky_side_tonic_finger}))"""
+            text += f""".\n  add_pinky_side(PianoNote.make(_chromatic={self.tonic.get_chromatic().value}, _diatonic={self.tonic.get_diatonic().value}, finger={self.pinky_side_tonic_finger}))"""
         for note, finger in self._dic.items():
-            text += f""".\n  add(PianoNote.make(chromatic={note.get_chromatic().value}, diatonic={note.get_diatonic().value}, finger={finger}))"""
+            text += f""".\n  add(PianoNote.make(_chromatic={note.get_chromatic().value}, _diatonic={note.get_diatonic().value}, finger={finger}))"""
         return text
 
     def generate(self, first_played_note: Note, scale_pattern: ScalePattern, number_of_octaves: int = 1) -> \
@@ -165,7 +165,7 @@ class Fingering:
         assert number_of_octaves != 0
         scale = scale_pattern.from_note(first_played_note, number_of_octaves=number_of_octaves)
         fingered_scale = [
-            PianoNote.make(chromatic=note.get_chromatic().value, diatonic=note.get_diatonic().value,
+            PianoNote.make(_chromatic=note.get_chromatic().value, _diatonic=note.get_diatonic().value,
                       finger=self.get_finger(note)) for note in scale.notes]
         pos_of_pinky_side_extremity = -1 if (self.for_right_hand and number_of_octaves > 0) or (
                 not self.for_right_hand and number_of_octaves < 0) else 0

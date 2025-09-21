@@ -38,38 +38,38 @@ class IntervalPattern(SolfegePattern, ABC):
         return super()._clean_arguments_for_constructor(args, kwargs)
 
 
-second_minor_interval = Interval.make(diatonic=1, chromatic=1)
+second_minor_interval = Interval.make(_diatonic=1, _chromatic=1)
 second_minor_pattern = IntervalPattern.make(name="Second minor", interval=second_minor_interval)
 intervals_up_to_octave = [
     second_minor_pattern,
-    IntervalPattern.make(name="Second major", interval=Interval.make(diatonic=1, chromatic=2)),
-    IntervalPattern.make(name="Third minor", interval=Interval.make(diatonic=2, chromatic=3)),
-    IntervalPattern.make(name="Third major", interval=Interval.make(diatonic=2, chromatic=4)),
-    IntervalPattern.make(name="Fourth just", interval=Interval.make(diatonic=3, chromatic=5)),
-    IntervalPattern.make(name="Fourth augmented", interval=Interval.make(diatonic=3, chromatic=6)),
-    IntervalPattern.make(name="Fifth just", interval=Interval.make(diatonic=5, chromatic=7)),
-    IntervalPattern.make(name="Sixth minor", interval=Interval.make(diatonic=5, chromatic=8)),
-    IntervalPattern.make(name="Sixth major", interval=Interval.make(diatonic=5, chromatic=9)),
-    IntervalPattern.make(name="Seventh minor", interval=Interval.make(diatonic=6, chromatic=10)),
-    IntervalPattern.make(name="Seventh major", interval=Interval.make(diatonic=6, chromatic=11)),
-    IntervalPattern.make(name="Octave", interval=Interval.make(diatonic=7, chromatic=12)),
+    IntervalPattern.make(name="Second major", interval=Interval.make(_diatonic=1, _chromatic=2)),
+    IntervalPattern.make(name="Third minor", interval=Interval.make(_diatonic=2, _chromatic=3)),
+    IntervalPattern.make(name="Third major", interval=Interval.make(_diatonic=2, _chromatic=4)),
+    IntervalPattern.make(name="Fourth just", interval=Interval.make(_diatonic=3, _chromatic=5)),
+    IntervalPattern.make(name="Fourth augmented", interval=Interval.make(_diatonic=3, _chromatic=6)),
+    IntervalPattern.make(name="Fifth just", interval=Interval.make(_diatonic=5, _chromatic=7)),
+    IntervalPattern.make(name="Sixth minor", interval=Interval.make(_diatonic=5, _chromatic=8)),
+    IntervalPattern.make(name="Sixth major", interval=Interval.make(_diatonic=5, _chromatic=9)),
+    IntervalPattern.make(name="Seventh minor", interval=Interval.make(_diatonic=6, _chromatic=10)),
+    IntervalPattern.make(name="Seventh major", interval=Interval.make(_diatonic=6, _chromatic=11)),
+    IntervalPattern.make(name="Octave", interval=Interval.make(_diatonic=7, _chromatic=12)),
 
 
-    IntervalPattern.make(name="Unison augmented", interval=Interval.make(diatonic=0, chromatic=1)),
-    IntervalPattern.make(name="Second augmented", interval=Interval.make(diatonic=1, chromatic=3)),
-    IntervalPattern.make(name="Third dimished", interval=Interval.make(diatonic=2, chromatic=3)),
-    IntervalPattern.make(name="Third augmented", interval=Interval.make(diatonic=2, chromatic=5)),
-    IntervalPattern.make(name="Fourth diminished", interval=Interval.make(diatonic=3, chromatic=4)),
-    IntervalPattern.make(name="Fifth diminished", interval=Interval.make(diatonic=5, chromatic=6)),
-    IntervalPattern.make(name="Fifth augmented", interval=Interval.make(diatonic=5, chromatic=8)),
-    IntervalPattern.make(name="Sixth diminished", interval=Interval.make(diatonic=5, chromatic=7)),
-    IntervalPattern.make(name="Sixth augmented", interval=Interval.make(diatonic=5, chromatic=10)),
-    IntervalPattern.make(name="Seventh diminished", interval=Interval.make(diatonic=6, chromatic=9)),
-    IntervalPattern.make(name="Seventh augmented", interval=Interval.make(diatonic=6, chromatic=12)),
-    IntervalPattern.make(name="Octave diminished", interval=Interval.make(diatonic=7, chromatic=11)),
-    IntervalPattern.make(name="Octave augmented", interval=Interval.make(diatonic=7, chromatic=13)),
+    IntervalPattern.make(name="Unison augmented", interval=Interval.make(_diatonic=0, _chromatic=1)),
+    IntervalPattern.make(name="Second augmented", interval=Interval.make(_diatonic=1, _chromatic=3)),
+    IntervalPattern.make(name="Third dimished", interval=Interval.make(_diatonic=2, _chromatic=3)),
+    IntervalPattern.make(name="Third augmented", interval=Interval.make(_diatonic=2, _chromatic=5)),
+    IntervalPattern.make(name="Fourth diminished", interval=Interval.make(_diatonic=3, _chromatic=4)),
+    IntervalPattern.make(name="Fifth diminished", interval=Interval.make(_diatonic=5, _chromatic=6)),
+    IntervalPattern.make(name="Fifth augmented", interval=Interval.make(_diatonic=5, _chromatic=8)),
+    IntervalPattern.make(name="Sixth diminished", interval=Interval.make(_diatonic=5, _chromatic=7)),
+    IntervalPattern.make(name="Sixth augmented", interval=Interval.make(_diatonic=5, _chromatic=10)),
+    IntervalPattern.make(name="Seventh diminished", interval=Interval.make(_diatonic=6, _chromatic=9)),
+    IntervalPattern.make(name="Seventh augmented", interval=Interval.make(_diatonic=6, _chromatic=12)),
+    IntervalPattern.make(name="Octave diminished", interval=Interval.make(_diatonic=7, _chromatic=11)),
+    IntervalPattern.make(name="Octave augmented", interval=Interval.make(_diatonic=7, _chromatic=13)),
 ]
 
 
-  #  IntervalPattern.make(name="Second diminished", interval=Interval.make(diatonic=1, chromatic=0)),
+  #  IntervalPattern.make(name="Second diminished", interval=Interval.make(_diatonic=1, _chromatic=0)),
   # interval list assume no repetition. maybe correct one day,

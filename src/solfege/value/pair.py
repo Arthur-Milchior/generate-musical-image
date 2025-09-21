@@ -1,43 +1,28 @@
-
+from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Generic, Self, Tuple, Type, Union
+from typing import Callable, ClassVar, Dict, Generic, List, Self, Tuple, Type, Union
 
 from solfege.value.abstract import Abstract
 from solfege.value.chromatic import Chromatic, ChromaticGetter, ChromaticType
 from solfege.value.diatonic import Diatonic, DiatonicGetter, DiatonicType
+from solfege.value.interval.alteration.alteration import Alteration, AlterationType
 from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
 
 @dataclass(frozen=True, unsafe_hash=True)
-class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter, Generic[ChromaticType, DiatonicType]):
+class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter, Generic[ChromaticType, DiatonicType, AlterationType]):
     """How to generate a new Pair, from chromatic and diatonic"""
-    make_instance_of_selfs_class: ClassVar[Callable[[int, int], "Pair"]]
     DiatonicClass: ClassVar[Type[Diatonic]] = Diatonic
     ChromaticClass: ClassVar[Type[Chromatic]] = Chromatic
-    AlterationClass: ClassVar[Type[Chromatic]]
     IntervalClass: ClassVar[Type["Pair"]]
 
-    chromatic: ChromaticType
-    diatonic: DiatonicType
-
-    def __post_init__(self):
-        assert_typing(self.chromatic, self.ChromaticClass)
-        assert_typing(self.diatonic, self.DiatonicClass)
+    _chromatic: ChromaticType
+    _diatonic: DiatonicType
 
     @classmethod
-    def make_instance_of_selfs_class(cls: Type["Pair"], chromatic: ChromaticType, diatonic: DiatonicType):
-        return cls(chromatic, diatonic)
-
-    @classmethod
-    def make(cls,
-             chromatic: Union[ChromaticType, int],
-             diatonic: Union[DiatonicType, int]) -> Self:
-        if isinstance(chromatic, int):
-            chromatic = cls.ChromaticClass(chromatic)
-        if isinstance(diatonic, int):
-            diatonic = cls.DiatonicClass(diatonic)
-        return cls(chromatic, diatonic)
+    def make_instance_of_selfs_class(cls: Type["Pair"], _chromatic: ChromaticType, _diatonic: DiatonicType):
+        return cls.make(_chromatic, _diatonic)
 
     @classmethod
     def from_chromatic(cls, chromatic: ChromaticType):
@@ -76,68 +61,83 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         return cls(chromatic, diatonic)
 
     def __eq__(self, other: "Pair"):
-        diatonicEq = self.diatonic == other.diatonic
-        chromaticEq = self.chromatic == other.chromatic
+        diatonicEq = self._diatonic == other._diatonic
+        chromaticEq = self._chromatic == other._chromatic
         return diatonicEq and chromaticEq
 
     def _get_alteration_value(self) -> int:
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
         from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
         diatonic = self.get_diatonic()
-        chromatic_from_diatonic = self.__class__.from_diatonic(diatonic).chromatic
-        return self.chromatic.value - chromatic_from_diatonic.value
+        chromatic_from_diatonic = self.__class__.from_diatonic(diatonic)._chromatic
+        return self._chromatic.value - chromatic_from_diatonic.value
 
-    def get_alteration(self) -> ChromaticType:
+    def get_alteration(self) -> AlterationType:
         """The alteration, added to `self.getDiatonic()` to obtain `self`"""
         from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
         try:
-            return self.AlterationClass(self._get_alteration_value())
+            return self.get_alteration_constructor()(self._get_alteration_value())
         except TooBigAlterationException as tba:
             tba["The note which is too big"] = self
             raise
 
     def __repr__(self):
-        return f"{self.__class__.__name__}.make({self.chromatic.value}, {self.diatonic.value})"
+        return f"{self.__class__.__name__}.make({self._chromatic.value}, {self._diatonic.value})"
 
     def __le__(self, other: "Pair"):
         assert_typing(other, self.__class__)
-        return (self.chromatic, self.diatonic) <= (other.chromatic, other.diatonic)
+        return (self._chromatic, self._diatonic) <= (other._chromatic, other._diatonic)
 
     def __lt__(self, other: "Pair"):
         assert_typing(other, self.__class__)
-        return (self.chromatic, self.diatonic) < (other.chromatic, other.diatonic)
+        return (self._chromatic, self._diatonic) < (other._chromatic, other._diatonic)
 
     #pragma mark - MakeableWithSingleArgument
 
     def repr_single_argument(self) -> str:
-        return f"""{self.chromatic.value, self.diatonic.value}"""
+        return f"""{self._chromatic.value, self._diatonic.value}"""
 
     @classmethod
     def _make_single_argument(cls, arg: Union[Tuple[int, int], int]):
         """If there are two arguments, it's chromatic, diatonic. If there is a single arg, it's chromatic, diatonic is one (useful for most scale). If it's already a Pair, return it."""
         if isinstance(arg, tuple):
-            assert len(arg) == 2
-            chromatic, diatonic = arg
-            return cls.make(chromatic, diatonic)
+            assert 2<=len(arg) <= 3
+            return cls.make(*arg)
         assert_typing(arg, int)
         return cls.make(arg, 1)
     
     #pragma mark - ChromaticGetter
 
     def get_chromatic(self):
-        return self.chromatic
+        return self._chromatic
     
     #pragma mark - DiatonicGetter
 
     def get_diatonic(self) -> DiatonicType:
-        return self.diatonic
+        return self._diatonic
     
     #pragma mark - Abstract
     
     def octave(self):
-        return self.diatonic.octave()
+        return self._diatonic.octave()
 
     @classmethod
     def one_octave(cls)-> Self:
-        return cls.make_instance_of_selfs_class(chromatic=cls.ChromaticClass.one_octave(), diatonic=cls.DiatonicClass.one_octave())
+        return cls.make_instance_of_selfs_class(_chromatic=cls.ChromaticClass.one_octave(), _diatonic=cls.DiatonicClass.one_octave())
     
+    # must be implemented by subclasses
+    @abstractmethod
+    def get_alteration_constructor(self) -> Callable[[int], AlterationType]:...
+
+    # Pragma mark - DataClassWithDefaultArgument
+    def __post_init__(self):
+        assert_typing(self._chromatic, self.ChromaticClass)
+        assert_typing(self._diatonic, self.DiatonicClass)
+        super().__post_init__()
+    
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "_chromatic", cls.ChromaticClass.make_single_argument)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "_diatonic", cls.DiatonicClass.make_single_argument)
+        return args, kwargs

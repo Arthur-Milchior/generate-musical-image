@@ -24,6 +24,7 @@ class MakeableWithSingleArgument(ABC):
 
     @abstractmethod
     def repr_single_argument(self) -> str:
+        """Shows the value only, not parenthesis nor class."""
         return NotImplemented
 
 class FrozenList(Generic[T]):

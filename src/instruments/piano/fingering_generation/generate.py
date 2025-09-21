@@ -74,8 +74,8 @@ def generate_best_fingering(fingered_notes: List[PianoNote], penalty_for_fingere
             potential_finger_for_next_note = list(range(1, 6))
 
     for finger in potential_finger_for_next_note:
-        next_piano_note = PianoNote.make(chromatic=next_note.get_chromatic().value,
-                                    diatonic=next_note.get_diatonic().value, finger=finger)
+        next_piano_note = PianoNote.make(_chromatic=next_note.get_chromatic().value,
+                                    _diatonic=next_note.get_diatonic().value, finger=finger)
         penalty_with_note = penalty_for_fingered_notes.add_penalty_for_note(next_piano_note)
         if fingered_notes:
             last_note = fingered_notes[-1]
@@ -131,8 +131,8 @@ def generate_best_fingering_for_scale(scale: List[Note], for_right_hand: bool) -
             pinky_side_note = notes[0]
             second_to_pinky_side_note = notes[1]
             thumb_side_note = notes[-1]
-        repetition_note = PianoNote.make(chromatic=pinky_side_note.get_chromatic().value,
-                                    diatonic=pinky_side_note.get_diatonic().value, finger=thumb_side_note.finger)
+        repetition_note = PianoNote.make(_chromatic=pinky_side_note.get_chromatic().value,
+                                    _diatonic=pinky_side_note.get_diatonic().value, finger=thumb_side_note.finger)
         penalty = penalty.add_penalty_for_note_transition(repetition_note, second_to_pinky_side_note, for_right_hand)
         if penalty:
             penalty.fingering = fingering

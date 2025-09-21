@@ -102,6 +102,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
         assert_typing(self.fingers, frozenset)
         for finger in self.fingers:
             assert 1 <= finger <= 4
+        assert self.fingers
         super().__post_init__()
 class FrettedInstrumentPositionWithFingersFrozenList(FrozenList[PositionOnFrettedInstrumentWithFingers]):
     type = PositionOnFrettedInstrumentWithFingers

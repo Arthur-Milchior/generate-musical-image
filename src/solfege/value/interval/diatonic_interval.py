@@ -22,19 +22,19 @@ class DiatonicInterval(AbstractSingletonInterval, Diatonic):
     def get_interval_name(self, showOctave=True):
         if self.value == 0:
             return "unison"
-        size = abs(self.value)
-        role = size % 7
-        nb_octave = size // 7
-        text = ["unison", "second", "third", "fourth", "fifth", "sixth", "seventh"][role]
+        if self.value < 0:
+            increasing_name = (-self).get_interval_name(showOctave=showOctave)
+            return f"{increasing_name} decreasing"
+        note_in_base_octave = self.in_base_octave()
+        octave = self.octave()
+        text = ["unison", "second", "third", "fourth", "fifth", "sixth", "seventh"][note_in_base_octave.value]
 
-        if nb_octave > 0 and showOctave:
-            prefix = f"{nb_octave} octaves" if (nb_octave > 1) else "octave"
-            if role != 0:
+        if octave > 0 and showOctave:
+            prefix = f"{octave} octaves" if (octave > 1) else "octave"
+            if note_in_base_octave.value != 0:
                 text = f"{prefix} and {text}"
             else:
                 text = prefix
-        if self.value < 0:
-            text += " decreasing"
         return text
 
 

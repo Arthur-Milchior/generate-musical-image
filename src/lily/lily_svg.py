@@ -14,7 +14,7 @@ def rect(svg, color):
 
 
 def display_svg_file(path: str):
-    shell(f"""eog "{path}"&""")
+    shell(f"""code "{path}"&""")
 
 
 def add_background(svg: str, background_color: str):

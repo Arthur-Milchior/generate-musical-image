@@ -12,17 +12,17 @@ class TestFrettedInstrumentAddString(unittest.TestCase):
         self.assertEqual(Guitar.string(1).add(Guitar,  6), None)
 
     def test_for_note(self):
-        self.assertEqual(Guitar.string(1).fret_for_note(Guitar, ChromaticNote.from_name("E3"), absolute=True), Fret(0, True))
+        self.assertEqual(Guitar.string(1).fret_for_note(Guitar, ChromaticNote.from_name("E3"), absolute=True), Fret.make(0, True))
         self.assertEqual(Guitar.string(1).fret_for_note(Guitar, ChromaticNote.from_name("D#3"), absolute=True), None)
-        self.assertEqual(Guitar.string(1).fret_for_note(Guitar, ChromaticNote.from_name("F3"), absolute=True), Fret(1, True))
-        self.assertEqual(Guitar.string(1).fret_for_note(Guitar, ChromaticNote.from_name("E5"), absolute=True), Fret(24, True))
+        self.assertEqual(Guitar.string(1).fret_for_note(Guitar, ChromaticNote.from_name("F3"), absolute=True), Fret.make(1, True))
+        self.assertEqual(Guitar.string(1).fret_for_note(Guitar, ChromaticNote.from_name("E5"), absolute=True), Fret.make(24, True))
         self.assertEqual(Guitar.string(1).fret_for_note(Guitar, ChromaticNote.from_name("F5"), absolute=True), None)
 
         self.assertEqual(Guitar.string(2).fret_for_note(Guitar, ChromaticNote.from_name("E3"), absolute=True), None)
         self.assertEqual(Guitar.string(2).fret_for_note(Guitar, ChromaticNote.from_name("D#3"), absolute=True), None)
         self.assertEqual(Guitar.string(2).fret_for_note(Guitar, ChromaticNote.from_name("F3"), absolute=True), None)
-        self.assertEqual(Guitar.string(2).fret_for_note(Guitar, ChromaticNote.from_name("E5"), absolute=True), Fret(19, True))
-        self.assertEqual(Guitar.string(2).fret_for_note(Guitar, ChromaticNote.from_name("F5"), absolute=True), Fret(20, True))
+        self.assertEqual(Guitar.string(2).fret_for_note(Guitar, ChromaticNote.from_name("E5"), absolute=True), Fret.make(19, True))
+        self.assertEqual(Guitar.string(2).fret_for_note(Guitar, ChromaticNote.from_name("F5"), absolute=True), Fret.make(20, True))
 
 
     def test_lt(self):

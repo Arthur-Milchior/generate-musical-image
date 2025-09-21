@@ -35,7 +35,7 @@ class SetOfAccordinaNote(SvgGenerator):
                 next_note_index += 1
             else:
                 l.append(current_note)
-            current_note += ChromaticInterval(1)
+            current_note += ChromaticInterval.make(1)
                 
         l.append(self.notes[-1])
         return l

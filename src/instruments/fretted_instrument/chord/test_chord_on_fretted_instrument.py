@@ -1,11 +1,12 @@
 import unittest
 
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import *
-from instruments.fretted_instrument.position.set.colors import PositionWithIntervalLetters
+from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
+from instruments.fretted_instrument.position.fretted_position_maker.conditional_fretted_position_maker import ConditionalFrettedPositionMaker
+from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
 from lily.lily_svg import display_svg_file
 from solfege.value.note.chromatic_note import ChromaticNote
-from .test_constants import *
-from .test_constants import _make
+from instruments.fretted_instrument.chord.test_constants import C4M, F4M, _make, fret, ones, diag_two, diag , entirely_open_chord
 
 CM_ = _make([None, 3, 2, 0, 1, None])
 CM = _make([None, 3, 2, 0, 1, 0])
@@ -13,36 +14,45 @@ AM = _make([None, 0, 2, 2, 2, 0])
 
 test_folder = "test"
 
-not_played_fret = Fret(None, True)
+not_played_fret = fret(None)
 
 class TestFrettedInstrumentChord(unittest.TestCase):
     def test_eq(self):
         self.assertEqual(_make([not_played_fret] * 6), _make([not_played_fret] * 6))
-        self.assertNotEqual(_make([not_played_fret] * 6), open)
+        self.assertNotEqual(_make([not_played_fret] * 6), entirely_open_chord)
 
     def test_get_fret(self):
-        self.assertEqual(open.get_fret(Guitar.string(1)), Fret( 0, True))
+        self.assertEqual(entirely_open_chord.get_fret(Guitar.string(1)), fret( 0))
 
     def test_get_frets(self):
-        self.assertEqual(C4M.get_frets(Guitar), [not_played_fret, Fret(3, True), Fret(2, True), Fret(0, True), Fret(1, True), Fret(0, True)])
+        self.assertEqual(C4M.get_frets(Guitar), [not_played_fret, fret(3), fret(2), fret(0), fret(1), fret(0)])
 
     def test_repr(self):
         self.assertEqual(repr(C4M), "ChordOnFrettedInstrument.make([None, 3, 2, 0, 1, 0])")
     
     def test_show_chord(self):
-        file_name = AM.save_svg(test_folder, instrument=Guitar, colors=PositionWithIntervalLetters(ChromaticNote(9)))
-        display_svg_file(f"{test_folder}/{file_name}" )
+        tonic = ChromaticNote(9)
+        black_letter_maker = FrettedPositionMakerForInterval.make(tonic=tonic)
+        colored_letter_maker = FrettedPositionMakerForInterval.make(tonic=tonic, style="fill: red;font: italic 12px serif;", circle_color="red")
+        maker = ConditionalFrettedPositionMaker(
+            maker_for_selected_interval=colored_letter_maker,
+            selected_intervals=[4],
+            maker_for_non_selected_intervals=black_letter_maker,
+            tonic=tonic,
+        )
+        file_name = AM.save_svg(test_folder, instrument=Guitar, fretted_position_maker=maker)
+        #display_svg_file(f"{test_folder}/{file_name}" )
         # uncomment to see what the image looks like
         
     def test_is_open(self):
-        self.assertTrue(open.is_open())
+        self.assertTrue(entirely_open_chord.is_open())
         self.assertTrue(diag.is_open())
         self.assertFalse(ones.is_open())
         self.assertTrue(C4M.is_open())
         self.assertFalse(F4M.is_open())
         
     def test_is_transposable(self):
-        self.assertFalse(open.is_transposable())
+        self.assertFalse(entirely_open_chord.is_transposable())
         self.assertFalse(diag.is_transposable())
         self.assertTrue(ones.is_transposable())
         self.assertTrue(diag_two.is_transposable())
@@ -50,7 +60,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertTrue(F4M.is_transposable())
         
     def test_is_barred(self):
-        self.assertEqual(open.is_barred(), Barred.NO)
+        self.assertEqual(entirely_open_chord.is_barred(), Barred.NO)
         self.assertEqual(diag.is_barred(), Barred.NO)
         self.assertEqual(ones.is_barred(), Barred.FULLY)
         self.assertEqual(diag_two.is_barred(), Barred.NO)
@@ -59,14 +69,14 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         
     def test_is_playable(self):
         self.assertEqual(C4M.playable(Guitar), Playable.EASY)
-        self.assertEqual(open.playable(Guitar), Playable.EASY)
+        self.assertEqual(entirely_open_chord.playable(Guitar), Playable.EASY)
         self.assertEqual(diag.playable(Guitar), Playable.NO)
         self.assertEqual(ones.playable(Guitar), Playable.EASY)
         self.assertEqual(diag_two.playable(Guitar), Playable.NO)
         self.assertEqual(F4M.playable(Guitar), Playable.EASY)
         
     def test_chord_pattern_is_redundant(self):
-        self.assertFalse(open.chord_pattern_is_redundant())
+        self.assertFalse(entirely_open_chord.chord_pattern_is_redundant())
         self.assertFalse(diag.chord_pattern_is_redundant())
         self.assertFalse(ones.chord_pattern_is_redundant())
         self.assertTrue(diag_two.chord_pattern_is_redundant())

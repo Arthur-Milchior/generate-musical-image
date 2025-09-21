@@ -28,8 +28,8 @@ for scale_pattern in scale_patterns:
         increasing_first_scale = scale_pattern.from_note(first_key.note)
         decreasing_first_scale = Scale(list(reversed(increasing_first_scale.notes)), increasing_first_scale.pattern)
         for second_key_note in [
-            first_key.note + Interval.make(chromatic=1, diatonic=1),
-            first_key.note + Interval.make(chromatic=-1, diatonic=-1),
+            first_key.note + Interval.make(_chromatic=1, _diatonic=1),
+            first_key.note + Interval.make(_chromatic=-1, _diatonic=-1),
         ]:
             second_key = Key.from_note(second_key_note)
             interval_correction_second_key = second_key.note - second_key_note

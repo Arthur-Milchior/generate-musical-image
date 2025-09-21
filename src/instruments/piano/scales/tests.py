@@ -80,22 +80,22 @@
 # }"""
 #     left_fingering = (Fingering(for_right_hand=False)
 #     .add_pinky_side(
-#         PianoNote.make(chromatic=5, diatonic=3, finger=5))
+#         PianoNote.make(_chromatic=5, _diatonic=3, finger=5))
 #     .add(
-#         PianoNote.make(chromatic=8, diatonic=5, finger=4))
+#         PianoNote.make(_chromatic=8, _diatonic=5, finger=4))
 #     .add(
-#         PianoNote.make(chromatic=12, diatonic=7, finger=2))
+#         PianoNote.make(_chromatic=12, _diatonic=7, finger=2))
 #     .add(
-#         PianoNote.make(chromatic=17, diatonic=10, finger=1)))
+#         PianoNote.make(_chromatic=17, _diatonic=10, finger=1)))
 #     right_fingering = (Fingering(for_right_hand=True)
 #     .add_pinky_side(
-#         PianoNote.make(chromatic=17, diatonic=10, finger=5))
+#         PianoNote.make(_chromatic=17, _diatonic=10, finger=5))
 #     .add(
-#         PianoNote.make(chromatic=12, diatonic=7, finger=4))
+#         PianoNote.make(_chromatic=12, _diatonic=7, finger=4))
 #     .add(
-#         PianoNote.make(chromatic=8, diatonic=5, finger=2))
+#         PianoNote.make(_chromatic=8, _diatonic=5, finger=2))
 #     .add(
-#         PianoNote.make(chromatic=5, diatonic=3, finger=1)))
+#         PianoNote.make(_chromatic=5, _diatonic=3, finger=1)))
 
 #     def clean_example(self):
 #         util.delete_file_if_exists(self.lilypond_path_both_hands)
@@ -267,31 +267,31 @@
 #         output = generate_score_fixed_pattern_first_note_direction_number_of_octaves(key="aes",
 #                                                                                      scale_lowest_note=self.scale_lowest_note,
 #                                                                                      left_scale_fingering=[
-#                                                                                          PianoNote.make(chromatic=-19,
-#                                                                                                    diatonic=-11,
+#                                                                                          PianoNote.make(_chromatic=-19,
+#                                                                                                    _diatonic=-11,
 #                                                                                                    finger=5),
-#                                                                                          PianoNote.make(chromatic=-16,
-#                                                                                                    diatonic=-9,
+#                                                                                          PianoNote.make(_chromatic=-16,
+#                                                                                                    _diatonic=-9,
 #                                                                                                    finger=4),
-#                                                                                          PianoNote.make(chromatic=-12,
-#                                                                                                    diatonic=-7,
+#                                                                                          PianoNote.make(_chromatic=-12,
+#                                                                                                    _diatonic=-7,
 #                                                                                                    finger=2),
-#                                                                                          PianoNote.make(chromatic=-7,
-#                                                                                                    diatonic=-4,
+#                                                                                          PianoNote.make(_chromatic=-7,
+#                                                                                                    _diatonic=-4,
 #                                                                                                    finger=1),
 #                                                                                      ],
 #                                                                                      right_scale_fingering=[
-#                                                                                          PianoNote.make(chromatic=-7,
-#                                                                                                    diatonic=-4,
+#                                                                                          PianoNote.make(_chromatic=-7,
+#                                                                                                    _diatonic=-4,
 #                                                                                                    finger=1),
-#                                                                                          PianoNote.make(chromatic=-4,
-#                                                                                                    diatonic=-2,
+#                                                                                          PianoNote.make(_chromatic=-4,
+#                                                                                                    _diatonic=-2,
 #                                                                                                    finger=2),
-#                                                                                          PianoNote.make(chromatic=0,
-#                                                                                                    diatonic=0,
+#                                                                                          PianoNote.make(_chromatic=0,
+#                                                                                                    _diatonic=0,
 #                                                                                                    finger=4),
-#                                                                                          PianoNote.make(chromatic=5,
-#                                                                                                    diatonic=3,
+#                                                                                          PianoNote.make(_chromatic=5,
+#                                                                                                    _diatonic=3,
 #                                                                                                    finger=5),
 #                                                                                      ],
 #                                                                                      scale_name="Minor_arpeggio",

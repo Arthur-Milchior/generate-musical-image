@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable, ClassVar, Dict, List, Optional, Self, Type
+from typing import Callable, ClassVar, Dict, List, Optional, Self, Tuple, Type
 
 from utils.util import assert_typing
 
@@ -15,9 +15,10 @@ class DataClassWithDefaultArgument:
 
     @classmethod
     def make(cls, *args, **kwargs) -> Self:
+        args = list(args)
         cleaned_args, cleaned_kwargs = cls._clean_arguments_for_constructor(args, kwargs)
-        default_args = cls._default_arguments_for_constructor(cleaned_args, cleaned_kwargs)
-        new_kwargs = {**default_args, **cleaned_kwargs}
+        default_kwargs = cls._default_arguments_for_constructor(cleaned_args, cleaned_kwargs)
+        new_kwargs = {**default_kwargs, **cleaned_kwargs}
         assert _CLEANED in new_kwargs, f"{cls} was not cleaned. {new_kwargs=}"
         assert _DEFAULT_ADDED in new_kwargs, f"{cls} didn't get its default value. {new_kwargs=}"
         del new_kwargs[_CLEANED]
@@ -27,7 +28,18 @@ class DataClassWithDefaultArgument:
     # Protected methods
     
     @classmethod
-    def arg_to_kwargs(cls, args, kwargs, name, clean: Callable = lambda x: x, type: Optional[Type] = None):
+    def clean_kwargs(cls, kwargs, name, clean: Optional[Callable] = None, type: Optional[Type] = None) -> Dict:
+        assert name in kwargs
+        value = kwargs[name]
+        if clean is not None:
+            value = clean(value)
+        if type is not None:
+            assert_typing(kwargs, type)
+        kwargs[name] = value
+        return kwargs
+    
+    @classmethod
+    def arg_to_kwargs(cls, args: List, kwargs: Dict, name, clean: Optional[Callable] = None, type: Optional[Type] = None) -> Tuple[List, Dict]:
         """If there is args, the first value is assumed to be name, not in kwargs, and is added in kwargs.
         Otherwise check that name in `kwargs`.
 
@@ -37,23 +49,21 @@ class DataClassWithDefaultArgument:
         """
         if args:
             assert name not in kwargs, f"{name} already present in {kwargs}"
-            arg = args[0]
-            args = args[1:]
+            kwargs[name] = args.pop(0)
         else:
             assert name in kwargs, f"Missing {name} when creating {cls.__name__}"
-            arg = kwargs[name]
-        output = clean(arg)
-        if type is not None:
-            assert_typing(output, type)
-        kwargs[name] = output
+        kwargs = cls.clean_kwargs(kwargs, name, clean)
         return (args, kwargs)
     
     @classmethod
-    def _maybe_arg_to_kwargs(cls, args, kwargs, name, clean: Callable = lambda x:x):
+    def _maybe_arg_to_kwargs(cls, args: List, kwargs: Dict, name: str, clean: Callable = lambda x:x, type: Optional[Type] = None):
         """Clean the value associated to name, by default the first of args, if it exists. Otherwise do nothing."""
-        if not args and name not in kwargs:
-            return (args, kwargs)
-        return cls.arg_to_kwargs(args, kwargs, name, clean)
+        if name not in kwargs and args:
+            kwargs[name] = args.pop(0)
+        if name in kwargs:
+            kwargs = cls.clean_kwargs(kwargs, name, clean, type)
+        return args, kwargs
+        
     
     # Must be implemented by children classes.
 
@@ -61,7 +71,7 @@ class DataClassWithDefaultArgument:
         hash(self) #check that hash can be computed
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args, kwargs) ->Dict:
         """Returns the association from argument name to default argument value.
         Class inheriting must call super."""
         return {_DEFAULT_ADDED: True}
@@ -73,3 +83,20 @@ class DataClassWithDefaultArgument:
         Class inheriting must call super."""
         kwargs[_CLEANED] = True
         return (args, kwargs)
+    
+    # Default implementation:
+    # # Pragma mark - DataClassWithDefaultArgument
+    # @classmethod
+    # def _default_arguments_for_constructor(cls, args, kwargs):
+    #     kwargs = super()._default_arguments_for_constructor(args, kwargs)
+    #     kwargs["key"] = value
+    #     return kwargs
+    
+    # @classmethod
+    # def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    #     args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+    #     args, kwargs = cls.arg_to_kwargs(args, kwargs, "key", clean)
+    #     return args, kwargs
+
+    # def __post_init__(self):
+    #     super().__post_init__()

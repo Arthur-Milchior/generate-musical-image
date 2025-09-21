@@ -5,9 +5,9 @@ def _make(l):
     return ChordOnFrettedInstrument.make(Guitar, l, True)
 
 def fret(value):
-    return Fret(value, True)
+    return Fret.make(value, absolute=True)
 
-open = _make([fret(0)] * 6)
+entirely_open_chord = _make([fret(0)] * 6)
 ones = _make([fret(1)] * 6)
 diag = _make([fret(i) for i in range(6)])
 diag_two = _make([fret(i+2) for i in range(6)])

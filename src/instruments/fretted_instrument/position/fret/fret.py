@@ -4,6 +4,7 @@ from typing import Dict, Generator, List, Optional, Self, Tuple, Type, Union
 
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_optional_typing, assert_typing
 from instruments.fretted_instrument.position.consts import *
 
@@ -11,7 +12,7 @@ from math import pow
 
 
 @dataclass(frozen=True, order=False)
-class Fret(ChromaticInterval, DataClassWithDefaultArgument):
+class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument):
     """
     Represents one of the fret of the fretted_instrument.
 
@@ -24,13 +25,6 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         assert self.value is not None
         assert_typing(self.value, int)
         return self.value
-    
-    @classmethod
-    def _make_single_argument(cls, arg: Tuple[int, bool]) -> Self:
-        value, absolute = arg
-        assert_typing(value, int)
-        assert_typing(absolute, bool)
-        return cls(value, absolute)
 
     def name(self):
         if self.value is None:
@@ -58,6 +52,11 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
             return TOP_FRET_THICKNESS
         return FRET_THICKNESS
     
+    def __le__(self, other: "Fret"):
+        if not isinstance(other, Fret):
+            return NotImplemented
+        return self == other or self < other
+
     def __lt__(self, other: "Fret"):
         if not isinstance(other, Fret):
             return NotImplemented
@@ -123,7 +122,7 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         if self.value in (None, 0):
             closed_fret_interval = None
         else:
-            closed_fret_interval = (Fret(1, self.absolute), self.value)
+            closed_fret_interval = (Fret.make(1, self.absolute), self.value)
         return Frets.make(closed_fret_interval=closed_fret_interval, allow_open=allow_open, absolute=self.absolute)
     
     def transpose(self, transpose: Union[int, ChromaticInterval], transpose_open: bool, transpose_not_played: bool):
@@ -139,18 +138,19 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         # A fret has no inverse value.
         return NotImplemented
     
-    def sub(self, instrument: "FrettedInstrument", other: Tuple[ChromaticInterval, int]) -> ChromaticInterval:
+    def sub(self, instrument: "FrettedInstrument", other: Tuple[Self, ChromaticInterval, int]) -> ChromaticInterval:
         if self.value is None:
             return self
         if isinstance(other, int):
-            other = ChromaticInterval(other)
-        if not isinstance(other, ChromaticInterval):
-            return NotImplemented
-        delta = self.value - other.value
+            other = ChromaticInterval.make(other)
         if isinstance(other, Fret):
             assert other.absolute == self.absolute
-            return ChromaticInterval(delta)
+            delta = self.value - other.value
+            return ChromaticInterval.make(delta)
+        if not isinstance(other, ChromaticInterval):
+            return NotImplemented
         
+        delta = self.value - other.value
         if delta < 0:
             return None
         if delta > instrument.last_fret().value:
@@ -158,12 +158,29 @@ class Fret(ChromaticInterval, DataClassWithDefaultArgument):
         if delta > instrument.number_of_frets:
             return None
 
-        return Fret(delta, self.absolute)
+        return Fret.make(delta, self.absolute)
     
     def __sub__(self, other):
         raise Exception("Use .sub")
     
+    #pragma mark - MakeableWithSingleArgument
+    
+    @classmethod
+    def _make_single_argument(cls, arg: Tuple[int, bool]) -> Self:
+        value, absolute = arg
+        assert_typing(value, int)
+        assert_typing(absolute, bool)
+        return cls(value, absolute)
+
+    def repr_single_argument(self) -> str:
+        return str(self.value)
+    
     # pragma mark - DataClassWithDefaultArgument
+
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        kwargs = super()._default_arguments_for_constructor(args, kwargs)
+        return kwargs
     
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):

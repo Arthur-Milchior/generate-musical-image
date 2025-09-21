@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from solfege.value.interval.diatonic_interval import DiatonicInterval, DiatonicIntervalFrozenList
 from solfege.value.note.abstract_note import FixedLengthOutput, NoteOutput
-from solfege.value.note.alteration import LILY, FILE_NAME, FULL_NAME, DEBUG, NAME_UP_TO_OCTAVE
+from solfege.value.note.note_alteration import LILY, FILE_NAME, FULL_NAME, DEBUG, NAME_UP_TO_OCTAVE
 from typing import ClassVar, Self, Type, Union, assert_never
 from solfege.value.note.abstract_note import FixedLengthOutput, NoteOutput
 from solfege.value.diatonic import Diatonic
@@ -55,7 +55,7 @@ class DiatonicNote(AbstractSingletonNote[DiatonicInterval], Diatonic):
             return ["1", "2", "3", "4", "5", "6", "7"][self.value % 7]
         assert_never(note_output)
 
-    def file_name(self, fixed_length: FixedLengthOutput = FixedLengthOutput.NO) -> str:
+    def non_ambiguous_string_for_file_name(self, fixed_length: FixedLengthOutput = FixedLengthOutput.NO) -> str:
         return self.get_name_up_to_octave(note_output=NoteOutput.LETTER, fixed_length=fixed_length)
 
 DiatonicNote.DiatonicClass = DiatonicNote

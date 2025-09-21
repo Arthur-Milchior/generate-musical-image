@@ -18,7 +18,7 @@ empty_fret = Frets.make(closed_fret_interval=None, allow_not_played=False, allow
 def set_of_pos_make(arg: Set[Tuple[int, int]]):
     poss = set()
     for string, fret in arg:
-        poss.add(PositionOnFrettedInstrument.make(string=Guitar.string(string), fret=Fret(fret, True)))
+        poss.add(PositionOnFrettedInstrument.make(string=Guitar.string(string), fret=Fret.make(fret, True)))
     return SetOfPositionOnFrettedInstrument.make(poss, absolute=True)
 
 empty_set_of_fretted_instrument_position = empty_set_of_position(Guitar, True)

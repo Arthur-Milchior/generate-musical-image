@@ -9,7 +9,7 @@ from utils.util import ensure_folder, save_file
 
 def pair_of_frets(instrument: FrettedInstrument):
     last_fret = instrument.last_fret()
-    return [(Fret(low_fret, True), Fret(high_fret, True)) for (low_fret, high_fret) in pairs_of_frets_values(last_fret)]
+    return [(Fret.make(low_fret, True), Fret.make(high_fret, True)) for (low_fret, high_fret) in pairs_of_frets_values(last_fret)]
 
 def anki_note_(instrument: FrettedInstrument, low_string: int, high_string: int, low_fret: Fret, high_fret: Fret):
     return FrettedInstrumentIntervalAnkiNote(instrument,

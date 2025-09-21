@@ -129,7 +129,7 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     def get_chromatic(self) -> Optional[ChromaticNote]:
         if self.fret.is_not_played():
             return None
-        return self.string.note_open + ChromaticInterval(self.fret.value)
+        return self.string.note_open + ChromaticInterval.make(self.fret.value)
 
     # pragma mark - DataClassWithDefaultArgument
 

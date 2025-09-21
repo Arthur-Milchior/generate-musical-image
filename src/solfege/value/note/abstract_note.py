@@ -64,15 +64,14 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
             return "," * (-self.octave() - 1)
         raise assert_never(octave_notation)
 
-    def image_file_name(self, clef: Optional[Clef]  = None):
+    def file_name_for_lily_with_a_single_note(self, clef: Optional[Clef]  = None):
         """Return the file for a lily partition of this note only in this clef."""
         assert_optional_typing(clef, Clef)
-        return f"{self.file_name(clef)}.svg"
-
-    def image_html(self, clef: Optional[Clef]=Clef.TREBLE):
-        """Return the html tag for the image."""
-        assert_optional_typing(clef, Clef)
-        return img_tag(self.image_file_name(clef))
+        from solfege.value.note.chromatic_note import Chromatic
+        if clef is None:
+            clef = Clef.TREBLE if self.chromatic >= Chromatic(0) else Clef.BASS
+        # adding _ at start so that it's not deleted by anki.
+        return f"_{str(clef)}_{self.non_ambiguous_string_for_file_name()}"
 
     def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs):
         return f"{self.get_name_up_to_octave(**kwargs)}{str(self.get_octave_name(octave_notation=octave_notation))}"
@@ -89,7 +88,7 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
                               ) -> str:
         return NotImplemented
     
-    def file_name(self) -> str:
+    def non_ambiguous_string_for_file_name(self) -> str:
         return NotImplemented
 
 

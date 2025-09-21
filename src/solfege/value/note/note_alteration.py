@@ -1,10 +1,8 @@
 from dataclasses import dataclass
-import math
-from typing import assert_never
-from solfege.value.interval.interval_mode import IntervalMode
-from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput
+from typing import ClassVar, assert_never
+from solfege.value.interval.alteration.alteration import Alteration
+from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput
 from solfege.value.note.chromatic_note import ChromaticNote
-from utils.easyness import ClassWithEasyness
 from utils.util import assert_equal_length
 
 LILY = "LILY"
@@ -39,7 +37,7 @@ symbols = [s.replace(" ", "") for s in fixed_length_symbol_space_double]
 
 
 @dataclass(frozen=True)
-class Alteration(IntervalMode, ClassWithEasyness[int]):
+class NoteAlteration(Alteration):
     def lily_in_scale(self):
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.value + 2]
@@ -92,20 +90,20 @@ class Alteration(IntervalMode, ClassWithEasyness[int]):
             "♭♭": DOUBLE_FLAT,
             "𝄪": DOUBLE_SHARP,
         }[name]
+    
+    #pragma mark - Alteration
 
-    #pragma mark - ClassWithEasyness
-
-    def easy_key(self) -> int:
-        return abs(self.value)
+    min_value: ClassVar[int] = -2
+    max_value: ClassVar[int] = 2
 
 
 alteration_symbols = "𝄪♭#"
 
-DOUBLE_FLAT = Alteration(-2)
-FLAT = Alteration(-1)
-NATURAL = Alteration(0)
-SHARP = Alteration(1)
-DOUBLE_SHARP = Alteration(2)
+DOUBLE_FLAT = NoteAlteration.make(-2)
+FLAT = NoteAlteration.make(-1)
+NATURAL = NoteAlteration.make(0)
+SHARP = NoteAlteration.make(1)
+DOUBLE_SHARP = NoteAlteration.make(2)
 
 
-ChromaticNote.AlterationClass = Alteration
+ChromaticNote.AlterationClass = NoteAlteration

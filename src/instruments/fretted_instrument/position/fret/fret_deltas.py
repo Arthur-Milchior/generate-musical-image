@@ -25,7 +25,7 @@ class FretDelta(AbstractDelta[Frets, Fret]):
     @classmethod
     def create_T(cls, instrument: "FrettedInstrument", i: int, origine: Fret) -> Fret:
         assert_typing(origine, Fret)
-        return Fret(i, origine.absolute)
+        return Fret.make(i, origine.absolute)
 
     @classmethod
     def create_Ts(cls, instrument: "FrettedInstrument", min_t: Fret, max_t: Fret, origine: Fret) -> Frets:

@@ -29,16 +29,16 @@ class TestIntervalList(unittest.TestCase):
         self.assertEqual(list(major_triad_absolute.relative_intervals()), major_triad_relative_list)
 
     # def test_chromatic_absolute(self):
-    #     self.assertEqual(list(major_triad_absolute.absolute_chromatic()), [ChromaticInterval(0), ChromaticInterval(4), ChromaticInterval(7)])
+    #     self.assertEqual(list(major_triad_absolute.absolute_chromatic()), [ChromaticInterval.make(0), ChromaticInterval.make(4), ChromaticInterval.make(7)])
     
     # def test_chromatic_relative(self):
-    #     self.assertEqual(list(major_triad_absolute.relative_chromatic()), [ChromaticInterval(4), ChromaticInterval(3)])
+    #     self.assertEqual(list(major_triad_absolute.relative_chromatic()), [ChromaticInterval.make(4), ChromaticInterval.make(3)])
 
     # def test_diatonic_absolute(self):
-    #     self.assertEqual(list(major_triad_absolute.absolute_diatonic()), [DiatonicInterval(0), DiatonicInterval(2), DiatonicInterval(4)])
+    #     self.assertEqual(list(major_triad_absolute.absolute_diatonic()), [DiatonicInterval.make(0), DiatonicInterval.make(2), DiatonicInterval.make(4)])
     
     # def test_diatonic_relative(self):
-    #     self.assertEqual(list(major_triad_absolute.relative_diatonic()), [DiatonicInterval(2), DiatonicInterval(2)])
+    #     self.assertEqual(list(major_triad_absolute.relative_diatonic()), [DiatonicInterval.make(2), DiatonicInterval.make(2)])
 
     def test_from_chromatic_note(self):
         self.assertEqual(list(major_triad_absolute.get_chromatic_interval_list().from_note(ChromaticNote(0))), [ChromaticNote(0), ChromaticNote(4), ChromaticNote(7)])

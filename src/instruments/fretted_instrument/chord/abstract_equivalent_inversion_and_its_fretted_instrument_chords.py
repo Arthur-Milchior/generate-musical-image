@@ -2,18 +2,17 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from functools import cache
-from typing import ClassVar, Dict, Generic, List, Optional, Type
+from typing import ClassVar, Generic, List, Type
 
-from instruments.fretted_instrument.chord import chord_decomposition_anki_note
 from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument, FrettedInstrumentChordFrozenList
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-from instruments.fretted_instrument.position.set.colors import BlackOnly, PositionWithIntervalLetters
+from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.black_only import BlackOnly
+from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternsGetter, IdenticalInversionPatternsGetterType, IdenticalInversionPatterns
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
-from solfege.value.note.note import Note
 from utils.csv import CsvGenerator
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import ClassWithEasyness
@@ -98,10 +97,10 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         easiest_inversion = self.key.get_identical_inversion_pattern().easiest_inversion()
         lowest_note = easiest_inversion.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
         tonic = easiest_inversion.get_tonic(lowest_note)
-        chromatic_tonic = tonic.chromatic.in_base_octave()
+        chromatic_tonic = tonic._chromatic.in_base_octave()
         return (
-            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=BlackOnly(), absolute=self.absolute)),
-            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, colors=PositionWithIntervalLetters(chromatic_tonic), absolute=self.absolute)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=self.absolute)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=FrettedPositionMakerForInterval.make(chromatic_tonic), absolute=self.absolute)),
             #self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
         )
     

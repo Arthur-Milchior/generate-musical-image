@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import Callable, ClassVar, Self, Type, TypeVar, Union
+from typing import Callable, ClassVar, Dict, List, Self, Type, TypeVar, Union
 
 from solfege.value.abstract import Abstract
 from utils.frozenlist import MakeableWithSingleArgument
@@ -20,7 +20,7 @@ class Singleton(Abstract, MakeableWithSingleArgument):
 
     @classmethod
     def make_instance_of_selfs_class(cls: Type[Self], value: int):
-        return cls(value)
+        return cls.make(value)
 
     def __post_init__(self):
         """If the interval is passed as argument, it is copied. Otherwise, the value is used."""
@@ -64,6 +64,21 @@ class Singleton(Abstract, MakeableWithSingleArgument):
     @classmethod
     def one_octave(cls) -> Self:
         return cls.make_instance_of_selfs_class(value=cls.number_of_interval_in_an_octave)
+    
+    # Pragma mark - DataClassWithDefaultArgument
+    @classmethod
+    def _default_arguments_for_constructor(cls, args, kwargs):
+        kwargs = super()._default_arguments_for_constructor(args, kwargs)
+        return kwargs
+    
+    @classmethod
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "value")
+        return args, kwargs
+
+    def __post_init__(self):
+        super().__post_init__()
         
     
 SingletonType = TypeVar("SingletonType", bound=Singleton)

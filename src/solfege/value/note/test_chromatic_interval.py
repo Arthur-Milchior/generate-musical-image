@@ -3,7 +3,7 @@ import unittest
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.test_chromatic_interval import TestChromaticInterval
 from solfege.value.note.abstract_note import OctaveOutput
-from solfege.value.note.alteration import Alteration
+from solfege.value.note.note_alteration import NoteAlteration
 from solfege.value.note.chromatic_note import *
 
 class TestChromaticNote(unittest.TestCase):
@@ -19,30 +19,30 @@ class TestChromaticNote(unittest.TestCase):
     B2 = ChromaticNote(-13)
 
 
-    unison = ChromaticInterval(0)
-    second_minor = ChromaticInterval(1)
-    second_minor_descending = ChromaticInterval(-1)
-    second_major = ChromaticInterval(2)
-    third_minor = ChromaticInterval(3)
-    sept = ChromaticInterval(7)
-    six = ChromaticInterval(6)
-    seventh = ChromaticInterval(11)
-    octave = ChromaticInterval(12)
-    fourth_augmented_descending = ChromaticInterval(-6)
-    fourth_descending = ChromaticInterval(-7)
-    fifth_augmented_descending = ChromaticInterval(-8)
-    seventh_descending = ChromaticInterval(-11)
-    octave_descending = ChromaticInterval(-12)
-    eighth_descending = ChromaticInterval(-13)
+    unison = ChromaticInterval.make(0)
+    second_minor = ChromaticInterval.make(1)
+    second_minor_descending = ChromaticInterval.make(-1)
+    second_major = ChromaticInterval.make(2)
+    third_minor = ChromaticInterval.make(3)
+    sept = ChromaticInterval.make(7)
+    six = ChromaticInterval.make(6)
+    seventh = ChromaticInterval.make(11)
+    octave = ChromaticInterval.make(12)
+    fourth_augmented_descending = ChromaticInterval.make(-6)
+    fourth_descending = ChromaticInterval.make(-7)
+    fifth_augmented_descending = ChromaticInterval.make(-8)
+    seventh_descending = ChromaticInterval.make(-11)
+    octave_descending = ChromaticInterval.make(-12)
+    eighth_descending = ChromaticInterval.make(-13)
 
     def setUp(self):
         super().setUp()
         from solfege.value.note.diatonic_note import DiatonicNote
         from solfege.value.note.note import Note
-        from solfege.value.note.alteration import Alteration
+        from solfege.value.note.note_alteration import NoteAlteration
         ChromaticNote.DiatonicClass = DiatonicNote
         ChromaticNote.PairClass = Note
-        ChromaticNote.AlterationClass = Alteration
+        ChromaticNote.AlterationClass = NoteAlteration
 
     # def test_is_note(self):
     #     self.assertTrue(self.C4.is_note())

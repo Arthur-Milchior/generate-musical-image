@@ -13,16 +13,16 @@ class FakeSingletonNote(AbstractSingletonNote):
         return self
 
 class TestBaseNoteSingleton(unittest.TestCase):
-    zero = FakeSingletonInterval(0)
-    un = FakeSingletonInterval(1)
-    moins_un = FakeSingletonInterval(-1)
-    deux = FakeSingletonInterval(2)
-    trois = FakeSingletonInterval(3)
-    C4 = FakeSingletonNote(0)
-    D4 = FakeSingletonNote(1)
-    B3 = FakeSingletonNote(-1)
-    E4 = FakeSingletonNote(2)
-    F4 = FakeSingletonNote(3)
+    zero = FakeSingletonInterval.make(0)
+    un = FakeSingletonInterval.make(1)
+    moins_un = FakeSingletonInterval.make(-1)
+    deux = FakeSingletonInterval.make(2)
+    trois = FakeSingletonInterval.make(3)
+    C4 = FakeSingletonNote.make(0)
+    D4 = FakeSingletonNote.make(1)
+    B3 = FakeSingletonNote.make(-1)
+    E4 = FakeSingletonNote.make(2)
+    F4 = FakeSingletonNote.make(3)
 
     # def test_is_note(self):
     #     self.assertTrue(self.C4.is_note())

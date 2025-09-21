@@ -10,7 +10,7 @@ def position_make(string: int, fret: int, fingers: Union[int, Set[int]]):
     if isinstance(string, int):
         string = Guitar.string(string)
     if isinstance(fret, int):
-        fret = Fret(fret, True)
+        fret = Fret.make(fret, True)
     if isinstance(fingers, int):
         fingers = {fingers}
     return PositionOnFrettedInstrumentWithFingers.make(string=string, fret=fret, fingers=fingers)
@@ -20,7 +20,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
     def test_positions_minus_tone_finger_1(self):
         expected_position = position_make(string=2, fret=9, fingers=4)
         start_position = position_make(string=3, fret=6, fingers=1)
-        interval =ChromaticInterval(-2)
+        interval =ChromaticInterval.make(-2)
         fingers_position_list = start_position.positions_for_interval(instrument=Guitar, interval=interval, string_delta=any_string)
         self.assertEqual(len(fingers_position_list), 1)
         fingers, position = fingers_position_list[0]
@@ -30,7 +30,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
     def test_positions_minus_half_tone_finger_1(self):
         self.assertEqual([],
         position_make(string=3, fret=6, fingers=1)
-        .positions_for_interval(Guitar, ChromaticInterval(-1))
+        .positions_for_interval(Guitar, ChromaticInterval.make(-1))
         )
 
     def test_positions_minus_half_tone_finger_3(self):
@@ -38,7 +38,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({3}), position_make(string=3, fret=5, fingers={1, 2})),
         ]),
         position_make(string=3, fret=6, fingers=3)
-        .positions_for_interval(Guitar, ChromaticInterval(-1))
+        .positions_for_interval(Guitar, ChromaticInterval.make(-1))
         )
 
     def test_positions_minus_half_tone_finger_4(self):
@@ -46,7 +46,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({4}), position_make(string=3, fret=5, fingers={1, 2, 3})),
         ]),
         position_make(string=3, fret=6, fingers=4)
-        .positions_for_interval(Guitar, ChromaticInterval(-1))
+        .positions_for_interval(Guitar, ChromaticInterval.make(-1))
         )
 
         
@@ -55,7 +55,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({1}), position_make(string=3, fret=7, fingers={2, 3, 4})),
         ]),
         position_make(string=3, fret=6, fingers=1)
-        .positions_for_interval(Guitar, ChromaticInterval(1))
+        .positions_for_interval(Guitar, ChromaticInterval.make(1))
         )
 
     def test_positions_half_tone_finger_3(self):
@@ -63,14 +63,14 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({3}), position_make(string=3, fret=7, fingers=4)),
         ]),
         position_make(string=3, fret=6, fingers=3)
-        .positions_for_interval(Guitar, ChromaticInterval(1))
+        .positions_for_interval(Guitar, ChromaticInterval.make(1))
         )
 
     def test_positions_half_tone_finger_4(self):
         self.assertEqual(([
         ]),
         position_make(string=3, fret=6, fingers=4)
-        .positions_for_interval(Guitar, ChromaticInterval(1))
+        .positions_for_interval(Guitar, ChromaticInterval.make(1))
         )
 
     def test_positions_tone_finger_1(self):
@@ -78,7 +78,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({1}), position_make(string=3, fret=8, fingers={3, 4})),
         ]),
         position_make(string=3, fret=6, fingers=1)
-        .positions_for_interval(Guitar, ChromaticInterval(2))
+        .positions_for_interval(Guitar, ChromaticInterval.make(2))
         )
 
     def test_positions_tone_finger_3(self):
@@ -86,7 +86,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({3}), position_make(string=3, fret=8, fingers=4)),
         ]),
         position_make(string=3, fret=6, fingers=3)
-        .positions_for_interval(Guitar, ChromaticInterval(2))
+        .positions_for_interval(Guitar, ChromaticInterval.make(2))
         )
 
     def test_positions_tone_finger_4(self):
@@ -94,7 +94,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({4}), position_make(string=4, fret=3, fingers=1)),
         ]),
         position_make(string=3, fret=6, fingers=4)
-        .positions_for_interval(Guitar, ChromaticInterval(2))
+        .positions_for_interval(Guitar, ChromaticInterval.make(2))
         )
 
     def test_positions_tone_finger_1_4(self):
@@ -103,14 +103,14 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
            (frozenset({4}), position_make(string=4, fret=3, fingers=1)),
         ]),
         position_make(string=3, fret=6, fingers={1, 2, 3, 4})
-        .positions_for_interval(Guitar, ChromaticInterval(2))
+        .positions_for_interval(Guitar, ChromaticInterval.make(2))
         )
 
     def test_positions_2tone_finger_1(self):
         self.assertEqual(([
         ]),
         position_make(string=3, fret=6, fingers=1)
-        .positions_for_interval(Guitar, ChromaticInterval(4))
+        .positions_for_interval(Guitar, ChromaticInterval.make(4))
         )
 
     def test_positions_2tone_finger_3(self):
@@ -118,7 +118,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({3}), position_make(string=4, fret=5, fingers={1,2})),
         ]),
         position_make(string=3, fret=6, fingers=3)
-        .positions_for_interval(Guitar, ChromaticInterval(4))
+        .positions_for_interval(Guitar, ChromaticInterval.make(4))
         )
 
     def test_positions_2tone_finger_4(self):
@@ -126,7 +126,7 @@ class TestFrettedInstrumentPositionWithFingerss(unittest.TestCase):
         (frozenset({4}), position_make(string=4, fret=5, fingers={1, 2, 3})),
         ]),
         position_make(string=3, fret=6, fingers=4)
-        .positions_for_interval(Guitar, ChromaticInterval(4))
+        .positions_for_interval(Guitar, ChromaticInterval.make(4))
         )
 
     def test_restrict_to_compatible(self):

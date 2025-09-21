@@ -29,7 +29,7 @@ class Key(DataClassWithDefaultArgument):
         return self.from_note(self._key_to_simplest_enharmonic[self.note.in_base_octave()])
 
     def simplest_enharmonic_minor(self):
-        relative_interval = Interval.make(chromatic=3, diatonic=2)
+        relative_interval = Interval.make(_chromatic=3, _diatonic=2)
         return self.from_note(
             self._key_to_simplest_enharmonic[(self.note + relative_interval).in_base_octave()] - relative_interval)
 

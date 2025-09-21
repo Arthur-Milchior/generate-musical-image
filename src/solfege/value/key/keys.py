@@ -68,16 +68,16 @@ sets_of_enharmonic_keys = [
 for enharmonic_set in sets_of_enharmonic_keys:
     Key.add_enharmonic_set(enharmonic_set)
 
-seven_sharps = Interval.make(diatonic=0, chromatic=1)  # when playing a C scale, have C# major signature, 3 sharps
-three_sharps = Interval.make(diatonic=5, chromatic=9)  # when playing a C scale, have A major signature, 3 sharps
-two_sharps = Interval.make(diatonic=1, chromatic=2)  # when playing a C scale, have D major signature, 2 sharps
-one_sharp = Interval.make(diatonic=4, chromatic=7)  # when playing a C scale, have G major signature, 1 sharp
-nor_flat_nor_sharp = Interval.make(diatonic=0, chromatic=0)  # when playing a C scale, have C signature
-one_flat = Interval.make(diatonic=3, chromatic=5)  # when playing a C scale, have F major signature, 1 flat
-two_flats = Interval.make(diatonic=6, chromatic=10)  # when playing a C scale, have Bb major signature, 2 flats
-three_flats = Interval.make(diatonic=2, chromatic=3)  # when playing a C scale, have Eb major signature, 3 flats
-four_flats = Interval.make(diatonic=5, chromatic=8)  # when playing a C scale, have Ab major signature, 4 flats
-five_flats = Interval.make(diatonic=1, chromatic=1)  # when playing a C scale, have Bb major signature, 5 flats
-height_flats = Interval.make(diatonic=3, chromatic=4)  # when playing a C scale, have Fb major signature, 8 flats including Bbb
+seven_sharps = Interval.make(_diatonic=0, _chromatic=1)  # when playing a C scale, have C# major signature, 3 sharps
+three_sharps = Interval.make(_diatonic=5, _chromatic=9)  # when playing a C scale, have A major signature, 3 sharps
+two_sharps = Interval.make(_diatonic=1, _chromatic=2)  # when playing a C scale, have D major signature, 2 sharps
+one_sharp = Interval.make(_diatonic=4, _chromatic=7)  # when playing a C scale, have G major signature, 1 sharp
+nor_flat_nor_sharp = Interval.make(_diatonic=0, _chromatic=0)  # when playing a C scale, have C signature
+one_flat = Interval.make(_diatonic=3, _chromatic=5)  # when playing a C scale, have F major signature, 1 flat
+two_flats = Interval.make(_diatonic=6, _chromatic=10)  # when playing a C scale, have Bb major signature, 2 flats
+three_flats = Interval.make(_diatonic=2, _chromatic=3)  # when playing a C scale, have Eb major signature, 3 flats
+four_flats = Interval.make(_diatonic=5, _chromatic=8)  # when playing a C scale, have Ab major signature, 4 flats
+five_flats = Interval.make(_diatonic=1, _chromatic=1)  # when playing a C scale, have Bb major signature, 5 flats
+height_flats = Interval.make(_diatonic=3, _chromatic=4)  # when playing a C scale, have Fb major signature, 8 flats including Bbb
 
 

@@ -22,10 +22,10 @@ class TestChromaticNote(TestChromaticInterval):
         super().setUp()
         from solfege.value.note.diatonic_note import DiatonicNote
         from solfege.value.note.note import Note
-        from solfege.value.note.alteration import Alteration
+        from solfege.value.note.note_alteration import NoteAlteration
         ChromaticNote.DiatonicClass = DiatonicNote
         ChromaticNote.PairClass = Note
-        ChromaticNote.AlterationClass = Alteration
+        ChromaticNote.AlterationClass = NoteAlteration
 
     def test_classes(self):
         self.assertEqual(ChromaticNote.IntervalClass, ChromaticInterval)

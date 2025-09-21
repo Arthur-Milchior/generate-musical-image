@@ -3,13 +3,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Self
 
+from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
 
 
 @dataclass(frozen=True, unsafe_hash=True, eq=False)
-class Abstract(MakeableWithSingleArgument, ABC):
+class Abstract(DataClassWithDefaultArgument, MakeableWithSingleArgument, ABC):
     """The class of interval similar to the current class"""
     IntervalClass: ClassVar[type] #abstract interval
 

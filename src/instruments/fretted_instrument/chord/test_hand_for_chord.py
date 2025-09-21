@@ -12,7 +12,7 @@ def position_make(string, fret):
     if isinstance(string, int):
         string = Guitar.string(string)
     if isinstance(fret, int):
-        fret = Fret(fret, True)
+        fret = Fret.make(fret, True)
     return PositionOnFrettedInstrument.make(string=string, fret=fret)
 
 class TestHandForFrettedInstrumentChord(unittest.TestCase):

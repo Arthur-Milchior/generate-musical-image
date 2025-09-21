@@ -26,10 +26,6 @@ class ChromaticInterval(AbstractSingletonInterval, Chromatic):
 
     #Public
 
-    def _add(self, other: ChromaticGetter):
-        assert_typing(other, ChromaticGetter)
-        return super()._add(other.get_chromatic())
-
     def get_interval_name(self, octave=True, side: IntervalNameCreasing=IntervalNameCreasing.NEVER):
         """The name of the interval.
 

@@ -8,17 +8,17 @@ class TestLily(unittest.TestCase):
         from instruments.piano.piano_note import PianoNote
 
         self.c_pentatonic_minor_5th_right = [
-            PianoNote.make(chromatic=0, diatonic=0, finger=1),
-            PianoNote.make(chromatic=3, diatonic=2, finger=2),
-            PianoNote.make(chromatic=7, diatonic=4, finger=3),
-            PianoNote.make(chromatic=12, diatonic=7, finger=5),
+            PianoNote.make(_chromatic=0, _diatonic=0, finger=1),
+            PianoNote.make(_chromatic=3, _diatonic=2, finger=2),
+            PianoNote.make(_chromatic=7, _diatonic=4, finger=3),
+            PianoNote.make(_chromatic=12, _diatonic=7, finger=5),
         ]
 
         self.c_pentatonic_minor_5th_left = [
-            PianoNote.make(chromatic=-12, diatonic=-7, finger=5),
-            PianoNote.make(chromatic=-9, diatonic=-5, finger=3),
-            PianoNote.make(chromatic=-5, diatonic=-3, finger=2),
-            PianoNote.make(chromatic=0, diatonic=0, finger=1),
+            PianoNote.make(_chromatic=-12, _diatonic=-7, finger=5),
+            PianoNote.make(_chromatic=-9, _diatonic=-5, finger=3),
+            PianoNote.make(_chromatic=-5, _diatonic=-3, finger=2),
+            PianoNote.make(_chromatic=0, _diatonic=0, finger=1),
         ]
 
     both_hand_lily = """\\version "2.20.0"
@@ -80,7 +80,7 @@ class TestLily(unittest.TestCase):
     #
     # def test_for_list_of_notes(self):
     #     from instruments.piano.pianonote import PianoNote
-    #     self.assertEqual(_for_list_of_notes([PianoNote.make(chromatic=0, diatonic=0, finger=1)], ),
+    #     self.assertEqual(_for_list_of_notes([PianoNote.make(_chromatic=0, _diatonic=0, finger=1)], ),
     #                       "c'-1")
     #     self.assertEqual(_for_list_of_notes(self.c_pentatonic_minor_5th_right, ),
     #                       "c'-1 ees'-2 g'-3 c''-5")

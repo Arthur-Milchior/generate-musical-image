@@ -24,7 +24,7 @@ class AbstractSingletonNote(AbstractNote[IntervalType], Singleton, Generic[Inter
     def __sub__(self, other: Union[Self, IntervalType]) -> Union[Self, IntervalType]:
         new_value = self.value - other.value
         if isinstance(self, other.__class__):
-            return self.IntervalClass(new_value)
+            return self.IntervalClass.make(new_value)
         else:
             assert isinstance(other, self.IntervalClass) 
             return dataclasses.replace(self, value = new_value)

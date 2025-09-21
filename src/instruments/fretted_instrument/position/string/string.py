@@ -37,7 +37,7 @@ class String(MakeableWithSingleArgument):
         if note < self.note_open:
             return None
         interval = note-self.note_open
-        fret = Fret(interval.value, absolute)
+        fret = Fret.make(interval.value, absolute)
         if fret.absolute and fret > instrument.last_fret():
             return None
         return fret

@@ -1,5 +1,5 @@
 from typing import Iterable
-from solfege.value.note import alteration
+from solfege.value.note import note_alteration
 from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note
 from lily.lily import compile_
@@ -15,7 +15,7 @@ Scales 0 to 4 in bass
 
 scale = [Note.from_name(f"{diatonic_letter}4{alteration_symbol}")
          for diatonic_letter in "ABCDEFG"
-         for alteration_symbol in alteration.symbols
+         for alteration_symbol in note_alteration.symbols
          ]
 right_notes = [note.add_octave(o) for note in scale for o in range(-2, 5)]
 left_notes = [note.add_octave(o) for note in scale for o in range(-4,2)]
@@ -42,7 +42,7 @@ util.ensure_folder(folder_path)
 def generate(clef, notes: Iterable[Note]):
     for note in notes:
         lily_code = single_note(clef, note)
-        filename = note.file_name(clef)
+        filename = note.file_name_for_lily_with_a_single_note()
         path = f"{folder_path}/{filename}"
         compile_(lily_code, path, execute_lily=True, wav=False)
 

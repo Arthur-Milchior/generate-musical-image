@@ -1,14 +1,14 @@
 import unittest
 from instruments.accordina.accordina_note import *
 
-half_tone = ChromaticInterval(1)
+half_tone = ChromaticInterval.make(1)
 C4 = AccordinaNote(0, selected=False)
 C4_sharp = C4 + half_tone
 D4 = C4_sharp + half_tone
 D4_sharp = D4 + half_tone
 E4 = D4_sharp + half_tone
 F4 = E4 + half_tone
-C5 = C4 + ChromaticInterval(12)
+C5 = C4 + ChromaticInterval.make(12)
 
 class TestAccordinaNote(unittest.TestCase):
 

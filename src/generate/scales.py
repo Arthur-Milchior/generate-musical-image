@@ -82,7 +82,7 @@ tin_whistle = ChromaticInstrumentWithDifficultNote("tin_whistle", Note.from_name
                                                     "B♭4":1,
                                                     "A#4":1,
                                                     "C5":1,
-                                                   }, Interval.make(chromatic=2, diatonic=1),)
+                                                   }, Interval.make(_chromatic=2, _diatonic=1),)
 recorder = ChromaticInstrumentWithDifficultNote("recorder", Note.from_name("C4"), Note.from_name("D6"),
                                                    {
                                                        "C4#": 2,

@@ -31,13 +31,13 @@ class TestScalePattern(unittest.TestCase):
     def test_eq(self):
         self.assertEqual(minor_melodic.interval_for_signature, three_flats)
         self.assertEqual(list(minor_melodic.relative_intervals()), [
-            Interval.make(chromatic=2, diatonic=1),
-            Interval.make(chromatic=1, diatonic=1),
-            Interval.make(chromatic=2, diatonic=1),
-            Interval.make(chromatic=2, diatonic=1),
-            Interval.make(chromatic=2, diatonic=1),
-            Interval.make(chromatic=2, diatonic=1),
-            Interval.make(chromatic=1, diatonic=1),
+            Interval.make(_chromatic=2, _diatonic=1),
+            Interval.make(_chromatic=1, _diatonic=1),
+            Interval.make(_chromatic=2, _diatonic=1),
+            Interval.make(_chromatic=2, _diatonic=1),
+            Interval.make(_chromatic=2, _diatonic=1),
+            Interval.make(_chromatic=2, _diatonic=1),
+            Interval.make(_chromatic=1, _diatonic=1),
         ])
 
     def test_get_notes(self):
@@ -58,13 +58,13 @@ class TestScalePattern(unittest.TestCase):
         reversed = -minor_melodic
         expected = ScalePattern.make_relative(names=["Minor melodic"],
                                           relative_intervals=[
-                                              Interval.make(diatonic=-1, chromatic=- 1),
-                                              Interval.make(diatonic=-1, chromatic=-2),
-                                              Interval.make(diatonic=-1, chromatic=-2),
-                                              Interval.make(diatonic=-1, chromatic=-2),
-                                              Interval.make(diatonic=-1, chromatic=-2),
-                                              Interval.make(diatonic=-1, chromatic=-1),
-                                              Interval.make(diatonic=-1, chromatic=-2)], interval_for_signature=three_flats, increasing=False,
+                                              Interval.make(_diatonic=-1, _chromatic=- 1),
+                                              Interval.make(_diatonic=-1, _chromatic=-2),
+                                              Interval.make(_diatonic=-1, _chromatic=-2),
+                                              Interval.make(_diatonic=-1, _chromatic=-2),
+                                              Interval.make(_diatonic=-1, _chromatic=-2),
+                                              Interval.make(_diatonic=-1, _chromatic=-1),
+                                              Interval.make(_diatonic=-1, _chromatic=-2)], interval_for_signature=three_flats, increasing=False,
                                           record=False, _descending=minor_natural)
         self.assertEqual(reversed,
                           expected)

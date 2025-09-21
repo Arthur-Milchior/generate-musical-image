@@ -1,11 +1,11 @@
 import unittest
 
-from solfege.value.note.alteration import Alteration
+from solfege.value.note.note_alteration import NoteAlteration
 
 
 class TestAlterationNote(unittest.TestCase):
     def test_from_name(self):
-        self.assertEqual(Alteration.from_name("𝄪"), Alteration(2))
-        self.assertEqual(Alteration.from_name("#"), Alteration(1))
+        self.assertEqual(NoteAlteration.from_name("𝄪"), NoteAlteration.make(2))
+        self.assertEqual(NoteAlteration.from_name("#"), NoteAlteration.make(1))
         with self.assertRaises(Exception):
-            self.assertEqual(Alteration.from_name("###"), Alteration(1))
+            self.assertEqual(NoteAlteration.from_name("###"), NoteAlteration.make(1))

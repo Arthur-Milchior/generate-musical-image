@@ -17,7 +17,7 @@ from utils.util import T
 class ChromaticIdenticalInversions(AbstractIdenticalInversion[Note, Interval], AbstractChromaticInstantiation[ChromaticIdenticalInversionPatterns, Tuple[int, int]], MinimalChordDecompositionInput):
 
     def get_tonic(self) -> ChromaticNote:
-        return self._get_identical_inversion().get_tonic().chromatic
+        return self._get_identical_inversion().get_tonic()._chromatic
 
     def _get_identical_inversion(self):
         """The identiacl_inversion with a note with this chromatic."""
@@ -34,7 +34,7 @@ class ChromaticIdenticalInversions(AbstractIdenticalInversion[Note, Interval], A
         return self._get_identical_inversion().notations(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
         
     def get_tonic_minus_lowest_note(self) -> ChromaticInterval:
-        return self.pattern.inversion_patterns[0].tonic_minus_lowest_note.chromatic
+        return self.pattern.inversion_patterns[0].tonic_minus_lowest_note._chromatic
     
     def get_inversion_patterns(self) -> List[InversionPattern]:
         return self.pattern.inversion_patterns

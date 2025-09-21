@@ -28,4 +28,4 @@ class AbstractSingletonInterval(AbstractInterval, Singleton):
 
     @classmethod
     def unison(cls):
-        return cls(0)
+        return cls.make(0)

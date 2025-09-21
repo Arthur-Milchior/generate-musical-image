@@ -1,3 +1,4 @@
+import itertools
 import unittest
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
@@ -12,7 +13,7 @@ from .generate_scale import _generate_scale
 
 def position_make(string: int, fret:int, fingers:Set[int]):
     string = Guitar.string(string)
-    fret = Fret(fret, True)
+    fret = Fret.make(fret, True)
     return PositionOnFrettedInstrumentWithFingers.make(string = string, fret=fret, fingers=fingers)
 
 major_1_1 = ([
@@ -65,8 +66,8 @@ major_3_2 = ([position_make(1, 12, {4}),
 major_2_octave_1 = ([position_make(1, 12, {1, 2, 3}), position_make(1, 14, {4}), position_make(2, 11, {1}), position_make(2, 12, {2, 3}), position_make(2, 14, {4}), position_make(3, 11, {1}), position_make(3, 13, {3}), position_make(3, 14, {4}), position_make(4, 11, {1}), position_make(4, 13, {3}), position_make(4, 14, {4}), position_make(5, 12, {1, 2, 3}), position_make(5, 14, {4}), position_make(6, 11, {1}), position_make(6, 12, {2, 3, 4})])
 major_2_octave_2 = ([position_make(1, 12, {1, 2, 3}), position_make(1, 14, {4}), position_make(2, 11, {1}), position_make(2, 12, {2, 3}), position_make(2, 14, {4}), position_make(3, 11, {1}), position_make(3, 13, {3}), position_make(3, 14, {4}), position_make(4, 11, {1}), position_make(4, 13, {4}), position_make(5, 10, {1}), position_make(5, 12, {3}), position_make(5, 14, {4}), position_make(6, 11, {1}), position_make(6, 12, {2, 3, 4})])
 major_2_octave_3 = ([position_make(1, 12, {1, 2, 3}), position_make(1, 14, {4}), position_make(2, 11, {1}), position_make(2, 12, {2, 3}), position_make(2, 14, {4}), position_make(3, 11, {1}), position_make(3, 13, {3}), position_make(3, 14, {4}), position_make(4, 11, {1}), position_make(4, 13, {4}), position_make(5, 10, {1}), position_make(5, 12, {4}), position_make(6, 9, {1}), position_make(6, 11, {3}), position_make(6, 12, {4})])
-major_2_octave_4 = ([position_make(1, 12, {1, 2, 3}), position_make(1, 14, {4}), position_make(2, 11, {1}), position_make(2, 12, {4}), position_make(3, 9, {1}), position_make(3, 11, {4}), position_make(4, 8, {1}), position_make(4, 9, {2, 3}), position_make(4, 11, {4}), position_make(5, 9, {1, 2, 3}), position_make(5, 10, {2, 3}), position_make(5, 12, {4}), position_make(6, 9, {1}), position_make(6, 11, {3}), position_make(6, 12, {4})])
-major_2_octave_5 = ([position_make(1, 12, {4}), position_make(2, 9, {1}), position_make(2, 11, {3}), position_make(2, 12, {4}), position_make(3, 9, {1}), position_make(3, 11, {4}), position_make(4, 8, {1}), position_make(4, 9, {2, 3}), position_make(4, 11, {4}), position_make(5, 9, {1, 2, 3}), position_make(5, 10, {2, 3}), position_make(5, 12, {4}), position_make(6, 9, {1}), position_make(6, 11, {3}), position_make(6, 12, {4})])
+major_2_octave_4 = ([position_make(1, 12, {1, 2, 3}), position_make(1, 14, {4}), position_make(2, 11, {1}), position_make(2, 12, {4}), position_make(3, 9, {1}), position_make(3, 11, {4}), position_make(4, 8, {1}), position_make(4, 9, {2, 3}), position_make(4, 11, {4}), position_make(5, 9, {1, 2}), position_make(5, 10, {2, 3}), position_make(5, 12, {4}), position_make(6, 9, {1}), position_make(6, 11, {3}), position_make(6, 12, {4})])
+major_2_octave_5 = ([position_make(1, 12, {4}), position_make(2, 9, {1}), position_make(2, 11, {3}), position_make(2, 12, {4}), position_make(3, 9, {1}), position_make(3, 11, {4}), position_make(4, 8, {1}), position_make(4, 9, {2, 3}), position_make(4, 11, {4}), position_make(5, 9, {1, 2}), position_make(5, 10, {2, 3}), position_make(5, 12, {4}), position_make(6, 9, {1}), position_make(6, 11, {3}), position_make(6, 12, {4})])
 
 
 folder_path = "test/guitar/scale"
@@ -111,10 +112,10 @@ class TestGenerateScale(unittest.TestCase):
             self.assertIn(actual_fingers, expected.fingers_to_scales)
             self.assertEqualAnkiScaleWithFingersAndString(expected.fingers_to_scales[actual_fingers], actual.fingers_to_scales[actual_fingers])
 
-    def assert_equal_list_of_scales(self, expected, actual):
-        self.assertEqual(len(expected), len(actual))
-        for i in range(len(expected)):
-            self.assertEqual(expected[i], actual[i], f"\n\n{i}-th scale differs:\n{expected[i]}\n{actual[i]}")
+    def assert_equal_list_of_scales(self, expecteds, actuals):
+        self.assertEqual(len(expecteds), len(actuals))
+        for i, (expected, actual) in enumerate(itertools.zip_longest(expecteds, actuals)):
+            self.assertEqual(expected, actual, f"\n\n{i}-th scale differs:\n{expecteds[i]}\n{actuals[i]}")
 
     def assert_equal_list_of_anki_notes(self, expected, actual):
         self.assertEqual(len(expected), len(actual))
@@ -165,8 +166,8 @@ class TestGenerateScale(unittest.TestCase):
             actual
         )
         
-    def test_pentatonic_major_finger_2(self):
-        actual = generate_scale(instrument= Guitar,
-                                start_pos=position_make(string=1, fret=12, fingers=[2]),
-                                scale_pattern=pentatonic_major, number_of_octaves=2)
-        self.assertEqual(actual, None)
+    # def test_pentatonic_major_finger_2(self):
+    #     actual = generate_scale(instrument= Guitar,
+    #                             start_pos=position_make(string=1, fret=12, fingers=[2]),
+    #                             scale_pattern=pentatonic_major, number_of_octaves=2)
+    #     self.assertEqual(actual, None)

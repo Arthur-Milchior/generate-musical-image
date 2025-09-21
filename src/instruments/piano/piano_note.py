@@ -14,8 +14,8 @@ class PianoNote(Note):
     finger: int
 
     @classmethod
-    def make_instance_of_selfs_class(cls, chromatic, diatonic):
-        return Note(chromatic, diatonic)
+    def make_instance_of_selfs_class(cls, _chromatic, _diatonic):
+        return Note.make(_chromatic, _diatonic)
 
     def __post_init__(self):
         super().__post_init__()
@@ -26,13 +26,13 @@ class PianoNote(Note):
              chromatic: Union[ChromaticNote, int],
              diatonic: Union[DiatonicNote, int],
              finger=int) -> Self:
-        note = Note.make(chromatic=chromatic, diatonic=diatonic)
+        note = Note.make(_chromatic=chromatic, _diatonic=diatonic)
         assert 1<=finger<=5
         return cls.from_note_and_finger(note=note, finger=finger)
 
     @staticmethod
     def from_note_and_finger(note: Note, finger: int):
-        return PianoNote(chromatic=note.get_chromatic(), diatonic=note.get_diatonic(), finger=finger)
+        return PianoNote(_chromatic=note.get_chromatic(), _diatonic=note.get_diatonic(), finger=finger)
 
     @staticmethod
     def from_name(name: str, finger: int):
@@ -61,7 +61,7 @@ class PianoNote(Note):
             raise
 
     def __repr__(self):
-        return f"""PianoNote.make(chromatic={self.value}, diatonic={self.get_diatonic().value}, finger={self.finger})"""
+        return f"""PianoNote.make(_chromatic={self.value}, _diatonic={self.get_diatonic().value}, finger={self.finger})"""
 
     def valid_next_fingers(self, next_note: Note, for_right_hand: bool):
         if self == next_note:

@@ -3,7 +3,7 @@ from typing import Generator
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Ukulele
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
-from instruments.fretted_instrument.position.set.colors import PositionWithIntervalLetters
+from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_with_letters import FrettedPositionMakerForInterval
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions_with_fingers import SetOfFrettedInstrumentPositionsWithFingers
 from instruments.fretted_instrument.position.string.string_deltas import StringDelta
 from instruments.fretted_instrument.scale.generate_scale import generate_scale
@@ -30,7 +30,7 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
     scale_pattern: ScalePattern
     # note 3 and 4 are the same. One octave higher than note 1. This ensure that 
     # if we generate a scale starting on note 3 and 4 and it's the same pattern than a two-octave scale on note 1, the actual positions are the same. 
-    start_pos = PositionOnFrettedInstrument.make(Ukulele.string(2), Fret(5, absolute=False))
+    start_pos = PositionOnFrettedInstrument.make(Ukulele.string(2), Fret.make(5, absolute=False))
 
     def __post_init__(self):
         assert_typing(self.scale_pattern, ScalePattern)
@@ -40,7 +40,7 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
         scale, transposition = scale.transpose_to_fret_one()
         first_note = scale.get_most_grave_note().get_chromatic()
-        file_name = scale.save_svg(folder_path, instrument=Ukulele, absolute=False, colors=PositionWithIntervalLetters(first_note))
+        file_name = scale.save_svg(folder_path, instrument=Ukulele, absolute=False, fretted_position_maker=FrettedPositionMakerForInterval.make(first_note))
         return file_name
 
     #Pragma mark - CsvGenerator
@@ -69,6 +69,6 @@ def generate_ukulele():
         anki_note = ScaleOnUkuleleAnkiNote(scale_pattern)
         anki_notes.append(anki_note.csv())
 
-    save_file(f"{scale_transposable_folder}/anki.csv", "\n".join(anki_notes))
+    save_file(f"{scale_transposable_folder}/ukulele_scales.csv", "\n".join(anki_notes))
 
 generate_ukulele()

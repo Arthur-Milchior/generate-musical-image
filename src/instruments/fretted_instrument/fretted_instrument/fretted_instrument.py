@@ -41,7 +41,7 @@ class FrettedInstrument(DataClassWithDefaultArgument):
 
     def last_fret(self):
         from instruments.fretted_instrument.position.fret.fret import Fret
-        return Fret(self.number_of_frets, True)
+        return Fret.make(self.number_of_frets, True)
     
     def last_string(self):
         return self.string(self.number_of_strings())
@@ -53,7 +53,7 @@ class FrettedInstrument(DataClassWithDefaultArgument):
         return self.last_fret() + max(self.open_string_chromatic_note) 
     
     def generated_folder_name(self):
-        path = f"{generate_root_folder}/{self.name}"
+        path = f"{generate_root_folder}/fretted/{self.name}"
         ensure_folder(path)
         return path
     

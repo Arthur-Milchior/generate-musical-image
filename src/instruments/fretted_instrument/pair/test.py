@@ -6,7 +6,7 @@ from instruments.fretted_instrument.position.fret.fret import Fret
 
 class TestPair(unittest.TestCase):
     def test_pairs(self):
-        self.assertEqual(pairs_of_frets_values(Fret(2, True)),
+        self.assertEqual(pairs_of_frets_values(Fret.make(2, True)),
                          [
                              (0, 0), (0, 1), (0, 2),
                              (1, 0), (1, 1), (1, 2),

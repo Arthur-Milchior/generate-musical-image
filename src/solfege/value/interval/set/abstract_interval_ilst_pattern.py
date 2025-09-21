@@ -1,13 +1,18 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import dataclasses
 from itertools import pairwise
-from typing import Callable, ClassVar, Dict, Generic, Iterable, List, Self, Tuple, Type, TypeVar, Union
+from typing import Callable, ClassVar, Dict, Generic, Iterable, List, Optional, Self, Tuple, Type, TypeVar, Union
 
 from solfege.list_order import ListOrder
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
+from solfege.value.interval.role.interval_role import IntervalRole
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList
 from utils.util import assert_iterable_typing, assert_typing, sorted_unique
+
+"""Generate the role from the index"""
+RoleMaker = Callable[[int], IntervalRole]
 
 @dataclass(frozen=True, unsafe_hash=True)
 class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[IntervalType]):
@@ -32,12 +37,17 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
         return cls.make(*args, _absolute_intervals=cls._frozen_list_type(absolute_intervals), **kwargs)
 
     @classmethod
-    def make_relative(cls, relative_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]],  *args,  **kwargs):
+    def make_relative(cls, relative_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]],  role_maker: Optional[RoleMaker]=None, *args,  **kwargs):
         unison = cls.interval_type.unison()
+        if role_maker:
+            unison = dataclasses.replace(unison, _role=role_maker(0))
         absolute_intervals = [unison]
-        for relative_interval in relative_intervals:
+        for index_relative, relative_interval in enumerate(relative_intervals):
             relative_interval = cls.interval_type.make_single_argument(relative_interval)
-            absolute_intervals.append(absolute_intervals[-1] + relative_interval)
+            next_interval = absolute_intervals[-1] + relative_interval
+            if role_maker:
+                next_interval = dataclasses.replace(next_interval, _role=role_maker(index_relative + 1 ))
+            absolute_intervals.append(next_interval)
         return cls.make(*args, _absolute_intervals=cls._frozen_list_type(absolute_intervals), **kwargs)
 
     def absolute_intervals(self) -> FrozenList[IntervalType]:

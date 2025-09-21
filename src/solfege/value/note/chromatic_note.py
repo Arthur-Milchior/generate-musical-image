@@ -28,12 +28,12 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness[
         """A solfège note. Diatonic note is guessed. The default class is
         Note. May return None if no diatonic note can be guessed. """
         from solfege.value.note.note import Note
-        diatonic = Note.from_chromatic(self).diatonic
+        diatonic = Note.from_chromatic(self)._diatonic
         if cls is None:
             from solfege.value.note.note import Note
             cls = Note
         diatonic = diatonic
-        return cls(diatonic=diatonic, chromatic=self)
+        return cls(_diatonic=diatonic, _chromatic=self)
 
     def is_white_key_on_piano(self):
         """Whether this note corresponds to a black note of the keyboard"""
@@ -54,13 +54,16 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness[
     
     #Pragma mark - AbstractNote
 
-    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput):
+    def get_name_up_to_octave(self,
+                              alteration_output: AlterationOutput,
+                              note_output: NoteOutput,
+                              fixed_length: FixedLengthOutput):
         return self.get_note().get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
     
-    def file_name(self, clef: Clef= Clef.TREBLE) -> str:
+    def non_ambiguous_string_for_file_name(self) -> str:
         from solfege.value.note.note import Note
         note = Note.from_chromatic(self)
-        return note.file_name(clef)
+        return note.non_ambiguous_string_for_file_name()
 
     #pragma mark - ClassWithEasyness
 
