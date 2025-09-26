@@ -4,9 +4,12 @@ from typing import Generator, List, Tuple
 
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.black_only import BlackOnly
 from instruments.fretted_instrument.position.fretted_position_maker.conditional_fretted_position_maker import ConditionalFrettedPositionMaker
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
+from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
+from instruments.fretted_instrument.position.string.string import String
 from lily.sheet.lily_chord_sheet import LilyChordSheet
 from lily.staff.lily_chord_staff import LilyChordStaff
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import MinimalChordDecompositionInput
@@ -102,6 +105,21 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     
     def last_shown_fret(self):
         return self.chord.last_shown_fret()
+    
+    def strings(self, folder_path: str):
+        selected_strings = SetOfPositionOnFrettedInstrument.make(
+            positions = [], 
+            absolute=False,)
+        colored_strings = [self.instrument.string(string) for string in range(self.first_string(), self.last_string()+1)]
+        svg_file_name = selected_strings.save_svg(
+            folder_path=folder_path,
+            instrument=self.instrument, 
+            fretted_position_maker=BlackOnly(), 
+            minimal_number_of_frets = Fret(self.instrument.max_distance_between_two_closed_frets()+1, absolute=False), 
+            colored_strings = colored_strings
+            )
+        return img_tag(svg_file_name)
+        
 
     #pragma mark - CsvGenerator
 
@@ -117,6 +135,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         yield "x" if self.is_open else ""
         yield str(self.first_string())
         yield str(self.last_string())
+        yield self.strings(folder_path=folder_path)
         yield from [self.single_role_field(folder_path, interval_values) for interval_values in [[0], [1, 2], [3, 4], [5], [6, 7, 8], [9, 10, 11]]]
         yield self.instrument.get_name()
 

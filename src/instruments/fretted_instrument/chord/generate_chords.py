@@ -16,7 +16,7 @@ from instruments.fretted_instrument.position.fret.frets import Frets
 
 # Ensure that all chords are registered
 from solfege.pattern.chord.chord_patterns import *
-from solfege.pattern.inversion.chromatic_identical_inversion_patterns import MinimalChordDecompositionInput
+from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatterns, MinimalChordDecompositionInput
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatterns
 from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
@@ -50,7 +50,7 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
         return 1
 
     def max_fret(self):
-        #return 2
+        return 2
         return 6 if self.open_chord else 4
     
     def recorded_container_getter(self, pattern: IdenticalInversionPatterns, note: ChromaticNote) ->MinimalChordDecompositionInput:
@@ -93,7 +93,8 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
             chromatic_identical_inversion_pattern: Optional[IdenticalInversionPatterns] = interval_to_inversion_patterns.get_from_chromatic_interval_list(chromatic_intervals_in_base_octave)
             if chromatic_identical_inversion_pattern is None:
                 continue
-            chromatic_identical_inversion = self.recorded_container_getter(chromatic_identical_inversion_pattern, min_chromatic_note.in_base_octave())
+            assert_typing(chromatic_identical_inversion_pattern, ChromaticIdenticalInversionPatterns)
+            chromatic_identical_inversion = self.recorded_container_getter(pattern=chromatic_identical_inversion_pattern, note=min_chromatic_note.in_base_octave())
             self.record_keeper.register(key=chromatic_identical_inversion, recorded=fretted_instrument_chord)
         return self.record_keeper
     

@@ -18,6 +18,10 @@ from utils.util import assert_typing
 
 
 class AbstractPairInstantiation(AbstractPatternInstantiation[PatternType, Note, Interval, KeyType], Generic[PatternType, KeyType]):
+    """
+    An instantiation specifically for Note and Interval with both diatonic and chromatic information.
+    """
+
     note_type: ClassVar[AbstractNote] = Note
     interval_type: ClassVar[AbstractInterval] = Interval
     interval_list_type: ClassVar[FrozenList[IntervalType]] = IntervalListPattern

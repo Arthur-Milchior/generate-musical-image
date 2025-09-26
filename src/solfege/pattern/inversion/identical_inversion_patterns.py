@@ -11,14 +11,15 @@ from utils.util import assert_iterable_typing, assert_typing
 
 
 class IdenticalInversionPatternsGetter(ClassWithEasyness, ABC):
+    """A protocol simply offeritng to access a IdenticalInversionPattern."""
     @abstractmethod
     def get_identical_inversion_pattern(self) -> "IdenticalInversionPatterns":...    
+
 IdenticalInversionPatternsGetterType = TypeVar("IdenticalInversionPatternGetterType", bound=IdenticalInversionPatternsGetter)
 
 @dataclass(frozen=True, unsafe_hash=True)
 class IdenticalInversionPatterns(AbstractIdenticalInversionPatterns[IntervalListPattern], IdenticalInversionPatternsGetter):
-    """A interval list and all chord inversion associated to it.
-    """
+    """A interval list and all chord inversion associated to it."""
     interval_list_type: ClassVar[Type] = IntervalListPattern
 
     @classmethod

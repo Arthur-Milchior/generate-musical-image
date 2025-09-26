@@ -12,7 +12,11 @@ from solfege.value.note.abstract_note import NoteType
 
 
 @dataclass(frozen=True)
-class AbstractIdenticalInversion(AbstractPatternInstantiation[IdenticalInversionPatterns, NoteType, IntervalType, Tuple[int, int]],  IdenticalInversionPatternsGetter, Generic[NoteType, IntervalType]): 
+class AbstractIdenticalInversion(AbstractPatternInstantiation[IdenticalInversionPatterns, NoteType, IntervalType, Tuple[int, int]],  IdenticalInversionPatternsGetter, Generic[NoteType, IntervalType]):
+    """
+    A pair where the pattern is a set of equivalent inversion
+    """
+
     pattern_type: ClassVar[PatternWithIntervalList] = ChromaticIdenticalInversionPatterns
 
     def get_identical_inversion_pattern(self) -> ChromaticIdenticalInversionPatterns:

@@ -13,7 +13,7 @@ class IntervalRoleFromInterval(IntervalRole):
 
     # Pragma mark - IntervalRole
     def text_for_guitar_image(self) -> str:
-        return f"{self.interval._diatonic.value}{self.interval.get_alteration().letter()}"
+        return f"{self.interval._diatonic.value + 1}{self.interval.get_alteration().letter()}"
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod

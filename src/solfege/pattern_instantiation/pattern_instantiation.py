@@ -21,6 +21,9 @@ IntervalFrozenListType= TypeVar("IntervalFrozenListType", bound = FrozenList)
 
 @dataclass(frozen=True, eq=True)
 class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[PatternType, NoteType, IntervalType, KeyType]):
+    """
+    A data structure containing a `pattern` and the `lowest_note`. This represents the pattern starting at this note.
+    """
     pattern: PatternType
     lowest_note: NoteType
 

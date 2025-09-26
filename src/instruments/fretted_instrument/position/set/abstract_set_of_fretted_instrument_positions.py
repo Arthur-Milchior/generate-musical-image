@@ -294,6 +294,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
             ]
         else:
             assert colored_strings
+            assert_iterable_typing(colored_strings, String)
             parts = [
                 instrument.get_name(),
                 absolute,

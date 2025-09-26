@@ -20,7 +20,7 @@ class ChromaticIdenticalInversions(AbstractIdenticalInversion[Note, Interval], A
         return self._get_identical_inversion().get_tonic().get_chromatic()
 
     def _get_identical_inversion(self):
-        """The identiacl_inversion with a note with this chromatic."""
+        """The identical_inversion with a note with this chromatic."""
         from solfege.pattern_instantiation.inversion.identical_inversions_instantiation import IdenticalInversion
         note = Note.from_chromatic(self.lowest_note)
         return IdenticalInversion.make(self.pattern, note)
