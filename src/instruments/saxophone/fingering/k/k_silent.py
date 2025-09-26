@@ -1,6 +1,6 @@
 from instruments.saxophone.fingering import main_column 
 from instruments.saxophone.buttons import *
-from instruments.saxophone.fingering.fingering import *
+from instruments.saxophone.fingering.saxophone_fingering import *
 from instruments.saxophone.fingering import k
 
 

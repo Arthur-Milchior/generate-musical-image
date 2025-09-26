@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from typing import ClassVar, Dict, List, Optional, Type
 
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
-from solfege.pattern.scale.scale import Scale
 from solfege.value.note.abstract_note import NoteType
 from utils.util import assert_optional_typing
 
@@ -59,23 +58,23 @@ class ScalePattern(SolfegePattern):
             return self._descending
         return self
 
-    def from_note(self, tonic: NoteType, number_of_octaves=1,
-                 add_an_extra_note: bool = False) -> Scale[NoteType]:
-        """The note, starting at tonic, following this pattern for nb_octave.
-        If nb_octave is negative, the generated scale is decreasing."""
-        assert number_of_octaves != 0
-        if number_of_octaves < 0:
-            return (-self).from_note(tonic, -number_of_octaves, add_an_extra_note=add_an_extra_note)
-        current_note = tonic
-        notes = [tonic]
-        relative_intervals = list(self.relative_intervals())
-        for octave_number in range(number_of_octaves):
-            for interval in relative_intervals:
-                current_note += interval
-                notes.append(current_note)
-        if add_an_extra_note:
-            notes.append(notes[-1] + relative_intervals[0])
-        return Scale[NoteType](notes=notes, pattern=self, key = notes[0] + self.interval_for_signature)
+    # def from_note(self, tonic: NoteType, number_of_octaves=1,
+    #              add_an_extra_note: bool = False) -> Scale[NoteType]:
+    #     """The note, starting at tonic, following this pattern for nb_octave.
+    #     If nb_octave is negative, the generated scale is decreasing."""
+    #     assert number_of_octaves != 0
+    #     if number_of_octaves < 0:
+    #         return (-self).from_note(tonic, -number_of_octaves, add_an_extra_note=add_an_extra_note)
+    #     current_note = tonic
+    #     notes = [tonic]
+    #     relative_intervals = list(self.relative_intervals())
+    #     for octave_number in range(number_of_octaves):
+    #         for interval in relative_intervals:
+    #             current_note += interval
+    #             notes.append(current_note)
+    #     if add_an_extra_note:
+    #         notes.append(notes[-1] + relative_intervals[0])
+    #     return Scale[NoteType](notes=notes, pattern=self, key = notes[0] + self.interval_for_signature)
 
     def __len__(self):
         return len(self.relative_intervals)

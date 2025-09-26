@@ -5,7 +5,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Generator, List, Optional
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
-from instruments.fretted_instrument.position.consts import CIRCLE_RADIUS, CIRCLE_STROKE_WIDTH, FONT_SIZE
+from instruments.fretted_instrument.position.positions_consts import CIRCLE_RADIUS, CIRCLE_STROKE_WIDTH, FONT_SIZE
 from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.constants import BACKGROUND_COLOR, DEFAULT_COLOR
 from instruments.fretted_instrument.position.fretted_position_maker.fretted_position_maker import FrettedPositionMaker, FrettedPositionMaker
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
@@ -27,7 +27,7 @@ class FrettedPositionMakerWithLetter(FrettedPositionMaker):
             return DEFAULT_COLOR
         return self.circle_color
 
-    def _svg_content(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> Generator[str]:
+    def svg_lines(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> Generator[str]:
         if pos.fret.is_not_played():
             yield from pos.string.svg_for_x(pos.fret.absolute)
             return

@@ -2,7 +2,6 @@
 from dataclasses import dataclass
 from typing import Callable, ClassVar, Dict, Generic, List, Optional, Self, Type
 
-from lily.lily import chord
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, IntervalListPattern
@@ -38,9 +37,10 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern], ClassWithE
     
     def lily_chord(self):
         """Lily code for this chord."""
-        return f"""<{" ".join(note.lily_in_scale() for note in self)}>"""
+        return f"""<{" ".join(note.syntax_for_lily() for note in self)}>"""
     
     def lily_file_with_only_chord(self, clef: Clef):
+        assert_typing(clef, Clef)
         """Lily code for a file containing just this as a chord"""
         return f"""\\version "2.20.0"
 \\score{{
@@ -57,6 +57,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalListPattern], ClassWithE
     
     def lily_file_name(self, clef: Clef):
         """Return a name for the file containing those notes, without extension"""
+        assert_typing(clef, Clef)
         notes = list(self)
         notes.sort()
         notes_str = "_".join(note.get_name_with_octave(

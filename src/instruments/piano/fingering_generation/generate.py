@@ -9,9 +9,9 @@
 from dataclasses import dataclass, astuple
 from typing import Optional, List, Callable, Tuple
 
-from lily.Lilyable.list_piano_lilyable import ListPianoLilyable
-from lily.Lilyable.piano_lilyable import LiteralPianoLilyable, lilypond_code_for_one_hand
-from lily.lily import compile_
+from _lily.Lilyable.list_piano_lilyable import ListPianoLilyable
+from _lily.Lilyable.piano_lilyable import LiteralPianoLilyable, lilypond_code_for_one_hand
+from _lily.lily import compile_
 from instruments.piano.fingering_generation.penalty import Penalty
 from instruments.piano.piano_note import PianoNote
 from instruments.piano.fingering_generation.penalty_for_scale import PenaltyForScale

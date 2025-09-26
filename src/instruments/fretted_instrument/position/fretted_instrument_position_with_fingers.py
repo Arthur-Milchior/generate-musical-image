@@ -27,7 +27,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
             for next_finger in next_note.fingers:
                 if self_finger == next_finger:
                     continue
-                if instrument.finger_to_fret_delta[self_finger][next_finger].contains_delta(delta):
+                if instrument.finger_to_fret_delta()[self_finger][next_finger].contains_delta(delta):
                     acceptable_fingers.add(self_finger)
         return self.restrict_to_specific_fingers(frozenset(acceptable_fingers))
 
@@ -71,7 +71,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
             for new_finger in range(1, 5):
                 if new_finger== current_finger:
                     continue
-                fret_delta = instrument.finger_to_fret_delta[current_finger][new_finger]
+                fret_delta = instrument.finger_to_fret_delta()[current_finger][new_finger]
                 for pos in self.positions_for_interval_with_restrictions(instrument=instrument, interval=interval, frets=fret_delta, strings=string_delta):
                     if pos not in pos_to_fingers:
                         pos_to_fingers[pos] = (set(), set())

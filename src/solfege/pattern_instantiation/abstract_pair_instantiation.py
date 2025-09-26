@@ -11,6 +11,7 @@ from solfege.value.interval.interval import Interval, IntervalFrozenList
 from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, IntervalListPattern
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from solfege.value.note.note import Note, NoteFrozenList
+from solfege.value.note.set.note_list import NoteList
 from utils.easyness import KeyType
 from utils.frozenlist import FrozenList
 from utils.util import assert_typing
@@ -20,7 +21,7 @@ class AbstractPairInstantiation(AbstractPatternInstantiation[PatternType, Note, 
     note_type: ClassVar[AbstractNote] = Note
     interval_type: ClassVar[AbstractInterval] = Interval
     interval_list_type: ClassVar[FrozenList[IntervalType]] = IntervalListPattern
-    note_list_type: ClassVar[FrozenList[NoteType]] = NoteFrozenList
+    note_list_type: ClassVar[FrozenList[NoteType]] = NoteList
     chromatic_instantiation_type: ClassVar[Type[AbstractChromaticInstantiation]]
 
     related_chromatic_type: ClassVar[AbstractChromaticInstantiation[PatternType, KeyType]]

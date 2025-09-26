@@ -63,9 +63,7 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
 
     @classmethod
     @abstractmethod
-    def _note_list_constructor(cls) -> Callable[["NoteType"], "AbstractNoteList"]:
-        return NotImplemented
-
+    def _note_list_constructor(cls) -> Callable[["NoteType"], "AbstractNoteList"]:...
     def _from_note(self, note: "NoteType") -> FrozenList["NoteType"]:
         return self._frozen_list_type.note_frozen_list_type([note + absolute_interval for absolute_interval in self._absolute_intervals])
     
@@ -95,9 +93,8 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
     
     @staticmethod
     @abstractmethod
-    def interval_repr(interval: IntervalType) -> str:
-        "How to display the interval in make."
-        return NotImplemented
+    def interval_repr(interval: IntervalType) -> str:...
+    "How to display the interval in make."
     
     def in_base_octave(self) -> Self:
         intervals_in_base_octave = sorted_unique(interval.in_base_octave() for interval in self._absolute_intervals)

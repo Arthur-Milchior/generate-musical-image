@@ -1,10 +1,11 @@
 
 
 from dataclasses import dataclass
+import dataclasses
 from enum import Enum
-from typing import Callable, ClassVar, Dict, Generic, List, Type
+from typing import Callable, ClassVar, Dict, Generic, List, Self, Type
 
-from solfege.list_order import ListOrder
+from solfege.list_order import ListOrder, reverse_list_order
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.set.abstract_interval_ilst_pattern import IntervalListPatternType
 from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern
@@ -38,6 +39,15 @@ class AbstractNoteList(DataClassWithDefaultArgument, Generic[NoteType, IntervalT
             if not note.is_in_base_octave(accepting_octave):
                 return False
         return True
+
+    def all_blacks(self):
+        return all(note.is_black_key_on_piano() for note in self.notes)
+    
+    def __reversed__(self) -> Self:
+        return dataclasses.replace(self, notes=reversed(self.notes), list_order=reverse_list_order(self.list_order))
+    
+    def add_octave(self, nb_octave) -> Self:
+        return dataclasses.replace(self, notes = self.notes.map(lambda note: note.add_octave(nb_octave)))
 
     # pragma mark - DataClassWithDefaultArgument
     

@@ -20,9 +20,7 @@ class PatternEmpty(SolfegePattern):
         return RecordKeeperForPatternEmpty.make()
 
     @classmethod
-    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
-        return NotImplemented
-
+    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:...
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
@@ -60,9 +58,7 @@ class PatternDeux(SolfegePattern):
         return RecordKeeperForPatternDeux.make()
 
     @classmethod
-    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
-        return NotImplemented
-
+    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:...
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod

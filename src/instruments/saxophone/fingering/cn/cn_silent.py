@@ -1,8 +1,8 @@
 from instruments.saxophone.fingering import cn
 from instruments.saxophone.fingering import main_column 
-from instruments.saxophone.fingering.fingering import Fingering
+from instruments.saxophone.fingering.saxophone_fingering import SaxophoneFingering
 from instruments.saxophone.buttons import *
-from instruments.saxophone.fingering.fingering import *
+from instruments.saxophone.fingering.saxophone_fingering import *
 
 """Contains fingering that add buttons that don't change the sounds, and that contains a C1, C2, C3 or C4"""
 

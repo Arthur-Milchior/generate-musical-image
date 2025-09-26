@@ -12,9 +12,7 @@ from utils.util import assert_iterable_typing, assert_typing
 
 class IdenticalInversionPatternsGetter(ClassWithEasyness, ABC):
     @abstractmethod
-    def get_identical_inversion_pattern(self) -> "IdenticalInversionPatterns":
-        return NotImplemented
-    
+    def get_identical_inversion_pattern(self) -> "IdenticalInversionPatterns":...    
 IdenticalInversionPatternsGetterType = TypeVar("IdenticalInversionPatternGetterType", bound=IdenticalInversionPatternsGetter)
 
 @dataclass(frozen=True, unsafe_hash=True)

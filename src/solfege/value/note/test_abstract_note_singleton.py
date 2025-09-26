@@ -7,10 +7,18 @@ from solfege.value.note.abstract_note import *
 
 class FakeSingletonNote(AbstractSingletonNote):
     IntervalClass: ClassVar[Type[Singleton]] = FakeSingletonInterval
+
     def get_chromatic(self):
         return self
+
     def get_diatonic(self):
         return self
+    
+    def get_name_up_to_octave(self):
+        return "fake_name_up_to_octave"
+    
+    def non_ambiguous_string_for_file_name(self):
+        return "fake_string_for_file_name"
 
 class TestBaseNoteSingleton(unittest.TestCase):
     zero = FakeSingletonInterval.make(0)

@@ -15,9 +15,7 @@ class SetOfPositionOnFrettedInstrument(AbstractSetOfFrettedPositions[PositionOnF
     type: ClassVar[Type[PositionOnFrettedInstrument]] = PositionOnFrettedInstrument
     _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]] = PositionOnFrettedInstrumentFrozenList
 
-    def _svg_name_base(self, **kwargs) -> str:
-        return NotImplemented
-    
+
 class SetOfPositionsOnFrettedInstrumentFrozenList(FrozenList[SetOfPositionOnFrettedInstrument]):
     type = SetOfPositionOnFrettedInstrument
 

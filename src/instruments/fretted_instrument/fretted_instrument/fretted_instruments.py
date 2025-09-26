@@ -2,7 +2,7 @@ from typing import List, Optional
 from instruments.fretted_instrument.fretted_instrument.abstract_fretted_instrument import AbstractFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.tuning import Tuning
-from instruments.fretted_instrument.position.fret.fret_deltas import FretDelta
+from instruments.fretted_instrument.position.fret.fret_delta import FretDelta
 from solfege.value.note.clef import Clef
 from utils.util import assert_typing
 

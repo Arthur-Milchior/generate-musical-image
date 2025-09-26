@@ -14,5 +14,4 @@ class CsvGenerator(ABC):
 
     #Must be implemented by subclasses
     @abstractmethod
-    def csv_content(self) -> Generator[str]:
-        return NotImplemented
+    def csv_content(self) -> Generator[str]:...

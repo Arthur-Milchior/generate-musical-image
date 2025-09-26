@@ -53,9 +53,7 @@ class AbstractIdenticalInversionPatterns(RecordedContainer[InversionPattern],
     # Must be implemented by subclasses
     @classmethod
     @abstractmethod
-    def get_interval_list_from_inversion(cls, inversion: InversionPattern):
-        return NotImplemented
-    
+    def get_interval_list_from_inversion(cls, inversion: InversionPattern):...    
     #pragma mark - ClassWithEasyness
 
     def easy_key(self) -> Tuple[int, int]:

@@ -6,7 +6,7 @@ from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrumentFrozenList
 from instruments.fretted_instrument.position.fretted_instrument_position_with_fingers import FrettedInstrumentPositionWithFingersFrozenList
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
-from lily.lily_svg import display_svg_file
+from lily.lily_svg_utils import display_svg_file
 from utils.util import ensure_folder, save_file
 from .anki_scale import *
 from solfege.pattern.scale.scale_patterns import major_scale, blues

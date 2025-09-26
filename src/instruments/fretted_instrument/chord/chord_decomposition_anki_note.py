@@ -7,12 +7,15 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instrument import
 from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.black_only import BlackOnly
 from instruments.fretted_instrument.position.fretted_position_maker.conditional_fretted_position_maker import ConditionalFrettedPositionMaker
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
+from lily.sheet.lily_chord_sheet import LilyChordSheet
+from lily.staff.lily_chord_staff import LilyChordStaff
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import MinimalChordDecompositionInput
 from solfege.value.interval.chromatic_interval import ChromaticInterval
-from lily import lily
+from _lily import lily
 from solfege.value.note.note import Note
 from solfege.value.note.set.note_list import NoteList
 from utils.csv import CsvGenerator
+from solfege.value.key.keys import key_of_C
 from utils.easyness import ClassWithEasyness
 from utils.util import assert_typing, ensure_folder, img_tag
 
@@ -45,12 +48,10 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         chromatic_note_list = self.chord.chromatic_notes()
         note_list = note_to_use.change_octave_to_be_enharmonic(chromatic_note_list)
 
-        ensure_folder(path)
-        file_prefix = note_list.lily_file_name(self.instrument.clef)
-        path_prefix = f"{path}/{file_prefix}"
-        code = note_list.lily_file_with_only_chord(self.instrument.clef)
-        lily.compile_(code, path_prefix, wav=False)
-        return img_tag(f"{file_prefix}.svg")
+        clef = self.instrument.clef()
+        sheet = LilyChordSheet.make(staff = LilyChordStaff.make(notes = note_list.notes, clef=clef, first_key = key_of_C))
+
+        return img_tag(sheet.maybe_generate())
     
     def is_open(self):
         return self.chord.is_open()
@@ -58,7 +59,12 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     def fretted_position_maker(self, all_marked:bool):
         style = "fill: red;font: italic 12px serif;" if all_marked else None
         color = "red" if all_marked else None
-        return FrettedPositionMakerForInterval.make(self.tonic().in_base_octave(), pattern=self.identical_inversions.get_inversion_patterns()[0].base, style=style, circle_color=color)
+        return FrettedPositionMakerForInterval.make(
+            tonic=self.tonic().in_base_octave(),
+            pattern=self.identical_inversions.get_inversion_patterns()[0].base,
+            style=style,
+            circle_color=color
+            )
     
     def tonic(self):
         lowest_note = self.chord.get_most_grave_note().get_chromatic()
@@ -99,7 +105,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
 
     #pragma mark - CsvGenerator
 
-    def csv_content(self, folder_path: str) -> Generator[str]:
+    def csv_content(self, folder_path: str, lily_folder_path: str) -> Generator[str]:
         transposed, transposition = self.transposed()
         notations = self.identical_inversions.notations()
 
@@ -107,7 +113,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         yield ", ".join(notations[1:]) # other notations
         yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=self.is_open())) # Chord
         yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=self.fretted_position_maker(all_marked=True), absolute=self.is_open())) # Colored chord
-        yield self.decomposition_lily_field(f"{folder_path}/lily") # partition
+        yield self.decomposition_lily_field(f"{lily_folder_path}") # partition
         yield "x" if self.is_open else ""
         yield str(self.first_string())
         yield str(self.last_string())

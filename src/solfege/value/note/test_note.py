@@ -24,8 +24,8 @@ class TestNote(unittest.TestCase):
         self.assertEqual(Note.all_from_chromatic(ChromaticNote(4)), [Note.make(4, 2), Note.make(4, 3), Note.make(4, 1)])
     
     def test_lily(self):
-        self.assertEqual(self.C4.lily_in_scale(), "c'")
-        self.assertEqual(self.F4.lily_in_scale(), "f'")
+        self.assertEqual(self.C4.syntax_for_lily(), "c'")
+        self.assertEqual(self.F4.syntax_for_lily(), "f'")
 
     # def test_is_note(self):
     #     self.assertTrue(self.C4.is_note())
@@ -90,10 +90,10 @@ class TestNote(unittest.TestCase):
         self.assertTrue(self.C5.equals_modulo_octave(self.C3))
 
     def test_lily_black(self):
-        self.assertEqual(self.C4.lily_in_scale(), "c'")
-        self.assertEqual(self.C3.lily_in_scale(), "c")
-        self.assertEqual(self.C5.lily_in_scale(), "c''")
-        self.assertEqual(self.B3.lily_in_scale(), "b")
+        self.assertEqual(self.C4.syntax_for_lily(), "c'")
+        self.assertEqual(self.C3.syntax_for_lily(), "c")
+        self.assertEqual(self.C5.syntax_for_lily(), "c''")
+        self.assertEqual(self.B3.syntax_for_lily(), "b")
 
     def test_is_black_key(self):
         self.assertFalse(self.C4.is_black_key_on_piano())

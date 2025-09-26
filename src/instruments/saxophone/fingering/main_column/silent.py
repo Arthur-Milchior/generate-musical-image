@@ -2,7 +2,7 @@
 
 from instruments.saxophone.fingering import main_column 
 from instruments.saxophone.buttons import *
-from instruments.saxophone.fingering.fingering import *
+from instruments.saxophone.fingering.saxophone_fingering import *
 
 d4_t = main_column.d4.silent_button(jay_2, FingeringSymbol.T)
 e4_t = main_column.e4.silent_button(jay_3, FingeringSymbol.T)

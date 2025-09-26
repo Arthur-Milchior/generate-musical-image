@@ -7,3 +7,5 @@ COLOR_FIFTH = "orange"
 COLOR_QUALITY = "purple"
 DEFAULT_COLOR = "black"
 BACKGROUND_COLOR = "white"
+
+SELECTED_STRING_COLOR = "red"

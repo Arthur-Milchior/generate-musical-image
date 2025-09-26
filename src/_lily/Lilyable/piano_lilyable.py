@@ -4,9 +4,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional, List, Iterable
 
-from lily.Lilyable.lilyable import Lilyable
-from lily.Lilyable.local_lilyable import LocalLilyable
-from lily.lily import compile_
+from _lily.Lilyable.lilyable import Lilyable
+from _lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note
 from solfege.value.note.abstract_note import NoteOutput
@@ -17,23 +16,19 @@ from utils.util import assert_typing, indent
 class PianoLilyable(Lilyable, ABC):
 
     @abstractmethod
-    def first_key(self) -> str:
-        return NotImplemented
+    def first_key(self) -> str:...
 
     @abstractmethod
-    def right_lily(self) -> Optional[str]:
-        """The lily code for the right hand scale, without the first key"""
-        return NotImplemented
+    def right_lily(self) -> Optional[str]:...
+    """The lily code for the right hand scale, without the first key"""
 
     @abstractmethod
-    def left_lily(self) -> Optional[str]:
-        """The lily code for the left hand scale, without the first key"""
-        return NotImplemented
+    def left_lily(self) -> Optional[str]:...
+    """The lily code for the left hand scale, without the first key"""
 
     @abstractmethod
-    def annotations_lily(self) -> Optional[str]:
-        """The lily code for the annotation"""
-        return NotImplemented
+    def annotations_lily(self) -> Optional[str]:...
+    """The lily code for the annotation"""
 
     def __eq__(self, other: PianoLilyable):
         return self.first_key() == other.first_key() and self.left_lily() == other.left_lily() and self.right_lily() == other.right_lily() and self.annotations_lily() == other.annotations_lily()
@@ -110,10 +105,10 @@ class LiteralPianoLilyable(PianoLilyable):
     def make(key: Note, left_hand: Optional[Iterable[LocalLilyable]] = None,
                 right_hand: Optional[Iterable[LocalLilyable]] = None) -> LiteralPianoLilyable:
         return LiteralPianoLilyable(key.lily_key(),
-                                    (" ".join(l.lily_in_scale() for l in left_hand) if (
+                                    (" ".join(l.syntax_for_lily() for l in left_hand) if (
                                             left_hand is not None) else None),
                                     (" ".join(
-                                        r.lily_in_scale() for r in right_hand) if right_hand is not None else None))
+                                        r.syntax_for_lily() for r in right_hand) if right_hand is not None else None))
 
     def first_key(self) -> str:
         return self._first_key
@@ -133,7 +128,7 @@ def _for_list_of_notes(fingering: List[LocalLilyable]) -> str:
 
     chooseOctave is the function which, given its argument, decide which ottava is applied (if any)
     """
-    return " ".join(note.lily_in_scale() for note in fingering)
+    return " ".join(note.syntax_for_lily() for note in fingering)
 
 
 def lilypond_code_for_one_hand(key: str, notes_or_chords: List[LocalLilyable], for_right_hand: bool,

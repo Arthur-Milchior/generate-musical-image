@@ -13,6 +13,7 @@ from instruments.fretted_instrument.position.set.set_of_fretted_instrument_posit
 from instruments.fretted_instrument.position.fret.fret import Fret
 from solfege.value.interval.chromatic_interval import IntervalNameCreasing
 from utils.csv import CsvGenerator
+from utils.svg.svg_generator import SvgGenerator, SvgSaver
 from utils.util import *
 from consts import generate_root_folder
 
@@ -22,7 +23,7 @@ Also a card for each note. Used for the card type "fretted_instrument interval"
 """
 
 @dataclass(frozen=True)
-class FrettedInstrumentIntervalAnkiNote(CsvGenerator):
+class FrettedInstrumentIntervalAnkiNote(CsvGenerator, SvgSaver):
     instrument: FrettedInstrument
     pos1: PositionOnFrettedInstrument
     pos2: PositionOnFrettedInstrument
@@ -35,9 +36,6 @@ class FrettedInstrumentIntervalAnkiNote(CsvGenerator):
 
     def key(self):
         return f"{self.pos1.string.value}{self.pos1.fret.value}-{self.pos2.string.value}{self.pos2.fret.value}"
-    
-    def svg_name(self):
-        return f"{self.instrument.get_name()}_{self.key()}.svg"
     
     def interval(self):
         return self.pos2 - self.pos1
@@ -54,9 +52,14 @@ class FrettedInstrumentIntervalAnkiNote(CsvGenerator):
     def difference_name(self):
         return self.interval().get_interval_name(side = IntervalNameCreasing.DECREASING_ONLY)
     
+    #pragma mark - SvgSaver
+
+    def _svg_name_base(self):
+        return f"{self.instrument.get_name()}_{self.key()}"
+
     def svg(self):
         return SetOfPositionOnFrettedInstrument(PositionOnFrettedInstrumentFrozenList({self.pos1, self.pos2}), absolute=False).svg(instrument=self.instrument, fretted_position_maker=BlackOnly())
-    
+
     #pragma mark CsvGenerator
     
     def csv_content(self) -> Iterator[str]:
@@ -77,5 +80,7 @@ def pairs_of_frets_values(max_distance: int) -> Generator[Tuple[Fret, Fret]]:
     assert_typing(max_distance, int)
     base_fret = Fret.make(1, False)
     for fret in range(1, max_distance+2):
-        yield base_fret, Fret.make(fret, False)
-        yield Fret.make(fret, False), base_fret
+        second_fret = Fret.make(fret, False)
+        yield (base_fret, second_fret)
+        if second_fret != base_fret:
+            yield (Fret.make(fret, False), base_fret)

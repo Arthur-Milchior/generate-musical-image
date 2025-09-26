@@ -2,8 +2,8 @@ import copy
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from instruments.fretted_instrument.position.consts import DISTANCE_BETWEEN_STRING
-from instruments.fretted_instrument.position.fret.fret_deltas import FretDelta
+from instruments.fretted_instrument.position.positions_consts import DISTANCE_BETWEEN_STRING
+from instruments.fretted_instrument.position.fret.fret_delta import FretDelta
 from solfege.value.note.chromatic_note import ChromaticNoteFrozenList
 from solfege.value.note.clef import Clef
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument

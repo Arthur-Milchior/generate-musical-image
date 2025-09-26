@@ -24,14 +24,10 @@ class PatternWithIntervalList(Recordable[IntervalListPattern, RecordKeeperType],
     #Must be implemented by subtype
     
     @abstractmethod
-    def get_interval_list(self) -> IntervalListPattern:
-        return NotImplemented
-
+    def get_interval_list(self) -> IntervalListPattern:...
     @classmethod
     @abstractmethod
-    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
-        return NotImplemented
-
+    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:...
     # public
 
     def interval_lists(self) -> List[IntervalListPattern]:

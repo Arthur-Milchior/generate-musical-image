@@ -4,12 +4,12 @@ from dataclasses import dataclass
 import dataclasses
 from typing import ClassVar, Optional, Self, Tuple, Type, Union
 
-from lily.Lilyable.local_lilyable import LocalLilyable
+from _lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.value.chromatic import Chromatic
 from solfege.value.interval.alteration.alteration import Alteration
 from solfege.value.interval.interval import Interval, IntervalFrozenList
 from solfege.value.note.abstract_note import AbstractNote, AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput, low_and_high
-from solfege.value.note.note_alteration import NoteAlteration
+from solfege.value.note.note_alteration import DOUBLE_FLAT, DOUBLE_SHARP, FLAT, NATURAL, SHARP, NoteAlteration
 from solfege.value.pair import Pair
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note_alteration import alteration_symbols
@@ -120,7 +120,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
                 return below
         return enharmonic
     
-    def lily_in_scale(self):
+    def syntax_for_lily(self):
         """A string valid in a scale in lily"""
         return self.get_name_with_octave(alteration_output=AlterationOutput.LILY, note_output=NoteOutput.LILY, octave_notation=OctaveOutput.LILY, fixed_length=FixedLengthOutput.NO, )
     

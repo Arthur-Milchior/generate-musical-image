@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 import dataclasses
-from typing import Dict, Generator, List, Optional, Tuple, Union
+from typing import Dict, Generator, Iterable, List, Optional, Tuple, Union
 from instruments.fretted_instrument.position.fret.fret import Fret
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.svg.svg_generator import SvgLines
 from utils.util import assert_optional_typing, assert_typing
 
 @dataclass(frozen=True)
-class Frets(DataClassWithDefaultArgument):
+class Frets(DataClassWithDefaultArgument, SvgLines):
     """Represents a set of allowed frets.
 
     We assume for now that the allowed frets are an interval, and potentially the open string.
@@ -80,18 +81,6 @@ class Frets(DataClassWithDefaultArgument):
     #         return self
     #     return self.limit_max(fret + interval_size).limit_min(fret - interval_size)
     
-    def svg(self, instrument: "FrettedInstrument", absolute: bool)-> List[str]:
-        """
-        The svg to display current frets.
-        """
-        return [svg for fret in self for svg in fret.svg(instrument, absolute)] + [
-            """<pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">""",
-"""<path d="M-1,1 l2,-2
-           M0,4 l4,-4
-           M3,5 l2,-2" 
-        style="stroke:black; stroke-width:1" />""",
-"""</pattern>"""]
-    
     @classmethod
     def empty(cls):
         return cls(None, False, False)
@@ -101,6 +90,21 @@ class Frets(DataClassWithDefaultArgument):
         first_fret = Fret.make(1, True)
         last_fret = instrument.last_fret()
         return cls.make(closed_fret_interval=(first_fret, last_fret), allow_open=True, absolute=True)
+    
+    #pragma mark - SvgLines
+
+    def svg_lines(self, instrument: "FrettedInstrument", absolute: bool)-> Iterable[str]:
+        """
+        The svg to display current frets.
+        """
+        for fret in self:
+            yield from fret.svg_lines(instrument, absolute)
+        yield """<pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">"""
+        yield """<path d="M-1,1 l2,-2
+           M0,4 l4,-4
+           M3,5 l2,-2" 
+        style="stroke:black; stroke-width:1" />"""
+        yield """</pattern>"""
 
     #pragma mark - DataClassWithDefaultArgument
 

@@ -11,6 +11,7 @@ from instruments.fretted_instrument.chord.playable import Playable
 from instruments.fretted_instrument.chord.transposable.chromatic_inversion_pattern_to_chords_on_fretted_instrument import ChromaticIdenticalInversionPatternToItsTransposableChords
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar, fretted_instruments
+from consts import generate_root_folder
 from instruments.fretted_instrument.position.fret.frets import Frets
 
 # Ensure that all chords are registered
@@ -31,6 +32,9 @@ from utils.util import assert_typing, ensure_folder, img_tag, save_file
 
 interval_to_inversion_patterns: IntervalListToInversionPattern = InversionPattern.get_record_keeper()
 assert_typing(interval_to_inversion_patterns, IntervalListToInversionPattern)
+
+lily_folder_path = f"{generate_root_folder}/lily"
+ensure_folder(lily_folder_path)
 @dataclass(frozen=True)
 class AnkiNotesPreparation(DataClassWithDefaultArgument):
     open_chord: bool
@@ -126,7 +130,7 @@ def generate_instrument(instrument: FrettedInstrument):
     # decompositions
     decompositions: List[ChordDecompositionAnkiNote] = open_chord.decompositions + transposable.decompositions
     decompositions.sort(key = lambda decomposition: decomposition.easy_key())
-    anki_note_container_csv = "\n".join(decomposition.csv(folder_path=folder_path) for decomposition in decompositions)
+    anki_note_container_csv = "\n".join(decomposition.csv(folder_path=folder_path, lily_folder_path=lily_folder_path) for decomposition in decompositions)
     save_file(f"{folder_path}/decomposition.csv", anki_note_container_csv)
 
     #note containers

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 import unittest
 
-from utils.svg.svg_generator import SvgGenerator, SvgLine
+from utils.svg.svg_generator import SvgGenerator, _SvgLine
 from utils.util import assert_iterable_typing, assert_typing
 
 @dataclass(frozen=True)
@@ -16,7 +16,7 @@ class FakeSvgGenerator(SvgGenerator):
         assert_typing(self._width, int)
         assert_typing(self._height, int)
 
-    def _svg_content(self):
+    def svg_lines(self):
         return self.svgs
 
     def svg_width(self):
@@ -24,6 +24,9 @@ class FakeSvgGenerator(SvgGenerator):
     
     def svg_height(self):
         return self._height
+    
+    def _svg_name_base(self, **kwargs) -> str:
+        return "fake_svg"
 
 
 line_2 = """<style text='style/css'>"""
@@ -34,11 +37,11 @@ line_8 = """<line test 2/>"""
 
 class TestSvgGenerator(unittest.TestCase):
     def test_svg_line(self):
-        svg_line_2 = SvgLine(line_2)
+        svg_line_2 = _SvgLine(line_2)
         self.assertEqual(svg_line_2.indent(), 1)
         self.assertEqual(svg_line_2.indented_line(0) , """<style text='style/css'>""")
         self.assertEqual(svg_line_2.indented_line(1) , """  <style text='style/css'>""")
-        svg_line_7 = SvgLine(line_7)
+        svg_line_7 = _SvgLine(line_7)
         self.assertEqual(svg_line_7.indent(), 0)
         self.assertEqual(svg_line_7.indented_line(0) , """<line test/><!-- foo -->""")
         self.assertEqual(svg_line_7.indented_line(1) , """  <line test/><!-- foo -->""")

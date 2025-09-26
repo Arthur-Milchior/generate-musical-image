@@ -18,7 +18,7 @@ from solfege.pattern.scale.scale_patterns import *
 from solfege.pattern.chord.chord_patterns import *
 
 
-scale_transposable_folder = f"{generate_root_folder}/guitar/scale/transposable"
+scale_transposable_folder = f"{Guitar.generated_folder_name()}/scale/transposable"
 ensure_folder(scale_transposable_folder)
 
 

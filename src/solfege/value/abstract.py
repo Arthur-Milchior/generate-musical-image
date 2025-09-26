@@ -52,11 +52,13 @@ class Abstract(DataClassWithDefaultArgument, MakeableWithSingleArgument, ABC):
     # Must be implemented by subclasses.
 
     @abstractmethod
-    def octave(self) -> int:
-        return NotImplemented
+    def octave(self) -> int:...
+    """The octave number. For an interval, it's negative iff the interval is decreasing. Unison up to seventh major are at octave 0. Add one for each extra octave.
+    For note, it's the distance to C4. So C4 to B4 is 0, C5 to B5 is 1...
     
+    """
+
     @classmethod
     @abstractmethod
-    def one_octave(cls) -> Self:
-        """Return the value at exactly one octave about value 0. Should not be used for note except maybe to check for canonicity"""
-        return NotImplemented
+    def one_octave(cls) -> Self:...
+    """Return the value at exactly one octave about value 0. Should not be used for note except maybe to check for canonicity"""

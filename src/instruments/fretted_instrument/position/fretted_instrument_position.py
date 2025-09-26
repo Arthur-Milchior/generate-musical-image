@@ -7,13 +7,13 @@ from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
-from instruments.fretted_instrument.position.fret.fret_deltas import FretDelta
+from instruments.fretted_instrument.position.fret.fret_delta import FretDelta
 from instruments.fretted_instrument.position.fret.frets import Frets
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
 from instruments.fretted_instrument.position.string.strings import Strings
 from instruments.fretted_instrument.position.string.string import String
-from instruments.fretted_instrument.position.consts import *
+from instruments.fretted_instrument.position.positions_consts import *
 from instruments.fretted_instrument.position.string.string_deltas import StringDelta
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import FrozenList, MakeableWithSingleArgument
@@ -28,6 +28,8 @@ string_number_to_note_played_when_free = {
     5: ChromaticNote(11),
     6: ChromaticNote(16),
 }
+
+
 @dataclass(frozen=True)
 class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefaultArgument):
     """A position on the fretted_instrument, that is, a string and a fret.
@@ -105,11 +107,11 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         """A unique name short name for this position."""
         return f"""{instrument.get_name()}_{self.string.value}_{self.fret.value}"""
 
-    def singleton_diagram_svg(self, instrument: FrettedInstrument):
+    def singleton_diagram_svg(self, instrument: FrettedInstrument, fretted_position_maker: "FrettedPositionMaker"):
         """The svg for a diagram with only this note"""
         assert_typing(instrument, FrettedInstrument)
         from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
-        return SetOfPositionOnFrettedInstrument.make({self}).svg(instrument=instrument, absolute=True)
+        return SetOfPositionOnFrettedInstrument.make({self}, absolute=True).svg(instrument=instrument, absolute=True, fretted_position_maker = fretted_position_maker)
     
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
         return dataclasses.replace(self, fret=self.fret.transpose(transpose, transpose_open, transpose_not_played))

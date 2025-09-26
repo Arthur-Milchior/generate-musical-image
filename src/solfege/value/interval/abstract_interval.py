@@ -58,9 +58,7 @@ class AbstractInterval(Abstract, ABC):
     
     @classmethod
     @abstractmethod
-    def unison(cls):
-        return NotImplemented
-        
+    def unison(cls):...        
 
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)

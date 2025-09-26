@@ -1,6 +1,8 @@
 import unittest
 from solfege.pattern.scale.scale_pattern import *
+from solfege.pattern_instantiation.scale.scale import Scale
 from solfege.value.interval.role.interval_role_from_string import IntervalRoleFromString
+from solfege.value.note.set.note_list import NoteList
 from utils.util import assert_typing
 
 from solfege.value.key.keys import *
@@ -43,20 +45,6 @@ class TestScalePattern(unittest.TestCase):
             Interval.make(_chromatic=1, _diatonic=1),
         ])
 
-    def test_get_notes(self):
-        tonic = Note.make(0, 0)
-        from solfege.pattern.scale.scale_patterns import minor_melodic
-        self.assertEqual(minor_melodic.from_note(tonic).notes,
-                          ([
-                              Note.make(0, 0),
-                              Note.make(2, 1),
-                              Note.make(3, 2),
-                              Note.make(5, 3),
-                              Note.make(7, 4),
-                              Note.make(9, 5),
-                              Note.make(11, 6),
-                              Note.make(12, 7),
-                          ]))
 
     def test_neg(self):
         from solfege.pattern.scale.scale_patterns import minor_melodic, minor_natural
@@ -74,110 +62,6 @@ class TestScalePattern(unittest.TestCase):
         self.assertEqual(reversed,
                           expected)
 
-    def test_generate(self):
-        from solfege.pattern.scale.scale_patterns import minor_melodic
-        expected = Scale(notes=[
-            Note.make(0, 0),
-            Note.make(2, 1),
-            Note.make(3, 2),
-            Note.make(5, 3),
-            Note.make(7, 4),
-            Note.make(9, 5),
-            Note.make(11, 6),
-            Note.make(12, 7),
-        ], pattern=minor_melodic)
-        generated = minor_melodic.from_note(Note.make(0, 0))
-        self.assertScaleEqual(expected, generated)
-
-    def test_generate_two(self):
-        from solfege.pattern.scale.scale_patterns import minor_melodic
-        expected = Scale(notes=[
-            Note.make(0, 0),
-            Note.make(2, 1),
-            Note.make(3, 2),
-            Note.make(5, 3),
-            Note.make(7, 4),
-            Note.make(9, 5),
-            Note.make(11, 6),
-            Note.make(12, 7),
-            Note.make(14, 8),
-            Note.make(15, 9),
-            Note.make(17, 10),
-            Note.make(19, 11),
-            Note.make(21, 12),
-            Note.make(23, 13),
-            Note.make(24, 14),
-        ], pattern=minor_melodic)
-        generated = minor_melodic.from_note(Note.make(0, 0), number_of_octaves=2)
-        self.assertScaleEqual(expected, generated)
-
-    def test_generate_two_extra(self):
-        from solfege.pattern.scale.scale_patterns import minor_melodic
-        expected = Scale(notes=[
-            Note.make(0, 0),
-            Note.make(2, 1),
-            Note.make(3, 2),
-            Note.make(5, 3),
-            Note.make(7, 4),
-            Note.make(9, 5),
-            Note.make(11, 6),
-            Note.make(12, 7),
-            Note.make(14, 8),
-            Note.make(15, 9),
-            Note.make(17, 10),
-            Note.make(19, 11),
-            Note.make(21, 12),
-            Note.make(23, 13),
-            Note.make(24, 14),
-            Note.make(26, 15),
-        ], pattern=minor_melodic)
-        generated = minor_melodic.from_note(Note.make(0, 0), number_of_octaves=2, add_an_extra_note=True)
-        self.assertEqual(expected, generated)
-
-    def test_generate_minus_two(self):
-        from solfege.pattern.scale.scale_patterns import minor_melodic
-        expected = Scale(notes=[
-            Note.make(0, 0),
-            Note.make(-1, -1),
-            Note.make(-3, -2),
-            Note.make(-5, -3),
-            Note.make(-7, -4),
-            Note.make(-9, -5),
-            Note.make(-10, -6),
-            Note.make(-12, -7),
-            Note.make(-13, -8),
-            Note.make(-15, -9),
-            Note.make(-17, -10),
-            Note.make(-19, -11),
-            Note.make(-21, -12),
-            Note.make(-22, -13),
-            Note.make(-24, -14),
-        ], pattern=minor_melodic)
-        generated = minor_melodic.from_note(Note.make(0, 0), number_of_octaves=-2)
-        self.assertScaleEqual(expected, generated)
-
-    def test_generate_minus_two_extra(self):
-        from solfege.pattern.scale.scale_patterns import minor_melodic
-        expected = Scale(notes=[
-            Note.make(0, 0),
-            Note.make(-1, -1),
-            Note.make(-3, -2),
-            Note.make(-5, -3),
-            Note.make(-7, -4),
-            Note.make(-9, -5),
-            Note.make(-10, -6),
-            Note.make(-12, -7),
-            Note.make(-13, -8),
-            Note.make(-15, -9),
-            Note.make(-17, -10),
-            Note.make(-19, -11),
-            Note.make(-21, -12),
-            Note.make(-22, -13),
-            Note.make(-24, -14),
-            Note.make(-25, -15),
-        ], pattern=minor_melodic)
-        generated = minor_melodic.from_note(Note.make(0, 0), number_of_octaves=-2, add_an_extra_note=True)
-        self.assertEqual(expected, generated)
 
     def test_multiple_octave(self):
         from solfege.pattern.scale.scale_patterns import major_scale

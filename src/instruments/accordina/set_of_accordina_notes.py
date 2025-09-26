@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Generator, List, Set
 from instruments.accordina.accordina_note import *
 from solfege.value.interval.chromatic_interval import ChromaticInterval
@@ -44,12 +45,12 @@ class SetOfAccordinaNote(SvgGenerator):
         return f"{self.__class__.__name__}(value={self.value}, selected={self.selected})"
     
     #pragma mark - SvgGenerator
-    def _svg_content(self) -> List[str]:
+    def svg_lines(self) -> List[str]:
         """The content of the svg. Not containig svg itself and the white background."""
-        return [note.svg(self.min) for note in self.pictured_notes()]
+        return [note.svg_line(self.min) for note in self.pictured_notes()]
     
-    def _svg_name_base(self, **kwargs) -> str:
-        return NotImplemented
+    @abstractmethod
+    def _svg_name_base(self, **kwargs) -> str:...
     
     def svg_height(self, *args, **kwargs) -> int: 
         """The height of the generated svg"""

@@ -53,9 +53,9 @@ class PianoNote(Note):
     def lily_comment(self):
         return str(self.finger)
 
-    def lily_in_scale(self):
+    def syntax_for_lily(self):
         try:
-            return f"{super().lily_in_scale()}-{self.finger}"
+            return f"{super().syntax_for_lily()}-{self.finger}"
         except TooBigAlterationException as tba:
             tba["The note which is too big"] = self
             raise

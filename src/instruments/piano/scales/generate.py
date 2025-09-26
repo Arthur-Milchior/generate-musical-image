@@ -2,12 +2,12 @@ import pathlib
 from dataclasses import dataclass
 from typing import List, Union, Optional
 
-from lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
+from _lily.Lilyable.piano_lilyable import lilypond_code_for_two_hands, lilypond_code_for_one_hand
 from instruments.piano.fingering_generation.generate import generate_best_fingering_for_scale, BestPenaltyScale
 from instruments.piano.fingering_generation.penalty_for_scale import PenaltyForScale
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils import util
-from lily.lily import compile_
+from _lily.lily import compile_
 from instruments.piano.piano_note import PianoNote
 from instruments.piano.scales.fingering import Fingering
 from solfege.pattern.chord.chord_pattern import add_arpeggios_to_scales

@@ -10,11 +10,8 @@ from utils.frozenlist import T
 class DiatonicGetter(ABC, Generic[T]):
     """Protocol for class alowing to get a chromatic value."""
     @abstractmethod
-    def get_diatonic()-> T:
-        return NotImplemented
-
+    def get_diatonic()-> T:...
 class ChromaticGetter(ABC, Generic[T]):
     """Protocol for class alowing to get a chromatic value."""
     @abstractmethod
-    def get_chromatic()-> T:
-        return NotImplemented
+    def get_chromatic()-> T:...

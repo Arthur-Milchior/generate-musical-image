@@ -32,9 +32,7 @@ class IntervalListToPatterns(RecordKeeper[IntervalListPattern, PatternType, Reco
 
     @classmethod
     @abstractmethod
-    def make_chromatic_record_keeper(self) -> ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]:
-        return NotImplemented
-    
+    def make_chromatic_record_keeper(self) -> ChromaticIntervalListToPatterns[PatternType, ChromaticRecordedContainerType]:...    
     #public
 
     def get_easiest_pattern_from_chromatic_interval(self, chromatic_interval_list: ChromaticIntervalListPattern):

@@ -1,11 +1,12 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, List, Optional, Self
 
+from utils.svg.svg_line import SvgLine
 from utils.util import assert_typing
 
 
 @dataclass(frozen=True)
-class SaxophoneButton:
+class SaxophoneButton(SvgLine):
     first_free_index: ClassVar[int] = 0
 
     svg_unfilled: str
@@ -27,11 +28,6 @@ class SaxophoneButton:
     def __post_init__(self):
         buttons.append(self)
 
-    def svg(self, selected: bool):
-        color = "000000" if selected else "ffffff"
-        svg = self.svg_unfilled.replace("fill:none", f"fill:#{color}")
-        return f"{svg}<!-- {self.name} -->"
-
     def __repr__(self):
         return self.name
     
@@ -45,6 +41,13 @@ class SaxophoneButton:
     
     def __hash__(self):
         return hash(self.svg_unfilled)
+    
+    #pragma mark - SvgLine
+
+    def svg_line(self, selected: bool):
+        color = "000000" if selected else "ffffff"
+        svg = self.svg_unfilled.replace("fill:none", f"fill:#{color}")
+        return f"{svg}<!-- {self.name} -->"
 
 buttons: List[SaxophoneButton] = []
 

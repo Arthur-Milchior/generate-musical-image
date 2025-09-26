@@ -1,13 +1,15 @@
 from dataclasses import dataclass
-from typing import Dict, Generator, List, Self
+from typing import Dict, Generator, Iterable, List, Optional, Self
 
+from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.constants import DEFAULT_COLOR, SELECTED_STRING_COLOR
 from instruments.fretted_instrument.position.string.string import String, StringFrozenList
 from instruments.fretted_instrument.position.fret.fret import Fret
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.svg.svg_generator import SvgLines
 from utils.util import assert_iterable_typing, assert_typing
 
 @dataclass(frozen=True)
-class Strings(DataClassWithDefaultArgument):
+class Strings(DataClassWithDefaultArgument, SvgLines):
     """Represents a set of string of the fretted_instrument."""
     strings: StringFrozenList
 
@@ -29,16 +31,6 @@ class Strings(DataClassWithDefaultArgument):
         assert_typing(other, Strings)
         return self.strings == other.strings
     
-    def svg(self, lowest_fret: Fret, show_open_fret: bool) ->List[str]:
-        """
-        The svg to display the strings.
-        If `show_open_fret`, a margin at the top represents the top of the board.
-        Otherwise the fret goes over the entire height.
-        The fret ends below `lowest_fret` so that it also cover the margin at the bottom.
-        """
-        assert_typing(lowest_fret, Fret)
-        return [string.svg(lowest_fret, show_open_fret) for string in self]
-
     def pop(self):
         """Returns the first string, the set of strings without this element. Or None if the set is empty."""
         if not self.strings:
@@ -46,6 +38,24 @@ class Strings(DataClassWithDefaultArgument):
         string = self.strings[0]
         strings = Strings.make(self.strings[1:])
         return (string, strings)
+
+    #pragma mark - SvgLines
+
+    def svg_lines(self,
+            lowest_fret: Fret,
+            show_open_fret: bool,
+            colored_strings: List[String] = list(),
+            ) ->Iterable[str]:
+        """
+        The svg to display the strings.
+        If `show_open_fret`, a margin at the top represents the top of the board.
+        Otherwise the fret goes over the entire height.
+        The fret ends below `lowest_fret` so that it also cover the margin at the bottom.
+        """
+        assert_typing(lowest_fret, Fret)
+        for string in self:
+            color = SELECTED_STRING_COLOR if string in colored_strings else None
+            yield string.svg_line(lowest_fret, show_open_fret, color)
     
     #pragma mark - DataClassWithDefaultArgument
 

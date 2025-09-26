@@ -4,8 +4,12 @@ from instruments.accordina.set_of_accordina_notes import SetOfAccordinaNote
 from instruments.accordina.test_note import *
 from instruments.accordina.accordina_note import *
 
+class FakeSetOfAccordinaNote(SetOfAccordinaNote):
+    def _svg_name_base(self):
+        return "fake"
+
 class TestSetOfAccordinaNote(unittest.TestCase):
-    set_c_dsharp = SetOfAccordinaNote({C4, D4_sharp})
+    set_c_dsharp = FakeSetOfAccordinaNote({C4, D4_sharp})
 
     def test(self):
         self.assertEqual(self.set_c_dsharp.number_of_rows(), 5)

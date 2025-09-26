@@ -3,15 +3,17 @@ from typing import Generator, Optional, Self, Tuple
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
+from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.constants import DEFAULT_COLOR
 from solfege.value.note.chromatic_note import ChromaticNote
 from utils.frozenlist import FrozenList, MakeableWithSingleArgument
 from utils.svg.svg_atom import svg_text
+from utils.svg.svg_line import SvgLine
 from utils.util import assert_typing
-from instruments.fretted_instrument.position.consts import *
+from instruments.fretted_instrument.position.positions_consts import *
 
 
 @dataclass(frozen=True)
-class String(MakeableWithSingleArgument):
+class String(MakeableWithSingleArgument, SvgLine):
     """Represents one of the string of the FrettedInstrument."""
 
     value: int
@@ -75,19 +77,25 @@ class String(MakeableWithSingleArgument):
         else:
             yield f"""<!-- string {self.value} not played. Not shown as it's transposable-->"""
 
-    
-    def svg(self, lowest_fret: Fret, show_open_fret: bool):
+    #pragma mark - SvgLine
+
+    def svg_line(self, lowest_fret: Fret, show_open_fret: bool, color: Optional[str] = None):
         """
         The svg to display current string.
         If `show_open_fret`, a margin at the top represents the top of the board.
         Otherwise the fret goes over the entire height.
         The fret ends below `lowest_fret` so that it also cover the margin at the bottom.
         """
+        thickness = STRING_THICKNESS
+        if color is None:
+            color = DEFAULT_COLOR
+        else:
+            thickness *= 3
         assert_typing(lowest_fret, Fret)
         y1 = int(MARGIN) if show_open_fret else 0
         y2 = int(lowest_fret.y_fret()+MARGIN)
         x = int(self.x())
-        return f"""<line x1="{self.x()}" y1="{y1}" x2="{x}" y2="{y2}" stroke-width="{STRING_THICKNESS}" stroke="black" /><!-- String {self.value}-->"""
+        return f"""<line x1="{self.x()}" y1="{y1}" x2="{x}" y2="{y2}" stroke-width="{thickness}" stroke="{color}" /><!-- String {self.value}-->"""
 
     #pragma mark - MakeableWithSingleArgument
 

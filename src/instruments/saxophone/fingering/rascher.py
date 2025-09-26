@@ -1,11 +1,11 @@
 from instruments.saxophone.buttons import *
-from instruments.saxophone.fingering.fingering import *
+from instruments.saxophone.fingering.saxophone_fingering import *
 
 "Fingerings introduceds in Sigurd M. Raschèr four-octave range book"
 
 
 rascher_authors = frozenset({"Rascher"})
-class RascherFingering(Fingering):
+class RascherFingering(SaxophoneFingering):
 
     @classmethod
     def make(cls,

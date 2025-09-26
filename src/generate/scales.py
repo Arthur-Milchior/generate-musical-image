@@ -9,7 +9,7 @@ from solfege.value.key.keys import sets_of_enharmonic_keys
 from typing import Optional, Dict, List, assert_never
 from solfege.pattern.scale.scale_pattern import ScalePattern
 from operator import itemgetter
-from lily.lily import compile_
+from _lily.lily import compile_
 from dataclasses import dataclass
 from utils.util import img_tag, save_file
 from solfege.pattern.chord.chord_pattern import ChordPattern

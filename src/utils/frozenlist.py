@@ -1,7 +1,8 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Generic, Iterable, List, Self, Tuple, Type, TypeVar
+import dataclasses
+from typing import Callable, ClassVar, Generic, Iterable, List, Self, Tuple, Type, TypeVar
 
 from utils.util import T, assert_all_same_class, assert_iterable_typing, assert_typing
 
@@ -19,13 +20,11 @@ class MakeableWithSingleArgument(ABC):
 
     @classmethod
     @abstractmethod
-    def _make_single_argument(cls, arg) -> Self:
-        return NotImplemented
+    def _make_single_argument(cls, arg) -> Self:...
 
     @abstractmethod
-    def repr_single_argument(self) -> str:
-        """Shows the value only, not parenthesis nor class."""
-        return NotImplemented
+    def repr_single_argument(self) -> str:...
+    """Shows the value only, not parenthesis nor class."""
 
 class FrozenList(Generic[T]):
     _l: List[T]
@@ -41,6 +40,9 @@ class FrozenList(Generic[T]):
             l = [self.type.make_single_argument(arg) for arg in l]
         assert_iterable_typing(l, self.type)
         self._l = l
+
+    def map(self, f: Callable[[T], T]) -> Self:
+        return self.__class__([f(t) for t in self._l])
 
     def __iter__(self):
         return iter(self._l)
@@ -89,6 +91,9 @@ class FrozenList(Generic[T]):
     def __mul__(self, other: int):
         assert_typing(other, int)
         return self.__class__(self._l * other)
+    
+    def __reversed__(self) -> Self:
+        return self.__class__(list(reversed(self._l)))
     
 class IntFrozenList(FrozenList[int]):
     type = int

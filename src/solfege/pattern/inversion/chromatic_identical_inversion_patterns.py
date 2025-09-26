@@ -12,25 +12,17 @@ from utils.easyness import ClassWithEasyness
 
 class MinimalChordDecompositionInput(ClassWithEasyness, ABC):
     @abstractmethod
-    def get_tonic_minus_lowest_note(self) -> ChromaticInterval:
-        return NotImplemented
-
+    def get_tonic_minus_lowest_note(self) -> ChromaticInterval:...
     def get_tonic(self, lowest_note) -> ChromaticInterval:
         return lowest_note - self.get_tonic_minus_lowest_note()
     
     @abstractmethod
-    def notations(self) -> List[str]:
-        return NotImplemented
-    
+    def notations(self) -> List[str]:...    
     @abstractmethod
-    def get_inversion_patterns(self) -> List[InversionPattern]:
-        return NotImplemented
-
+    def get_inversion_patterns(self) -> List[InversionPattern]:...
 class ChromaticIdenticalInversionPatternGetter(ABC):
     @abstractmethod
-    def get_identical_inversion_pattern(self) -> "IdenticalInversionPattern":
-        return NotImplemented
-    
+    def get_identical_inversion_pattern(self) -> "IdenticalInversionPattern":...    
 ChromaticIdenticalInversionPatternGetterType = TypeVar("ChromaticIdenticalInversionPatternGetterType", bound=ChromaticIdenticalInversionPatternGetter)
 
 @dataclass(frozen=True, unsafe_hash=True)

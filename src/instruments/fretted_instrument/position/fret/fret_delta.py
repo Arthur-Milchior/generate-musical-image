@@ -20,7 +20,7 @@ class FretDelta(AbstractDelta[Frets, Fret]):
 
     @classmethod
     def max_t(cls, instrument: "FrettedInstrument") -> int:
-        return instrument.number_of_frets
+        return instrument.number_of_frets()
 
     @classmethod
     def create_T(cls, instrument: "FrettedInstrument", i: int, origine: Fret) -> Fret:

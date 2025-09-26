@@ -5,12 +5,12 @@ from instruments.saxophone.fingering.cn import cn_silent
 from instruments.saxophone.fingering import k
 from instruments.saxophone.fingering.k import k_silent
 from instruments.saxophone.fingering.main_column import silent
-from instruments.saxophone.fingering.fingering import *
+from instruments.saxophone.fingering.saxophone_fingering import *
 from instruments.saxophone.fingering import rascher
 from instruments.saxophone.fingering.overtone import overtone
 
 class Fingerings():
-    def __init__(self, *fingerings: Fingering):
+    def __init__(self, *fingerings: SaxophoneFingering):
         self.fingerings = list(fingerings)
         first = fingerings[0]
         value = first.value
@@ -27,7 +27,7 @@ class Fingerings():
                 if first.fingering_symbol != FingeringSymbol.RASCHER:
                     assert first.fingering_symbol != second.fingering_symbol, f"""{first.get_name_with_octave()}: {first} and {second} have the same symbols"""
 
-    def add_octave(self, *fingerings: Fingering):
+    def add_octave(self, *fingerings: SaxophoneFingering):
         plus_octave = [fingering.add_octave() for fingering in self.fingerings]
         return Fingerings(*plus_octave, *fingerings)
     

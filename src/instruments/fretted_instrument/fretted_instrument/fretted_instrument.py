@@ -4,7 +4,7 @@ from instruments.fretted_instrument.fretted_instrument.abstract_fretted_instrume
     AbstractFrettedInstrument,
 )
 from instruments.fretted_instrument.fretted_instrument.tuning import Tuning
-from instruments.fretted_instrument.position.consts import DISTANCE_BETWEEN_STRING
+from instruments.fretted_instrument.position.positions_consts import DISTANCE_BETWEEN_STRING
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from consts import generate_root_folder
 from utils.util import assert_typing, ensure_folder
@@ -34,9 +34,15 @@ class FrettedInstrument(DataClassWithDefaultArgument):
 
     def strings(self):
         return self._tuning.strings()
+    
+    def clef(self):
+        return self._instrument.clef
 
     def number_of_strings(self):
         return self._instrument.number_of_strings
+
+    def number_of_frets(self) -> int:
+        return self._instrument.number_of_frets
 
     def last_string(self):
         return self._tuning.last_string()
@@ -47,13 +53,13 @@ class FrettedInstrument(DataClassWithDefaultArgument):
     def last_fret(self):
         from instruments.fretted_instrument.position.fret.fret import Fret
 
-        return Fret.make(self._instrument.number_of_frets, True)
+        return Fret.make(self.number_of_frets(), True)
 
     def lowest_note(self):
         return min(self._tuning.open_string_chromatic_note)
 
     def highest_note(self):
-        return self.last_fret() + max(self._tuning.open_string_chromatic_note)
+        return self.last_fret().get_chromatic() + max(self._tuning.open_string_chromatic_note).get_chromatic()
 
     def generated_folder_name(self):
         tuning_name = self._tuning._name
@@ -72,6 +78,9 @@ class FrettedInstrument(DataClassWithDefaultArgument):
             for dic in self._instrument.finger_to_fret_delta.values()
             for delta in dic.values()
         )
+    
+    def finger_to_fret_delta(self):
+        return self._instrument.finger_to_fret_delta
 
     # pragma mark - DataClassWithDefaultArgument
 

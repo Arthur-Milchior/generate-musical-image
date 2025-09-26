@@ -4,6 +4,7 @@ from typing import Optional
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.note.note import Note
+from utils.svg.svg_line import SvgLine
 
 radius = 7
 button_distance = 20
@@ -19,7 +20,7 @@ def y(row: int, column:int =0) -> int:
     return y_distance_between_rows * row + margin
 
 @dataclass(frozen=True)
-class AccordinaNote(ChromaticNote):
+class AccordinaNote(ChromaticNote, SvgLine):
     """
     whether the note should be displayed as selected.
     """
@@ -86,7 +87,7 @@ class AccordinaNote(ChromaticNote):
     def __hash__(self):
         return hash((super().__hash__(), self.selected))
 
-    def svg(self, min_note: Optional['AccordinaNote'] = None):
+    def svg_line(self, min_note: Optional['AccordinaNote'] = None):
         """Draw this position. The highest note pictured is `min_note`."""
         row = self._row() - min_note._row() if min_note else self ._row()
         return f"""<circle cx="{x(self._column())}" cy="{y(row, self._column())}" r="{radius}" fill="{self.fill_color()}" stroke="{self.stroke_color()}" stroke-width="2"/><!--{self.get_name_with_octave()}-->"""

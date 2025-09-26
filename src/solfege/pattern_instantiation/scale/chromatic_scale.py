@@ -6,5 +6,5 @@ from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalLi
 from solfege.value.note.chromatic_note import ChromaticNote, ChromaticNoteFrozenList
 
 
-class ChromaticScale(AbstractChromaticInstantiation[ScalePattern], AbstractScale[ChromaticNote, ChromaticInterval, ChromaticNoteFrozenList, ChromaticIntervalListPattern]):
+class ChromaticScale(AbstractChromaticInstantiation[ScalePattern, int], AbstractScale[ChromaticNote, ChromaticInterval]):
     pass

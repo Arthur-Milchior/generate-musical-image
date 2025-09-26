@@ -60,7 +60,13 @@ def assert_all_same_class(it: Iterable):
     elt = list(it)[0]
     for e in it:
         assert e.__class__ == elt.__class__, f"{it=}"
-            
+
+def assert_string_equal(string1, string2):
+    for i, (c1, c2) in enumerate(itertools.zip_longest(string1, string2)):
+        if c1 != c2:
+            max_char_c1 = min (i+10, len(string1))
+            max_char_c2 = min (i+10, len(string2))
+            assert False, f"""First difference at position {i}: "{string1[i: max_char_c1]}"!="{string2[i: max_char_c2]}" """
 
 def assert_typing(value, type, exact:bool=False):
     assert value is not None
@@ -125,16 +131,26 @@ def img_tag(filename:str):
 
 T = TypeVar("T")
 def optional_min(it: Iterable[T]) -> Optional[T]:
+    """None if it is None, else min(it)"""
     l = list(it)
     if l:
         return min(l)
     return None
 
 def optional_max(it: Iterable[T]) -> Optional[T]:
+    """None if it is None, else max(it)"""
     l = list(it)
     if l:
         return max(l)
     return None
+
+def min_optional(it: Iterable[T]) -> Optional[T]:
+    """Minimal of the non None elements."""
+    return min(elt for elt in it if elt is not None)
+
+def max_optional(it: Iterable[T]) -> Optional[T]:
+    "maximal of the non None elements."
+    return max(elt for elt in it if elt is not None)
 
 
 def assert_equal_length(l: List):

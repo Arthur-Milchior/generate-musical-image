@@ -64,12 +64,12 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
             return "," * (-self.octave() - 1)
         raise assert_never(octave_notation)
 
-    def file_name_for_lily_with_a_single_note(self, clef: Optional[Clef]  = None):
+    def file_name_for_lily_with_a_single_note(self, clef: Optional[Clef]):
         """Return the file for a lily partition of this note only in this clef."""
         assert_optional_typing(clef, Clef)
         from solfege.value.note.chromatic_note import Chromatic
         if clef is None:
-            clef = Clef.TREBLE if self.chromatic >= Chromatic(0) else Clef.BASS
+            clef = Clef.TREBLE if self.octave() >= 0 else Clef.BASS
         # adding _ at start so that it's not deleted by anki.
         return f"_{str(clef)}_{self.non_ambiguous_string_for_file_name()}"
 
@@ -79,17 +79,15 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
     # Must be implemented by subclasses
     
     @abstractmethod
-    def __add__(self, other: IntervalType) -> Self:
-        return NotImplemented
+    def __add__(self, other: IntervalType) -> Self:...
 
+    @abstractmethod
     def get_name_up_to_octave(self,
                               **kwargs
                                # potential argument. alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput = FixedLengthOutput.NOT_FIXED_LENGTH
-                              ) -> str:
-        return NotImplemented
-    
-    def non_ambiguous_string_for_file_name(self) -> str:
-        return NotImplemented
+                              ) -> str:...
+    @abstractmethod
+    def non_ambiguous_string_for_file_name(self) -> str:...
 
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)

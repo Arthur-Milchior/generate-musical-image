@@ -13,9 +13,7 @@ class ColorsWithTonic(Colors, ABC):
     #Must be implemented by subclasses
 
     @abstractmethod
-    def get_color_from_interval(self, chromatic_interval: ChromaticInterval) -> str:
-        return NotImplemented
-    
+    def get_color_from_interval(self, chromatic_interval: ChromaticInterval) -> str:...    
     #pragma mark - dataclass
 
     def __post_init__(self):

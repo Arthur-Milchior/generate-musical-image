@@ -25,24 +25,16 @@ class AbstractDelta(ABC, Generic[Ts, T]):
 
     @classmethod
     @abstractmethod
-    def max_t(cls, instrument: "FrettedInstrument") -> int:
-        return NotImplemented
-
+    def max_t(cls, instrument: "FrettedInstrument") -> int:...
     @classmethod
     @abstractmethod
-    def create_T(cls, instrument: "FrettedInstrument", i: int, origine: T) -> T:
-        return NotImplemented
-
+    def create_T(cls, instrument: "FrettedInstrument", i: int, origine: T) -> T:...
     @classmethod
     @abstractmethod
-    def create_Ts(cls, instrument: "FrettedInstrument", min: T, max: T, origine: T) -> Ts:
-        return NotImplemented
-
+    def create_Ts(cls, instrument: "FrettedInstrument", min: T, max: T, origine: T) -> Ts:...
     @classmethod
     @abstractmethod
-    def create_empty_ts(cls) -> Ts:
-        return NotImplemented
-    
+    def create_empty_ts(cls) -> Ts:...    
     # Public
 
     def min(self, instrument: "FrettedInstrument", origine: T) -> Optional[T]:
@@ -56,7 +48,8 @@ class AbstractDelta(ABC, Generic[Ts, T]):
         if min_delta is None:
             return self.create_T(instrument, self.min_t, origine=origine)
         theoretical_min = origine.value + min_delta
-        if theoretical_min > self.max_t(instrument):
+        instrument_max_fret = self.max_t(instrument)
+        if theoretical_min > instrument_max_fret:
             return None
         return self.create_T(instrument, max(self.min_t, theoretical_min), origine=origine)
 

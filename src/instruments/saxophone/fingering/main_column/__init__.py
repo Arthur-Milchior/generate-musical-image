@@ -1,17 +1,17 @@
 from instruments.saxophone.buttons import *
-from instruments.saxophone.fingering.fingering import *
+from instruments.saxophone.fingering.saxophone_fingering import *
 
 """Saxophone fingering with the buttons on the main column, except for overtone.
 """
 
 # Without octave button
 
-c_sharp5 = Fingering.make("c#5", {}) # no button is pressed
+c_sharp5 = SaxophoneFingering.make("c#5", {}) # no button is pressed
 
 c5 = c_sharp5.remove_semi_tone(a) # A touch alone
 
 b4 = c_sharp5.remove_tone(b)
-b_flat4_b = Fingering.make("b♭4", {b_flat}, FingeringSymbol.B)
+b_flat4_b = SaxophoneFingering.make("b♭4", {b_flat}, FingeringSymbol.B)
 
 a4 = b4.remove_tone(a)
 
@@ -55,16 +55,16 @@ d_sharp5 = d_sharp4.add_octave()
 
 
 
-f7 = Fingering.make("f7", {octave, f, g, b})
-e7 = Fingering.make("e7", {octave, e, f, a})
-c7_c = Fingering.make("c7", {octave, f, b}, FingeringSymbol.C)
-b6_c = Fingering.make("b6", {octave,d, e, f, g, a, b}, FingeringSymbol.C)
-a_sharp6_v = Fingering.make("a#6", {octave, g}, FingeringSymbol.V)
+f7 = SaxophoneFingering.make("f7", {octave, f, g, b})
+e7 = SaxophoneFingering.make("e7", {octave, e, f, a})
+c7_c = SaxophoneFingering.make("c7", {octave, f, b}, FingeringSymbol.C)
+b6_c = SaxophoneFingering.make("b6", {octave,d, e, f, g, a, b}, FingeringSymbol.C)
+a_sharp6_v = SaxophoneFingering.make("a#6", {octave, g}, FingeringSymbol.V)
 a6_v = a_sharp6_v.remove_semi_tone(a, FingeringSymbol.V)
 a6_tw = a_sharp6_v.remove_semi_tone(d, FingeringSymbol.TW)
 g_sharp6_n = a_sharp6_v.remove_tone(b, FingeringSymbol.N_COMPLETLY_EXPOSED)
 g6_n = g_sharp6_n.remove_semi_tone(d)
-f_sharp6 = Fingering.make("f#6", {b, g, f}, FingeringSymbol.N_COMPLETLY_EXPOSED)
+f_sharp6 = SaxophoneFingering.make("f#6", {b, g, f}, FingeringSymbol.N_COMPLETLY_EXPOSED)
 f_sharp6_d = f_sharp6.silent_button(d, e, FingeringSymbol.D)
 f6_d = f_sharp6_d.remove_semi_tone(jay_k3, FingeringSymbol.D)
 e6_d = f6_d.remove_semi_tone(a, FingeringSymbol.D)

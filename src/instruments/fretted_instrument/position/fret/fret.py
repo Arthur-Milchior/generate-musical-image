@@ -5,14 +5,15 @@ from typing import Dict, Generator, List, Optional, Self, Tuple, Type, Union
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.frozenlist import MakeableWithSingleArgument
+from utils.svg.svg_generator import SvgLines
 from utils.util import assert_optional_typing, assert_typing
-from instruments.fretted_instrument.position.consts import *
+from instruments.fretted_instrument.position.positions_consts import *
 
 from math import pow
 
 
 @dataclass(frozen=True, order=False)
-class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument):
+class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
     """
     Represents one of the fret of the fretted_instrument.
 
@@ -44,6 +45,7 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument):
         return isinstance(self.value, int) and (self.absolute is False or self.value > 0)
 
     def add(self, instrument: "FrettedInstrument", other: Union[ChromaticInterval, int]) -> Self:
+        from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
         return self.sub(instrument, -other)
     
     def thickness(self, absolute: bool):
@@ -87,6 +89,8 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument):
     
     def x_dots(self, instrument: "FrettedInstrument") -> List[float]:
         """The x position of the dots, if any."""
+        from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+        instrument: FrettedInstrument = instrument
         if not self.absolute:
             return []
         value = self.require_value()
@@ -100,6 +104,8 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument):
     def fret_svg(self, instrument: "FrettedInstrument", absolute: bool):
         """Returns the svg for this fret.
         If `absolute`, the 0th one is bigger."""
+        from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+        instrument: FrettedInstrument = instrument
         y = int(self.y_fret())
         return f"""<line x1="{0}" y1="{y}" x2="{instrument.width()}" y2="{y}" stroke-width="{self.thickness(absolute)}" stroke="black" /><!--Fret {self.value}-->"""
 
@@ -107,14 +113,10 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument):
         return f"""<circle cx="{int(x)}" cy="{int(self.y_dots())}" r="{int(CIRCLE_RADIUS*.80)}" fill="url(#diagonalHatch)" stroke-width="4"/>"""
     
     def dots_svg(self, instrument: "FrettedInstrument") -> Generator[str]:
+        from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+        instrument: FrettedInstrument = instrument
         for x in self.x_dots(instrument):
             yield self.dot_svg(x)
-
-    def svg(self, instrument: "FrettedInstrument", absolute: bool) -> Generator[str]:
-        """The SVG tag for the fret itself. 
-        Also, if absolute is true, for the dot that indicate which line it is."""
-        yield self.fret_svg(instrument, absolute)
-        yield from self.dots_svg(instrument)
 
     def all_frets_up_to_here(self, allow_open: bool):
         """The set of all frets up to here."""
@@ -139,6 +141,8 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument):
         return NotImplemented
     
     def sub(self, instrument: "FrettedInstrument", other: Tuple[Self, ChromaticInterval, int]) -> ChromaticInterval:
+        from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+        instrument: FrettedInstrument = instrument
         if self.value is None:
             return self
         if isinstance(other, int):
@@ -155,13 +159,26 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument):
             return None
         if delta > instrument.last_fret().value:
             return None
-        if delta > instrument.number_of_frets:
+        if delta > instrument.number_of_frets():
             return None
 
         return Fret.make(delta, self.absolute)
     
+    def get_chromatic(self):
+        return ChromaticInterval.make(self.value)
+    
     def __sub__(self, other):
         raise Exception("Use .sub")
+    
+    #pragma mark - SvgLines
+
+    def svg_lines(self, instrument: "FrettedInstrument", absolute: bool) -> Generator[str]:
+        """The SVG tag for the fret itself. 
+        Also, if absolute is true, for the dot that indicate which line it is."""
+        from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
+        instrument: FrettedInstrument = instrument
+        yield self.fret_svg(instrument, absolute)
+        yield from self.dots_svg(instrument)
     
     #pragma mark - MakeableWithSingleArgument
     

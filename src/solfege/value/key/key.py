@@ -4,8 +4,9 @@ from dataclasses import dataclass
 from typing import ClassVar, Dict, List, Self
 
 from solfege.value.interval.interval import Interval
+from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
-from solfege.value.note.abstract_note import OctaveOutput
+from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_typing
 
@@ -24,6 +25,9 @@ class Key(DataClassWithDefaultArgument):
 
     """Map each note to the simplest enharmonic of this note."""
     _key_to_simplest_enharmonic: ClassVar[Dict[Note, Note]] = {}
+
+    def lily_key(self):
+        return self.note.lily_key()
 
     def simplest_enharmonic_major(self):
         return self.from_note(self._key_to_simplest_enharmonic[self.note.in_base_octave()])
@@ -45,6 +49,8 @@ class Key(DataClassWithDefaultArgument):
     @classmethod
     def from_note(cls, note: Note) -> Key:
         """Assume a key with this note was already added."""
+        if isinstance(note, ChromaticNote):
+            note = Note.from_chromatic(note)
         return cls._from_note[note.in_base_octave()]
 
     def __eq__(self, other):
@@ -60,7 +66,7 @@ class Key(DataClassWithDefaultArgument):
         return (self._number_of_alterations(), self.note) < (other._number_of_alterations(), other.note)
 
     def __str__(self):
-        return self.note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False) + (f" with {self.number_of_flats} ♭" if self.number_of_flats else "") + (
+        return self.note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.ASCII, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO) + (f" with {self.number_of_flats} ♭" if self.number_of_flats else "") + (
             f" with {self.number_of_sharps} #" if self.number_of_sharps else "")
 
 

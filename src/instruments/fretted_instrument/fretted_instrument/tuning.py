@@ -3,7 +3,7 @@ import copy
 from dataclasses import dataclass
 from typing import Dict, Generator, List, Optional, Tuple
 
-from instruments.fretted_instrument.position.fret.fret_deltas import FretDelta
+from instruments.fretted_instrument.position.fret.fret_delta import FretDelta
 from solfege.value.note.chromatic_note import ChromaticNoteFrozenList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_optional_typing, assert_typing
@@ -31,7 +31,7 @@ class Tuning(DataClassWithDefaultArgument):
     def last_string(self):
         return self.string(self.number_of_strings())
     
-    def pair_of_string_with_distinct_intervals(self) -> Generator[Tuple[int, int]]:
+    def pair_of_string_with_distinct_intervals(self) -> Generator[Tuple["String", "String"]]:
         intervals = set()
         for lower_index, lower_note in enumerate(self.open_string_chromatic_note):
             lowest_string = self.string(lower_index+1)

@@ -1,9 +1,11 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Iterable, Iterator, Union
 from solfege.value.note.chromatic_note import ChromaticNote
 from instruments.saxophone.buttons import *
 from solfege.value.note.note import Note
+from utils.svg.svg_generator import SvgGenerator
 from utils.util import assert_typing
 
 class FingeringSymbol(Enum):
@@ -113,7 +115,7 @@ fingering_symbols = {
 
 
 @dataclass(frozen=True)
-class Fingering(ChromaticNote):
+class SaxophoneFingering(ChromaticNote, SvgGenerator):
     buttons: frozenset[SaxophoneButton]
     authors: frozenset[str]
     fingering_symbol: str
@@ -159,8 +161,8 @@ class Fingering(ChromaticNote):
     def  __repr__(self):
         return f"""Fingering.make(value={self.get_name_with_octave()}, buttons={", ".join(str(button) for button in self.buttons)}, fingering_symbol={self.fingering_symbol})"""
 
-    def __eq__(self, other: "Fingering"):
-        assert isinstance(other, Fingering), f"""Comparing {other} to a fingering"""
+    def __eq__(self, other: "SaxophoneFingering"):
+        assert isinstance(other, SaxophoneFingering), f"""Comparing {other} to a fingering"""
         return self.buttons == other.buttons and super().__eq__(other)
     
     def __hash__(self):
@@ -179,34 +181,25 @@ class Fingering(ChromaticNote):
             assert_typing(button, SaxophoneButton)
         return self.__class__.make(chromatic_note_description =self.value + interval, buttons = self.buttons | frozenset(buttons), authors = self.authors, fingering_symbol=fingering_symbol)        
 
-    def add_octave(self, fingering_symbol: Optional[str] = None) -> "Fingering":
+    def add_octave(self, fingering_symbol: Optional[str] = None) -> "SaxophoneFingering":
         if fingering_symbol is None:
             fingering_symbol = self.fingering_symbol
         return self._add_buttons_interval(12, octave, fingering_symbol)
     
-    def add_semi_tone(self, *args) -> "Fingering":
+    def add_semi_tone(self, *args) -> "SaxophoneFingering":
         return self._add_buttons_interval(1, *args)
     
-    def remove_semi_tone(self, *args) -> "Fingering":
+    def remove_semi_tone(self, *args) -> "SaxophoneFingering":
         return self._add_buttons_interval(-1, *args)
 
-    def silent_button(self, *args) -> "Fingering":
+    def silent_button(self, *args) -> "SaxophoneFingering":
         return self._add_buttons_interval(0, *args)
     
-    def add_tone(self, *args) -> "Fingering":
+    def add_tone(self, *args) -> "SaxophoneFingering":
         return self._add_buttons_interval(2, *args)
     
-    def remove_tone(self, *args) -> "Fingering":
+    def remove_tone(self, *args) -> "SaxophoneFingering":
         return self._add_buttons_interval(-2, *args)
-    
-    def svg(self) -> str:
-        empty = "\n  ".join( button.svg(selected=False) for button in buttons)
-        pressed = "\n  ".join( button.svg(selected=True) for button in self.buttons)
-        return f"""<svg version="1.1" width="75" height="153" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" fill="white" />
-  {empty}
-  {pressed}
-</svg>"""
     
     def anki_comment(self):
         exp = exposure[self.fingering_symbol]
@@ -214,7 +207,28 @@ class Fingering(ChromaticNote):
         if desc:
             return f"""{desc}; {exp}"""
         return exp
+    
+    #pragma mark - SvgGenerator
+    
+    def _svg_name_base(self, entry: int, **kwargs) -> str:
+        """Entry is a unique index for this specific note"""
+        name = self.get_name_with_octave()
+        return f"saxo_{name}_{entry}"
 
-value_to_fingering: Dict[int, List[Fingering]] = dict()
+    def svg_height(self) -> int: 
+        "Returns the height of svg. Must accept same argument as svg"
+        return 153
+    
+    def svg_width(self, **kwargs) -> int: 
+        "Returns the width of svg. Must accept same argument as svg"
+        return 75
+    
+    def svg_lines(self) -> Iterable[str]:
+        for button in buttons:
+            yield button.svg_line(selected=False)
+        for button in self.buttons:
+            yield button.svg_line(selected=True)
+
+value_to_fingering: Dict[int, List[SaxophoneFingering]] = dict()
 
 from instruments.saxophone.fingering import k, cn, overtone, rascher, main_column

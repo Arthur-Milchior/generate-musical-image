@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lily.Lilyable.piano_lilyable import PianoLilyable, LiteralPianoLilyable
+from _lily.Lilyable.piano_lilyable import PianoLilyable, LiteralPianoLilyable
 
 
 @dataclass(eq=False)

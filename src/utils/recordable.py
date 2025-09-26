@@ -15,12 +15,10 @@ class RecordedContainer(ABC, Generic[RecordedType]):
     
     Should not be called "value" as this word is already used for interval and notes."""
     @abstractmethod
-    def append(self, pattern: RecordedType):
-        return NotImplemented
+    def append(self, pattern: RecordedType):...
 
     @abstractmethod
-    def __iter__(self) -> Iterable[RecordedType]:
-        return NotImplemented
+    def __iter__(self) -> Iterable[RecordedType]:...
 
 RecordedContainerType = TypeVar("RecordedContainerType", bound=RecordedContainer[RecordedType])
 ChromaticRecordedContainerType = TypeVar("ChromaticRecordedContainerType", bound=RecordedContainer[RecordedType])
@@ -45,8 +43,7 @@ class RecordKeeper(ABC, Generic[KeyType, RecordedType, RecordedContainerType], D
         return NotImplemented
 
     @abstractmethod
-    def _new_container(self, key: KeyType) -> RecordedContainerType:
-        return NotImplemented
+    def _new_container(self, key: KeyType) -> RecordedContainerType:...
     
     # public
     
@@ -119,8 +116,7 @@ class Recordable(ABC, Generic[KeyType, RecordKeeperType]):
 
     @classmethod
     @abstractmethod
-    def _new_record_keeper(cls) -> RecordKeeperType:
-        return NotImplemented
+    def _new_record_keeper(cls) -> RecordKeeperType:...
     
     #public
 

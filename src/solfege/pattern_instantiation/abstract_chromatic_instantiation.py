@@ -8,6 +8,7 @@ from solfege.value.interval.chromatic_interval import ChromaticInterval, Chromat
 from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, ChromaticIntervalListPattern
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from solfege.value.note.chromatic_note import ChromaticNote, ChromaticNoteFrozenList
+from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
 from utils.easyness import KeyType
 from utils.frozenlist import FrozenList
 from utils.util import T, assert_typing
@@ -18,7 +19,7 @@ class AbstractChromaticInstantiation(AbstractPatternInstantiation[T, ChromaticNo
     note_type: ClassVar[AbstractNote] = ChromaticNote
     interval_type: ClassVar[AbstractInterval] = ChromaticInterval
     interval_list_type: ClassVar[FrozenList[IntervalType]] = ChromaticIntervalListPattern
-    note_list_type: ClassVar[FrozenList[NoteType]] = ChromaticNoteFrozenList
+    note_list_type: ClassVar[FrozenList[NoteType]] = ChromaticNoteList
 
 
     def get_intervals(self) -> AbstractIntervalListPattern[ChromaticInterval]:

@@ -4,7 +4,7 @@ from instruments.fretted_instrument.chord.chord_on_fretted_instrument import *
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fretted_position_maker.conditional_fretted_position_maker import ConditionalFrettedPositionMaker
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
-from lily.lily_svg import display_svg_file
+from lily.lily_svg_utils import display_svg_file
 from solfege.pattern.chord.chord_patterns import major_triad
 from solfege.value.note.chromatic_note import ChromaticNote
 from instruments.fretted_instrument.chord.test_constants import C4M, F4M, _make, fret, ones, diag_two, diag , entirely_open_chord
@@ -103,7 +103,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         
 
     # def test_svg(self):
-    #     svg_content = F4M._svg_content(absolute=False, instrument=Guitar)
+    #     svg_content = F4M.svg_lines(absolute=False, instrument=Guitar)
     #     expected = [
     #         '<line x1="43.5" y1="0" x2="43" y2="1164" stroke-width="5" stroke="black" /><!-- String 1-->',
     #    '<line x1="130.5" y1="0" x2="130" y2="1164" stroke-width="5" stroke="black" /><!-- String 2-->',

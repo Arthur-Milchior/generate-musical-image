@@ -148,11 +148,9 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     absolute: ClassVar[bool]
 
     @abstractmethod
-    def names_from_inversion(self, inversion: InversionPattern) -> List[str]:
-        return NotImplemented
+    def names_from_inversion(self, inversion: InversionPattern) -> List[str]:...
 
     @abstractmethod
-    def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
-        # The anki field for the partition if any.
-        return NotImplemented
+    def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:...
+    # The anki field for the partition if any.
         

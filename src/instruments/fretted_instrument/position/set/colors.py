@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, Generator, List, Optional
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
-from instruments.fretted_instrument.position.consts import CIRCLE_RADIUS, CIRCLE_STROKE_WIDTH, FONT_SIZE, MARGIN, STROKE_WIDTH
+from instruments.fretted_instrument.position.positions_consts import CIRCLE_RADIUS, CIRCLE_STROKE_WIDTH, FONT_SIZE, MARGIN, STROKE_WIDTH
 from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.colored_position_from_note import Colors
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from solfege.value.interval.chromatic_interval import ChromaticInterval
@@ -29,7 +29,7 @@ from utils.util import assert_iterable_typing, assert_typing
 #         return f"{self.__class__.__name__}_with_tonic_{self.colors_for_selected_note.tonic}_restricted_to_intervals_[{"_".join(str(interval.value) for interval in self.colored_intervals)}])"
     
 
-#     def _svg_content(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> Generator[str]:
+#     def svg_lines(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> Generator[str]:
 #         fretted_position_maker = self.colors_for_selected_note if pos.get_chromatic().in_base_octave() in self.selected_notes else self.colors_for_non_selected_notes
 #         return fretted_position_maker.svg_content(instrument, pos)
 

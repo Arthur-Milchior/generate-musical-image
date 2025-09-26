@@ -38,7 +38,7 @@ symbols = [s.replace(" ", "") for s in fixed_length_symbol_space_double]
 
 @dataclass(frozen=True)
 class NoteAlteration(Alteration):
-    def lily_in_scale(self):
+    def syntax_for_lily(self):
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.value + 2]
 

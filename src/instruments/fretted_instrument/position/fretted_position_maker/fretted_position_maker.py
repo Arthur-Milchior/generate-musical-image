@@ -15,10 +15,10 @@ class FrettedPositionMaker(DataClassWithDefaultArgument, ABC):
         #     yield "<style>"
         #     yield from style
         #     yield "</style>"
-        yield from self._svg_content(instrument, pos)
+        yield from self.svg_lines(instrument, pos)
 
     @abstractmethod
-    def _svg_content(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> Generator[str]:...
+    def svg_lines(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> Generator[str]:...
 
     @abstractmethod
     def __str__(self) -> str: ...

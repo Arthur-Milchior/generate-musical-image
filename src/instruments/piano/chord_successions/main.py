@@ -1,6 +1,6 @@
 import os
 
-from lily.lily import compile_
+from _lily.lily import compile_
 from instruments.piano.chord_successions.generate import successions
 from utils import util
 from sh import shell

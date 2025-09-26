@@ -25,9 +25,7 @@ class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns", int]
         return IntervalListPattern.make_relative(self._relative_intervals)
 
     @classmethod
-    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:
-        return NotImplemented
-    
+    def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:...    
     #pragma mark - ClassWithEasyness
     def easy_key(self) -> int:
         return 0

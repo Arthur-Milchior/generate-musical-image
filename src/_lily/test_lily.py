@@ -1,5 +1,5 @@
 import unittest
-from lily.lily import *
+from _lily.lily import *
 
 from sh import shell
 

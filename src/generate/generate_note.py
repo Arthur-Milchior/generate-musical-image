@@ -1,8 +1,9 @@
 from typing import Iterable
+from lily.sheet.lily_sheet_single_note import sheet_single_note
 from solfege.value.note import note_alteration
 from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note
-from lily.lily import compile_
+from _lily.lily import compile_
 from utils import util
 from consts import generate_root_folder
 
@@ -13,39 +14,25 @@ Scales 0 to 4 in bass
 
 """
 
-scale = [Note.from_name(f"{diatonic_letter}4{alteration_symbol}")
-         for diatonic_letter in "ABCDEFG"
-         for alteration_symbol in note_alteration.symbols
-         ]
-right_notes = [note.add_octave(o) for note in scale for o in range(-2, 5)]
-left_notes = [note.add_octave(o) for note in scale for o in range(-4,2)]
-
-def single_note(clef: Clef, note: Note):
-    return f"""
-\\version "2.20.0"
-\\score{{
-  \\new Staff{{
-    \\override Staff.TimeSignature.stencil = ##f
-    \\omit Staff.BarLine
-    \\omit PianoStaff.SpanBar
-    \\time 30/4
-    \\set Staff.printKeyCancellation = ##f
-    \\clef {clef}
-    {note.lily_in_scale()}
-    }}
-}}"""
+scale = [
+    Note.from_name(f"{diatonic_letter}4{alteration_symbol}")
+    for diatonic_letter in "ABCDEFG"
+    for alteration_symbol in note_alteration.symbols
+]
+treble_notes = [note.add_octave(o) for note in scale for o in range(-2, 5)]
+bass_notes = [note.add_octave(o) for note in scale for o in range(-4, 2)]
 
 
-folder_path = f"{generate_root_folder}/note"
+
+folder_path = f"{generate_root_folder}/lily"
 util.ensure_folder(folder_path)
 
-def generate(clef, notes: Iterable[Note]):
+
+def generate(clef:Clef, notes: Iterable[Note]):
     for note in notes:
-        lily_code = single_note(clef, note)
-        filename = note.file_name_for_lily_with_a_single_note()
-        path = f"{folder_path}/{filename}"
-        compile_(lily_code, path, execute_lily=True, wav=False)
+        sheet = sheet_single_note(note, clef)
+        sheet.maybe_generate()
 
-generate(Clef.TREBLE, right_notes)
-generate(Clef.BASS, left_notes)
 
+generate(Clef.TREBLE, treble_notes)
+generate(Clef.BASS, bass_notes)
