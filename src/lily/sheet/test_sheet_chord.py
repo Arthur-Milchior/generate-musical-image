@@ -27,5 +27,5 @@ class TestLilyChordSheet(unittest.TestCase):
         self.assertEqual(actual_code, expected_code)
 
         actual_name = sheet.file_prefix()
-        expected_name = "chord_C____________4_E____________4_G____________4"
+        expected_name = "treble_chord_C____________4_E____________4_G____________4"
         self.assertEqual(actual_name, expected_name)

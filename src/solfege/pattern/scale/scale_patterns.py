@@ -8,7 +8,7 @@ from solfege.pattern.scale.scale_pattern import ScalePattern
 
 
 pentatonic_major = ScalePattern.make_relative(names=["Pentatonic major"], relative_intervals=[2, 2, (3, 2), 2, (3, 2)], interval_for_signature=nor_flat_nor_sharp)
-major_scale = ScalePattern.make_relative(names=["Major"], relative_intervals=[2, 2, 1, 2, 2, 2, 1], interval_for_signature=nor_flat_nor_sharp)
+major_scale = ScalePattern.make_relative(names=["Major", "Greek Lydian tonos (diatonic genus)"], relative_intervals=[2, 2, 1, 2, 2, 2, 1], interval_for_signature=nor_flat_nor_sharp)
 pentatonic_minor = ScalePattern.make_relative(names=["Pentatonic minor"], relative_intervals=[(3, 2), 2, 2, (3, 2), 2],
                                           interval_for_signature=three_flats)
 minor_natural = ScalePattern.make_relative(names=["Minor natural", "Aeolian mode"], relative_intervals=[2, 1, 2, 2, 1, 2, 2], interval_for_signature=three_flats)
@@ -51,7 +51,6 @@ scale_patterns = scale_patterns_I_practice + [whole_tone,
     ScalePattern.make_relative(names=["Half diminished"], relative_intervals=[2, 1, 2, 1, 2, 2, 2], interval_for_signature=five_flats),
     ScalePattern.make_relative(names=["Harmonic major"], relative_intervals=[2, 2, 1, 2, 1, 3, 1], interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Hirajōshi Burrows"], relative_intervals=[(4, 2), 2, 1, (4, 2), 1], interval_for_signature=one_sharp),
-    ScalePattern.make_relative(names=["Hirajōshi Sachs-Slonimsky"], relative_intervals=[1, (4, 2), 1, (4, 2), 2], interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Hirajōshi Kostka and Payne-Speed"], relative_intervals=[2, 1, (4, 2), 1, (4, 2)],
                            interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Hungarian minor"], relative_intervals=[2, 1, 3, 1, 1, 3, 1], interval_for_signature=three_flats),  # should also have one sharp
@@ -59,7 +58,7 @@ scale_patterns = scale_patterns_I_practice + [whole_tone,
                            interval_for_signature=three_flats),
     ScalePattern.make_relative(names=["Miyako-bushi"], relative_intervals=[1, (4, 2), 2, 1, (4, 2)], interval_for_signature=two_flats),
     ScalePattern.make_relative(names=["Insen"], relative_intervals=[1, (4, 2), 2, (3, 2), 2], interval_for_signature=four_flats),
-    ScalePattern.make_relative(names=["Iwato"], relative_intervals=[1, (4, 2), 1, (4, 2), 2], interval_for_signature=five_flats),
+    ScalePattern.make_relative(names=["Iwato", "Hirajōshi Sachs-Slonimsky"], relative_intervals=[1, (4, 2), 1, (4, 2), 2], interval_for_signature=five_flats),
     ScalePattern.make_relative(names=["Lydian augmented"], relative_intervals=[2, 2, 2, 2, 1, 2, 1], interval_for_signature=three_sharps),
     ScalePattern.make_relative(names=["Major Locrian"], relative_intervals=[2, 2, 1, 1, 2, 2, 2], interval_for_signature=five_flats),
     ScalePattern.make_relative(names=["Minyo"], relative_intervals=[(3, 2), 2, (3, 2), 2, 2], interval_for_signature=nor_flat_nor_sharp),
@@ -70,28 +69,19 @@ scale_patterns = scale_patterns_I_practice + [whole_tone,
     ScalePattern.make_relative(names=["Pelog barang"], relative_intervals=[2, (4, 2), 1, 2, (3, 2)], interval_for_signature=four_flats),
     ScalePattern.make_relative(names=["Persian"], relative_intervals=[1, 3, 1, 1, 2, 3, 1], interval_for_signature=five_flats),
     ScalePattern.make_relative(names=["Phrygian dominant"], relative_intervals=[1, 3, 1, 2, 1, 2, 2], interval_for_signature=four_flats),
-    ScalePattern.make_relative(names=["Greek Phrygian tonos (diatonic genus)"], relative_intervals=[2, 1, 2, 2, 2, 1, 2],
-                           interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Greek Phrygian tonos (chromatic genus)"], relative_intervals=[3, 1, 1, 2, 3, 1, 1],
                            interval_for_signature=nor_flat_nor_sharp),
-    ScalePattern.make_relative(names=["Slendro"], relative_intervals=[2, (3, 2), 2, 2, (3, 2)], interval_for_signature=nor_flat_nor_sharp),
+    ScalePattern.make_relative(names=["Slendro", "Yo descending"], relative_intervals=[2, (3, 2), 2, 2, (3, 2)], interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Two-semitone tritone"], relative_intervals=[1, (1, 0), (4, 2), 1, 1, (4, 2)], interval_for_signature=nor_flat_nor_sharp),
-    ScalePattern.make_relative(names=["Ukrainian Dorian"], relative_intervals=[2, 1, 3, 1, 2, 1, 2], interval_for_signature=two_flats),  # shold also have one sharp
-    ScalePattern.make_relative(names=["Misheberak"], relative_intervals=[2, 1, 3, 1, 2, 1, 2], interval_for_signature=nor_flat_nor_sharp),
+    ScalePattern.make_relative(names=["Misheberak", "Ukrainian Dorian"], relative_intervals=[2, 1, 3, 1, 2, 1, 2], interval_for_signature=two_flats),  # shold also have one sharp
     ScalePattern.make_relative(names=["Yo ascending"], relative_intervals=[2, (3, 2), 2, (3, 2), 2], interval_for_signature=two_flats),
-    ScalePattern.make_relative(names=["Yo descending"], relative_intervals=[2, (3, 2), 2, 2, (3, 2)], interval_for_signature=two_flats),
-    ScalePattern.make_relative(names=["Yo with auxiliary"], relative_intervals=[2, 1, 2, 2, 2, 1, 2], interval_for_signature=two_flats),
-    ScalePattern.make_relative(names=["Dorian"], relative_intervals=[2, 1, 2, 2, 2, 1, 2], interval_for_signature=two_flats),
-    ScalePattern.make_relative(names=["Locrian"], relative_intervals=[1, 2, 2, 1, 2, 2, 2], interval_for_signature=five_flats),
+    ScalePattern.make_relative(names=["Dorian", "Yo with auxiliary", "Greek Phrygian tonos (diatonic genus)"], relative_intervals=[2, 1, 2, 2, 2, 1, 2], interval_for_signature=two_flats),
+    ScalePattern.make_relative(names=["Locrian", "Greek Mixolydian tonos (diatonic genus)"], relative_intervals=[1, 2, 2, 1, 2, 2, 2], interval_for_signature=five_flats),
     ScalePattern.make_relative(names=["Lydian"], relative_intervals=[2, 2, 2, 1, 2, 2, 1], interval_for_signature=one_sharp),
-    ScalePattern.make_relative(names=["Greek Lydian tonos (diatonic genus)"], relative_intervals=[2, 2, 1, 2, 2, 2, 1],
-                           interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Greek Lydian tonos (chromatic genus)"], relative_intervals=[1, 3, 1, 1, 3, 2, 1],
                            interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Mixolydian", "Adonal malakh mode"], relative_intervals=[2, 2, 1, 2, 2, 1, 2], interval_for_signature=one_flat),
-    ScalePattern.make_relative(names=["Greek Mixolydian tonos (diatonic genus)"], relative_intervals=[1, 2, 2, 1, 2, 2, 2],
-                           interval_for_signature=nor_flat_nor_sharp),
-    ScalePattern.make_relative(names=["Greek Mixolydian tonos (chromatic genus)"], relative_intervals=[2, 1, 3, 1, 1, 3, 1],
+    ScalePattern.make_relative(names=["Greek Mixolydian tonos (chromatic genus)"], relative_intervals=[1, (1,0), (3, 2), 1, 1, 3,  2],
                            interval_for_signature=nor_flat_nor_sharp),
     ScalePattern.make_relative(names=["Octave"], relative_intervals=[(12, 7)], interval_for_signature=nor_flat_nor_sharp)
 ]
