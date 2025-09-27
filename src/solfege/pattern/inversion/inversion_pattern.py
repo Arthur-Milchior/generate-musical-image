@@ -9,12 +9,18 @@ from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from solfege.value.note.note import Note
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
+from utils.easyness import ClassWithEasyness
 from utils.util import assert_typing
 
+class InversionPatternsGetter(ClassWithEasyness, ABC):
+    """A protocol simply offeritng to access a IdenticalInversionPattern."""
+    @abstractmethod
+    def get_inversion_pattern(self) -> "InversionPatterns":...    
 
+InversionPatternsGetterType = TypeVar("IdenticalInversionPatternGetterType", bound=InversionPatternsGetter)
 
 @dataclass(frozen=True)
-class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversionPattern", Tuple[int, int]],
+class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern", Tuple[int, int]],
                        DataClassWithDefaultArgument):
     #pragma mark - Recordable
     _key_type: ClassVar[Type] = IntervalListPattern
@@ -70,8 +76,8 @@ class InversionPattern(PatternWithIntervalList["IntervalListToIdenticalInversion
 
     @classmethod
     def _get_instantiation_type(cls) -> Type["Inversion"]:
-        from solfege.pattern_instantiation.inversion.inversion import Inversion
-        return Inversion
+        from solfege.pattern_instantiation.inversion.inversion_instantiation import InversionInstantiation
+        return InversionInstantiation
     
     #pragma mark - ClassWithEasyness
     def easy_key(self) -> Tuple[int, int]:

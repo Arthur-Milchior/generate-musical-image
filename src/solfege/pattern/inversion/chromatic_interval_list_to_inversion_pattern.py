@@ -7,7 +7,7 @@ from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalLi
 from utils.util import assert_typing
 
 
-class ChromaticIntervalListToInversionPattern(ChromaticIntervalListToPatterns[InversionPattern, IdenticalInversionPatterns]):
+class ChromaticIntervalListToInversionPattern(ChromaticIntervalListToPatterns[InversionPattern]):
     """Associate to each interval list (assumed to be in base octave) all corresponding inversions.
     
     The recorded value has a copy of the interval list.

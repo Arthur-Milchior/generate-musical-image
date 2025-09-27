@@ -3,7 +3,7 @@ from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.chord.interval_list_to_chord_pattern import IntervalListToChordPattern
 from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
-from solfege.pattern.interval_list_to_patterns import PatternType
+from solfege.pattern.interval_list_to_pattern import PatternType
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
 from solfege.pattern.chord.chord_patterns import dominant_seventh_chord

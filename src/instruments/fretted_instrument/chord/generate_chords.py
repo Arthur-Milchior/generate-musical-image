@@ -5,8 +5,8 @@ from typing import Callable, Dict, Generic, List, Optional, Type
 from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
 from instruments.fretted_instrument.chord.chord_utils import enumerate_fretted_instrument_chords
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
-from instruments.fretted_instrument.chord.open.chromatic_identical_inversion_pattern_with_note_and_its_transposable_chords import ChromaticIdenticalInversionAndItsOpenChords
-from instruments.fretted_instrument.chord.open.chromatic_identical_inversion_to_chords_on_fretted_instrument import ChromaticIdenticalInversionToItsOpenChords
+from instruments.fretted_instrument.chord.open.chromatic_inversion_instantiation_pattern_with_note_and_its_open_chords import ChromaticInversionInstantiationAndItsOpenChords
+from instruments.fretted_instrument.chord.open.chromatic_inversion_to_chords_on_fretted_instrument import InversionToItsOpenChords
 from instruments.fretted_instrument.chord.playable import Playable
 from instruments.fretted_instrument.chord.transposable.chromatic_inversion_pattern_to_chords_on_fretted_instrument import ChromaticIdenticalInversionPatternToItsTransposableChords
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
@@ -20,13 +20,13 @@ from solfege.pattern.inversion.chromatic_identical_inversion_patterns import Chr
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatterns
 from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
-from solfege.pattern_instantiation.inversion.chromatic_identical_inversions import ChromaticIdenticalInversions
+from solfege.pattern_instantiation.inversion.inversion_instantiation import InversionInstantiation
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
 from utils.csv import CsvGenerator
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.recordable import KeyType, RecordKeeper, RecordedContainerType, RecordedType
+from utils.recording.record_keeper import RecordKeeper
 from utils.util import assert_typing, ensure_folder, img_tag, save_file
 
 
@@ -39,7 +39,7 @@ ensure_folder(lily_folder_path)
 class AnkiNotesPreparation(DataClassWithDefaultArgument):
     open_chord: bool
     instrument: FrettedInstrument
-    record_keeper: RecordKeeper[ChromaticIdenticalInversions, ChordOnFrettedInstrument, ChromaticIdenticalInversionAndItsOpenChords]
+    record_keeper: RecordKeeper[InversionInstantiation, ChordOnFrettedInstrument, ChromaticInversionInstantiationAndItsOpenChords]
     decompositions: List[ChordDecompositionAnkiNote]
 
     def __hash__(self):
@@ -54,7 +54,7 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
         return 6 if self.open_chord else 4
     
     def recorded_container_getter(self, pattern: IdenticalInversionPatterns, note: ChromaticNote) ->MinimalChordDecompositionInput:
-        return ChromaticIdenticalInversions(pattern, note) if self.open_chord else pattern
+        return InversionInstantiation(pattern, note) if self.open_chord else pattern
     
     def subfolder_name(self):
         return "open" if self.open_chord else "transposable"
@@ -114,7 +114,7 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
         open_chord = kwargs["open_chord"]
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
         instrument = kwargs["instrument"]
-        kwargs["record_keeper"] = ChromaticIdenticalInversionToItsOpenChords.make(instrument=instrument) if open_chord else ChromaticIdenticalInversionPatternToItsTransposableChords.make(instrument=instrument)
+        kwargs["record_keeper"] = InversionToItsOpenChords.make(instrument=instrument) if open_chord else ChromaticIdenticalInversionPatternToItsTransposableChords.make(instrument=instrument)
         kwargs["decompositions"] = list()
         return super()._clean_arguments_for_constructor(args, kwargs)
     

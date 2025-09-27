@@ -6,7 +6,6 @@ from instruments.fretted_instrument.position.fretted_instrument_position import 
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternsGetter, IdenticalInversionPatterns
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
-from utils.recordable import RecordedContainer
 from utils.util import img_tag
 
 
@@ -15,9 +14,6 @@ class IdenticalInversionPatternAndItsTransposableChords(AbstractIdenticalInversi
     #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
 
     identical_inversion_pattern_getter_type:ClassVar[Type[IdenticalInversionPatternsGetter]] = IdenticalInversionPatterns
-
-    def names_from_inversion(self, inversion: InversionPattern) -> List[str]:
-        return inversion.names()
 
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
         return ""

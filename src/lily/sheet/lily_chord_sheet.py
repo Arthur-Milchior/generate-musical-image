@@ -4,8 +4,11 @@ from typing import Dict, List
 from lily.sheet.lily_sheet import LilySheet
 from lily.sheet.lily_sheet_single_staff import LilySheetSingleStaff
 from lily.staff.lily_chord_staff import LilyChordStaff
+from solfege.value.key.key import Key
+from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note, NoteFrozenList
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
+from solfege.value.key.keys import key_of_C
 
 
 @dataclass(frozen=True)
@@ -32,3 +35,7 @@ class LilyChordSheet(LilySheetSingleStaff):
     #     kwargs["staff"] = LilyChordStaff(kwargs["notes"])
     #     args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
     #     return args, kwargs
+
+def lily_chord_sheet(notes: List, clef: Clef, key: Key=key_of_C) ->LilyChordSheet:
+    staff = LilyChordStaff.make(notes= notes, clef=clef, first_key = key)
+    return LilyChordSheet.make(staff=staff)

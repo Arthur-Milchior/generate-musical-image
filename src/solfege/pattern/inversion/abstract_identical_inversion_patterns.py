@@ -8,7 +8,7 @@ from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.set.abstract_interval_ilst_pattern import AbstractIntervalListPattern, IntervalListPatternType
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import ClassWithEasyness
-from utils.recordable import RecordedContainer
+from utils.recording.recorded_container import RecordedContainer
 from utils.util import assert_iterable_typing, assert_typing
 
 

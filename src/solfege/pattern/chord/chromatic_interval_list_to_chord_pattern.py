@@ -6,7 +6,7 @@ from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticInterva
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
 
 
-class ChromaticIntervalListToChordPattern(ChromaticIntervalListToPatterns[ChordPattern, List]):
+class ChromaticIntervalListToChordPattern(ChromaticIntervalListToPatterns[ChordPattern]):
     """Associate to each Chromatic interval list the Chord it represents. The list sohuld contain at most one chord.
     It's returned as a list only for compatibliity with the api."""
 

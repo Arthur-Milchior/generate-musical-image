@@ -8,7 +8,8 @@ from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import ClassWithEasyness, KeyType
-from utils.recordable import RecordKeeperType, Recordable
+from utils.recording.record_keeper import RecordKeeperType
+from utils.recording.recordable import Recordable
 from utils.util import assert_iterable_typing, assert_typing
 
 

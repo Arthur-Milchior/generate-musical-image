@@ -4,7 +4,7 @@ from instruments.fretted_instrument.chord.chord_on_fretted_instrument import Cho
 from instruments.fretted_instrument.chord.transposable.identical_inversion_pattern_and_its_transposable_chords import IdenticalInversionPatternAndItsTransposableChords
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatterns
-from utils.recordable import RecordKeeper
+from utils.recording.record_keeper import RecordKeeper
 from utils.util import assert_typing
 
 

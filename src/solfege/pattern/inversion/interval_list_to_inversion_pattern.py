@@ -1,5 +1,5 @@
 from typing import ClassVar, List, Type
-from solfege.pattern.interval_list_to_patterns import IntervalListToPatterns
+from solfege.pattern.interval_list_to_pattern import IntervalListToPattern
 from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatterns
 from solfege.pattern.inversion.chromatic_interval_list_to_inversion_pattern import ChromaticIntervalListToInversionPattern
 from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatterns
@@ -8,7 +8,7 @@ from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalLi
 from utils.util import assert_typing
 
 
-class IntervalListToInversionPattern(IntervalListToPatterns[InversionPattern, IdenticalInversionPatterns, ChromaticIntervalListToInversionPattern]):
+class IntervalListToInversionPattern(IntervalListToPattern[InversionPattern]):
     """Associate to each interval list (assumed to be in base octave) all corresponding inversions.
     
     The recorded value has a copy of the interval list.

@@ -5,7 +5,7 @@ from solfege.value.interval.interval import Interval, IntervalFrozenList
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListFrozenList
 from utils.frozenlist import FrozenList
 
-from solfege.pattern.interval_list_to_patterns import *
+from solfege.pattern.interval_list_to_pattern import *
 
 second_major = IntervalListPattern.make_relative([(2, 1)])
 tone = ChromaticIntervalListPattern.make_relative([2])
@@ -39,7 +39,7 @@ class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns", int]
         
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_relative_intervals", clean_intervals)
         return super()._clean_arguments_for_constructor(args, kwargs)
-class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[FakePattern, List]):
+class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[FakePattern]):
 
     #pragma mark - RecordKeeper
 
@@ -54,7 +54,7 @@ class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[Fa
     def _new_container(self, key: IntervalListPattern) -> List[FakePattern]:
         return list()
 
-class FakeIntervalListToFakePatterns(IntervalListToPatterns[FakePattern, List, List]):
+class FakeIntervalListToFakePatterns(IntervalListToPattern[FakePattern]):
 
     #pragma mark - RecordKeeper
     

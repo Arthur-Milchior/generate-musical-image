@@ -15,7 +15,7 @@ from utils.util import assert_typing
 
 
 @dataclass(frozen=True)
-class Inversion(
+class InversionInstantiation(
     AbstractInversionInstantiation[Note, Interval],
     AbstractPairInstantiation[InversionPattern, Tuple[int, int]]):
     

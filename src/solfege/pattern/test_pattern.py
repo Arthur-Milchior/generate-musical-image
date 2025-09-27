@@ -6,7 +6,8 @@ import unittest
 from solfege.pattern.solfege_pattern import SolfegePattern
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
 from utils.frozenlist import FrozenList, StrFrozenList
-from utils.recordable import RecordKeeper
+from utils.recording.record_keeper import RecordKeeper
+from utils.recording.singleton_container import SingletonContainer
 
 
 @dataclass(frozen=True, unsafe_hash=True)
@@ -28,7 +29,7 @@ class PatternEmpty(SolfegePattern):
         kwargs["record"] = False
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-class RecordKeeperForPatternEmpty(RecordKeeper[IntervalListPattern, PatternEmpty, List[PatternEmpty]]):
+class RecordKeeperForPatternEmpty(RecordKeeper[IntervalListPattern, PatternEmpty, SingletonContainer[PatternEmpty]]):
     #pragma mark - RecordKeeper
 
     """Same as RecordedType"""
@@ -65,7 +66,7 @@ class PatternDeux(SolfegePattern):
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-class RecordKeeperForPatternDeux(RecordKeeper[IntervalListPattern, PatternDeux, List[PatternDeux]]):
+class RecordKeeperForPatternDeux(RecordKeeper[IntervalListPattern, PatternDeux, SingletonContainer[PatternDeux]]):
 
     #pragma mark - RecordKeeper
     

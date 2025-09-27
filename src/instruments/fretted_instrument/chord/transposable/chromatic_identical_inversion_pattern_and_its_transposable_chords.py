@@ -17,9 +17,6 @@ class AbstractEquivalentInversionWithoutNoteAndItsFrettedInstrumentChords(Abstra
     #pragma mark - AbstractEquivalentInversionAndItsFrettedInstrumentChords
     absolute: ClassVar[bool] = False
 
-    def names_from_inversion(self, inversion: InversionPattern) -> List[str]:
-        return inversion.names()
-
     def lily_field(self, *args, **kwargs) -> str:
         # The anki field for the partition if any.
         return ""
@@ -32,9 +29,6 @@ class ChromaticIdenticalInversionPatternAndItsTransposableChords(AbstractIdentic
     identical_inversion_pattern_getter_type: ClassVar[Type[ChromaticIdenticalInversionPatternGetter]] = ChromaticIdenticalInversionPatterns
 
     # pragma mark - AbstractIdenticalInversionAndItsFrettedInstrumentChords
-
-    def names_from_inversion(self, inversion: InversionPattern) -> List[str]:
-        return inversion.names()
 
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
         return ""
