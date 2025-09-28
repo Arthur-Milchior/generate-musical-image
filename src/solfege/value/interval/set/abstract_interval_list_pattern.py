@@ -27,17 +27,21 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
         return len(self._absolute_intervals)
 
     @classmethod
-    def make_absolute(cls, absolute_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]], *args, add_implicit_zero: bool = True, **kwargs):
+    def make_absolute(cls, absolute_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]], *args, add_implicit_unison: bool = True, **kwargs):
+        """Returns an instance of `cls` for the absolute intervals `relative_intervals`. 
+        if `add_implicit_unison` then add a unison at start if it's not already here.
+        """
         absolute_intervals = [cls.interval_type.make_single_argument(absolute_interval) for absolute_interval in absolute_intervals]
         assert_iterable_typing(absolute_intervals, cls.interval_type)
         first_interval = absolute_intervals[0] if absolute_intervals else None
         unison = cls.interval_type.unison()
-        if first_interval != unison and add_implicit_zero:
+        if first_interval != unison and add_implicit_unison:
             absolute_intervals = [unison] + absolute_intervals
         return cls.make(*args, _absolute_intervals=cls._frozen_list_type(absolute_intervals), **kwargs)
 
     @classmethod
     def make_relative(cls, relative_intervals: Iterable[Union[int, IntervalType, Tuple[int, int]]],  role_maker: Optional[RoleMaker]=None, *args,  **kwargs):
+        """Returns an instance of `cls` for the relative intervals `relative_intervals`. Each interval has a role determined by `role_maker`."""
         unison = cls.interval_type.unison()
         if role_maker:
             unison = dataclasses.replace(unison, _role=role_maker(0))

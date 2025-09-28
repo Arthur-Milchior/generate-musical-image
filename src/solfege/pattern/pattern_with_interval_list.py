@@ -14,7 +14,7 @@ from utils.util import assert_iterable_typing, assert_typing
 
 
 @dataclass(frozen=True)
-class PatternWithIntervalList(Recordable[IntervalListPattern, RecordKeeperType], ClassWithEasyness[KeyType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType, KeyType]):
+class PatternWithIntervalList(IntervalListPattern, Recordable[IntervalListPattern, RecordKeeperType], ClassWithEasyness[KeyType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType, KeyType]):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 

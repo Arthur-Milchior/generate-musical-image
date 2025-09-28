@@ -4,7 +4,7 @@ from typing import Callable, ClassVar, Dict, Generic, Iterable, List, Self, Tupl
 
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval, IntervalFrozenList
-from solfege.value.interval.set.abstract_interval_ilst_pattern import AbstractIntervalListPattern
+from solfege.value.interval.set.abstract_interval_list_pattern import AbstractIntervalListPattern
 from solfege.value.interval.set.chromatic_interval_list_pattern import ChromaticIntervalListPattern
 from utils.frozenlist import FrozenList
 from utils.util import assert_iterable_typing, assert_typing, sorted_unique

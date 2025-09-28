@@ -16,7 +16,7 @@ class IntervalListToScalePattern(IntervalListToPattern[ScalePattern]):
     
     @classmethod
     def _new_container(self, key: IntervalListPattern) -> SingletonContainer[ScalePattern]:
-        return SingletonContainer(same_key_behavior=SameKeyBehavior.IMPOSSIBLE)
+        return SingletonContainer[ScalePattern](same_key_behavior=SameKeyBehavior.IMPOSSIBLE)
 
     #pragma mark - IntervalListToPatterns    
     @classmethod

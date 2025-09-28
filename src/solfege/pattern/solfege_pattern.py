@@ -12,7 +12,7 @@ from solfege.value.key.keys import nor_flat_nor_sharp
 
 
 @dataclass(frozen=True)
-class SolfegePattern(IntervalListPattern, PatternWithName, PatternWithIntervalList, ClassWithEasyness[int], DataClassWithDefaultArgument):
+class SolfegePattern(PatternWithName, PatternWithIntervalList, ClassWithEasyness[int], DataClassWithDefaultArgument):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 

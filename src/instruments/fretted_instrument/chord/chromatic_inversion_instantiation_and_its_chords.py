@@ -11,8 +11,10 @@ from instruments.fretted_instrument.position.fretted_instrument_position import 
 from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.black_only import BlackOnly
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
 from lily.sheet import lily_chord_sheet
-from solfege.pattern.inversion.inversion_pattern import InversionPattern, InversionPatternsGetter, InversionPatternsGetterType
+from solfege.pattern.inversion.inversion_pattern import InversionPattern,  InversionPatternsGetterType
+from solfege.pattern_instantiation.inversion.chromatic_inversion_instantiation import ChromaticInversionInstantiation
 from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note
@@ -24,7 +26,7 @@ from utils.recording.recorded_container import RecordedContainer
 from utils.util import T, assert_iterable_typing, assert_typing, img_tag
 
 @dataclass(frozen=True, unsafe_hash=True)
-class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[ChordOnFrettedInstrument], CsvGenerator, DataClassWithDefaultArgument, ClassWithEasyness, ABC, Generic[InversionPatternsGetterType]):
+class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrettedInstrument], CsvGenerator, DataClassWithDefaultArgument, ClassWithEasyness, ABC, Generic[InversionPatternsGetterType]):
     """
     For a `InversionPatternsGetterType`, record the list of chord with this inversion(pattern)
 
@@ -32,13 +34,13 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     name, other names, open, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored, partition)
     """
     instrument: FrettedInstrument
-    key: InversionPatternsGetterType
+    key: ChromaticInversionInstantiation
     fretted_instrument_chords: List[ChordOnFrettedInstrument] = field(hash=False, compare=False, default_factory=list)
 
     #pragma mark - InversionPatternGetter
 
     def get_inversion_pattern(self) -> InversionPattern:
-        return self.key.get_inversion_pattern()
+        return self.key.pattern
 
     def append(self, fretted_instrument_chord: ChordOnFrettedInstrument):
         assert_typing(fretted_instrument_chord, ChordOnFrettedInstrument)
@@ -79,7 +81,21 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         yield from self.fretted_instrument_chords
 
     def names(self):
-        self.get_inversion_pattern().names()
+        inversion = self.get_inversion_pattern()
+        chromatic_lowest_note: ChromaticNote = self.key.lowest_note
+        lowest_note = inversion.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
+        tonic = inversion.get_tonic(lowest_note)
+        note_name = tonic.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
+        lowest_note_name = chromatic_lowest_note.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
+        chord_pattern_notation = inversion.base.notation
+        if chord_pattern_notation is None:
+            chord_pattern_notation = inversion.base.first_of_the_names()
+        chord_notation = f"{note_name}{chord_pattern_notation}"
+        if inversion.inversion == 0:
+            assert tonic.get_chromatic() == chromatic_lowest_note
+            return [chord_notation]
+        else:
+            return [f"""{chord_notation}/{lowest_note_name}"""]
 
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalListPattern) -> str:
         lowest_chromatic_note: ChromaticNote = self.key.lowest_note
@@ -105,16 +121,18 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     
     def plain_and_numbered_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument):
         """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decomposition in chord_decompositions"""
-        transposed_chord, transposition = fretted_chord, 0 if self.absolute else fretted_chord.transpose_to_fret_one()
+        is_open = fretted_chord.is_open()
+        transposed_chord, transposition = fretted_chord, 0 if fretted_chord.is_open() else fretted_chord.transpose_to_fret_one()
         pos_of_lowest_note = transposed_chord.get_most_grave_note()
         chromatic_lowest_note = pos_of_lowest_note.get_chromatic()
-        easiest_inversion_pattern = self.key.get_identical_inversion_pattern().easiest_inversion()
-        lowest_note = easiest_inversion_pattern.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
-        tonic = easiest_inversion_pattern.get_tonic(lowest_note)
+        chromatic_inversion_pattern: ChromaticInversionInstantiation = self.key
+        chromatic_interval_list: IntervalListPattern = chromatic_inversion_pattern.get_intervals()
+        lowest_note = chromatic_interval_list.best_enharmonic_starting_note(chromatic_lowest_note)
+        tonic = chromatic_inversion_pattern.pattern.get_tonic(lowest_note)
         chromatic_tonic = tonic.get_chromatic().in_base_octave()
         return (
-            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=self.absolute)),
-            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=FrettedPositionMakerForInterval.make(tonic=chromatic_tonic, pattern=easiest_inversion_pattern.base), absolute=self.absolute)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=is_open)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=FrettedPositionMakerForInterval.make(tonic=chromatic_tonic, pattern=chromatic_inversion_pattern.base), absolute=is_open)),
             #self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
         )
     
@@ -129,7 +147,6 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         yield self.first_name()
         yield self.other_names()
         yield self.instrument.get_name()
-        yield "x" if self.absolute else ""
         maximals = self.maximals()
         individual_maximals, other_maximals = maximals[:7], maximals[7:]
         for fretted_chord in individual_maximals:
@@ -150,7 +167,7 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
         return default
 
     def __post_init__(self):
-        assert_typing(self.key, self.identical_inversion_pattern_getter_type)
+        assert_typing(self.key, ChromaticInversionInstantiation)
         assert_typing(self.fretted_instrument_chords, list)
         assert_iterable_typing(self.fretted_instrument_chords, ChordOnFrettedInstrument)
         super().__post_init__()
@@ -158,7 +175,6 @@ class AbstractIdenticalInversionAndItsFrettedInstrumentChords(RecordedContainer[
     # Must be implemented by subclasses
 
     """Same As IdenticalInversionPatternsGetterType"""
-    identical_inversion_pattern_getter_type: ClassVar[Type[InversionPatternsGetter]]
     absolute: ClassVar[bool]
 
     # The anki field for the partition if any.

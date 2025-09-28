@@ -7,7 +7,7 @@ from typing import Callable, ClassVar, Dict, Generic, List, Self, Type
 
 from solfege.list_order import ListOrder, reverse_list_order
 from solfege.value.interval.abstract_interval import IntervalType
-from solfege.value.interval.set.abstract_interval_ilst_pattern import IntervalListPatternType
+from solfege.value.interval.set.abstract_interval_list_pattern import IntervalListPatternType
 from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument

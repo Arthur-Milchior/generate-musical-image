@@ -1,9 +1,8 @@
 from typing import ClassVar, List, Type
-from solfege.pattern.inversion.chromatic_identical_inversion_patterns import ChromaticIdenticalInversionPatterns
-from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatterns
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
 from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
+from utils.recording.singleton_container import SameKeyBehavior, SingletonContainer
 from utils.util import assert_typing
 
 
@@ -16,7 +15,7 @@ class ChromaticIntervalListToInversionPattern(ChromaticIntervalListToPatterns[In
     #pragma mark - RecordKeeper
 
     _recorded_type: ClassVar[Type] = InversionPattern
-    _recorded_container_type: ClassVar[Type] = ChromaticIdenticalInversionPatterns
+    _recorded_container_type: ClassVar[Type] = SingletonContainer
 
     def is_key_valid(self, key: ChromaticIntervalListPattern):
         return key.is_in_base_octave()
@@ -24,4 +23,4 @@ class ChromaticIntervalListToInversionPattern(ChromaticIntervalListToPatterns[In
     @classmethod
     def _new_container(self, key: ChromaticIntervalListPattern) -> List[InversionPattern]:
         assert_typing(key, ChromaticIntervalListPattern)
-        return ChromaticIdenticalInversionPatterns(key)
+        return SingletonContainer[InversionPattern](SameKeyBehavior.MINIMUM)

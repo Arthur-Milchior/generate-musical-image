@@ -1,6 +1,7 @@
 
 
 from dataclasses import dataclass, field
+from re import Pattern
 from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 
 from solfege.pattern.pattern_with_interval_list import PatternType
@@ -25,6 +26,7 @@ class ChromaticIntervalListToPatterns(RecordKeeper[ChromaticIntervalListPattern,
     _key_type: ClassVar[Type] = ChromaticIntervalListPattern
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = SingletonContainer
+    
 
     def get_pattern_from_chromatic_interval(self, chromatic_interval_list: ChromaticIntervalListPattern) -> Optional[PatternType]:
         """Given a set of interval, return the object having this set of intervals."""

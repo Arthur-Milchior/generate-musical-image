@@ -4,7 +4,7 @@ import dataclasses
 from typing import ClassVar, Generic, Self, TypeVar
 from solfege.list_order import ListOrder
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
-from solfege.value.interval.set.abstract_interval_ilst_pattern import AbstractIntervalListPattern
+from solfege.value.interval.set.abstract_interval_list_pattern import AbstractIntervalListPattern
 from solfege.value.key.key import Key
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from solfege.value.note.set.abstract_note_list import AbstractNoteList

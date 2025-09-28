@@ -9,10 +9,9 @@ from instruments.fretted_instrument.position.fretted_position_maker.colored_posi
 from instruments.fretted_instrument.position.fretted_position_maker.conditional_fretted_position_maker import ConditionalFrettedPositionMaker
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_for_interval import FrettedPositionMakerForInterval
 from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
-from instruments.fretted_instrument.position.string.string import String
 from lily.sheet.lily_chord_sheet import LilyChordSheet
 from lily.staff.lily_chord_staff import LilyChordStaff
-from solfege.pattern.inversion.chromatic_identical_inversion_patterns import MinimalChordDecompositionInput
+from solfege.pattern_instantiation.inversion.chromatic_inversion_instantiation import ChromaticInversionInstantiation
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from _lily import lily
 from solfege.value.note.note import Note
@@ -25,12 +24,12 @@ from utils.util import assert_typing, ensure_folder, img_tag
 @dataclass(frozen=True)
 class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]], CsvGenerator):
     instrument: FrettedInstrument
-    identical_inversions: MinimalChordDecompositionInput
+    inversion: ChromaticInversionInstantiation
     chord: ChordOnFrettedInstrument
 
     def __post_init__(self):
         assert_typing(self.instrument, FrettedInstrument)
-        assert_typing(self.identical_inversions, MinimalChordDecompositionInput)
+        assert_typing(self.inversion, ChromaticInversionInstantiation)
         assert_typing(self.chord, ChordOnFrettedInstrument)
 
     def is_open(self):
@@ -44,7 +43,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     
     def decomposition_lily_field(self, path:str):
         lowest_note = Note.from_chromatic(self.chord.get_most_grave_note().get_chromatic())
-        inversion_patterns = self.identical_inversions.get_inversion_patterns()
+        inversion_patterns = self.inversion.get_inversion_patterns()
         inversion_pattern = inversion_patterns[0]
         note_to_use: NoteList = inversion_pattern.interval_list.from_note(lowest_note)
 
@@ -64,14 +63,14 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         color = "red" if all_marked else None
         return FrettedPositionMakerForInterval.make(
             tonic=self.tonic().in_base_octave(),
-            pattern=self.identical_inversions.get_inversion_patterns()[0].base,
+            pattern=self.inversion.pattern,
             style=style,
             circle_color=color
             )
     
     def tonic(self):
         lowest_note = self.chord.get_most_grave_note().get_chromatic()
-        return lowest_note - self.identical_inversions.get_tonic_minus_lowest_note().get_chromatic()
+        return lowest_note - self.inversion.pattern.get_tonic_minus_lowest_note().get_chromatic()
     
     def single_role_field(self, folder_path: str, interval_values: List[int]):
         transposed, transposition = self.transposed()
@@ -125,10 +124,9 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
 
     def csv_content(self, folder_path: str, lily_folder_path: str) -> Generator[str]:
         transposed, transposition = self.transposed()
-        notations = self.identical_inversions.notations()
+        notation = self.inversion.notation()
 
-        yield notations[0] # notation
-        yield ", ".join(notations[1:]) # other notations
+        yield notation # notation
         yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=self.is_open())) # Chord
         yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=self.fretted_position_maker(all_marked=True), absolute=self.is_open())) # Colored chord
         yield self.decomposition_lily_field(f"{lily_folder_path}") # partition
@@ -142,4 +140,4 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     #pragma mark - ClassWithEasyness
 
     def easy_key(self) -> Tuple[Tuple[int, int], int]:
-        return (self.identical_inversions.easy_key(), self.chord.easy_key())
+        return (self.inversion.easy_key(), self.chord.easy_key())

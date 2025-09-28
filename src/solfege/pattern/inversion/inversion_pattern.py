@@ -36,6 +36,9 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern",
     """For a scale whose lowest note is n, you get the position of the tonic with n+tonic_minus_lowest_note."""
     tonic_minus_lowest_note: Interval
 
+    def get_tonic_minus_lowest_note(self):
+        return self.tonic_minus_lowest_note
+
     def get_tonic(self, lowest_note: Note):
         assert_typing(lowest_note, Note)
         return lowest_note - self.tonic_minus_lowest_note

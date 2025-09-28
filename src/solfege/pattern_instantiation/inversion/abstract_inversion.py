@@ -2,7 +2,6 @@
 from dataclasses import dataclass
 from typing import ClassVar, Generic, Tuple
 
-from solfege.pattern.inversion.identical_inversion_patterns import IdenticalInversionPatternsGetterType
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.pattern_instantiation.pattern_instantiation import AbstractPatternInstantiation, IntervalFrozenListType, NoteFrozenListType
