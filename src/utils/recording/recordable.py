@@ -49,7 +49,7 @@ class Recordable(ABC, Generic[KeyType, RecordKeeperType]):
             record_keeper_ = record_keeper
         assert_typing(record_keeper_, self._record_keeper_type)
         if keys is None:
-            keys = self.interval_lists()
+            keys = self.get_interval_lists()
         elif isinstance(keys, self._key_type):
             keys = [keys]
         for key in keys:

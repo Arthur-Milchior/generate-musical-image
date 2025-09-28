@@ -5,6 +5,8 @@ from instruments.fretted_instrument.fretted_instrument.fretted_instrument import
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_with_letters import FrettedPositionMakerWithLetter
 from solfege.pattern.solfege_pattern import SolfegePattern
+from solfege.value.interval.interval import Interval
+from solfege.value.interval.set.interval_list import IntervalList
 from solfege.value.note.chromatic_note import ChromaticNote
 from utils.util import assert_typing
 
@@ -18,12 +20,16 @@ class FrettedPositionMakerForInterval(FrettedPositionMakerWithLetter):
     def text(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument):
         chromatic_note = pos.get_chromatic()
         chromatic_interval = chromatic_note - self.tonic
-        interval_value_in_base_octave = chromatic_interval.in_base_octave().value
-        for interval_in_pattern in self.pattern.absolute_intervals():
+        value_of_interval_in_base_octave = chromatic_interval.in_base_octave().value
+        intervals = self.pattern.get_interval_lists()
+        full_interval = intervals[0]
+        assert_typing(full_interval, IntervalList)
+        for interval_in_pattern in full_interval.absolute_intervals():
+            assert_typing(interval_in_pattern, Interval)
             assert interval_in_pattern.is_in_base_octave(accepting_octave=False)
             chromatic_interval_in_pattern = interval_in_pattern.get_chromatic()
             assert chromatic_interval_in_pattern.is_in_base_octave(accepting_octave=False)
-            if chromatic_interval_in_pattern.value == interval_value_in_base_octave:
+            if chromatic_interval_in_pattern.value == value_of_interval_in_base_octave:
                 return interval_in_pattern.get_role().text_for_guitar_image()
         assert False
 #        return ["1", "2m", "2M", "3m", "3M", "4", "T", "5", "6m", "6M", "7m", "7M"][chromatic_interval.in_base_octave().value]

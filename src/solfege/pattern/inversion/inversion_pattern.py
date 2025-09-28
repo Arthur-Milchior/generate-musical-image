@@ -4,13 +4,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Dict, Generic, List, Tuple, Type, TypeVar
 from solfege.pattern.chord.chord_pattern import ChordPattern
-from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
+from solfege.pattern.pattern_with_interval_lists import PatternWithIntervalLists
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list import IntervalList
 from solfege.value.note.note import Note
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import ClassWithEasyness
-from utils.util import assert_typing
+from utils.util import assert_optional_typing, assert_typing
 
 class InversionPatternsGetter(ClassWithEasyness, ABC):
     """A protocol simply offeritng to access a IdenticalInversionPattern."""
@@ -20,7 +20,7 @@ class InversionPatternsGetter(ClassWithEasyness, ABC):
 InversionPatternsGetterType = TypeVar("IdenticalInversionPatternGetterType", bound=InversionPatternsGetter)
 
 @dataclass(frozen=True)
-class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern", Tuple[int, int]],
+class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern", Tuple[int, int]],
                        DataClassWithDefaultArgument):
     #pragma mark - Recordable
     _key_type: ClassVar[Type] = IntervalList
@@ -29,7 +29,6 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern",
 
     """Order is considering not inversion first. Then with fifth. Then base."""
     inversion: int
-    interval_list: IntervalList
     base: ChordPattern
     fifth_omitted: bool
 
@@ -47,11 +46,6 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern",
     def _new_record_keeper(cls):
         from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
         return IntervalListToInversionPattern.make()
-    
-    def get_interval_list(self) -> IntervalList:
-        iv = self.interval_list
-        assert_typing(iv, IntervalList, exact=True)
-        return iv
     
     def names(self):
         names = []
@@ -76,12 +70,28 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern",
     
     def __lt__(self, other: "InversionPattern"):
         return (self.inversion, not self.fifth_omitted, self.base) < (other.inversion, not other.fifth_omitted, other.base)
+    
+    def intervals_with_all_notes(self):
+        return self.base.interval_list_of_inversion(self.inversion)
+    
+    def intervals_without_fifth(self):
+        if self.base.optional_fifth is False:
+            return None
+        return self.base.interval_list_of_inversion(self.inversion, omit_fifth=True)
 
     @classmethod
     def _get_instantiation_type(cls) -> Type["Inversion"]:
         from solfege.pattern_instantiation.inversion.inversion_instantiation import InversionInstantiation
         return InversionInstantiation
     
+    #pragma mark - PatternWithIntervalLists
+    def get_interval_lists(self) -> List[IntervalList]:
+        iv = self.intervals_with_all_notes()
+        assert_typing(iv, IntervalList)
+        iv_without_5 = self.intervals_without_fifth()
+        assert_optional_typing(iv_without_5, IntervalList)
+        return [iv] if iv_without_5 is None else [iv, iv_without_5]
+
     #pragma mark - ClassWithEasyness
     def easy_key(self) -> Tuple[int, int]:
         return (self.inversion, self.base.easy_key())
@@ -90,12 +100,12 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern",
     # pragma mark - DataClassWithDefaultArgument
 
     def __post_init__(self):
-        number_of_notes = len(self.interval_list) + (1 if self.fifth_omitted else 0)
-        assert self.inversion < number_of_notes
-        absolute_intervals = self.interval_list.absolute_intervals()
-        assert absolute_intervals[0] == Interval.make(0, 0)
-        for interval in absolute_intervals:
-            assert interval.is_in_base_octave(accepting_octave=False)
+        assert self.inversion < len(self.base._full_interval_list)
+        for il in self.get_interval_lists():
+            absolute_intervals = il.absolute_intervals()
+            assert absolute_intervals[0] == Interval.make(0, 0)
+            for interval in absolute_intervals:
+                assert interval.is_in_base_octave(accepting_octave=False)
         super().__post_init__()
 
     @classmethod
@@ -107,11 +117,5 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern",
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         cls.arg_to_kwargs(args, kwargs, "inversion")
-        def clean_absolute_intervals(intervals):
-            if not isinstance(intervals, IntervalList):
-                return IntervalList.make_absolute(intervals)
-            return intervals
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "interval_list", clean_absolute_intervals)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "base")
-        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "fifth_omitted")
         return super()._clean_arguments_for_constructor(args, kwargs)

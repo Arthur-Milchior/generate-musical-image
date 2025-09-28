@@ -13,8 +13,9 @@ class ChromaticInversionInstantiation(AbstractInversionInstantiation[Note, Inter
     def _get_inversion(self):
         """The chord with a note with this chromatic."""
         from solfege.pattern_instantiation.inversion.inversion_instantiation import InversionInstantiation
-        interval_list_pattern = self.pattern.interval_list
+        interval_list_pattern = self.pattern.intervals_with_all_notes()
         lowest_note = interval_list_pattern.best_enharmonic_starting_note(self.lowest_note)
+        lowest_note = lowest_note.in_base_octave() # In base octave applied a second time because ChromaticNote(11) could lead to Note(11, 7) which is not in base octave anymore.
         return InversionInstantiation.make(self.pattern, lowest_note)
     
     def names(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):

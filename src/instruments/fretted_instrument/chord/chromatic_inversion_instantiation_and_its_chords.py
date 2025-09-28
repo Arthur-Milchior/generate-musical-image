@@ -44,9 +44,9 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
 
     def append(self, fretted_instrument_chord: ChordOnFrettedInstrument):
         assert_typing(fretted_instrument_chord, ChordOnFrettedInstrument)
-        expected_chromatic_intervals = self.get_inversion_pattern().get_interval_list().get_chromatic_interval_list()
+        expected_chromatic_intervals_lists = self.get_inversion_pattern().get_interval_lists()
         actual_chromatic_intervals = fretted_instrument_chord.intervals_frow_lowest_note_in_base_octave()
-        assert expected_chromatic_intervals == actual_chromatic_intervals, f"""{expected_chromatic_intervals}\n!=\n{actual_chromatic_intervals}"""
+        assert actual_chromatic_intervals in [expected_chromatic_intervals_list.get_chromatic_interval_list() for expected_chromatic_intervals_list in expected_chromatic_intervals_lists], f"""{actual_chromatic_intervals} not in {expected_chromatic_intervals_lists}"""
         assert fretted_instrument_chord not in self.fretted_instrument_chords
         self.fretted_instrument_chords.append(fretted_instrument_chord)
         self.fretted_instrument_chords.sort(key = lambda chord: chord.easy_key())
@@ -83,7 +83,7 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     def names(self):
         inversion = self.get_inversion_pattern()
         chromatic_lowest_note: ChromaticNote = self.key.lowest_note
-        lowest_note = inversion.get_interval_list().best_enharmonic_starting_note(chromatic_lowest_note)
+        lowest_note = inversion.intervals_with_all_notes().best_enharmonic_starting_note(chromatic_lowest_note)
         tonic = inversion.get_tonic(lowest_note)
         note_name = tonic.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
         lowest_note_name = chromatic_lowest_note.get_name_up_to_octave(alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO)
@@ -130,9 +130,10 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         lowest_note = chromatic_interval_list.best_enharmonic_starting_note(chromatic_lowest_note)
         tonic = chromatic_inversion_pattern.pattern.get_tonic(lowest_note)
         chromatic_tonic = tonic.get_chromatic().in_base_octave()
+        fpm = FrettedPositionMakerForInterval.make(tonic=chromatic_tonic, pattern=chromatic_inversion_pattern.pattern.base)
         return (
             img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=is_open)),
-            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=FrettedPositionMakerForInterval.make(tonic=chromatic_tonic, pattern=chromatic_inversion_pattern.base), absolute=is_open)),
+            img_tag(transposed_chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=fpm, absolute=is_open)),
             #self.lily_field(transposed_chord, self.key.get_identical_inversion_pattern().easiest_inversion().get_interval_list()),
         )
     

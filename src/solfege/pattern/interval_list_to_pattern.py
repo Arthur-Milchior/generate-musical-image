@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns, PatternType
-from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
+from solfege.pattern.pattern_with_interval_lists import PatternWithIntervalLists
 from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 from utils.recording.record_keeper import RecordKeeper
 from utils.recording.recorded_container import ChromaticRecordedContainerType, RecordedContainerType
@@ -69,4 +69,4 @@ class IntervalListToPattern(RecordKeeper[IntervalList, PatternType, SingletonCon
         super().__post_init__()
 
 
-PatternWithIntervalList._record_keeper_type = IntervalListToPattern
+PatternWithIntervalLists._record_keeper_type = IntervalListToPattern

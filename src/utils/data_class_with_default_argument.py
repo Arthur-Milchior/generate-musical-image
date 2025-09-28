@@ -68,7 +68,10 @@ class DataClassWithDefaultArgument:
     # Must be implemented by children classes.
 
     def __post_init__(self):
-        hash(self) #check that hash can be computed
+        try:
+            hash(self) #check that hash can be computed
+        except :
+            raise Exception(f"Can't hash {self}")
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs) ->Dict:

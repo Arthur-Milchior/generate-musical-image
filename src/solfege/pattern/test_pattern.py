@@ -52,11 +52,15 @@ class PatternDeux(SolfegePattern):
     """See SoflegePattern"""
     name_to_pattern: ClassVar[Dict[str, "PatternDeux"]] = dict()
     all_patterns: ClassVar[List['PatternDeux']] = list()
+    il: IntervalList
 
 
     @classmethod
     def _new_record_keeper(cls):
         return RecordKeeperForPatternDeux.make()
+    
+    def get_interval_list(self):
+        return self.il
 
     @classmethod
     def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:...
@@ -64,6 +68,7 @@ class PatternDeux(SolfegePattern):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "il", IntervalList.make)
         return super()._clean_arguments_for_constructor(args, kwargs)
 
 class RecordKeeperForPatternDeux(RecordKeeper[IntervalList, PatternDeux, SingletonContainer[PatternDeux]]):
@@ -88,8 +93,8 @@ PatternDeux._record_keeper_type = RecordKeeperForPatternDeux
 
 class TestSolfegePattern(unittest.TestCase):
 
-    instance_1 = PatternDeux.make_relative([], names=["1a", "1b"])
-    instance_2 = PatternDeux.make_relative([], names=["2a"])
+    instance_1 = PatternDeux.make(il=[(0,0)], names=["1a", "1b"])
+    instance_2 = PatternDeux.make(il=[(0, 0)], names=["2a"])
 
     def test_empty_set(self):
         self.assertEqual(PatternEmpty.get_all_instances(), [])

@@ -34,18 +34,12 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
 
     def is_open(self):
         return self.chord.is_open()
-
-    def transposed(self):
-        """The chord as it should be presented as svg, and the transposition compared to `chord`."""
-        if self.is_open():
-            return self.chord, ChromaticInterval.make(0)
-        return self.chord.transpose_to_fret_one()
     
-    def decomposition_lily_field(self, path:str):
+    def decomposition_lily_field(self):
         lowest_note = Note.from_chromatic(self.chord.get_most_grave_note().get_chromatic())
-        inversion_patterns = self.inversion.get_inversion_patterns()
-        inversion_pattern = inversion_patterns[0]
-        note_to_use: NoteList = inversion_pattern.interval_list.from_note(lowest_note)
+        inversion_pattern = self.inversion.pattern
+        full_intervals_of_inversions = inversion_pattern.intervals_with_all_notes()
+        note_to_use: NoteList = full_intervals_of_inversions.from_note(lowest_note)
 
         chromatic_note_list = self.chord.chromatic_notes()
         note_list = note_to_use.change_octave_to_be_enharmonic(chromatic_note_list)
@@ -61,23 +55,24 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     def fretted_position_maker(self, all_marked:bool):
         style = "fill: red;font: italic 12px serif;" if all_marked else None
         color = "red" if all_marked else None
+        tonic = self.tonic()
         return FrettedPositionMakerForInterval.make(
-            tonic=self.tonic().in_base_octave(),
-            pattern=self.inversion.pattern,
+            tonic=tonic.in_base_octave(),
+            pattern=self.inversion.pattern.base,
             style=style,
             circle_color=color
             )
     
     def tonic(self):
         lowest_note = self.chord.get_most_grave_note().get_chromatic()
-        return lowest_note - self.inversion.pattern.get_tonic_minus_lowest_note().get_chromatic()
+        delta = self.inversion.pattern.get_tonic_minus_lowest_note().get_chromatic()
+        return lowest_note - delta
     
     def single_role_field(self, folder_path: str, interval_values: List[int]):
-        transposed, transposition = self.transposed()
         intervals = [ChromaticInterval.make(iv) for iv in interval_values]
         notes = [self.tonic() + interval for interval in intervals]
         notes_in_base_octave = [note.in_base_octave() for note in notes]
-        restricted_chord = transposed.restrict_to_note_up_to_octave(notes_in_base_octave)
+        restricted_chord = self.chord.restrict_to_note_up_to_octave(notes_in_base_octave)
         if restricted_chord is None:
             return ""
         is_open = self.is_open()
@@ -85,7 +80,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         #interval_values = ChromaticIntervalListPattern.make_absolute(interval_values)
         fretted_position_maker = ConditionalFrettedPositionMaker(all_colors, interval_values, BlackOnly(), self.tonic())
         minimal_number_of_frets = self.last_shown_fret()
-        svg_file_name = transposed.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=fretted_position_maker, absolute=is_open, minimal_number_of_frets=minimal_number_of_frets)
+        svg_file_name = self.chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=fretted_position_maker, absolute=is_open, minimal_number_of_frets=minimal_number_of_frets)
         return img_tag(svg_file_name)
 
     def first_string(self):
@@ -122,14 +117,14 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
 
     #pragma mark - CsvGenerator
 
-    def csv_content(self, folder_path: str, lily_folder_path: str) -> Generator[str]:
-        transposed, transposition = self.transposed()
+    def csv_content(self, folder_path: str) -> Generator[str]:
         notation = self.inversion.notation()
 
         yield notation # notation
-        yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=self.is_open())) # Chord
-        yield img_tag(transposed.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=self.fretted_position_maker(all_marked=True), absolute=self.is_open())) # Colored chord
-        yield self.decomposition_lily_field(f"{lily_folder_path}") # partition
+        yield img_tag(self.chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=self.is_open())) # Chord
+        fpm = self.fretted_position_maker(all_marked=True)
+        yield img_tag(self.chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=fpm, absolute=self.is_open())) # Colored chord
+        yield self.decomposition_lily_field() # partition
         yield "x" if self.is_open else ""
         yield str(self.first_string())
         yield str(self.last_string())

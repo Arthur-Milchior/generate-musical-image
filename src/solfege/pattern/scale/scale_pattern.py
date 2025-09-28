@@ -18,7 +18,7 @@ from solfege.pattern.solfege_pattern import SolfegePattern
 
 
 @dataclass(frozen=True)
-class ScalePattern(SolfegePattern):
+class ScalePattern(SolfegePattern, IntervalList):
     """A pattern for one of the scale."""
 
 

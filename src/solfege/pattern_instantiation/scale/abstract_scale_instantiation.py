@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import ClassVar, Generic
 
 from solfege.list_order import ListOrder
-from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
+from solfege.pattern.pattern_with_interval_lists import PatternWithIntervalLists
 from solfege.pattern.scale.scale_pattern import ScalePattern
 from solfege.pattern_instantiation.pattern_instantiation import AbstractPatternInstantiation, IntervalFrozenListType, NoteFrozenListType
 from solfege.value.interval.abstract_interval import IntervalType
@@ -14,7 +14,7 @@ from solfege.value.note.set.abstract_note_list import AbstractNoteList
 
 @dataclass(frozen=True)
 class AbstractScale(AbstractPatternInstantiation[ScalePattern, NoteType, IntervalType, int],  Generic[NoteType, IntervalType]): 
-    pattern_type: ClassVar[PatternWithIntervalList] = ScalePattern
+    pattern_type: ClassVar[PatternWithIntervalLists] = ScalePattern
 
     def get_key(self) -> Key:
         return Key.from_note(self.lowest_note + self.pattern.interval_for_signature)

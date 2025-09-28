@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Callable, ClassVar, Generic, Type, TypeVar
 
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
-from solfege.pattern.pattern_with_interval_list import PatternType
+from solfege.pattern.pattern_with_interval_lists import PatternType
 from solfege.pattern_instantiation.abstract_chromatic_instantiation import AbstractChromaticInstantiation
 from solfege.pattern_instantiation.pattern_instantiation import AbstractPatternInstantiation, IntervalFrozenListType, NoteFrozenListType
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType

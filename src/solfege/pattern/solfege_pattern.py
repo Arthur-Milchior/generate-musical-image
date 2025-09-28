@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, List, Self, Type
 
-from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
+from solfege.pattern.pattern_with_interval_lists import PatternWithIntervalLists
 from solfege.pattern.pattern_with_name import PatternWithName
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list import IntervalList
@@ -12,7 +12,7 @@ from solfege.value.key.keys import nor_flat_nor_sharp
 
 
 @dataclass(frozen=True)
-class SolfegePattern(PatternWithName, PatternWithIntervalList, ClassWithEasyness[int], DataClassWithDefaultArgument):
+class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasyness[int], DataClassWithDefaultArgument):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 

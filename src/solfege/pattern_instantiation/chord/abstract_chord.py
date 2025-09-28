@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import ClassVar, Generic
 
 from solfege.pattern.chord.chord_pattern import ChordPattern
-from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
+from solfege.pattern.pattern_with_interval_lists import PatternWithIntervalLists
 from solfege.pattern_instantiation.pattern_instantiation import AbstractPatternInstantiation, IntervalFrozenListType, NoteFrozenListType
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.note.abstract_note import NoteType
@@ -11,4 +11,4 @@ from solfege.value.note.abstract_note import NoteType
 
 @dataclass(frozen=True)
 class AbstractChord(AbstractPatternInstantiation[ChordPattern, NoteType, IntervalType, int],  Generic[NoteType, IntervalType]): 
-    pattern_type: ClassVar[PatternWithIntervalList] = ChordPattern
+    pattern_type: ClassVar[PatternWithIntervalLists] = ChordPattern

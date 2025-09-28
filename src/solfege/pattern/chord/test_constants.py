@@ -7,16 +7,20 @@ from solfege.pattern.interval_list_to_pattern import PatternType
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list import IntervalList
 from solfege.pattern.chord.chord_patterns import dominant_seventh_chord
+from utils.util import assert_typing
 
 interval_to_inversion = IntervalListToInversionPattern.make()
 interval_to_chord = IntervalListToChordPattern.make()
 
 dominant_seventh_chord._associate_keys_to_self(record_keeper=interval_to_chord)
 
-def make_inversion(inversion: int, interval_list: IntervalList, base: ChordPattern, tonic_minus_lowest_note, fifth_omitted:bool = False):
+def make_inversion(inversion: int, base: ChordPattern, tonic_minus_lowest_note, fifth_omitted:bool = False):
+    assert_typing(inversion, int)
+    assert_typing(base, ChordPattern)
+    assert_typing(fifth_omitted, bool)
     tonic_minus_lowest_note = Interval.make_single_argument(tonic_minus_lowest_note)
     inversion_pattern = InversionPattern.make(inversion=inversion,
-                                              base=base, interval_list=interval_list,
+                                              base=base, 
                                               fifth_omitted=fifth_omitted,
                                               tonic_minus_lowest_note = tonic_minus_lowest_note,
                                               record=False)
@@ -25,45 +29,38 @@ def make_inversion(inversion: int, interval_list: IntervalList, base: ChordPatte
 
 dominant_seventh_chord_zeroth_inversion = make_inversion(
     0,
-    IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)]),
     dominant_seventh_chord,
     (0,0),
 )
 dominant_seventh_chord_first_inversion = make_inversion(
     1,
-    IntervalList.make_absolute([(3, 2), (6, 4), (8, 5)]),
     dominant_seventh_chord,
     (4, 2)
 )
 dominant_seventh_chord_second_inversion = make_inversion(
     2,
-    IntervalList.make_absolute([(3, 2), (5, 3), (9, 5)]),
     dominant_seventh_chord,
     (7, 4),
 )
 dominant_seventh_chord_third_inversion = make_inversion(
     3,
-    IntervalList.make_absolute([(2, 1), (6, 3), (9, 5)]),
     dominant_seventh_chord,
     (10, 6)
 )
 dominant_seventh_chord_no_fifth_zeroth_inversion = make_inversion(
     0,
-    IntervalList.make_absolute([(4, 2), (10, 6)]),
     dominant_seventh_chord,
     (0,0),
     fifth_omitted=True,
 )
 dominant_seventh_chord_no_fifth_first_inversion = make_inversion(
     1,
-    IntervalList.make_absolute([ (6, 4), (8, 5)]),
     dominant_seventh_chord,
     (4, 2),
     fifth_omitted=True,
 )
 dominant_seventh_chord_no_fifth_third_inversion = make_inversion(
     3,
-    IntervalList.make_absolute([(2, 1), (6, 3), ]),
     dominant_seventh_chord,
     (10, 6),
     fifth_omitted=True,

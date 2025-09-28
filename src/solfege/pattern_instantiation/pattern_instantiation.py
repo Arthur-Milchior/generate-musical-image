@@ -12,7 +12,7 @@ from solfege.value.note.set.note_list import NoteList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import KeyType
 from utils.frozenlist import FrozenList
-from solfege.pattern.pattern_with_interval_list import PatternType, PatternWithIntervalList
+from solfege.pattern.pattern_with_interval_lists import PatternType, PatternWithIntervalLists
 from utils.util import T, assert_typing
 
 
@@ -27,11 +27,11 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[Pa
     pattern: PatternType
     lowest_note: NoteType
 
-    pattern_type: ClassVar[PatternWithIntervalList]
+    pattern_type: ClassVar[PatternWithIntervalLists]
     note_type: ClassVar[AbstractNote]
     interval_type: ClassVar[AbstractInterval]
     interval_list_type: ClassVar[FrozenList[IntervalType]]
-    note_list_type: ClassVar[AbstractNoteList[NoteType, IntervalType, PatternWithIntervalList]]
+    note_list_type: ClassVar[AbstractNoteList[NoteType, IntervalType, PatternWithIntervalLists]]
 
     def __post_init__(self):
         assert_typing(self.lowest_note, self.note_type)
@@ -42,7 +42,7 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[Pa
     def get_absolute_intervals(self) -> FrozenList[IntervalType]:
         return self.get_intervals().absolute_intervals()
     
-    def get_notes(self) -> AbstractNoteList[NoteType, IntervalType, PatternWithIntervalList]:
+    def get_notes(self) -> AbstractNoteList[NoteType, IntervalType, PatternWithIntervalLists]:
         l =  []
         for interval in self.get_absolute_intervals():
             l.append(self.lowest_note + interval)

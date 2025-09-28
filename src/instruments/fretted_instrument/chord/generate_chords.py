@@ -31,9 +31,6 @@ from utils.util import assert_typing, ensure_folder, img_tag, save_file
 
 interval_to_inversion_patterns: IntervalListToInversionPattern = InversionPattern.get_record_keeper()
 assert_typing(interval_to_inversion_patterns, IntervalListToInversionPattern)
-
-lily_folder_path = f"{generate_root_folder}/lily"
-ensure_folder(lily_folder_path)
 @dataclass(frozen=True)
 class AnkiNotesPreparation(DataClassWithDefaultArgument):
     instrument: FrettedInstrument
@@ -48,8 +45,7 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
         return 1
 
     def max_fret(self):
-        return 2
-        return 6 if self.open_chord else 4
+        return 6
     
     def recorded_container_getter(self, pattern: InversionInstantiation, chromatic_note: ChromaticNote):
         assert_typing(chromatic_note, ChromaticNote)
@@ -126,7 +122,10 @@ def generate_instrument(instrument: FrettedInstrument):
     # decompositions
     decompositions: List[ChordDecompositionAnkiNote] = open_chord.decompositions
     decompositions.sort(key = lambda decomposition: decomposition.easy_key())
-    anki_note_container_csv = "\n".join(decomposition.csv(folder_path=folder_path, lily_folder_path=lily_folder_path) for decomposition in decompositions)
+    csv = []
+    for decomposition in decompositions:
+        csv.append(decomposition.csv(folder_path=folder_path))
+    anki_note_container_csv = "\n".join(csv)
     save_file(f"{folder_path}/decomposition.csv", anki_note_container_csv)
 
     #note containers

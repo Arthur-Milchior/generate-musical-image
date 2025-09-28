@@ -14,7 +14,7 @@ from utils.util import assert_iterable_typing, assert_typing
 
 
 @dataclass(frozen=True)
-class PatternWithIntervalList(IntervalList, Recordable[IntervalList, RecordKeeperType], ClassWithEasyness[KeyType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType, KeyType]):
+class PatternWithIntervalLists(Recordable[IntervalList, RecordKeeperType], ClassWithEasyness[KeyType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType, KeyType]):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
@@ -23,19 +23,20 @@ class PatternWithIntervalList(IntervalList, Recordable[IntervalList, RecordKeepe
     """Whether to record this pattern in the list of patterns."""
 
     #Must be implemented by subtype
-    
-    @abstractmethod
-    def get_interval_list(self) -> IntervalList:...
+
     @classmethod
     @abstractmethod
     def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:...
-    # public
 
-    def interval_lists(self) -> List[IntervalList]:
-        return [self.get_interval_list()]
+    def get_interval_lists(self) -> List[IntervalList]:
+        il = self.get_interval_list()
+        assert_typing(il, IntervalList)
+        return [il]
+
+    # public
     
     def chromatic_interval_lists(self) -> ChromaticIntervalListPattern:
-        return [interval.get_chromatic_interval_list() for interval in self.interval_lists()]
+        return [interval.get_chromatic_interval_list() for interval in self.get_interval_lists()]
 
     def get_chromatic_instantiation(self, lowest_chromatic_note: ChromaticNote) -> "AbstractChromaticInstantiation[Self]":
         return self._get_instantiation_type.related_chromatic_type(lowest_chromatic_note)
@@ -63,4 +64,4 @@ class PatternWithIntervalList(IntervalList, Recordable[IntervalList, RecordKeepe
             self._associate_keys_to_self()
     
 
-PatternType = TypeVar("PatternType", bound=PatternWithIntervalList)
+PatternType = TypeVar("PatternType", bound=PatternWithIntervalLists)
