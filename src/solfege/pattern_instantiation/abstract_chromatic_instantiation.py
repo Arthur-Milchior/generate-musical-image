@@ -5,7 +5,7 @@ from typing import ClassVar, Generic, TypeVar
 from solfege.pattern_instantiation.pattern_instantiation import AbstractPatternInstantiation, IntervalFrozenListType, NoteFrozenListType
 from solfege.value.interval.abstract_interval import AbstractInterval, IntervalType
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
-from solfege.value.interval.set.interval_list_pattern import AbstractIntervalListPattern, ChromaticIntervalListPattern
+from solfege.value.interval.set.interval_list import AbstractIntervalListPattern, ChromaticIntervalListPattern
 from solfege.value.note.abstract_note import AbstractNote, NoteType
 from solfege.value.note.chromatic_note import ChromaticNote, ChromaticNoteFrozenList
 from solfege.value.note.set.chromatic_note_list import ChromaticNoteList

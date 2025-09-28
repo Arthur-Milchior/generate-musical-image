@@ -4,7 +4,7 @@ from typing import Callable, ClassVar, Dict, List, Type
 
 from solfege.value.interval.abstract_interval import IntervalType
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.interval.set.interval_list import IntervalList
 from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.util import assert_all_same_class, assert_typing
@@ -53,7 +53,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
         assert self.optional_fifth
         index_of_fifth = self._index_of_fifth()
         absolute_without_fifth = self._absolute_intervals[:index_of_fifth] + self._absolute_intervals[index_of_fifth+1:]
-        return IntervalListPattern.make_absolute(absolute_without_fifth)
+        return IntervalList.make_absolute(absolute_without_fifth)
 
     def to_arpeggio_pattern(self):
         from solfege.pattern.scale.scale_pattern import ScalePattern
@@ -76,7 +76,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
             new_index_of_fifth = (self._index_of_fifth() - inversion_number) % len(absolute_intervals)
             assert new_index_of_fifth > 0 # don't remove the lowest note of the inversion
             absolute_intervals.pop(new_index_of_fifth)
-        inversion_interval_list = IntervalListPattern.make_absolute(absolute_intervals, increasing=self.increasing)
+        inversion_interval_list = IntervalList.make_absolute(absolute_intervals, increasing=self.increasing)
         return InversionPattern.make(inversion=inversion_number, interval_list=inversion_interval_list, base=self, fifth_omitted = omit_fifth, record=record, tonic_minus_lowest_note=new_lower)
     
     def compute_all_inversions(self, record=False):
@@ -90,7 +90,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     def __lt__(self, other: "ChordPattern"):
         return self.first_of_the_names() < other.first_of_the_names()
     
-    def interval_lists(self) -> List[IntervalListPattern]:
+    def interval_lists(self) -> List[IntervalList]:
         l = [self.get_interval_list()]
         if self.optional_fifth:
             l.append(self.intervals_without_fifth())

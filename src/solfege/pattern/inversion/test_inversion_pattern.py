@@ -26,20 +26,20 @@ class TestInversionPattern(unittest.TestCase):
         self.assertEqual(dominant_seventh_chord_zeroth_inversion, dominant_seventh_chord.inversions[0])
 
     def test_il_found(self):
-        il = IntervalListPattern.make_absolute([(4, 2), (7, 4), (10, 6)])
+        il = IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)])
         iv = make_inversion(0, il, dominant_seventh_chord, (0,0))
         actual = interval_to_inversion.get_recorded_container(il)
         self.assertEqual(IdenticalInversionPatterns(il, [iv]), actual)
 
     def test_il_no_fifth_found(self):
-        il = IntervalListPattern.make_absolute([(4, 2), (10, 6)])
+        il = IntervalList.make_absolute([(4, 2), (10, 6)])
         actual = interval_to_inversion.get_recorded_container(il)
         self.assertEqual(len(actual), 1)
         inversion = make_inversion(0, il, dominant_seventh_chord, (0, 0), fifth_omitted=True)
         self.assertEqual(IdenticalInversionPatterns(il, [inversion]), actual)
 
     def test_il_chromatic_found(self):
-        il = IntervalListPattern.make_absolute([(4, 2), (7, 4), (10, 6)])
+        il = IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)])
         il_chromatic = ChromaticIntervalListPattern.make_absolute([4, 7, 10])
         expected = ChromaticIdenticalInversionPatterns(il_chromatic)
         expected.append(make_inversion(0, il, dominant_seventh_chord, (0, 0)))
@@ -47,7 +47,7 @@ class TestInversionPattern(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_il_no_fifth_chromatic_found(self):
-        il = IntervalListPattern.make_absolute([(4, 2), (10, 6)])
+        il = IntervalList.make_absolute([(4, 2), (10, 6)])
         il_chromatic = ChromaticIntervalListPattern.make_absolute([4, 10])
         expected = ChromaticIdenticalInversionPatterns(il_chromatic)
         expected.append(make_inversion(0, il, dominant_seventh_chord, (0, 0), fifth_omitted=True))

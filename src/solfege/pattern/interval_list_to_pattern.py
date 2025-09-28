@@ -5,7 +5,7 @@ from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns, PatternType
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 from utils.recording.record_keeper import RecordKeeper
 from utils.recording.recorded_container import ChromaticRecordedContainerType, RecordedContainerType
 from utils.recording.singleton_container import SingletonContainer
@@ -13,7 +13,7 @@ from utils.util import assert_dict_typing, assert_optional_typing, assert_typing
 
 
 @dataclass(frozen=True)
-class IntervalListToPattern(RecordKeeper[IntervalListPattern, PatternType, SingletonContainer[PatternType]], ABC, Generic[PatternType]):
+class IntervalListToPattern(RecordKeeper[IntervalList, PatternType, SingletonContainer[PatternType]], ABC, Generic[PatternType]):
     """Associate a Interval list to a list of PatternType stored in RecordedContainerType.
 
     Registering in this record keeper also register to the associated record keeper with interval keys.
@@ -25,7 +25,7 @@ class IntervalListToPattern(RecordKeeper[IntervalListPattern, PatternType, Singl
 
     #Must be implemented by subclasses
     """Same as KeyType"""
-    _key_type: ClassVar[Type] = IntervalListPattern
+    _key_type: ClassVar[Type] = IntervalList
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type]
 
@@ -39,11 +39,11 @@ class IntervalListToPattern(RecordKeeper[IntervalListPattern, PatternType, Singl
     def get_easiest_pattern_from_chromatic_interval(self, chromatic_interval_list: ChromaticIntervalListPattern):
         return self.chromatic.get_pattern_from_chromatic_interval(chromatic_interval_list)
     
-    def register(self, key: IntervalListPattern, recorded: PatternType):
+    def register(self, key: IntervalList, recorded: PatternType):
         super().register(key, recorded)
         self.chromatic.register(key.get_chromatic_interval_list(), recorded)
 
-    def get_from_interval_list(self, key: IntervalListPattern) -> Optional[RecordedContainerType]:
+    def get_from_interval_list(self, key: IntervalList) -> Optional[RecordedContainerType]:
         container = self.get_recorded_container(key)
         assert_optional_typing(container, self._recorded_container_type)
         return container

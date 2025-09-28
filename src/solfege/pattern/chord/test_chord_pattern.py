@@ -11,11 +11,11 @@ from solfege.pattern.chord.test_constants import *
 
 class TestChordPattern(unittest.TestCase):
     def test_il_found(self):
-        il = IntervalListPattern.make_absolute([(4, 2), (7, 4), (10, 6)])
+        il = IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)])
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_recorded_container(il))
 
     def test_il_no_fifth_found(self):
-        il = IntervalListPattern.make_absolute([(4, 2), (10, 6)])
+        il = IntervalList.make_absolute([(4, 2), (10, 6)])
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_recorded_container(il))
 
     def test_il_chromatic_found(self):
@@ -23,7 +23,7 @@ class TestChordPattern(unittest.TestCase):
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_from_chromatic_interval_list(il_chromatic))
 
     def test_il_no_fifth_chromatic_found(self):
-        il = IntervalListPattern.make_absolute([(4, 2), (10, 6)])
+        il = IntervalList.make_absolute([(4, 2), (10, 6)])
         il_chromatic = ChromaticIntervalListPattern.make_absolute([4, 10])
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_from_chromatic_interval_list(il_chromatic))
 

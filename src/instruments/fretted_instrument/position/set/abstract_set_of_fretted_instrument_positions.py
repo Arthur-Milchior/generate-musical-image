@@ -11,7 +11,7 @@ from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.positions_consts import *
 from instruments.fretted_instrument.position.fretted_position_maker.fretted_position_maker import FrettedPositionMaker
 from solfege.value.interval.chromatic_interval import ChromaticInterval, ChromaticIntervalFrozenList
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
 from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
@@ -147,7 +147,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         assert_iterable_typing(chromatic_notes, ChromaticNote)
         return ChromaticNoteList.make(sorted_unique(chromatic_notes))
 
-    def intervals_frow_lowest_note(self) -> Optional[IntervalListPattern]:
+    def intervals_frow_lowest_note(self) -> Optional[IntervalList]:
         """Return None if there are no note played."""
         lowest_position = self.get_most_grave_note()
         lowest_note = lowest_position.get_chromatic()
@@ -226,9 +226,9 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         chromatic_notes = self.chromatic_notes()
         return note_list.change_octave_to_be_enharmonic(chromatic_notes)
         
-    def notes_from_interval_list(self, interval_list: IntervalListPattern, lowest_note: Optional[Note] = None):
+    def notes_from_interval_list(self, interval_list: IntervalList, lowest_note: Optional[Note] = None):
         """Returns the list of note played, where the diatonic is chosen in order to ensures that the note difference between each note and its lowest note belongs (up to octave) in interval_list, and lowest note is `lowest_note`."""
-        assert_typing(interval_list, IntervalListPattern)
+        assert_typing(interval_list, IntervalList)
         if lowest_note is None:
             lowest_note: Note = self.get_most_grave_note().get_chromatic().get_note()
         notes_to_imitate: NoteList = interval_list.from_note(lowest_note)

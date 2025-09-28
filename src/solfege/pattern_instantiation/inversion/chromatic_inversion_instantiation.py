@@ -4,7 +4,7 @@ from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern_instantiation.abstract_chromatic_instantiation import AbstractChromaticInstantiation
 from solfege.pattern_instantiation.inversion.abstract_inversion import AbstractInversionInstantiation
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.interval.set.interval_list import IntervalList
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput
 from solfege.value.note.note import Note
 

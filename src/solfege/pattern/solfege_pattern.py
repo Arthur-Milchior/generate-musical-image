@@ -4,7 +4,7 @@ from typing import ClassVar, Dict, List, Self, Type
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.pattern.pattern_with_name import PatternWithName
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.interval.set.interval_list import IntervalList
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import ClassWithEasyness
 from utils.util import assert_typing
@@ -39,7 +39,7 @@ class SolfegePattern(PatternWithName, PatternWithIntervalList, ClassWithEasyness
         return self._pattern_index
     
     #pragma mark - Recordable
-    _key_type: ClassVar[Type] = IntervalListPattern
+    _key_type: ClassVar[Type] = IntervalList
 
     #pragma mark - DataClassWithDefaultArgument
 

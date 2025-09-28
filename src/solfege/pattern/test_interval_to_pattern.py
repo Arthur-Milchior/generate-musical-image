@@ -2,18 +2,18 @@ from typing import Tuple
 import unittest
 
 from solfege.value.interval.interval import Interval, IntervalFrozenList
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListFrozenList
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalListFrozenList
 from utils.frozenlist import FrozenList
 
 from solfege.pattern.interval_list_to_pattern import *
 
-second_major = IntervalListPattern.make_relative([(2, 1)])
+second_major = IntervalList.make_relative([(2, 1)])
 tone = ChromaticIntervalListPattern.make_relative([2])
 
 @dataclass(frozen=True, eq = True)
 class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns", int]):
     #pragma mark - Recordable
-    _key_type: ClassVar[Type] = IntervalListPattern
+    _key_type: ClassVar[Type] = IntervalList
     #???
     _relative_intervals: IntervalListFrozenList
 
@@ -21,8 +21,8 @@ class FakePattern(PatternWithIntervalList["FakeIntervalListToFakePatterns", int]
     def _new_record_keeper(cls):
         return FakeIntervalListToFakePatterns.make()
 
-    def get_interval_list(self) -> IntervalListPattern:
-        return IntervalListPattern.make_relative(self._relative_intervals)
+    def get_interval_list(self) -> IntervalList:
+        return IntervalList.make_relative(self._relative_intervals)
 
     @classmethod
     def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:...    
@@ -51,7 +51,7 @@ class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[Fa
         return True
     
     @classmethod
-    def _new_container(self, key: IntervalListPattern) -> List[FakePattern]:
+    def _new_container(self, key: IntervalList) -> List[FakePattern]:
         return list()
 
 class FakeIntervalListToFakePatterns(IntervalListToPattern[FakePattern]):
@@ -67,7 +67,7 @@ class FakeIntervalListToFakePatterns(IntervalListToPattern[FakePattern]):
         return True
     
     @classmethod
-    def _new_container(self, key: IntervalListPattern) -> List[FakePattern]:
+    def _new_container(self, key: IntervalList) -> List[FakePattern]:
         return list()
     
     #pragma mark - IntervalListToPatterns

@@ -10,7 +10,7 @@ from utils.frozenlist import FrozenList
 from utils.util import assert_iterable_typing, assert_typing, sorted_unique
 
 @dataclass(frozen=True, unsafe_hash=True, repr=False)
-class IntervalListPattern(AbstractIntervalListPattern[Interval]):
+class IntervalList(AbstractIntervalListPattern[Interval]):
     interval_type: ClassVar[Type[Interval]] = Interval
     _frozen_list_type: ClassVar[Type] = IntervalFrozenList
 
@@ -29,8 +29,8 @@ class IntervalListPattern(AbstractIntervalListPattern[Interval]):
         assert_typing(chromatic_interval_list, ChromaticIntervalListPattern)
         return chromatic_interval_list
 
-    def get_interval_list(self) -> "IntervalListPattern":
-        return IntervalListPattern(self._absolute_intervals, self.increasing)
+    def get_interval_list(self) -> "IntervalList":
+        return IntervalList(self._absolute_intervals, self.increasing)
 
     def best_enharmonic_starting_note(self, chromatic_note: "ChromaticNote"):
         """The chord with a note with this chromatic."""
@@ -38,5 +38,5 @@ class IntervalListPattern(AbstractIntervalListPattern[Interval]):
         from solfege.value.note.note import Note
         return min(Note.all_from_chromatic(chromatic_note), key = lambda note: self.from_note(note).easy_key())
 
-class IntervalListFrozenList(FrozenList[IntervalListPattern]):
-    type = IntervalListPattern
+class IntervalListFrozenList(FrozenList[IntervalList]):
+    type = IntervalList

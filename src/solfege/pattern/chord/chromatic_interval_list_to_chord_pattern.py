@@ -3,7 +3,7 @@
 from typing import ClassVar, List, Type
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern
 
 
 class ChromaticIntervalListToChordPattern(ChromaticIntervalListToPatterns[ChordPattern]):

@@ -4,7 +4,7 @@ from typing import ClassVar, Dict, List, Type
 import unittest
 
 from solfege.pattern.solfege_pattern import SolfegePattern
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 from utils.frozenlist import FrozenList, StrFrozenList
 from utils.recording.record_keeper import RecordKeeper
 from utils.recording.singleton_container import SingletonContainer
@@ -29,20 +29,20 @@ class PatternEmpty(SolfegePattern):
         kwargs["record"] = False
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-class RecordKeeperForPatternEmpty(RecordKeeper[IntervalListPattern, PatternEmpty, SingletonContainer[PatternEmpty]]):
+class RecordKeeperForPatternEmpty(RecordKeeper[IntervalList, PatternEmpty, SingletonContainer[PatternEmpty]]):
     #pragma mark - RecordKeeper
 
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = PatternEmpty
     """Same as KeyType"""
-    _key_type: ClassVar[Type] = IntervalListPattern
+    _key_type: ClassVar[Type] = IntervalList
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = List
 
-    def is_key_valid(self, key: IntervalListPattern):
+    def is_key_valid(self, key: IntervalList):
         return True
     
-    def _new_container(self, key: IntervalListPattern) -> List[IntervalListPattern]:
+    def _new_container(self, key: IntervalList) -> List[IntervalList]:
         return list()
 
 PatternEmpty._record_keeper_type = RecordKeeperForPatternEmpty
@@ -66,22 +66,22 @@ class PatternDeux(SolfegePattern):
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-class RecordKeeperForPatternDeux(RecordKeeper[IntervalListPattern, PatternDeux, SingletonContainer[PatternDeux]]):
+class RecordKeeperForPatternDeux(RecordKeeper[IntervalList, PatternDeux, SingletonContainer[PatternDeux]]):
 
     #pragma mark - RecordKeeper
     
     """Same as RecordedType"""
     _recorded_type: ClassVar[Type] = PatternDeux
     """Same as KeyType"""
-    _key_type: ClassVar[Type] = IntervalListPattern
+    _key_type: ClassVar[Type] = IntervalList
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = List
 
 
-    def is_key_valid(self, key: IntervalListPattern):
+    def is_key_valid(self, key: IntervalList):
         return True
     
-    def _new_container(self, key: IntervalListPattern) -> List[IntervalListPattern]:
+    def _new_container(self, key: IntervalList) -> List[IntervalList]:
         return list()
 
 PatternDeux._record_keeper_type = RecordKeeperForPatternDeux

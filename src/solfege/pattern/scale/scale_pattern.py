@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import ClassVar, Dict, List, Optional, Type
 
-from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.interval.set.interval_list import IntervalList
 from solfege.value.note.abstract_note import NoteType
 from utils.util import assert_optional_typing
 
@@ -81,7 +81,7 @@ class ScalePattern(SolfegePattern):
 
     def multiple_octaves(self, nb_octave: int):
         assert nb_octave >= 0
-        return IntervalListPattern.make_relative(self.relative_intervals()*nb_octave)
+        return IntervalList.make_relative(self.relative_intervals()*nb_octave)
     
     @classmethod
     def _get_instantiation_type(cls) -> Type["Scale"]:

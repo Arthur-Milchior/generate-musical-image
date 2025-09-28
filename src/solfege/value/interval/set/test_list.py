@@ -3,7 +3,7 @@ import unittest
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.diatonic_interval import DiatonicInterval
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 from solfege.value.interval.test_chromatic_interval import TestChromaticInterval
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
@@ -11,10 +11,10 @@ from solfege.value.note.note import Note
 
 major_triad_absolut_list = [Interval.make(0, 0), Interval.make(4, 2), Interval.make(7, 4)] # pyright: ignore[reportUndefinedVariable]
 major_triad_relative_list = [Interval.make(4, 2), Interval.make(3, 2)]
-minor_triad_relative = IntervalListPattern.make_relative([(3, 2), (4, 2)])
-major_triad_relative = IntervalListPattern.make_relative(major_triad_relative_list)
-major_triad_absolute = IntervalListPattern.make_absolute(major_triad_absolut_list)
-major_triad_zero = IntervalListPattern.make_absolute([Interval.make(4, 2), Interval.make(7, 4)])
+minor_triad_relative = IntervalList.make_relative([(3, 2), (4, 2)])
+major_triad_relative = IntervalList.make_relative(major_triad_relative_list)
+major_triad_absolute = IntervalList.make_absolute(major_triad_absolut_list)
+major_triad_zero = IntervalList.make_absolute([Interval.make(4, 2), Interval.make(7, 4)])
 
 class TestIntervalList(unittest.TestCase):
     def test_eq(self):

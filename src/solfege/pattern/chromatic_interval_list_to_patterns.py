@@ -5,7 +5,7 @@ from re import Pattern
 from typing import ClassVar, Dict, Generic, List, Optional, Type, TypeVar
 
 from solfege.pattern.pattern_with_interval_list import PatternType
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern
 from utils.recording.record_keeper import RecordKeeper
 from utils.recording.recorded_container import ChromaticRecordedContainerType
 from utils.recording.singleton_container import SingletonContainer

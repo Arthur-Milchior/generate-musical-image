@@ -13,7 +13,7 @@ from instruments.fretted_instrument.position.set.set_of_fretted_instrument_posit
 import itertools
 
 from solfege.value.interval.chromatic_interval import ChromaticInterval
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern
 from utils.frozenlist import FrozenList
 from utils.util import assert_optional_typing, assert_typing, optional_max
 

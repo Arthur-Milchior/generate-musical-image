@@ -6,7 +6,7 @@ from typing import ClassVar, Dict, Generic, List, Tuple, Type, TypeVar
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_list import PatternWithIntervalList
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.interval.set.interval_list import IntervalList
 from solfege.value.note.note import Note
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import ClassWithEasyness
@@ -23,13 +23,13 @@ InversionPatternsGetterType = TypeVar("IdenticalInversionPatternGetterType", bou
 class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern", Tuple[int, int]],
                        DataClassWithDefaultArgument):
     #pragma mark - Recordable
-    _key_type: ClassVar[Type] = IntervalListPattern
+    _key_type: ClassVar[Type] = IntervalList
 
     # public
 
     """Order is considering not inversion first. Then with fifth. Then base."""
     inversion: int
-    interval_list: IntervalListPattern
+    interval_list: IntervalList
     base: ChordPattern
     fifth_omitted: bool
 
@@ -48,9 +48,9 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern",
         from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
         return IntervalListToInversionPattern.make()
     
-    def get_interval_list(self) -> IntervalListPattern:
+    def get_interval_list(self) -> IntervalList:
         iv = self.interval_list
-        assert_typing(iv, IntervalListPattern, exact=True)
+        assert_typing(iv, IntervalList, exact=True)
         return iv
     
     def names(self):
@@ -108,8 +108,8 @@ class InversionPattern(PatternWithIntervalList["IntervalListToInversionPattern",
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
         cls.arg_to_kwargs(args, kwargs, "inversion")
         def clean_absolute_intervals(intervals):
-            if not isinstance(intervals, IntervalListPattern):
-                return IntervalListPattern.make_absolute(intervals)
+            if not isinstance(intervals, IntervalList):
+                return IntervalList.make_absolute(intervals)
             return intervals
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "interval_list", clean_absolute_intervals)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "base")

@@ -4,7 +4,7 @@ from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.chord.chromatic_interval_list_to_chord_pattern import ChromaticIntervalListToChordPattern
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
 from solfege.pattern.interval_list_to_pattern import IntervalListToPattern
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 
 
 class IntervalListToChordPattern(IntervalListToPattern["ChordPattern"]):
@@ -14,7 +14,7 @@ class IntervalListToChordPattern(IntervalListToPattern["ChordPattern"]):
     _recorded_container_type: ClassVar[Type] = list
     _chromatic_recorded_container_type: ClassVar[Type] = list
 
-    def is_key_valid(self, key: IntervalListPattern):
+    def is_key_valid(self, key: IntervalList):
         return key.is_in_base_octave()
     
     @classmethod

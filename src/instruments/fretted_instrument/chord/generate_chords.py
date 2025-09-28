@@ -19,7 +19,7 @@ from solfege.pattern.inversion.interval_list_to_inversion_pattern import Interva
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern_instantiation.inversion.chromatic_inversion_instantiation import ChromaticInversionInstantiation
 from solfege.pattern_instantiation.inversion.inversion_instantiation import InversionInstantiation
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
 from utils.csv import CsvGenerator

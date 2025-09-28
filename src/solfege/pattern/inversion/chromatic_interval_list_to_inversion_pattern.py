@@ -1,7 +1,7 @@
 from typing import ClassVar, List, Type
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern
 from utils.recording.singleton_container import SameKeyBehavior, SingletonContainer
 from utils.util import assert_typing
 

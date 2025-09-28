@@ -6,7 +6,7 @@ from solfege.pattern_instantiation.abstract_pair_instantiation import AbstractPa
 from solfege.pattern_instantiation.scale.abstract_scale_instantiation import AbstractScale
 from solfege.pattern_instantiation.scale.chromatic_scale import ChromaticScale
 from solfege.value.interval.interval import Interval
-from solfege.value.interval.set.interval_list_pattern import IntervalListPattern
+from solfege.value.interval.set.interval_list import IntervalList
 from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note, NoteFrozenList
 

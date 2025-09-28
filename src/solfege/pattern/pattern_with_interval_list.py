@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import sys
 from typing import ClassVar, Dict, Generic, List, Optional, Self, Type, TypeVar, Union
 
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
@@ -14,7 +14,7 @@ from utils.util import assert_iterable_typing, assert_typing
 
 
 @dataclass(frozen=True)
-class PatternWithIntervalList(IntervalListPattern, Recordable[IntervalListPattern, RecordKeeperType], ClassWithEasyness[KeyType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType, KeyType]):
+class PatternWithIntervalList(IntervalList, Recordable[IntervalList, RecordKeeperType], ClassWithEasyness[KeyType], DataClassWithDefaultArgument, ABC, Generic[RecordKeeperType, KeyType]):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
@@ -25,13 +25,13 @@ class PatternWithIntervalList(IntervalListPattern, Recordable[IntervalListPatter
     #Must be implemented by subtype
     
     @abstractmethod
-    def get_interval_list(self) -> IntervalListPattern:...
+    def get_interval_list(self) -> IntervalList:...
     @classmethod
     @abstractmethod
     def _get_instantiation_type(cls) -> Type["AbstractPairInsantiation[Self]"]:...
     # public
 
-    def interval_lists(self) -> List[IntervalListPattern]:
+    def interval_lists(self) -> List[IntervalList]:
         return [self.get_interval_list()]
     
     def chromatic_interval_lists(self) -> ChromaticIntervalListPattern:

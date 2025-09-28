@@ -4,7 +4,7 @@ from solfege.pattern.scale.chromatic_interval_list_to_scale_pattern import Chrom
 from solfege.pattern.scale.scale_pattern import ScalePattern
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
 from solfege.pattern.interval_list_to_pattern import IntervalListToPattern
-from solfege.value.interval.set.interval_list_pattern import ChromaticIntervalListPattern, IntervalListPattern
+from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 from utils.recording.singleton_container import SameKeyBehavior, SingletonContainer
 
 class IntervalListToScalePattern(IntervalListToPattern[ScalePattern]):
@@ -15,7 +15,7 @@ class IntervalListToScalePattern(IntervalListToPattern[ScalePattern]):
         return key.is_in_base_octave(accepting_octave=True)
     
     @classmethod
-    def _new_container(self, key: IntervalListPattern) -> SingletonContainer[ScalePattern]:
+    def _new_container(self, key: IntervalList) -> SingletonContainer[ScalePattern]:
         return SingletonContainer[ScalePattern](same_key_behavior=SameKeyBehavior.IMPOSSIBLE)
 
     #pragma mark - IntervalListToPatterns    

@@ -66,15 +66,15 @@ class TestScalePattern(unittest.TestCase):
     def test_multiple_octave(self):
         from solfege.pattern.scale.scale_patterns import major_scale
         self.assertEqual(
-            IntervalListPattern.make_relative([]), 
+            IntervalList.make_relative([]), 
             major_scale.multiple_octaves(0))
         
         self.assertEqual(
-            IntervalListPattern.make_relative([2, 2, 1, 2, 2, 2, 1,]), 
+            IntervalList.make_relative([2, 2, 1, 2, 2, 2, 1,]), 
             major_scale.multiple_octaves(1))
         
         self.assertEqual(
-            IntervalListPattern.make_relative([2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, ]), 
+            IntervalList.make_relative([2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, ]), 
             major_scale.multiple_octaves(2))
         
     def test_keep_role(self):
