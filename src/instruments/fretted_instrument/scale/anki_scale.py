@@ -16,11 +16,19 @@ from utils.util import assert_dict_typing, assert_iterable_typing, assert_typing
 
 @dataclass(frozen=True)
 class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
+    """Represents a particular set of position in order to play `pattern` on `instrument` starting on `start_string` with any of the `fingers`"""
+
+
     instrument: FrettedInstrument
+    """On which string this scale start"""
     start_string: String
+    """The number of octaves to play."""
     number_of_octaves: int
-    fingers: FingersType
+    """The set of fingers on which this scale can start"""
+    first_fingers: FingersType
+    """The scale that is played by self."""
     pattern: ScalePattern
+    """The list of way to play `pattern` on `instrument`."""
     scales: SetOfFrettedInstrumentPositionsWithFingersFrozenList
 
     def __len__(self):
@@ -34,7 +42,7 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
         instrument = kwargs["instrument"]
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "start_string")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_octaves")
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "fingers", frozenset)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "first_fingers", frozenset)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "pattern")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "scales", SetOfFrettedInstrumentPositionsWithFingersFrozenList)
         return super()._clean_arguments_for_constructor(args, kwargs)
@@ -43,7 +51,7 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
         assert_typing(self.scales, SetOfFrettedInstrumentPositionsWithFingersFrozenList)
         assert_iterable_typing(self.scales, SetOfFrettedInstrumentPositionsWithFingers)
         assert_typing(self.instrument, FrettedInstrument)
-        assert_typing(self.fingers, frozenset)
+        assert_typing(self.first_fingers, frozenset)
         # if we go to a higher fret we can't use 4, 
         # If we go to a lower fret we can't use 1.
         # However, if we start with two notes on the same fret, we can use either 4 or 1. 
@@ -52,26 +60,29 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
         # scale with fourth followed by 1 on the same fret. If so, the code will need to be changed to forbid this.
 
         # Actually, the problem already exists with the major arpeggio.
-        #assert 1 not in self.fingers or 4 not in self.fingers
-        assert_iterable_typing(self.fingers, int)
+        #assert 1 not in self.first_fingers or 4 not in self.first_fingers
+        assert_iterable_typing(self.first_fingers, int)
         assert_typing(self.start_string, String)
         assert_typing(self.number_of_octaves, int)
         assert_typing(self.number_of_octaves, int)
         assert 1 <= self.number_of_octaves <= 2
 
 @dataclass(frozen=True)
-class AnkiScaleWithString(DataClassWithDefaultArgument):
+class AnkiScalesWithSameFirstString(DataClassWithDefaultArgument):
+    """Represents a set of scales all starting on the same string"""
     instrument: FrettedInstrument
     start_string: String
     number_of_octaves: int
     pattern: ScalePattern
+    """Associate to each set of finger Fingers the way to play the scale `pattern` starting with any of the finger of Fingers."""
     fingers_to_scales: FrozenDict[FingersType, AnkiScaleWithFingersAndString] = field(hash=False)
 
     def __len__(self):
         return sum (len(scales) for scales in self.fingers_to_scales.values())
     
     def all_scales(self) -> List[Tuple[FingersType, SetOfFrettedInstrumentPositionsWithFingers]]:
-        l = [(aswfas.fingers, scale) for aswfas in self.fingers_to_scales.values() for scale in aswfas.scales]
+        """Returns the way to play """
+        l = [(aswfas.first_fingers, scale) for aswfas in self.fingers_to_scales.values() for scale in aswfas.scales]
         l.sort(key = lambda fingers_scale: fingers_scale[1].number_of_frets(allow_open=False))
         return l
     
@@ -148,7 +159,7 @@ class AnkiScaleWithString(DataClassWithDefaultArgument):
             #     assert new_finger not in all_fingers
             assert scales.start_string == self.start_string
             assert scales.number_of_octaves == self.number_of_octaves
-            assert new_fingers == scales.fingers
+            assert new_fingers == scales.first_fingers
             assert self.pattern == scales.pattern
             all_fingers = all_fingers | new_fingers
         super().__post_init__()
@@ -173,16 +184,20 @@ def _generate_scale(instrument: FrettedInstrument,
             restricted_starting_note = starting_note_fingered.restrict_to_compatible_fingering(instrument, notes_for_remaining_intervals[0])
             yield [restricted_starting_note, *notes_for_remaining_intervals]
 
-def generate_scale(instrument: FrettedInstrument, 
-                start_pos: PositionOnFrettedInstrument,
-                scale_pattern: ScalePattern,
-            number_of_octaves: int,
-            filter: Callable[[SetOfFrettedInstrumentPositionsWithFingers], bool] = lambda x: True,
+def generate_scale(
+        instrument: FrettedInstrument, 
+        start_pos: PositionOnFrettedInstrument,
+        scale_pattern: ScalePattern,
+        number_of_octaves: int,
+        filter: Callable[[SetOfFrettedInstrumentPositionsWithFingers], bool] = lambda x: True,
         pattern_to_avoid_list: List[SetOfFrettedInstrumentPositionsWithFingers] = [],
-        string_delta: Optional[Union[StringDelta]] = None, ) -> AnkiScaleWithString:
+        string_delta: Optional[Union[StringDelta]] = None, 
+    ) -> AnkiScalesWithSameFirstString:
     """
-    patter_to_avoid - don't return any position that is a subset of this one.
-    filter: keep only the value for which the answer is true."""
+    Returns the set of ways to play `self.pattern` on `number_of_octaves`, starting at `start_pos` on `instrument`. 
+    Only keep what satisfies the filter. 
+    pattern_to_avoid - don't return any position that is a subset of this one.
+    ."""
     assert_iterable_typing(pattern_to_avoid_list, SetOfFrettedInstrumentPositionsWithFingers)
     fingers_to_scales: Dict[FingersType, List[SetOfFrettedInstrumentPositionsWithFingers]] = dict()
     starting_note = PositionOnFrettedInstrumentWithFingers.from_fretted_instrument_position(start_pos)
@@ -211,5 +226,12 @@ def generate_scale(instrument: FrettedInstrument,
     finger_to_anki_scale_with_fingers_and_strings: Dict[FingersType, AnkiScaleWithFingersAndString] = dict()
     for fingers, scales in fingers_to_scales.items():
         scales.sort()
-        finger_to_anki_scale_with_fingers_and_strings[fingers] = AnkiScaleWithFingersAndString.make(instrument=instrument, start_string = starting_note.string, number_of_octaves=number_of_octaves, fingers=fingers, pattern=scale_pattern, scales=scales)
-    return AnkiScaleWithString.make(instrument=instrument, start_string =starting_note.string, number_of_octaves = number_of_octaves, pattern=scale_pattern, fingers_to_scales=finger_to_anki_scale_with_fingers_and_strings)
+        finger_to_anki_scale_with_fingers_and_strings[fingers] = AnkiScaleWithFingersAndString.make(
+            instrument=instrument, 
+            start_string = starting_note.string, 
+            number_of_octaves=number_of_octaves, 
+            first_fingers=fingers,
+            pattern=scale_pattern, 
+            scales=scales
+            )
+    return AnkiScalesWithSameFirstString.make(instrument=instrument, start_string =starting_note.string, number_of_octaves = number_of_octaves, pattern=scale_pattern, fingers_to_scales=finger_to_anki_scale_with_fingers_and_strings)

@@ -1,3 +1,18 @@
+"""Unit tests for guitar scale generation.
+
+This module verifies the low-level scale generation logic for the Guitar fretted
+instrument. It exercises both the recursive `_generate_scale` generator and the
+higher-level `generate_scale` function that groups generated scales by finger
+patterns for Anki-style presentation.
+
+Tests cover:
+- single-octave major scale generation from a specific start position
+- full-finger major scale enumeration
+- two-octave major scale generation
+- grouping of scales into `AnkiScaleWithString`
+- SVG rendering for a sample scale
+"""
+
 import itertools
 import unittest
 
@@ -14,11 +29,15 @@ from solfege.pattern.scale.scale_patterns import major_scale, blues
 from .anki_scale import _generate_scale
 
 def position_make(string: int, fret:int, fingers:Set[int]):
+    """Create a fingered guitar position for the test fixtures."""
     string = Guitar.string(string)
     fret = Fret.make(fret, True)
     return PositionOnFrettedInstrumentWithFingers.make(string = string, fret=fret, fingers=fingers)
 
-major_1_1 = ([
+# Expected major-scale fingering shapes used by the tests.
+
+# Standard way to play the major scale on first string from index. Uses 4 frets.
+major_1rst_string_standard_from_index = ([
     position_make(string=1, fret=12, fingers={1}),
     position_make(string=1, fret=14, fingers={4}),
     position_make(string=2, fret=11, fingers={1}),
@@ -27,7 +46,9 @@ major_1_1 = ([
     position_make(string=3, fret=11, fingers={1}),
     position_make(string=3, fret=13, fingers={3}),
     position_make(string=3, fret=14, fingers={4})])
-major_2_1 = ([
+
+#Another way to play it, ending on string four, using 7 frets!
+major_1rst_string_from_index_too_big = ([
     position_make(string=1, fret=12, fingers={1}), 
     position_make(string=1, fret=14, fingers={4}), 
     position_make(string=2, fret=11, fingers={1}), 
@@ -37,7 +58,8 @@ major_2_1 = ([
     position_make(string=4, fret=8, fingers={1}), 
     position_make(string=4, fret=9, fingers={2, 3, 4}) ])
 
-major_1_2 = ([
+# Same as major_1rst_scale_standard_from_index but starting on any finger except four
+major_1rst_string_standard_from_123 = ([
     position_make(string=1, fret=12, fingers={1, 2, 3}),
     position_make(string=1, fret=14, fingers={4}),
     position_make(string=2, fret=11, fingers={1}),
@@ -47,23 +69,25 @@ major_1_2 = ([
     position_make(string=3, fret=13, fingers={3}),
     position_make(string=3, fret=14, fingers={4})])
 
-major_2_2 = ([position_make(1, 12, {1, 2, 3}),
-                        position_make(1, 14, {4}),
-                        position_make(2, 11, {1}),
-                        position_make(2, 12, {4}),
-                        position_make(3, 9, {1}),
-                        position_make(3, 11, {4}),
-                        position_make(4, 8, {1}),
-                        position_make(4, 9, {2, 3, 4})])
+major_1rst_string_from_123_too_big = ([
+    position_make(1, 12, {1, 2, 3}),
+    position_make(1, 14, {4}),
+    position_make(2, 11, {1}),
+    position_make(2, 12, {4}),
+    position_make(3, 9, {1}),
+    position_make(3, 11, {4}),
+    position_make(4, 8, {1}),
+    position_make(4, 9, {2, 3, 4})])
 
-major_3_2 = ([position_make(1, 12, {4}),
-                        position_make(2, 9, {1}),
-                        position_make(2, 11, {3}),
-                        position_make(2, 12, {4}),
-                        position_make(3, 9, {1}),
-                        position_make(3, 11, {4}), 
-                        position_make(4, 8, {1}),
-                        position_make(4, 9, {2, 3, 4})])
+major_1rst_string_from_ring = ([
+    position_make(1, 12, {4}),
+    position_make(2, 9, {1}),
+    position_make(2, 11, {3}),
+    position_make(2, 12, {4}),
+    position_make(3, 9, {1}),
+    position_make(3, 11, {4}), 
+    position_make(4, 8, {1}),
+    position_make(4, 9, {2, 3, 4})])
 
 major_2_octave_1 = ([position_make(1, 12, {1, 2, 3}), position_make(1, 14, {4}), position_make(2, 11, {1}), position_make(2, 12, {2, 3}), position_make(2, 14, {4}), position_make(3, 11, {1}), position_make(3, 13, {3}), position_make(3, 14, {4}), position_make(4, 11, {1}), position_make(4, 13, {3}), position_make(4, 14, {4}), position_make(5, 12, {1, 2, 3}), position_make(5, 14, {4}), position_make(6, 11, {1}), position_make(6, 12, {2, 3, 4})])
 major_2_octave_2 = ([position_make(1, 12, {1, 2, 3}), position_make(1, 14, {4}), position_make(2, 11, {1}), position_make(2, 12, {2, 3}), position_make(2, 14, {4}), position_make(3, 11, {1}), position_make(3, 13, {3}), position_make(3, 14, {4}), position_make(4, 11, {1}), position_make(4, 13, {4}), position_make(5, 10, {1}), position_make(5, 12, {3}), position_make(5, 14, {4}), position_make(6, 11, {1}), position_make(6, 12, {2, 3, 4})])
@@ -100,11 +124,11 @@ class TestGenerateScale(unittest.TestCase):
     def assertEqualAnkiScaleWithFingersAndString(self, expected:AnkiScaleWithFingersAndString, actual: AnkiScaleWithFingersAndString):
         self.assertEqual(expected.start_string, actual.start_string)
         self.assertEqual(expected.number_of_octaves, actual.number_of_octaves)
-        self.assertEqual(expected.fingers, actual.fingers)
+        self.assertEqual(expected.first_fingers, actual.first_fingers)
         self.assertEqual(expected.pattern, actual.pattern)
         self.assert_equal_list_of_scales(expected.scales, actual.scales)
 
-    def assertEqualAnkiScaleWithString(self, expected:AnkiScaleWithString, actual: AnkiScaleWithString):
+    def assertEqualAnkiScaleWithString(self, expected:AnkiScalesWithSameFirstString, actual: AnkiScalesWithSameFirstString):
         self.assertEqual(expected.start_string, actual.start_string)
         self.assertEqual(expected.number_of_octaves, actual.number_of_octaves)
         self.assertEqual(expected.pattern, actual.pattern)
@@ -126,22 +150,25 @@ class TestGenerateScale(unittest.TestCase):
             self.assertEqual(expected[i], actual[i], f"\n\n{i}-th anki note differs:\n{expected[i]}\n{actual[i]}")
 
     def test_major_1(self):
-        
-        expected = [major_1_1, major_2_1]
-        actual = list(_generate_scale(Guitar,
-            position_make(string=1, fret=12, fingers=1),
-            chromatic_relative_intervals))
-        self.assertEqual(expected, actual)
+        """Verify `_generate_scale` returns the two expected major-scale paths for a one-octave scale starting on string 1."""
+        # The scale (1, 12), (1, 14), (1, 16), (2, 12), (2, 14), (3,11), (3, 13), (3, 14) is not generated because it requires to have 2 frets difference between two fingers that are closed together on first string.
+        expected = [major_1rst_string_standard_from_index, major_1rst_string_from_index_too_big]
+        actual = _generate_scale(Guitar,
+                position_make(string=1, fret=12, fingers=1),
+                chromatic_relative_intervals)
+        self.assertEqual(expected, list(actual))
         
     def test_major_all_fingers(self):
-        self.assertEqual(
-            [major_1_2, major_2_2, major_3_2],
-            list(_generate_scale(Guitar,
-                position_make(string=1, fret=12, fingers=[1, 2, 3, 4]),
-                chromatic_relative_intervals)),
-        )
+        """Verify that when all fingers are allowed, `_generate_scale` finds all valid one-octave major-scale shapes starting from the same note."""
+        expected = [major_1rst_string_standard_from_123, major_1rst_string_from_123_too_big, major_1rst_string_from_ring]
+        actual = _generate_scale(
+            Guitar,
+            position_make(string=1, fret=12, fingers=[1, 2, 3, 4]),
+            chromatic_relative_intervals)
+        self.assertEqual(expected, list(actual))
         
     def test_2_major_all_fingers(self):
+        """Verify that two-octave major-scale generation enumerates the expected fingering variants from a single start position."""
         self.assert_equal_list_of_scales(
             [major_2_octave_1, major_2_octave_2,
               major_2_octave_3, major_2_octave_4, major_2_octave_5, 
@@ -153,11 +180,22 @@ class TestGenerateScale(unittest.TestCase):
         
         
     def test_anki_notes(self):
-        one_two_three = anki_scale_make(start_string=strings[0], number_of_octaves=2, fingers = frozenset({1, 2, 3}), scales=[
+        """Verify `generate_scale` correctly groups generated major-scale variants by starting finger set into an Anki-style scale object."""
+        one_two_three = anki_scale_make(
+            start_string=strings[0], 
+            number_of_octaves=2,
+            fingers = frozenset({1, 2, 3}),
+            scales=[
                 set_of_pos_make(major_2_octave_1), set_of_pos_make(major_2_octave_2), set_of_pos_make(major_2_octave_3), set_of_pos_make(major_2_octave_4)
-            ], pattern=major_scale)
-        four =  anki_scale_make(start_string=strings[0], number_of_octaves=2, fingers = frozenset({4}), pattern=major_scale, scales=[set_of_pos_make(major_2_octave_5)])
-        expected_scale_with_string = AnkiScaleWithString.make(instrument=Guitar, start_string=strings[0], number_of_octaves=2, pattern=major_scale, fingers_to_scales={ 
+            ],
+            pattern=major_scale)
+        four =  anki_scale_make(
+            start_string=strings[0], 
+            number_of_octaves=2, 
+            fingers = frozenset({4}),
+            pattern=major_scale,
+            scales=[set_of_pos_make(major_2_octave_5)])
+        expected_scale_with_string = AnkiScalesWithSameFirstString.make(instrument=Guitar, start_string=strings[0], number_of_octaves=2, pattern=major_scale, fingers_to_scales={ 
                 frozenset({1, 2, 3}): one_two_three,
                 frozenset({4}):four,
             })
@@ -171,6 +209,7 @@ class TestGenerateScale(unittest.TestCase):
 
     
     def test_show_scale(self):
+        """Verify that a generated blues scale can be saved as an SVG diagram without raising errors."""
         first_position = PositionOnFrettedInstrument.make(Guitar.string(2), Fret(3, absolute=False))
         tonic = first_position.get_chromatic()
         maker = FrettedPositionMakerForInterval.make(tonic=tonic, pattern=blues)
@@ -187,7 +226,7 @@ class TestGenerateScale(unittest.TestCase):
         )
         scale = SetOfPositionOnFrettedInstrument.make(position_list, absolute=False)
         file_name = scale.save_svg(folder_path, instrument=Guitar, fretted_position_maker=maker)
-        display_svg_file(f"{folder_path}/{file_name}" )
+        # display_svg_file(f"{folder_path}/{file_name}" )
         # uncomment to see what the image looks like
         
     # def test_pentatonic_major_finger_2(self):

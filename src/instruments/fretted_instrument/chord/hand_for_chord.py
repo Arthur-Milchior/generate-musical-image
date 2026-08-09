@@ -99,7 +99,7 @@ class HandForChordForFrettedInstrument:
                 if higher_fret is None or lower_fret is None:
                     continue
                 delta = higher_fret.sub(self.instrument, lower_fret) # expected to be non negative. (Exception if lower finger is the thumb)
-                fret_delta: FretDelta = self.instrument.finger_to_fret_delta()[lower_finger][higher_finger]
+                fret_delta: FretDelta = self.instrument.finger_to_fret_delta(lower_finger, higher_finger)
                 if not fret_delta.contains_delta(delta.value):
                     return Playable.NO
         return Playable.EASY

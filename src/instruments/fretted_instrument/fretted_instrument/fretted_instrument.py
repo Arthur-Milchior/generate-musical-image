@@ -79,8 +79,9 @@ class FrettedInstrument(DataClassWithDefaultArgument):
             for delta in dic.values()
         )
     
-    def finger_to_fret_delta(self):
-        return self._instrument.finger_to_fret_delta
+    def finger_to_fret_delta(self, lower_finger, higher_finger):
+        """The number of fret that we can have between both fingers"""
+        return self._instrument.finger_to_fret_delta[lower_finger][higher_finger]
 
     # pragma mark - DataClassWithDefaultArgument
 

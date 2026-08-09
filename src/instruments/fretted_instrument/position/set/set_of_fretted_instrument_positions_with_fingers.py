@@ -29,10 +29,12 @@ class ScaleColors(ColorsWithTonic):
         
 @dataclass(frozen=True, eq=False)
 class SetOfFrettedInstrumentPositionsWithFingers(AbstractSetOfFrettedPositions[PositionOnFrettedInstrumentWithFingers]):
+    """A set of position on the instrument, each position with a finger."""
     type: ClassVar[Type[PositionOnFrettedInstrument]] = PositionOnFrettedInstrumentWithFingers
     _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]] = FrettedInstrumentPositionWithFingersFrozenList
 
     
 
 class SetOfFrettedInstrumentPositionsWithFingersFrozenList(FrozenList[SetOfFrettedInstrumentPositionsWithFingers]):
+    """A list containing sets of fingered-positions on the instrument."""
     type = SetOfFrettedInstrumentPositionsWithFingers

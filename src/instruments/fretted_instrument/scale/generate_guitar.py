@@ -58,7 +58,13 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
         two_octaves_scales = generate_scale(Guitar, self.string_1_pos, self.scale_pattern, number_of_octaves=2).best_for_each_finger()
         avoid = {two_octave_scale for two_octave_scale in two_octaves_scales if two_octave_scale is not None}
 
-        first_string_scales = generate_scale(Guitar, self.string_1_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
+        first_string_scales = generate_scale(
+            Guitar, 
+            self.string_1_pos,
+            self.scale_pattern, 
+            number_of_octaves=1,
+            #pattern_to_avoid_list=avoid # uncomment if you want to avoid having one scale being a subset of two scales
+            ).best_for_each_finger()
 
         def keep_scale_with_fifth_string(scale: SetOfFrettedInstrumentPositionsWithFingers):
             return 5 in [pos.string.value for pos in scale]
@@ -73,9 +79,21 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
             # I doubt this lead to interesting to play scale, but let's generate it just to see. Many will probably end up being deleted.
                 #continue
 
-        third_string_scales = generate_scale(Guitar, self.string_3_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
+        third_string_scales = generate_scale(
+            Guitar, 
+            self.string_3_pos, 
+            self.scale_pattern, 
+            number_of_octaves=1,
+            #pattern_to_avoid_list=avoid
+            ).best_for_each_finger()
 
-        fourth_string_scales = generate_scale(Guitar, self.string_4_pos, self.scale_pattern, number_of_octaves=1,pattern_to_avoid_list=avoid).best_for_each_finger()
+        fourth_string_scales = generate_scale(
+            Guitar, 
+            self.string_4_pos, 
+            self.scale_pattern, 
+            number_of_octaves=1,
+            #pattern_to_avoid_list=avoid
+            ).best_for_each_finger()
         # assert fourth_string_scale_fourth_finger is None
         # Pentatonic major starting on fourth fret four finger would work. Not the most natural finger selection. But the assertion would be false
 
