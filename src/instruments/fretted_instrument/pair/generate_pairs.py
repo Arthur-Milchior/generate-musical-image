@@ -19,20 +19,25 @@ def anki_note_(instrument: FrettedInstrument, low_string: String, high_string: S
 
 def generate_instrument(instrument: FrettedInstrument, folder_path:str):
     anki_notes = []
+    for low_string_number in range(instrument.number_of_strings()):
+        low_string = instrument.string(low_string_number+1)
+        for high_string_number in range(low_string_number+1, instrument.number_of_strings()):
+            high_string = instrument.string(high_string_number+1)
+            two_selected_strings = SetOfPositionOnFrettedInstrument.make(
+                positions = [], 
+                absolute=False,)
+            two_selected_strings.save_svg(folder_path=folder_path,
+                                        keep_in_collection=True,
+                                        instrument=instrument, 
+                                        fretted_position_maker=BlackOnly(), 
+                minimal_number_of_frets = Fret(instrument.max_distance_between_two_closed_frets()+1, absolute=False), 
+                colored_strings = [low_string, high_string]
+                )
+
     for low_string, high_string in instrument.pair_of_string_with_distinct_intervals():
         assert low_string < high_string
 
 
-        two_selected_strings = SetOfPositionOnFrettedInstrument.make(
-            positions = [], 
-            absolute=False,)
-        two_selected_strings.save_svg(folder_path=folder_path,
-                                      keep_in_collection=True,
-                                      instrument=instrument, 
-                                      fretted_position_maker=BlackOnly(), 
-            minimal_number_of_frets = Fret(instrument.max_distance_between_two_closed_frets()+1, absolute=False), 
-            colored_strings = [low_string, high_string]
-            )
 
         for (low_fret, high_fret) in pairs_of_frets_values(instrument.max_distance_between_two_closed_frets()):
             anki_note = anki_note_(instrument, low_string, high_string, low_fret, high_fret)

@@ -83,7 +83,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return optional_max(position.fret for position in played_positions)
      
     def _min_fret(self, allow_open: bool) -> Optional[Fret]:
-        """The lowest fret used."""
+        """The lowest fret used. If `allow_open` is false, the fret 0 is ignored"""
         if allow_open:
             return optional_min(position.fret for position in self.played_positions())
         return optional_min(position.fret for position in self.closed_positions())
@@ -113,6 +113,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return self.strings_at_fret(Fret.make(0, self.absolute))
 
     def strings_at_min_fret(self, allow_open: bool):
+        """Returns all the strings that are played at the minimal fret. If `allow_open` is false, ignore the open strings."""
         return self.strings_at_fret(self._min_fret(allow_open=allow_open))
     
     def execute_on_maybe_transposed(self, f: Callable[[AbstractSetOfFrettedPositions], T]) -> T:

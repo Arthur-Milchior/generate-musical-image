@@ -67,6 +67,10 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertEqual(diag_two.is_barred(), Barred.NO)
         self.assertEqual(C4M.is_barred(), Barred.NO)
         self.assertEqual(F4M.is_barred(), Barred.FULLY)
+        x02025 = ChordOnFrettedInstrument.make(Guitar, [None, 0,2,0,2,5], absolute=True)
+        self.assertEqual(x02025.is_barred(), Barred.NO)
+        x22220 = ChordOnFrettedInstrument.make(Guitar, [None, 2,2,2,2,0], absolute=True)
+        self.assertEqual(x02025.is_barred(), Barred.NO)
         
     def test_is_playable(self):
         self.assertEqual(C4M.playable(Guitar), Playable.EASY)

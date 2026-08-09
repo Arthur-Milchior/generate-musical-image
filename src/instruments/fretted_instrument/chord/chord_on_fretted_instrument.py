@@ -91,23 +91,22 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
         return not self.is_open()
     
     def is_barred(self):
-        if not self.is_transposable():
-            return Barred.NO
         min_closed_strings = self.strings_at_min_fret(allow_open=False)
-        assert min_closed_strings
+        if (not min_closed_strings):
+            # The entire empty chord
+            return Barred.NO
         if len(min_closed_strings) == 1:
             # Single closed string on this fret, so no need to bar.
             return Barred.NO
-        # Let's consider partially barred.
         open_strings = self.open_strings()
         if not open_strings:
             return Barred.FULLY
+        min_closed_string = min(min_closed_strings)
         max_open_string = max(open_strings)
-        min_closed_stirng = min(min_closed_stirng)
-        if min_closed_stirng <= max_open_string:
-            # some open string would be covered by the bar if we did it.
+        if min_closed_string<max_open_string:
+            # Some open string would be covered by the bar if we did it.
             return Barred.NO
-        return Barred.FULLY
+        return Barred.PARTIALLY
     
     def has_not_played_in_middle(self):
         # Status can be not_played_start, then played, then not_played_end

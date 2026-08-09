@@ -125,7 +125,6 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         fpm = self.fretted_position_maker(all_marked=True)
         yield img_tag(self.chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=fpm, absolute=self.is_open())) # Colored chord
         yield self.decomposition_lily_field() # partition
-        yield "x" if self.is_open else ""
         yield str(self.first_string())
         yield str(self.last_string())
         yield self.strings(folder_path=folder_path)
