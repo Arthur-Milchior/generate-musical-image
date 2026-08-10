@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Dict, List
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.role.interval_role import IntervalRole
+from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
 from utils.util import assert_typing
 
 
@@ -13,7 +14,11 @@ class IntervalRoleFromInterval(IntervalRole):
 
     # Pragma mark - IntervalRole
     def text_for_guitar_image(self) -> str:
-        return f"{self.interval._diatonic.value + 1}{self.interval.get_alteration().letter()}"
+        try:
+            alteration = self.interval.get_alteration().letter()
+        except TooBigAlterationException:
+            alteration = "?"
+        return f"{self.interval._diatonic.value + 1}{alteration}"
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod
