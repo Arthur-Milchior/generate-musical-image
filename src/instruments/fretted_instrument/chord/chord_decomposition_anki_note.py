@@ -25,7 +25,9 @@ from utils.util import assert_typing, ensure_folder, img_tag
 class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]], CsvGenerator):
     instrument: FrettedInstrument
     inversion: ChromaticInversionInstantiation
+    """The inversion of a chord, and its first note, considering only its chromatic values."""    
     chord: ChordOnFrettedInstrument
+    """The way the chord is played on the instrument."""
 
     def __post_init__(self):
         assert_typing(self.instrument, FrettedInstrument)
@@ -134,4 +136,8 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     #pragma mark - ClassWithEasyness
 
     def easy_key(self) -> Tuple[Tuple[int, int], int]:
+        """The easiest chord decomposition is the one with lowest inversion, easiest pattern, and then the easiest way to play the chord."""
         return (self.inversion.easy_key(), self.chord.easy_key())
+
+    def best_chord(self):
+        return self.chord.best_chord_key()

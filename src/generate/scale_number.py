@@ -25,7 +25,13 @@ class AnkiNote(CsvGenerator):
     def csv_content(self) -> Generator[str]:
         yield self.increasing_field()
         yield self.decreasing_field()
-        names = [*self.scale.names]
+        for diatonicInterval in range(7):
+            yield ", ".join(self.scale.get_interval_list().alterations_from_diatonic(diatonicInterval)) or "None"
+        notations = [*self.scale.notations]
+        while len(notations) < 4:
+            notations.append("")
+        yield from notations
+        notations = [*self.scale.notations]
         while len(names) < 6:
             names.append("")
         yield from names

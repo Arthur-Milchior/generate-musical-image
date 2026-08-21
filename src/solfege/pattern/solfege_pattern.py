@@ -36,6 +36,7 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
     #pragma mark - ClassWithEasyness
 
     def easy_key(self) -> int:
+        """A hard coded easyness number for this pattern."""
         return self._pattern_index
     
     #pragma mark - Recordable

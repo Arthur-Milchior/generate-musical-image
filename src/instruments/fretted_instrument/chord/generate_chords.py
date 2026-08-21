@@ -35,6 +35,7 @@ assert_typing(interval_to_inversion_patterns, IntervalListToInversionPattern)
 class AnkiNotesPreparation(DataClassWithDefaultArgument):
     instrument: FrettedInstrument
     record_keeper: RecordKeeper[ChromaticInversionInstantiation, ChordOnFrettedInstrument, ChromaticInversionInstantiationAndItsChords]
+    """Maps a chord (as chromatic intervals), inversion and base not not a set of way to play it on `instrument`"""
     decompositions: List[ChordDecompositionAnkiNote]
 
     def __hash__(self):
@@ -96,6 +97,12 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
         for chromatic_identical_inversion_and_its_open_chords in self.anki_note_containers():
             chord_decompositions = chromatic_identical_inversion_and_its_open_chords.decompositions()
             for chord_decomposition in chord_decompositions:
+                chord = chord_decomposition.chord
+                if chord.chord_pattern_is_redundant():
+                    continue
+                if chord.number_of_distinct_notes()> len(chord):
+                    # Don't consider chords with repeated note
+                    continue
                 self.decompositions.append(chord_decomposition)
 
     def anki_note_containers(self) -> List[ChromaticInversionInstantiationAndItsChords]:
@@ -121,7 +128,7 @@ def generate_instrument(instrument: FrettedInstrument):
 
     # decompositions
     decompositions: List[ChordDecompositionAnkiNote] = open_chord.decompositions
-    decompositions.sort(key = lambda decomposition: decomposition.easy_key())
+    decompositions.sort(key = lambda decomposition: decomposition.best_chord())
     csv = []
     for decomposition in decompositions:
         csv.append(decomposition.csv(folder_path=folder_path))

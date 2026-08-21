@@ -87,4 +87,5 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
         return f"""NoteList.make([{", ".join(f"({note.get_chromatic().value}, {note._diatonic.value})" for note in self)}])"""
     
     def easy_key(self) -> int:
+        """The easiness of a list is the sum of the easiness of its notes. Note that one very complex note is thus less costly than a lot of simple ones."""
         return sum(note.easy_key() for note in self)

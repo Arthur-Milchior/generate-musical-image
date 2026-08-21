@@ -10,6 +10,7 @@ from solfege.value.note.note import Note
 
 
 class ChromaticInversionInstantiation(AbstractInversionInstantiation[Note, Interval], AbstractChromaticInstantiation[InversionPattern, Tuple[int, int]]):
+    """The inversion of a pattern, and its first note, considering only its chromatic values."""
     def _get_inversion(self):
         """The chord with a note with this chromatic."""
         from solfege.pattern_instantiation.inversion.inversion_instantiation import InversionInstantiation

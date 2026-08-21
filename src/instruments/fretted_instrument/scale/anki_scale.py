@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import operator
 from typing import Callable, Dict, FrozenSet, Generator, List, Optional, Set, Tuple, Union
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
@@ -177,11 +178,11 @@ def _generate_scale(instrument: FrettedInstrument,
         yield [starting_note]
         return
     relative_interval, remaining_relative_intervals = relative_intervals.head_tail()
-    for fingers_for_current_note, next_note in starting_note.positions_for_interval(instrument, interval=relative_interval, string_delta=string_delta):
+    for fingers_for_current_note, next_note in starting_note.positions_for_interval(instrument, interval=relative_interval, chord=False, string_delta=string_delta):
         starting_note_fingered = starting_note.restrict_to_specific_fingers(fingers_for_current_note)
         for notes_for_remaining_intervals in _generate_scale(instrument, next_note, remaining_relative_intervals, string_delta=string_delta):
             assert_iterable_typing(notes_for_remaining_intervals, PositionOnFrettedInstrumentWithFingers)
-            restricted_starting_note = starting_note_fingered.restrict_to_compatible_fingering(instrument, notes_for_remaining_intervals[0])
+            restricted_starting_note = starting_note_fingered.restrict_to_compatible_fingering(instrument, notes_for_remaining_intervals[0], chord=False)
             yield [restricted_starting_note, *notes_for_remaining_intervals]
 
 def generate_scale(
@@ -224,8 +225,9 @@ def generate_scale(
         fingers_to_scales[first_fingers].append(set_of_pos)
 
     finger_to_anki_scale_with_fingers_and_strings: Dict[FingersType, AnkiScaleWithFingersAndString] = dict()
+
     for fingers, scales in fingers_to_scales.items():
-        scales.sort()
+        scales.sort(key=lambda scale: scale.best_chord_key())
         finger_to_anki_scale_with_fingers_and_strings[fingers] = AnkiScaleWithFingersAndString.make(
             instrument=instrument, 
             start_string = starting_note.string, 

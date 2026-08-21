@@ -75,13 +75,14 @@ class FrettedInstrument(DataClassWithDefaultArgument):
     def max_distance_between_two_closed_frets(self) -> int:
         return max(
             delta.deltas[1]
-            for dic in self._instrument.finger_to_fret_delta.values()
+            for dic in self._instrument.finger_to_fret_delta_chord.values()
             for delta in dic.values()
         )
     
-    def finger_to_fret_delta(self, lower_finger, higher_finger):
+    def finger_to_fret_delta(self, lower_finger, higher_finger, chord: bool):
         """The number of fret that we can have between both fingers"""
-        return self._instrument.finger_to_fret_delta[lower_finger][higher_finger]
+        d = self._instrument.finger_to_fret_delta_chord if chord else self._instrument.finger_to_fret_delta_scale 
+        return d[lower_finger][higher_finger]
 
     # pragma mark - DataClassWithDefaultArgument
 

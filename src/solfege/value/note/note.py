@@ -194,6 +194,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
     #pragma mark - ClassWithEasyness
 
     def easy_key(self) -> int:
+        """The easiness is simply the alteration. Natural is easier than shard and flat which are easier than double shard and double flat."""
         return abs(self._get_alteration_value())
     
     #pragma mark - Pair

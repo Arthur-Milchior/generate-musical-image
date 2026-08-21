@@ -26,19 +26,24 @@ class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern"
     _key_type: ClassVar[Type] = IntervalList
 
     # public
-
     """Order is considering not inversion first. Then with fifth. Then base."""
-    inversion: int
-    base: ChordPattern
-    fifth_omitted: bool
 
-    """For a scale whose lowest note is n, you get the position of the tonic with n+tonic_minus_lowest_note."""
+    inversion: int
+    """0 if the pattern is in base position, 1 for first inversion and so on"""
+    base: ChordPattern
+    """The pattern without inversion. Equal to self if `inversion` is 0."""
+    fifth_omitted: bool
+    """Whether the fifth is omitted in this pattern."""
+
     tonic_minus_lowest_note: Interval
+    """For a scale whose lowest note is n, you get the position of the tonic with n+tonic_minus_lowest_note."""
 
     def get_tonic_minus_lowest_note(self):
+        """For a scale whose lowest note is n, you get the position of the tonic with n+tonic_minus_lowest_note."""
         return self.tonic_minus_lowest_note
 
     def get_tonic(self, lowest_note: Note):
+        """Returns the tonic assuming that the pattern start with this `lowest_note`."""
         assert_typing(lowest_note, Note)
         return lowest_note - self.tonic_minus_lowest_note
 
@@ -94,8 +99,8 @@ class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern"
 
     #pragma mark - ClassWithEasyness
     def easy_key(self) -> Tuple[int, int]:
+        """No inversion is easier. If two patterns have the same inversion, the easiest one have the easiest pattern. ."""
         return (self.inversion, self.base.easy_key())
-
 
     # pragma mark - DataClassWithDefaultArgument
 

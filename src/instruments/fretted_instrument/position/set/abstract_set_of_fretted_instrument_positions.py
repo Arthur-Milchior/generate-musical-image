@@ -77,6 +77,17 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         assert_typing(other, self.__class__)
         return set(self.played_positions()) <= set(other.played_positions())
 
+    def __len__(self):
+        return len(self.positions)
+
+    def best_chord_key(self):
+        # We want to have first:
+        # * easiest to play (low number of fret)
+        # * Most distinct note (more interesting to hear)
+        # * Avoid repeated note
+        # * Not transposable (I'd have already learned them for other chords)
+        return (self.number_of_frets(allow_open=False), -self.number_of_distinct_notes(), len(self), self._max_fret() or 0)
+
     def _max_fret(self) -> Optional[Fret] :
         """The greatest fret used."""
         played_positions = self.played_positions()
@@ -87,6 +98,12 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         if allow_open:
             return optional_min(position.fret for position in self.played_positions())
         return optional_min(position.fret for position in self.closed_positions())
+
+    def is_open(self):
+        return self._min_fret(allow_open=True).is_open()
+    
+    def is_transposable(self):
+        return not self.is_open()
     
     def number_of_frets(self, allow_open: bool) -> int:
         """Returns the number of fret between the highest and the lowest fret."""
@@ -238,6 +255,7 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
     #pragma mark - ClassWithEasyness
 
     def easy_key(self) -> int:
+        """The less closed fret, the easier it is."""
         return self.number_of_frets(allow_open=False)
     
     # SVG

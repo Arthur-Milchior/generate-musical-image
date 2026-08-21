@@ -6,7 +6,7 @@ from instruments.fretted_instrument.position.fret.fret_delta import FretDelta
 from solfege.value.note.clef import Clef
 from utils.util import assert_typing
 
-finger_to_fret_delta = {
+finger_to_fret_delta_chord = {
     0: {
         1: FretDelta((-1, 1)),
         2: FretDelta((-1, 2)),
@@ -21,6 +21,27 @@ finger_to_fret_delta = {
     2: {
         3: FretDelta((0, 1)),
         4: FretDelta((0, 2)),
+    },
+    3: {
+        4: FretDelta((0, 2)),
+    },
+    4: {},
+}
+finger_to_fret_delta_scale = {
+    0: {
+        1: FretDelta((-1, 1)),
+        2: FretDelta((-1, 2)),
+        3: FretDelta((0, 2)),
+        4: FretDelta((0, 3)),
+    },
+    1: {
+        2: FretDelta((0, 1)),
+        3: FretDelta((1, 2)),
+        4: FretDelta((2, 3)),
+    },
+    2: {
+        3: FretDelta((0, 1)),
+        4: FretDelta((1, 2)),
     },
     3: {
         4: FretDelta((0, 2)),
@@ -81,7 +102,8 @@ abstract_ukulele = AbstractFrettedInstrument.make(
     _name= "ukulele",
     number_of_frets=12, 
     clef=Clef.TREBLE, 
-    finger_to_fret_delta=ukulele_finger_to_fret_delta,
+    finger_to_fret_delta_chord=ukulele_finger_to_fret_delta,
+    finger_to_fret_delta_scale=finger_to_fret_delta_scale,
     number_of_strings = 4,
     number_of_scales_reachable_per_string = [0, 1, 0, 0],
     )
@@ -92,7 +114,8 @@ abstract_bass = AbstractFrettedInstrument.make(
     _name = "bass",
     number_of_frets=20, 
     clef=Clef.BASS,
-    finger_to_fret_delta=finger_to_fret_delta,
+    finger_to_fret_delta_chord=finger_to_fret_delta_chord,
+    finger_to_fret_delta_scale=finger_to_fret_delta_chord,
     number_of_strings = 4,
     number_of_scales_reachable_per_string = [1, 1, 0, 0],
     )
@@ -103,7 +126,8 @@ abstract_guitar = AbstractFrettedInstrument.make(
         _name="guitar",
         number_of_frets=24, 
         clef=Clef.TREBLE,
-        finger_to_fret_delta=finger_to_fret_delta,
+        finger_to_fret_delta_chord=finger_to_fret_delta_chord,
+        finger_to_fret_delta_scale=finger_to_fret_delta_scale,
         number_of_strings = 6,
         number_of_scales_reachable_per_string = [2, 2, 1, 1, 0, 0],
     )

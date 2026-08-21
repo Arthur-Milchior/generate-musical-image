@@ -18,8 +18,9 @@ class AbstractFrettedInstrument(DataClassWithDefaultArgument):
     number_of_frets: int
     clef: Clef
     number_of_strings: int
-    """finger_to_fret_delta[i][j] is the possible number of frets between fingers i and j"""
-    finger_to_fret_delta: Dict[int, Dict[int, FretDelta]]=field(compare=False)
+    """finger_to_fret_delta_x[i][j] is the possible number of frets between fingers i and j when generating x"""
+    finger_to_fret_delta_chord: Dict[int, Dict[int, FretDelta]]=field(compare=False)
+    finger_to_fret_delta_scale: Dict[int, Dict[int, FretDelta]]=field(compare=False)
     number_of_scales_reachable_per_string: IntFrozenList
 
     # pragma mark - DataClassWithDefaultArgument
@@ -41,7 +42,8 @@ class AbstractFrettedInstrument(DataClassWithDefaultArgument):
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "_name", type=str)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_frets", type=int)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_strings", type=int)
-        args, kwargs = cls.arg_to_kwargs(args, kwargs, "finger_to_fret_delta", clean_finger_to_fret_delta)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "finger_to_fret_delta_chord", clean_finger_to_fret_delta)
+        args, kwargs = cls.arg_to_kwargs(args, kwargs, "finger_to_fret_delta_scale", clean_finger_to_fret_delta)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "clef", type=Clef)
         #Copying to ensure we don't modify the input dic
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_scales_reachable_per_string", IntFrozenList, type=IntFrozenList)
@@ -51,13 +53,13 @@ class AbstractFrettedInstrument(DataClassWithDefaultArgument):
         assert_typing(self._name, str)
         assert_typing(self.number_of_frets, int)
         assert_typing(self.clef, Clef)
-        for finger_for_first_note, dic in self.finger_to_fret_delta.items():
+        for finger_for_first_note, dic in self.finger_to_fret_delta_chord.items():
             assert 0<= finger_for_first_note <= 4, f"{finger_for_first_note}"
             for finger_for_next_note, delta in dic.items():
                 assert 0 <= finger_for_next_note <= 4, f"{finger_for_next_note}"
                 assert finger_for_first_note != finger_for_next_note
                 assert_typing(delta, FretDelta)
-                assert delta == -self.finger_to_fret_delta[finger_for_next_note][finger_for_first_note]
+                assert delta == -self.finger_to_fret_delta_chord[finger_for_next_note][finger_for_first_note]
         assert len(self.number_of_scales_reachable_per_string) == self.number_of_strings
         for number_of_scale in self.number_of_scales_reachable_per_string:
             assert_typing(number_of_scale, int)

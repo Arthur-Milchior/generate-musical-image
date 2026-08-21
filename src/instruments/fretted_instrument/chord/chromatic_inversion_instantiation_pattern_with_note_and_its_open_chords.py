@@ -35,7 +35,9 @@ class InversionInstantiationAndItsChords(RecordedContainer[ChordOnFrettedInstrum
     """
     instrument: FrettedInstrument
     key: InversionInstantiation
+    """The inversion of a chord pattern."""
     fretted_instrument_chords: List[ChordOnFrettedInstrument] = field(hash=False, compare=False, default_factory=list)
+    """Instantiations of the chord patterns on `instrument`."""
 
     #pragma mark - InversionPatternGetter
 
@@ -138,6 +140,8 @@ class InversionInstantiationAndItsChords(RecordedContainer[ChordOnFrettedInstrum
     #pragma mark - ClassWithEasyness
 
     def easy_key(self):
+        """The easiest inversion are the one for the lowest inversion,
+        then the easiest pattern, then the one whore easiest instantation on the instrument is the simplest."""
         return (self.key.easy_key(), self.fretted_instrument_chords[0].easy_key())
 
     #Pragma mark - CsvGenerator

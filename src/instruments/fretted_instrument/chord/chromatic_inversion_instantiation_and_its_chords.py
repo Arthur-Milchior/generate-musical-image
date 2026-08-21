@@ -35,7 +35,9 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     """
     instrument: FrettedInstrument
     key: ChromaticInversionInstantiation
+    """The pattern, potentially inversed, with a lowest note."""
     fretted_instrument_chords: List[ChordOnFrettedInstrument] = field(hash=False, compare=False, default_factory=list)
+    """All instantiations of the pattern `key` on `instrument`"""
 
     #pragma mark - InversionPatternGetter
 
@@ -49,7 +51,7 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         assert actual_chromatic_intervals in [expected_chromatic_intervals_list.get_chromatic_interval_list() for expected_chromatic_intervals_list in expected_chromatic_intervals_lists], f"""{actual_chromatic_intervals} not in {expected_chromatic_intervals_lists}"""
         assert fretted_instrument_chord not in self.fretted_instrument_chords
         self.fretted_instrument_chords.append(fretted_instrument_chord)
-        self.fretted_instrument_chords.sort(key = lambda chord: chord.easy_key())
+        self.fretted_instrument_chords.sort(key = lambda chord: chord.best_chord_key())
 
     def is_smaller_than_known_chord(self, small_chord: ChordOnFrettedInstrument):
         for big_chord in self.fretted_instrument_chords:
@@ -140,6 +142,7 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     #pragma mark - ClassWithEasyness
 
     def easy_key(self):
+        """The easiest list of chords are the chords for the easiest pattern and then the one which has the easiest instantiation."""
         return (self.key.easy_key(), self.fretted_instrument_chords[0].easy_key())
 
     #Pragma mark - CsvGenerator

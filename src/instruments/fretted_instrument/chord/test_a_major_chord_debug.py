@@ -5,14 +5,14 @@ from instruments.fretted_instrument.chord.chord_on_fretted_instrument import Bar
 from instruments.fretted_instrument.chord.hand_for_chord import HandForChordForFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.chord.playable import Playable
-from instruments.fretted_instrument.chord.test_constants import A4M
+from instruments.fretted_instrument.chord.test_constants import A4M_high_G, A4Mt
 
 
-class TestAMajorChordX02225(unittest.TestCase):
+class TestAMajorChordHighG(unittest.TestCase):
     """Tests for A major chord x02225 [5, 2, 2, 2, 0, x]."""
 
     def setUp(self):
-        self.chord = A4M
+        self.chord = A4M_high_G
 
     def test_get_frets_returns_expected_values(self):
         frets = self.chord.get_frets(Guitar)
@@ -60,6 +60,54 @@ class TestAMajorChordX02225(unittest.TestCase):
 
     def test_chord_playable_returns_easy(self):
         self.assertEqual(self.chord.playable(Guitar), Playable.EASY)
+class TestAMajorChordTransposable(unittest.TestCase):
+    """Tests for A major chord transposable"""
+
+    def setUp(self):
+        self.chord = A4Mt
+
+    def test_get_frets_returns_expected_values(self):
+        frets = self.chord.get_frets(Guitar)
+        self.assertEqual([fret.value for fret in frets], [5, 4, 2, 2, 2, None])
+
+    def test_open_chord_metadata(self):
+        self.assertFalse(self.chord.is_open())
+        self.assertTrue(self.chord.is_transposable())
+        self.assertEqual(self.chord.open_strings(), [])
+
+    def test_min_closed_strings(self):
+        self.assertEqual(
+            self.chord.strings_at_min_fret(allow_open=False),
+            [Guitar.string(3), Guitar.string(4), Guitar.string(5)],
+        )
+
+    def test_has_not_played_in_middle_returns_false(self):
+        self.assertFalse(self.chord.has_not_played_in_middle())
+
+    def test_chord_pattern_is_redundant_returns_false(self):
+        self.assertTrue(self.chord.chord_pattern_is_redundant())
+
+    def test_is_barred(self):
+        self.assertEqual(self.chord.is_barred(), Barred.FULLY)
+
+    def test_hand_configuration(self):
+        hand = HandForChordForFrettedInstrument.compute_hand(Guitar, self.chord)
+        self.assertIsNotNone(hand)
+        self.assertEqual(hand.barred, Barred.FULLY)
+        self.assertEqual(hand.one.fret.value, 2)
+        self.assertEqual(hand.three.fret.value, 4)
+        self.assertEqual(hand.four.fret.value, 5)
+        self.assertEqual(list(hand.opens), [])
+
+    def test_hand_playable_returns_easy(self):
+        hand = HandForChordForFrettedInstrument.compute_hand(Guitar, self.chord)
+        self.assertEqual(hand.playable(), Playable.EASY)
+
+    def test_chord_playable_returns_easy(self):
+        self.assertEqual(self.chord.playable(Guitar), Playable.EASY)
+
+    def test_order(self):
+        self.assertLess(A4M_high_G.best_chord_key(), self.chord.best_chord_key())
 
 
 if __name__ == '__main__':

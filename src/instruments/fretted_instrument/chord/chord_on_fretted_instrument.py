@@ -83,12 +83,6 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
     def chord_pattern_is_redundant(self):
         """Whether the same fingering pattern can be played higher on the fretted_instrument"""
         return self._min_fret(allow_open=True) > Fret.make(1, self.absolute)
-
-    def is_open(self):
-        return self._min_fret(allow_open=True).is_open()
-    
-    def is_transposable(self):
-        return not self.is_open()
     
     def is_barred(self):
         min_closed_strings = self.strings_at_min_fret(allow_open=False)

@@ -28,6 +28,7 @@ class Alteration(ChromaticInterval, ClassWithEasyness[int]):
     #pragma mark - ClassWithEasyness
 
     def easy_key(self) -> int:
+        """Natural are esaier than flat and sharp, which are easier than double sharp and flat."""
         return abs(self.value)
     
     # must be implemented by subclass

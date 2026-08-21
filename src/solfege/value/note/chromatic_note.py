@@ -68,6 +68,7 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness[
     #pragma mark - ClassWithEasyness
 
     def easy_key(self) -> int:
+        """White notes are easier than black ones."""
         return self.get_note().easy_key()
 
 ChromaticNote.ChromaticClass = ChromaticNote
