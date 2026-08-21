@@ -6,6 +6,7 @@ from solfege.value.abstract import Abstract
 from solfege.value.chromatic import Chromatic, ChromaticGetter, ChromaticType
 from solfege.value.diatonic import Diatonic, DiatonicGetter, DiatonicType
 from solfege.value.interval.alteration.alteration import Alteration, AlterationType
+from solfege.value.interval.alteration.wrong_alteration import WrongAlteration
 from utils.frozenlist import MakeableWithSingleArgument
 from utils.util import assert_typing
 
@@ -72,12 +73,17 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         chromatic_from_diatonic = self.__class__.from_diatonic(diatonic).get_chromatic()
         return self.get_chromatic().value - chromatic_from_diatonic.value
 
-    def get_alteration(self) -> AlterationType:
-        """The alteration, added to `self.getDiatonic()` to obtain `self`"""
+    def get_alteration(self, throw: bool = True) -> AlterationType:
+        """The alteration, added to `self.getDiatonic()` to obtain `self`
+        
+        If `throw` is False, return a Alteration which should not exists instead of raising"""
         from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
+        value = self._get_alteration_value()
         try:
-            return self.get_alteration_constructor()(self._get_alteration_value())
+            return self.get_alteration_constructor()(value)
         except TooBigAlterationException as tba:
+            if not throw:
+                return WrongAlteration.make(value)
             tba["The note which is too big"] = self
             raise
 

@@ -12,6 +12,9 @@ class TooBigAlterationException(Exception):
     def __repr__(self):
         return f"""TooBigAlteration(value={self.value}, dic={self.dic})"""
 
+    def __str__(self):
+        return repr(self)
+
     def __getitem__(self, item):
         return self.dic.get(item)
 

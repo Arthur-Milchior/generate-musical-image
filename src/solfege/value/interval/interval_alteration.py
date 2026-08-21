@@ -15,3 +15,9 @@ class IntervalAlteration(Alteration):
     @abstractmethod
     def name(self) -> str:
         """The name of this alteration"""
+
+    def Name(self) -> str:
+        return self.name().capitalize()
+
+    def NAME(self) -> str:
+        return self.name().upper()

@@ -73,7 +73,7 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval, Inter
     #pragma mark - Pair
 
     def get_alteration_constructor(self) ->IntervalAlteration:
-        if self._diatonic.in_base_octave().value in [0, 4, 5]:
+        if self._diatonic.in_base_octave().value in [0, 3, 4]:
             return JustAlteration.make
         else:
             return MinorMajorAlteration.make

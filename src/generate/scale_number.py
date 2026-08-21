@@ -14,6 +14,8 @@ from consts import generate_root_folder
 from solfege.pattern.scale.arpeggio_pattern import *
 from solfege.pattern.scale.scale_patterns import *
 from solfege.pattern.chord.chord_patterns import *
+from solfege.value.interval.diatonic_interval import DiatonicInterval
+from solfege.value.interval.interval_alteration import IntervalAlteration
 
 
 
@@ -23,29 +25,42 @@ class AnkiNote(CsvGenerator):
     max_number_of_names: ClassVar[int] = 1
 
     def csv_content(self) -> Generator[str]:
-        yield self.increasing_field()
-        yield self.decreasing_field()
+        yield self.increasing_relative_field()
+        yield self.decreasing_relative_field()
+        yield self.increasing_absolute_field()
+        yield self.decreasing_absolute_field()
         for diatonicInterval in range(7):
-            yield ", ".join(self.scale.get_interval_list().alterations_from_diatonic(diatonicInterval)) or "None"
-        notations = [*self.scale.notations]
-        while len(notations) < 4:
-            notations.append("")
-        yield from notations
-        notations = [*self.scale.notations]
+            yield ", ".join(alteration.Name() for alteration in self.scale.get_interval_list().alterations_from_diatonic(DiatonicInterval.make(diatonicInterval))) or ""
+        yield self.scale.notation or ""
+        yield ""
+        yield ""
+        yield ""
+        names = [*self.scale.names]
         while len(names) < 6:
             names.append("")
         yield from names
         AnkiNote.max_number_of_names = max(AnkiNote.max_number_of_names, len(self.scale.names))
 
-    def _chromatic_list(self):
+    def _chromatic_relative_list(self):
         return [interval.value 
                 for interval in self.scale.get_chromatic_interval_list().relative_intervals()]
+
+    def _chromatic_absolute_list(self):
+        # Removing the first and last element which are 0 and 12.
+        return [interval.value 
+                for interval in self.scale.get_chromatic_interval_list().absolute_intervals()][1:-1]
     
-    def increasing_field(self):
-        return ", ".join(str(value) for value in self._chromatic_list())
+    def increasing_relative_field(self):
+        return ", ".join(str(value) for value in self._chromatic_relative_list())
     
-    def decreasing_field(self):
-        return ", ".join(str(value) for value in reversed(self._chromatic_list()))
+    def decreasing_relative_field(self):
+        return ", ".join(str(value) for value in reversed(self._chromatic_relative_list()))
+
+    def increasing_absolute_field(self):
+        return ", ".join(str(value) for value in self._chromatic_absolute_list())
+    
+    def decreasing_absolute_field(self):
+        return ", ".join(str(value) for value in reversed([12 - value for value in self._chromatic_absolute_list()]))
 
 anki_notes = []
 for scale_pattern in ScalePattern.all_patterns:

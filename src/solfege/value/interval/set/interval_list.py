@@ -38,19 +38,19 @@ class IntervalList(AbstractIntervalListPattern[Interval]):
         from solfege.value.note.note import Note
         return min(Note.all_from_chromatic(chromatic_note), key = lambda note: self.from_note(note).easy_key())
 
-    def notes_from_diatonic(self, diatonic_note: "DiatonicNote") -> Iterable["Note"]:
-        """The chromatic note that is the closest to the diatonic note, in the context of this interval list."""
-        from solfege.value.note.diatonic_note import DiatonicNote
-        from solfege.value.note.chromatic_note import ChromaticNote
-        assert_typing(diatonic_note, DiatonicNote)
-        return [note for note in self._absolute_intervals if note.get_diatonic() == diatonic_note]
+    def intervals_from_diatonic(self, diatonic_interval: "DiatonicNote") -> Iterable["Interval"]:
+        """The chromatic interval that is the closest to the diatonic interval, in the context of this interval list."""
+        from solfege.value.interval.diatonic_interval import DiatonicInterval
+        from solfege.value.interval.chromatic_interval import ChromaticInterval
+        assert_typing(diatonic_interval, DiatonicInterval)
+        return [interval for interval in self._absolute_intervals if interval.get_diatonic() == diatonic_interval]
 
-    def alterations_from_diatonic(self, diatonic_note: "DiatonicNote") -> Iterable[IntervalAlteration]:
-        """The chromatic note that is the closest to the diatonic note, in the context of this interval list."""
-        from solfege.value.note.diatonic_note import DiatonicNote
+    def alterations_from_diatonic(self, diatonic_interval: "DiatonicInterval") -> Iterable["IntervalAlteration"]:
+        """The chromatic interval that is the closest to the diatonic interval, in the context of this interval list."""
+        from solfege.value.interval.diatonic_interval import DiatonicInterval
         from solfege.value.interval.interval_alteration import IntervalAlteration
-        assert_typing(diatonic_note, DiatonicNote)
-        return [note.get_alteration() for note in self.notes_from_diatonic(diatonic_note)]
+        assert_typing(diatonic_interval, DiatonicInterval)
+        return [interval.get_alteration(throw=False) for interval in self.intervals_from_diatonic(diatonic_interval)]
 
 class IntervalListFrozenList(FrozenList[IntervalList]):
     type = IntervalList

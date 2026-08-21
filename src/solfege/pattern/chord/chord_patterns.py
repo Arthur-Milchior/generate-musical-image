@@ -40,7 +40,7 @@ augmented_seventh_chord = ChordPattern.make(
     _full_interval_list=[(4, 2), (8, 4), (10, 6)], interval_for_signature=one_flat)
 dominant_seventh_flat_five_chord = ChordPattern.make(names=["Dominant seventh flat five chord"], notation="<sup>7♭5</sup>",
                                                 _full_interval_list=[(4, 2), (6, 4), (10, 6)], interval_for_signature=five_flats)
-major_seventh_flat_five_chord = ChordPattern.make(names=["Major seventh flat five chord"], notation="<sup>7♭5</sup>",
+major_seventh_flat_five_chord = ChordPattern.make(names=["Major seventh flat five chord"], notation="M<sup>7♭5</sup>",
                                              _full_interval_list=[(4, 2), (6, 4), (11, 6)], optional_fifth=False, interval_for_signature=nor_flat_nor_sharp)
 #triad_patterns = []
 #fourad_patterns = [dominant_seventh_chord]
