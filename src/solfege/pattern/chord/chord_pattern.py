@@ -33,8 +33,6 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     """Whether the 5th is optional"""
     optional_fifth: bool
 
-    _is_chord_pattern: bool = True
-
 
     @classmethod
     def _new_record_keeper(cls):
@@ -66,7 +64,10 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
         return ScalePattern.make(_absolute_intervals=absolute_intervals,
                             names=[chord_to_arpeggio_name(name) for name in self.names],
                             notation = self.notation,
-                            interval_for_signature=self.interval_for_signature, record=True, increasing=True, _is_chord_pattern=True)
+                            interval_for_signature=self.interval_for_signature, record=True, increasing=True, _is_chord_pattern=True,
+                            source=self.source,
+                            description=f"The {self.first_of_the_names()} chord ({self.description}) played as a "
+                                         "one-octave scale (arpeggio) instead of stacked simultaneously.")
 
     def interval_list_of_inversion(self, inversion_number, omit_fifth:bool=False) -> Optional[IntervalList]:
         assert 0<= inversion_number<len(self._full_interval_list)
@@ -120,6 +121,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     def _default_arguments_for_constructor(cls, args, kwargs):
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["optional_fifth"] = False
+        default_dict["_is_chord_pattern"] = True
         return default_dict
 
     @classmethod
