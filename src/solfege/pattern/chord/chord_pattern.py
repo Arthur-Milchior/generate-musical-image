@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
 from itertools import pairwise
-from typing import Callable, ClassVar, Dict, List, Optional, Type
+from typing import Callable, ClassVar, Dict, FrozenSet, List, Optional, Type
 
 from solfege.value.interval.abstract_interval import IntervalType
-from solfege.value.interval.interval import Interval
+from solfege.value.interval.interval import Interval, IntervalFrozenList
 from solfege.value.interval.set.interval_list import IntervalList
 from solfege.pattern.solfege_pattern import SolfegePattern
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
-from utils.util import assert_all_same_class, assert_typing
+from utils.util import assert_all_same_class, assert_iterable_typing, assert_typing
 
 def chord_to_arpeggio_name(name: str):
     if "chord" in name:
@@ -33,6 +33,12 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     """Whether the 5th is optional"""
     optional_fifth: bool
 
+    """Which of `_full_interval_list`'s intervals represent a compound extension (a 9th/11th/13th stored
+    octave-reduced, see multi_octave_patterns.md) that must sound above every non-extension tone once this
+    pattern is turned into a real, physical voicing (e.g. on a fretted instrument). Empty for chords that have
+    no such extension -- most chords. See extension_chromatic_values()."""
+    extension_intervals: IntervalFrozenList
+
 
     @classmethod
     def _new_record_keeper(cls):
@@ -50,6 +56,11 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     
     def intervals_with_all_notes(self):
         return self._full_interval_list
+
+    def extension_chromatic_values(self) -> FrozenSet[int]:
+        """The base-octave chromatic pitch classes (0-11, relative to the tonic) of this chord's extension
+        tones -- see `extension_intervals`. Empty if this chord has none."""
+        return frozenset(interval.get_chromatic().in_base_octave().value for interval in self.extension_intervals)
 
     def intervals_without_fifth(self):
         assert self.optional_fifth
@@ -122,6 +133,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["optional_fifth"] = False
         default_dict["_is_chord_pattern"] = True
+        default_dict["extension_intervals"] = IntervalFrozenList()
         return default_dict
 
     @classmethod
@@ -133,17 +145,23 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
                 return IntervalList.make_absolute(l)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_full_interval_list", clean_full_interval_list)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "optional_fifth")
+        args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "extension_intervals", IntervalFrozenList)
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
         """A sequence of interval between the tonic and the other note of this chord.
-        
+
         Unison is not present in the param. Other intervals are presented as a pair of Chromatic, Diatonic
         """
         assert_typing(self._full_interval_list, IntervalList)
+        assert_typing(self.extension_intervals, IntervalFrozenList)
+        assert_iterable_typing(self.extension_intervals, Interval)
+        for extension_interval in self.extension_intervals:
+            assert extension_interval in self._full_interval_list.absolute_intervals(), \
+                f"{extension_interval} marked as an extension of {self.names} but not in its _full_interval_list"
         super().__post_init__()
         if not self.record:
             return
-        
+
         self.inversions(record=self.record)

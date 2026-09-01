@@ -116,6 +116,36 @@ Concretely, for the new chords added alongside this document:
   modelled as a scale, not a chord, and does not go through
   `ChordPattern.inversions()` at all.
 
+## Guitar (and other physical instruments) still need extensions voiced high
+
+Reducing a chord's *stored* intervals to one octave does not mean a real fingering has to squeeze all its notes
+into one octave too — a guitar chord routinely spans two or three octaves across six strings, and for a chord
+like a 6/9 or a thirteenth the 9th/13th should still sound *above* the root/3rd/5th/7th, exactly like it would
+on a real fingering, even though `ChordPattern._full_interval_list` only stores it as a plain 2nd/6th.
+
+`ChordPattern` has a second, optional field for this: `extension_intervals` — the subset of
+`_full_interval_list`'s (still octave-reduced) intervals that represent a compound extension. It's set on
+`six_nine_chord`, `minor_six_nine_chord` (their 9th) and the three thirteenth chords (their 13th, reduced to a
+6th) in [chord/chord_patterns.py](chord/chord_patterns.py) — not on `added_ninth_chord` (whose Wikipedia
+source itself treats "add2, voiced low" and "add9, voiced high" as the same shape, so it's deliberately left
+unconstrained).
+
+`InversionPattern.voicing_respects_extensions(tonic, physical_notes)` (see
+[inversion/inversion_pattern.py](inversion/inversion_pattern.py)) checks a *concrete, physical* voicing (real
+`ChromaticNote`s, not octave-reduced) against this: every note playing an extension tone must have a higher
+pitch than every note playing a non-extension tone. The guitar chord generator
+([instruments/fretted_instrument/chord/generate_chords.py](../../instruments/fretted_instrument/chord/generate_chords.py))
+already brute-force-enumerates every fret combination and matches each one's *reduced* pitch-class set back to
+a registered `InversionPattern` to identify it (see `intervals_frow_lowest_note_in_base_octave()` on
+[instruments/fretted_instrument/position/set/abstract_set_of_fretted_instrument_positions.py](../../instruments/fretted_instrument/position/set/abstract_set_of_fretted_instrument_positions.py));
+it now also checks the *un-reduced* physical fingering against `voicing_respects_extensions` and skips any
+fingering that fails it, so only correctly-voiced fingerings of these chords ever get generated.
+
+This is deliberately narrow: it's a yes/no filter on voicings the brute-force search already produces, not a
+general "chords wider than an octave" feature. It doesn't change what `_full_interval_list` stores, doesn't
+touch the `RecordKeeper`/`InversionPattern` octave assertions described above, and doesn't (yet) do anything for
+`instruments/piano` or the other instrument packages, which don't enumerate physical voicings the same way.
+
 ## What we deliberately do *not* try to model
 
 Some of what's actually notable about a specific historical chord is not a
@@ -147,12 +177,16 @@ whole-pattern check). Reasons:
    asks for, for a few rare chords, at real engineering cost (every place
    listed above would need reworking, including the guitar-fingering
    lookup path).
-2. **No current consumer needs it.** Every current renderer
-   ([instruments/piano](../../instruments/piano/), [instruments/fretted_instrument](../../instruments/fretted_instrument/),
-   [instruments/saxophone](../../instruments/saxophone/), [instruments/accordina](../../instruments/accordina/), see
-   [instruments/generate.py](../../instruments/generate.py)) draws a pattern within a single
-   octave/position; none of them has a notion of "this chord spans two
-   octaves, draw it that way."
+2. **No current consumer needs the full generality.** Guitar chord generation does need *some* notion that a
+   9th/13th should be voiced above the rest (see "Guitar (and other physical instruments) still need extensions
+   voiced high" above) — but that's satisfied by a per-chord extension marker plus a filter over voicings the
+   brute-force fretted-instrument search already enumerates, not by relaxing the stored pattern's span. Nothing
+   asks for the fuller thing an `InversionPattern`-level relaxation would provide — a small, settled notion of
+   "the second inversion of a spread 13-chord" — or for register/doubling (point 1 above; the Psalms chord's
+   4-octave-doubled middle note is still not representable). [instruments/piano](../../instruments/piano/),
+   [instruments/saxophone](../../instruments/saxophone/) and [instruments/accordina](../../instruments/accordina/)
+   (see [instruments/generate.py](../../instruments/generate.py)) don't enumerate physical voicings the way the
+   fretted-instrument code does, so they have no place to plug an equivalent check into yet.
 
 If a future feature genuinely needs the real, wide voicing of a chord (e.g.
 to render the Psalms chord's historical spacing verbatim), the recommended
@@ -168,6 +202,7 @@ speculatively.
 | Situation | What we store |
 |---|---|
 | Compound extension (9th/11th/13th, 6/9, add9…) | `ChordPattern`, octave-reduced to closest position; compound name kept in `notation`/`description` |
+| The extension must sound above the rest in a real, physical voicing (6/9 and thirteenth chords) | `ChordPattern.extension_intervals` marks which reduced tones are extensions; `InversionPattern.voicing_respects_extensions(...)` checks a concrete un-reduced voicing against it; the fretted-instrument chord generator filters on it |
 | Wide historical voicing that reduces to an existing chord shape (Tristan → half-diminished 7th, Psalms → minor triad, Neapolitan → major triad) | The existing `ChordPattern`, with the extra name/source/description added — no duplicate pattern |
 | Wide historical/synthetic collection with more than 4 distinct pitch classes once reduced (Mystic/Prometheus, Petrushka, Elektra) | `ScalePattern`, following the precedent already used for "Whole tone"/"Augmented" |
 | The register/doubling itself is the notable thing (Psalms chord's 4-octave-doubled middle note) | Prose only, in `description` — not representable in `_full_interval_list`/`_absolute_intervals` today; would need a future `Voicing` type (not built) |

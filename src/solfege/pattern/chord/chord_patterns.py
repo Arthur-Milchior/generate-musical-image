@@ -200,20 +200,26 @@ minor_added_fourth_chord = ChordPattern.make(
 six_nine_chord = ChordPattern.make(
     names=["Six-nine chord", "6/9 chord"], notation="6/9",
     _full_interval_list=[(2, 1), (4, 2), (7, 4), (9, 5)], interval_for_signature=nor_flat_nor_sharp,
+    extension_intervals=[(2, 1)],
     source="https://en.wikipedia.org/wiki/Added_tone_chord",
     description="Major triad with both an added sixth and an added ninth above the root, i.e. the union of the "
                  "sixth chord and the add9 chord — see the "
                  "<a href=\"https://en.wikipedia.org/wiki/Added_tone_chord#6/9_chord\">6/9 chord</a> section. It "
                  "is a common, fully consonant substitute for a major or dominant ninth chord that avoids the "
-                 "dissonant major seventh/leading tone.")
+                 "dissonant major seventh/leading tone. The ninth is marked as an extension (see "
+                 "multi_octave_patterns.md): a physical voicing (e.g. on guitar) should place it above the "
+                 "root, third, fifth and sixth, not between them.")
 minor_six_nine_chord = ChordPattern.make(
     names=["Minor six-nine chord", "Minor 6/9 chord"], notation="m6/9",
     _full_interval_list=[(2, 1), (3, 2), (7, 4), (9, 5)], interval_for_signature=three_flats,
+    extension_intervals=[(2, 1)],
     source="https://en.wikipedia.org/wiki/Added_tone_chord",
     description="Minor triad with both an added sixth and an added ninth above the root — see the "
                  "<a href=\"https://en.wikipedia.org/wiki/Added_tone_chord#6/9_chord\">6/9 chord</a> section. Its "
                  "major sixth and major ninth against a minor third give it a Dorian-mode flavor, and it is "
-                 "frequently used as a consonant, non-dissonant tonic minor chord in jazz.")
+                 "frequently used as a consonant, non-dissonant tonic minor chord in jazz. As with the major "
+                 "6/9 chord above, the ninth is marked as an extension that a physical voicing should place "
+                 "above the rest of the chord.")
 mixed_third_chord = ChordPattern.make(
     names=["Mixed third chord", "Split third chord"], notation="(♭3/3)",
     _full_interval_list=[(3, 2), (4, 3), (7, 4)], interval_for_signature=three_flats,
@@ -276,30 +282,38 @@ german_sixth_chord = ChordPattern.make(
 dominant_thirteenth_chord = ChordPattern.make(
     names=["Dominant thirteenth chord"], notation="<sup>13</sup>",
     _full_interval_list=[(4, 2), (7, 4), (9, 5), (10, 6)], optional_fifth=True, interval_for_signature=one_flat,
+    extension_intervals=[(9, 5)],
     source="https://en.wikipedia.org/wiki/Thirteenth_(interval)",
     description="<a href=\"https://en.wikipedia.org/wiki/Dominant_seventh_chord\">Dominant seventh chord</a> "
                  "plus a "
                  "<a href=\"https://en.wikipedia.org/wiki/Thirteenth_(interval)#Gallery\">thirteenth</a>, stored "
                  "here with the thirteenth reduced to the sixth it is enharmonically identical to (an octave "
-                 "lower). In practice the ninth and eleventh are usually also present but the fifth, ninth and "
-                 "eleventh are the tones most often dropped in performance, since \"root, third, seventh and "
-                 "thirteenth are most often included.\"")
+                 "lower) and marked as an extension (see multi_octave_patterns.md): a physical voicing (e.g. on "
+                 "guitar) should place it above the root, third, fifth and seventh, matching how a real "
+                 "thirteenth chord is voiced. In practice the ninth and eleventh are usually also present but "
+                 "the fifth, ninth and eleventh are the tones most often dropped in performance, since \"root, "
+                 "third, seventh and thirteenth are most often included.\"")
 major_thirteenth_chord = ChordPattern.make(
     names=["Major thirteenth chord"], notation="<sup>Δ13</sup>",
     _full_interval_list=[(4, 2), (7, 4), (9, 5), (11, 6)], optional_fifth=True, interval_for_signature=nor_flat_nor_sharp,
+    extension_intervals=[(9, 5)],
     source="https://en.wikipedia.org/wiki/Thirteenth_(interval)",
     description="<a href=\"https://en.wikipedia.org/wiki/Major_seventh_chord\">Major seventh chord</a> plus a "
                  "<a href=\"https://en.wikipedia.org/wiki/Thirteenth_(interval)#Gallery\">thirteenth</a>, stored "
-                 "here with the thirteenth reduced to a sixth. The eleventh, when added in full extended "
-                 "voicings, is conventionally raised (♯11) to avoid the semitone clash it would otherwise make "
-                 "against the major third, and for that reason is commonly left out entirely, as it is here.")
+                 "here with the thirteenth reduced to a sixth and marked as an extension that a physical "
+                 "voicing should place above the root, third, fifth and seventh. The eleventh, when added in "
+                 "full extended voicings, is conventionally raised (♯11) to avoid the semitone clash it would "
+                 "otherwise make against the major third, and for that reason is commonly left out entirely, "
+                 "as it is here.")
 minor_thirteenth_chord = ChordPattern.make(
     names=["Minor thirteenth chord", "Minor seventh add thirteenth chord"], notation="m<sup>13</sup>",
     _full_interval_list=[(3, 2), (7, 4), (9, 5), (10, 6)], optional_fifth=True, interval_for_signature=three_flats,
+    extension_intervals=[(9, 5)],
     source="https://en.wikipedia.org/wiki/Thirteenth_(interval)",
     description="<a href=\"https://en.wikipedia.org/wiki/Minor_seventh_chord\">Minor seventh chord</a> plus a "
                  "<a href=\"https://en.wikipedia.org/wiki/Thirteenth_(interval)#Gallery\">thirteenth</a>, stored "
-                 "here with the thirteenth reduced to a sixth. Jazz notation distinguishes a fuller \"minor "
+                 "here with the thirteenth reduced to a sixth and marked as an extension that a physical "
+                 "voicing should place above the root, third, fifth and seventh. Jazz notation distinguishes a fuller \"minor "
                  "thirteenth\" (implying the ninth and eleventh are also present) from a leaner \"minor seventh "
                  "add thirteen\" (only the sixth/thirteenth is added on top of the seventh chord); both reduce to "
                  "the same pitch classes once the ninth and eleventh are left out, as they are in this "

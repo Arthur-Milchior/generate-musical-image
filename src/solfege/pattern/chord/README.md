@@ -27,6 +27,17 @@ Two consequences to know before adding a chord:
    a major third) — see the "Mixed third chord" entry in [chord_patterns.py](chord_patterns.py) for a worked
    example.
 
+## `extension_intervals`: voicing extensions above the rest
+
+For chords whose reduced shape includes a compound extension (a 9th/11th/13th folded under an octave, per
+[../multi_octave_patterns.md](../multi_octave_patterns.md)), `extension_intervals` marks which of
+`_full_interval_list`'s entries are that extension — e.g. `six_nine_chord` marks its `(2, 1)` (the 9th). This
+doesn't change what's stored (still octave-reduced) or relax any registration constraint; it's read by
+`InversionPattern.voicing_respects_extensions(...)` (see [../inversion/README.md](../inversion/README.md)),
+which the fretted-instrument chord generator uses to reject any real fingering where the extension isn't
+physically voiced above the chord's other tones. Leave it empty (the default) unless a chord genuinely has a
+tone that must sound above the rest — most chords don't.
+
 ## `optional_fifth`
 
 If `optional_fifth=True`, the pattern additionally registers a second interval list with the fifth

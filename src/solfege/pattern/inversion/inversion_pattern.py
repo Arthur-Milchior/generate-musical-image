@@ -2,15 +2,16 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Dict, Generic, List, Tuple, Type, TypeVar
+from typing import ClassVar, Dict, Generic, Iterable, List, Tuple, Type, TypeVar
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_lists import PatternWithIntervalLists
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.set.interval_list import IntervalList
+from solfege.value.note.chromatic_note import ChromaticNote
 from solfege.value.note.note import Note
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import ClassWithEasyness
-from utils.util import assert_optional_typing, assert_typing
+from utils.util import assert_iterable_typing, assert_optional_typing, assert_typing
 
 class InversionPatternsGetter(ClassWithEasyness, ABC):
     """A protocol simply offeritng to access a IdenticalInversionPattern."""
@@ -46,6 +47,35 @@ class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern"
         """Returns the tonic assuming that the pattern start with this `lowest_note`."""
         assert_typing(lowest_note, Note)
         return lowest_note - self.tonic_minus_lowest_note
+
+    def get_chromatic_tonic(self, lowest_note: ChromaticNote) -> ChromaticNote:
+        """Same as `get_tonic`, but working purely in chromatic terms (e.g. for a fretted-instrument voicing,
+        which has no diatonic identity of its own)."""
+        assert_typing(lowest_note, ChromaticNote)
+        return lowest_note - self.tonic_minus_lowest_note.get_chromatic()
+
+    def voicing_respects_extensions(self, tonic: ChromaticNote, physical_notes: Iterable[ChromaticNote]) -> bool:
+        """Whether a concrete, physical voicing of this inversion -- `physical_notes`, distinct real notes with
+        `tonic` as this chord's real root (see `get_chromatic_tonic`) -- respects `base.extension_intervals`
+        (see ChordPattern.extension_intervals and multi_octave_patterns.md): every note playing an extension
+        tone must sound above every note playing a non-extension tone. True (no constraint to check) if `base`
+        has no marked extension, or if `physical_notes` doesn't actually contain both kinds."""
+        assert_typing(tonic, ChromaticNote)
+        assert_iterable_typing(physical_notes, ChromaticNote)
+        extension_classes = self.base.extension_chromatic_values()
+        if not extension_classes:
+            return True
+        extension_physical = []
+        base_physical = []
+        for note in physical_notes:
+            pitch_class = (note - tonic).in_base_octave().value
+            if pitch_class in extension_classes:
+                extension_physical.append(note)
+            else:
+                base_physical.append(note)
+        if not extension_physical or not base_physical:
+            return True
+        return max(base_physical) < min(extension_physical)
 
     @classmethod
     def _new_record_keeper(cls):

@@ -89,6 +89,11 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
             assert_typing(inversion_pattern_container, SingletonContainer)
             inversion_pattern = inversion_pattern_container.recorded_value
             assert_typing(inversion_pattern, InversionPattern)
+            tonic = inversion_pattern.get_chromatic_tonic(min_chromatic_note)
+            if not inversion_pattern.voicing_respects_extensions(tonic, chromatic_notes.notes):
+                # e.g. for a 6/9 or thirteenth chord, reject fingerings where the 9th/13th is not voiced above
+                # the chord's other tones -- see ChordPattern.extension_intervals and multi_octave_patterns.md.
+                continue
             chromatic_inversion_instantiation = self.recorded_container_getter(pattern=inversion_pattern, chromatic_note=min_chromatic_note.in_base_octave())
             self.record_keeper.register(key=chromatic_inversion_instantiation, recorded=fretted_instrument_chord)
         return self.record_keeper
