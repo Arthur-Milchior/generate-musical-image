@@ -32,6 +32,8 @@ class ScalePattern(SolfegePattern, IntervalList):
     """If True, add a warning if the result is not a perfect octave"""
     suppress_warning: bool = field(compare = False, default=False)
 
+    _is_chord_pattern: bool = field(compare=False, hash=False, default=False)
+
 
     @classmethod
     def _new_record_keeper(cls):

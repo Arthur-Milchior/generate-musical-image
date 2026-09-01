@@ -69,6 +69,11 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval, Inter
     @classmethod
     def unison(cls):
         return cls.make(0, 0)
+
+    def notation(self) -> str:
+        if self._diatonic.value < 0:
+            return "-" + (-self).notation()
+        return f"{self._diatonic.value+1}{self.get_alteration().letter()}"
     
     #pragma mark - Pair
 

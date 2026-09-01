@@ -24,6 +24,8 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
     """A unique id, in order of creations. For values of the same class, the smallest index is the first pattern to learn."""
     _pattern_index: int = field(compare=False, hash=False)
 
+    _is_chord_pattern: bool 
+
     
     def __lt__(self, other: Self):
         assert_typing(other, self.__class__)

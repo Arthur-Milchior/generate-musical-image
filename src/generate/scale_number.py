@@ -39,6 +39,7 @@ class AnkiNote(CsvGenerator):
         while len(names) < 6:
             names.append("")
         yield from names
+        yield "x" if self.scale._is_chord_pattern else ""
         AnkiNote.max_number_of_names = max(AnkiNote.max_number_of_names, len(self.scale.names))
 
     def _chromatic_relative_list(self):
@@ -50,6 +51,10 @@ class AnkiNote(CsvGenerator):
         return [interval.value 
                 for interval in self.scale.get_chromatic_interval_list().absolute_intervals()][1:-1]
     
+    def _absolute_list(self):
+        # Removing the first and last element which are 0 and 12.
+        return self.scale.get_interval_list().absolute_intervals()[1:-1]
+    
     def increasing_relative_field(self):
         return ", ".join(str(value) for value in self._chromatic_relative_list())
     
@@ -57,10 +62,10 @@ class AnkiNote(CsvGenerator):
         return ", ".join(str(value) for value in reversed(self._chromatic_relative_list()))
 
     def increasing_absolute_field(self):
-        return ", ".join(str(value) for value in self._chromatic_absolute_list())
+        return ", ".join(interval.notation() for interval in self._absolute_list())
     
     def decreasing_absolute_field(self):
-        return ", ".join(str(value) for value in reversed([12 - value for value in self._chromatic_absolute_list()]))
+        return ", ".join((Interval.unison().add_octave(1) -interval).notation() for interval in reversed(self._absolute_list()))
 
 anki_notes = []
 for scale_pattern in ScalePattern.all_patterns:

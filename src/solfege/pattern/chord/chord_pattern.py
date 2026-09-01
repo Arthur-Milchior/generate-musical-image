@@ -33,6 +33,8 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
     """Whether the 5th is optional"""
     optional_fifth: bool
 
+    _is_chord_pattern: bool = True
+
 
     @classmethod
     def _new_record_keeper(cls):
@@ -64,7 +66,7 @@ class ChordPattern(SolfegePattern, DataClassWithDefaultArgument):
         return ScalePattern.make(_absolute_intervals=absolute_intervals,
                             names=[chord_to_arpeggio_name(name) for name in self.names],
                             notation = self.notation,
-                            interval_for_signature=self.interval_for_signature, record=True, increasing=True)
+                            interval_for_signature=self.interval_for_signature, record=True, increasing=True, _is_chord_pattern=True)
 
     def interval_list_of_inversion(self, inversion_number, omit_fifth:bool=False) -> Optional[IntervalList]:
         assert 0<= inversion_number<len(self._full_interval_list)
