@@ -101,6 +101,17 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     
     def last_shown_fret(self):
         return self.chord.last_shown_fret()
+
+    def source_field(self):
+        """The chord pattern's Wikipedia (or other) source(s), as clickable links -- see ChordPattern.source."""
+        pattern = self.inversion.pattern.base
+        links = ", ".join(f'<a href="{url}">{url}</a>' for url in pattern.source)
+        return links.replace('"', "'")
+
+    def description_field(self):
+        """The chord pattern's description -- see ChordPattern.description. May contain HTML links."""
+        pattern = self.inversion.pattern.base
+        return pattern.description.replace('"', "'")
     
     def strings(self, folder_path: str):
         selected_strings = SetOfPositionOnFrettedInstrument.make(
@@ -123,6 +134,8 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         notation = self.inversion.notation()
 
         yield notation # notation
+        yield self.source_field() # source
+        yield self.description_field() # description
         yield img_tag(self.chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=BlackOnly(), absolute=self.is_open())) # Chord
         fpm = self.fretted_position_maker(all_marked=True)
         yield img_tag(self.chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=fpm, absolute=self.is_open())) # Colored chord

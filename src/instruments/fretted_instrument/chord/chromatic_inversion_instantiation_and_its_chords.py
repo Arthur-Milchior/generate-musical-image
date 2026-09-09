@@ -31,7 +31,7 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     For a `InversionPatternsGetterType`, record the list of chord with this inversion(pattern)
 
     Csv is:
-    name, other names, open, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored, partition)
+    name, other names, instrument, source, description, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored)
     """
     instrument: FrettedInstrument
     key: ChromaticInversionInstantiation
@@ -120,7 +120,18 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         assert_iterable_typing(names, str)
         other_names = names[1:]
         return ", ".join(other_names)
-    
+
+    def source_field(self):
+        """The chord pattern's Wikipedia (or other) source(s), as clickable links -- see ChordPattern.source."""
+        pattern = self.get_inversion_pattern().base
+        links = ", ".join(f'<a href="{url}">{url}</a>' for url in pattern.source)
+        return links.replace('"', "'")
+
+    def description_field(self):
+        """The chord pattern's description -- see ChordPattern.description. May contain HTML links."""
+        pattern = self.get_inversion_pattern().base
+        return pattern.description.replace('"', "'")
+
     def plain_and_numbered_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument):
         """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decomposition in chord_decompositions"""
         is_open = fretted_chord.is_open()
@@ -151,6 +162,8 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         yield self.first_name()
         yield self.other_names()
         yield self.instrument.get_name()
+        yield self.source_field()
+        yield self.description_field()
         maximals = self.maximals()
         individual_maximals, other_maximals = maximals[:7], maximals[7:]
         for fretted_chord in individual_maximals:
