@@ -35,17 +35,26 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
 
     """The set of positions"""
     positions: FrozenList[PositionOnFrettedInstrumentType]
+    """The positions making up this set, one `PositionOnFrettedInstrumentType` per note (0, 1, or many per string)."""
     type: ClassVar[Type[PositionOnFrettedInstrumentType]]
+    """The concrete position type held in `positions` (set by subclasses, e.g. `PositionOnFrettedInstrument` or
+    `PositionOnFrettedInstrumentWithFingers`)."""
     _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]]
+    """The `FrozenList` subclass used to store `positions` (set by subclasses, consistent with `type`)."""
     absolute: bool
+    """Whether every position's fret is an absolute fret number on the instrument, rather than a relative
+    (transposable) offset. Must be consistent across all positions in the set (see `__post_init__`)."""
 
     def __hash__(self):
+        """Hash based on the set of positions (order-independent, consistent with `__eq__`)."""
         return hash(frozenset(self.positions))
- 
+
     def played_positions(self):
+        """The subset of `positions` that are actually sounded (open or closed, i.e. not "not played")."""
         return self._frozen_list_type(pos for pos in self.positions if pos.fret.is_played())
-    
+
     def closed_positions(self):
+        """The subset of `positions` that are fretted (excludes open strings and not-played)."""
         return self._frozen_list_type(pos for pos in self.positions if pos.fret.is_closed())
 
     def get_most_grave_note(self) -> Optional[PositionOnFrettedInstrumentType]:
@@ -63,24 +72,31 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return dataclasses.replace(self, positions =self._frozen_list_type(new_positions))
 
     def __iter__(self) -> Iterator[PositionOnFrettedInstrumentType]:
+        """Iterate over the positions in `PositionOnFrettedInstrument` order (see that class's ordering)."""
         return iter(sorted(self.positions))
 
     def __eq__(self, other: Self):
+        """Equal iff the same positions (order-independent, i.e. as sets)."""
         assert_typing(other, self.__class__)
         return set(self.positions) == set(other.positions)
-    
+
     def __lt__(self, other: Self):
+        """Strict subset comparison over `played_positions()` (not-played positions are ignored)."""
         assert_typing(other, self.__class__)
         return set(self.played_positions()) < set(other.played_positions())
-    
+
     def __le__(self, other: Self):
+        """Subset-or-equal comparison over `played_positions()` (not-played positions are ignored)."""
         assert_typing(other, self.__class__)
         return set(self.played_positions()) <= set(other.played_positions())
 
     def __len__(self):
+        """The number of positions in the set."""
         return len(self.positions)
 
     def best_chord_key(self):
+        """Sort key used to pick the best/preferred fingering among equivalent chord shapes: prefer fewer
+        fretted frets spanned, then more distinct notes, then fewer total positions, then a lower highest fret."""
         # We want to have first:
         # * easiest to play (low number of fret)
         # * Most distinct note (more interesting to hear)
@@ -100,11 +116,13 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return optional_min(position.fret for position in self.closed_positions())
 
     def is_open(self):
+        """Whether the lowest fret used (open included) is the open string itself."""
         return self._min_fret(allow_open=True).is_open()
-    
+
     def is_transposable(self):
+        """Whether this set can be freely transposed along the neck (i.e. it uses no open string)."""
         return not self.is_open()
-    
+
     def number_of_frets(self, allow_open: bool) -> int:
         """Returns the number of fret between the highest and the lowest fret."""
         m = self._min_fret(allow_open)
@@ -124,9 +142,11 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return max_optional([mf, minimal_number_of_frets])
 
     def strings_at_fret(self, fret: Fret):
+        """The strings played at exactly `fret`."""
         return [pos.string for pos in self.positions if pos.fret == fret]
-    
+
     def open_strings(self):
+        """The strings played open in this set."""
         return self.strings_at_fret(Fret.make(0, self.absolute))
 
     def strings_at_min_fret(self, allow_open: bool):
@@ -159,14 +179,14 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return dataclasses.replace(self, positions=PositionOnFrettedInstrumentFrozenList(positions))
 
     def chromatic_notes(self) -> ChromaticNoteList:
-        """return the set of note (i.e. no repetition)"""
+        """return the set of note (i.e. no repetition), sorted, ignoring not-played positions."""
         chromatic_notes = [pos.get_chromatic() for pos in self]
         chromatic_notes = [note for note in chromatic_notes if note is not None]
         assert_iterable_typing(chromatic_notes, ChromaticNote)
         return ChromaticNoteList.make(sorted_unique(chromatic_notes))
 
     def intervals_frow_lowest_note(self) -> Optional[IntervalList]:
-        """Return None if there are no note played."""
+        """The interval of each distinct note above the lowest note in the set. Return None if there are no note played."""
         lowest_position = self.get_most_grave_note()
         lowest_note = lowest_position.get_chromatic()
         chromatic_notes = self.chromatic_notes()
@@ -181,6 +201,8 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return ChromaticIntervalListPattern.make_absolute(sorted_unique(chromatic_intervals))
 
     def intervals_frow_lowest_note_in_base_octave(self):
+        """Same as `intervals_frow_lowest_note`, but each interval is folded into the base octave (so notes an
+        octave apart from the lowest note collapse to the same interval)."""
         intervals = self.intervals_frow_lowest_note()
         if intervals is None:
             return None
@@ -189,8 +211,9 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return ChromaticIntervalListPattern.make_absolute(sorted_unique(interval.in_base_octave() for interval in absolute_chromatic_intervals))
 
     def number_of_distinct_notes(self):
+        """How many distinct chromatic notes (ignoring repeats across strings) are played."""
         return len(self.chromatic_notes())
-    
+
     def get_specific_role(self, tonic: ChromaticNote, roles: Iterable[Union[ChromaticInterval, int]], assert_unique: bool = True):
         """Get the notes whose interval with tonic belongs in `roles`. If `assert_unique` a single of those role should be present at most.
         E.g. not having both third minor and major."""
@@ -209,32 +232,45 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         return positions
     
     def get_not_played_positions(self):
+        """The positions in this set whose string is not played."""
         return [pos for pos in self if pos.fret.is_not_played()]
 
     def get_tonics(self, tonic: ChromaticNote):
+        """The positions playing the tonic itself (interval 0 from `tonic`)."""
         assert_typing(tonic, ChromaticNote)
         return self.get_specific_role(tonic, [0])
-    
+
     def get_thirds(self, tonic: ChromaticNote):
+        """The positions playing a minor or major third above `tonic`."""
         assert_typing(tonic, ChromaticNote)
         return self.get_specific_role(tonic, [3, 4])
-    
+
     def get_fifths(self, tonic: ChromaticNote):
+        """The positions playing a diminished, perfect, or augmented fifth above `tonic`."""
         assert_typing(tonic, ChromaticNote)
         return self.get_specific_role(tonic, [6, 7, 8])
-    
+
     def get_quality(self, tonic: ChromaticNote):
+        """The positions playing the note (major 6th/diminished 7th, minor 7th, or major 7th above `tonic`) that
+        determines the chord's "quality" (e.g. dominant vs. major vs. diminished 7th)."""
         assert_typing(tonic, ChromaticNote)
         return self.get_specific_role(tonic, [9, 10, 11])
-    
+
     def get_other(self, tonic: ChromaticNote):
+        """The positions playing a 2nd, minor 3rd (as an added tone), or 4th above `tonic` (roles that may
+        legitimately co-occur, hence `assert_unique=False`)."""
         assert_typing(tonic, ChromaticNote)
         return self.get_specific_role(tonic, [1, 2, 5], assert_unique=False)
-    
+
     def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
+        """Return `self` with every position transposed by `transpose` half-steps on its own string (see
+        `PositionOnFrettedInstrument.transpose_same_string`)."""
         return dataclasses.replace(self, positions =self._frozen_list_type(position.transpose_same_string(transpose, transpose_open, transpose_not_played) for position in self.positions))
-    
+
     def transpose_to_fret_one(self):
+        """Return `(transposed_set, transpose_interval)` where `transposed_set` is `self` shifted down so its
+        lowest closed fret becomes fret 1, and `transpose_interval` is the `ChromaticInterval` used. Requires no
+        open strings are played (asserts `not self.open_strings()`)."""
         assert not self.open_strings()
         transpose = ChromaticInterval.make(-(self._min_fret(allow_open=False).value-1))
         return self.transpose_same_string(transpose=transpose, transpose_open=False, transpose_not_played=True), transpose
@@ -260,8 +296,9 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
     
     # SVG
 
-    def _number_of_frets_for_svg(self, 
+    def _number_of_frets_for_svg(self,
                      minimal_number_of_frets: Fret =None,) -> Fret:
+        """The last fret to show on the diagram (alias for `last_shown_fret`, with a default minimum of fret 1)."""
         assert_optional_typing(minimal_number_of_frets, Fret)
         if minimal_number_of_frets is None:
             minimal_number_of_frets = Fret.make(1, self.absolute)
@@ -275,6 +312,9 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
                      minimal_number_of_frets: Fret =None,
                      colored_strings: List[String] = list(),
                      *args, **kwargs) -> Generator[str]:
+        """Yield the full svg content for this set's fretboard diagram: the strings, the fret lines/dots up to
+        the last shown fret, then (via `fretted_position_maker`) a marker for every position in the set.
+        `colored_strings` highlights specific strings (see `Strings.svg_lines`)."""
         assert_typing(fretted_position_maker, FrettedPositionMaker)
         assert_typing(instrument, FrettedInstrument)
         max_fret = self._number_of_frets_for_svg(minimal_number_of_frets)
@@ -283,21 +323,26 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
         yield from max_fret.all_frets_up_to_here(allow_open=True).svg_lines(instrument, self.absolute)
         for pos in self:
             yield from fretted_position_maker.svg_content(instrument, pos)
-    
+
     def svg_width(self, instrument: FrettedInstrument, *args, **kwargs):
+        """The svg width (in svg units) of the diagram: the instrument's fretboard width."""
         return instrument.width()
-    
+
     def svg_height(self, minimal_number_of_frets: Fret =None, *args, **kwargs):
+        """The svg height (in svg units) of the diagram, covering every fret shown plus a bottom margin."""
         if minimal_number_of_frets is None:
             minimal_number_of_frets = Fret.make(1, self.absolute)
         return self.last_shown_fret(minimal_number_of_frets).y_fret() + MARGIN
-    
+
     def _svg_name_base(self,
                        instrument: FrettedInstrument,
-                       fretted_position_maker: FrettedPositionMaker, 
+                       fretted_position_maker: FrettedPositionMaker,
                        colored_strings: List[String] = list(),
                        minimal_number_of_frets: Fret = None,
                        **kwargs):
+        """The base (extension-less) filename for this set's diagram: instrument name, position-maker name,
+        absolute/transposable, and either each position's `string_fret` (when the set is non-empty) or the
+        highlighted `colored_strings` (when it is empty, e.g. an empty-fretboard illustration)."""
         assert_optional_typing(minimal_number_of_frets, Fret)
         absolute = "absolute" if self.absolute else "transposable"
         # number_of_strings = f"{instrument.number_of_strings()}_strings"
@@ -325,21 +370,27 @@ class AbstractSetOfFrettedPositions(SvgGenerator, MakeableWithSingleArgument, Cl
 
     @classmethod
     def _make_single_argument(cls, arg: List) -> Self:
+        """Build an instance from an iterable of single-argument position specs; `absolute` is inferred from
+        the first position's fret."""
         poss = [cls.type.make_single_argument(pos) for pos in arg]
-        absolute = poss[0].fret.absolute 
+        absolute = poss[0].fret.absolute
         return cls.make(positions=poss, absolute=absolute)
 
     def repr_single_argument(self) -> str:
+        """The positions, each via its own `repr_single_argument()`, as a bracketed list string."""
         return f"""[{", ".join(position.repr_single_argument() for position in self.positions )}]"""
 
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Normalize constructor arguments: `positions` becomes a keyword argument, coerced to `_frozen_list_type`."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "positions", cls._frozen_list_type)
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
+        """Validate that `positions` is a `_frozen_list_type` of `type`, and that every position's fret shares
+        this set's `absolute` flag."""
         assert_typing(self.positions, self._frozen_list_type)
         assert_iterable_typing(self.positions, self.type)
         for pos in self:

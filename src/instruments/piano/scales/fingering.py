@@ -21,22 +21,23 @@ class Fingering:
 
     """
 
-    """Associate to a note in the base octave a finger. 1 being the thumb. The exception being the tonic, 
-    which may be played by two fingers to start and continue/end the scale. The other one is saved at 
-    finger_for_the_tonic_at_start"""
     _dic: Dict[Note, int]
+    """Associate to a note in the base octave a finger. 1 being the thumb. The exception being the tonic,
+    which may be played by two fingers to start and continue/end the scale. The other one is saved at
+    finger_for_the_tonic_at_start"""
 
-    """The tonic for this fingering."""
     tonic: Optional[Note]
+    """The tonic for this fingering."""
 
-    """ Whether it's a fingering for right hand"""
     for_right_hand: bool
+    """ Whether it's a fingering for right hand"""
 
-    """The finger used to play the tonic once at an extremity. Usually the fifth, or sometime fourth, to start the 
-    increasing scale on the left hand and to end the increasing scale on the right end."""
     pinky_side_tonic_finger: Optional[int] = None
+    """The finger used to play the tonic once at an extremity. Usually the fifth, or sometime fourth, to start the
+    increasing scale on the left hand and to end the increasing scale on the right end."""
 
     def __init__(self, for_right_hand: bool):
+        """Create an empty fingering (no note assigned yet) for the given hand."""
         self._dic = dict()
         self.tonic = None
         self.for_right_hand = for_right_hand
@@ -44,6 +45,11 @@ class Fingering:
 
     @classmethod
     def from_scale(cls, scale: List[PianoNote], for_right_hand: bool) -> Optional[Fingering]:
+        """Build the `Fingering` summarizing a fully-fingered `scale` (its per-note finger assignments).
+
+        `scale` is the list of `PianoNote` in melodic order; the note at the pinky-side extremity (last note for
+        the right hand, first for the left hand) becomes the pinky-side tonic finger, and every other note is
+        added via `add`. Returns None if the pinky-side extremity is fingered with the thumb (invalid)."""
         self = Fingering(for_right_hand)
         if for_right_hand:
             pinky_side_note = scale[-1]
@@ -59,6 +65,7 @@ class Fingering:
         return self
 
     def _copy(self) -> Fingering:
+        """Return a shallow copy of this fingering (independent `_dic`, same tonic/pinky-side finger)."""
         nex = Fingering(for_right_hand=self.for_right_hand)
         nex.tonic = self.tonic
         nex.pinky_side_tonic_finger = self.pinky_side_tonic_finger
@@ -66,16 +73,22 @@ class Fingering:
         return nex
 
     def __eq__(self, other: Fingering) -> bool:
+        """Equal if both are for the same hand and assign the same tonic, per-note fingers and pinky-side
+        tonic finger."""
         assert isinstance(other, Fingering)
         assert self.for_right_hand == other.for_right_hand  # If we compare fingering for left and right hand, there is a bug somewhere
         return self.tonic == other.tonic and self._dic == other._dic and self.pinky_side_tonic_finger == other.pinky_side_tonic_finger
 
     def __contains__(self, note: Note) -> bool:
+        """Whether `note` (in any octave; a plain `Note`, not `PianoNote`) already has a finger assigned."""
         assert not isinstance(note, PianoNote)
         note = note.in_base_octave()
         return note in self._dic
 
     def add_pinky_side(self, note: PianoNote) -> Fingering:
+        """Return a copy of this (empty) fingering with `note` set as the tonic played at the pinky-side
+        extremity, using `note.finger`. Must not be called on a fingering that already has a pinky-side finger,
+        and `note` must not be fingered with the thumb."""
         assert_typing(note, PianoNote)
         assert self.pinky_side_tonic_finger is None
         assert note.finger != 1
@@ -111,6 +124,7 @@ class Fingering:
         return self.ends_with_a_thumb() and self.get_pinky_side_tonic_finger() == 5
 
     def pinky_to_thumb_on_white(self) -> bool:
+        """Whether the last finger of the scale's fingering is a thumb landing on a white-key tonic."""
         return self.pinky_to_thumb() and not self.tonic.is_black_key_on_piano()
 
     def ends_with_a_thumb(self) -> bool:
@@ -136,9 +150,11 @@ class Fingering:
         return DIFFERENT_EXTREMITIES
 
     def get_thumb_side_tonic_finger(self) -> Optional[int]:
+        """The finger playing the tonic at the thumb-side extremity of the scale (where the scale starts)."""
         return self.get_finger(self.tonic)
 
     def get_pinky_side_tonic_finger(self) -> Optional[int]:
+        """The finger playing the tonic at the pinky-side extremity of the scale (where the scale ends)."""
         return self.pinky_side_tonic_finger
 
     def get_finger(self, note: Note, pinky_side_finger=False) -> Optional[int]:
@@ -152,6 +168,7 @@ class Fingering:
         return self._dic.get(note)
 
     def __repr__(self):
+        """`eval`-able representation reconstructing this fingering via `add_pinky_side`/`add` calls."""
         text = f"""scales(for_right_hand={self.for_right_hand})"""
         if self.tonic:
             text += f""".\n  add_pinky_side(PianoNote.make(_chromatic={self.tonic.get_chromatic().value}, _diatonic={self.tonic.get_diatonic().value}, finger={self.pinky_side_tonic_finger}))"""
@@ -161,6 +178,11 @@ class Fingering:
 
     def generate(self, first_played_note: Note, scale_pattern: ScalePattern, number_of_octaves: int = 1) -> \
             List[PianoNote]:
+        """Apply this fingering to `number_of_octaves` octaves of `scale_pattern` starting on `first_played_note`.
+
+        Returns the resulting list of `PianoNote`, with the pinky-side extremity note re-fingered with
+        `pinky_side_tonic_finger` (instead of the thumb-side tonic finger `get_finger` would otherwise return for
+        the tonic)."""
         assert first_played_note.equals_modulo_octave(self.tonic)
         assert number_of_octaves != 0
         scale = scale_pattern.from_note(first_played_note, number_of_octaves=number_of_octaves)

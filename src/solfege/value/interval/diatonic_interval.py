@@ -16,10 +16,13 @@ class DiatonicInterval(AbstractSingletonInterval, Diatonic):
 
     #Pragma mark - Singleton
     number_of_interval_in_an_octave: ClassVar[int] = 7
+    """Diatonic intervals divide the octave into 7 scale degrees."""
 
     #public
 
     def get_interval_name(self, showOctave=True):
+        """The English name of the interval (e.g. "third", "octave and fifth"), decreasing intervals
+        getting a " decreasing" suffix. `showOctave` controls whether extra octaves are mentioned."""
         if self.value == 0:
             return "unison"
         if self.value < 0:

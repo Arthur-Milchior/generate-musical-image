@@ -24,24 +24,32 @@ class AbstractInterval(Abstract, ABC):
     * DiatonicClass: class to which a chromatic object must be converted when a diatonic object is required.
     * PairClass: the class to which a diatonic and chromatic object must be converted."""
     _role: Optional[IntervalRole] = field(hash=False, compare=False)
-    
+    """The interval's role (e.g. "root", "third") within the pattern it was generated from, if any.
+    Not used for hashing/equality; may be `None` when the interval has no known role."""
+
     def __neg__(self):
+        """The opposite interval (e.g. a fifth up becomes a fifth down)."""
         return self * -1
 
     def get_role(self) -> IntervalRole:
+        """Return `self._role`; raises if it was never set."""
         assert self._role is not None
         return self._role
-    
+
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
+        """Default `_role` to `None` when not supplied."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         kwargs["_role"] = None
         return kwargs
-    
+
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Coerce a `_role` argument given as a plain string into an `IntervalRole` via
+        `IntervalRoleFromString`."""
         def clean_role(role):
+            """Convert `role` to an `IntervalRole`, parsing it from a string if needed."""
             if isinstance(role, str):
                 return IntervalRoleFromString(role)
             assert_typing(role, IntervalRole)
@@ -51,14 +59,17 @@ class AbstractInterval(Abstract, ABC):
         return args, kwargs
 
     def __post_init__(self):
+        """Validate that `_role`, if set, is an `IntervalRole`."""
         assert_optional_typing(self._role, IntervalRole)
         super().__post_init__()
-    
+
     # must be implemented by subclasses
-    
+
     @classmethod
     @abstractmethod
-    def unison(cls):...        
+    def unison(cls):
+        """Return the unison (zero-sized) interval for this class."""
+        ...
 
 
 IntervalType = TypeVar('IntervalType', bound=AbstractInterval)

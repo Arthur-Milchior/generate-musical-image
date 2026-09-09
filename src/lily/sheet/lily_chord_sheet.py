@@ -12,17 +12,23 @@ from solfege.value.key.keys import key_of_C
 
 @dataclass(frozen=True)
 class LilyChordSheet(LilySheetSingleStaff):
+    """A `LilySheetSingleStaff` whose staff is a `LilyChordStaff` (a chord, possibly a singleton "chord" of one
+    note as used for single-note diagrams)."""
     staff: LilyChordStaff
+    """The chord staff to render."""
 
     #pragma mark - LilySheet
 
     def file_prefix(self) -> str:
+        """A file name built from the clef, each note's name (ASCII, fixed-width), and an `_ottava_N` suffix if
+        the chord needed an octave shift."""
         va = self.staff.get_ottava()
         if va is 0:
             va_part = ""
         else:
             va_part = f"_ottava_{va}"
         def name(note: Note):
+            """The note's ASCII, fixed-width name (e.g. `C____________4`), used as a filesystem-safe token."""
             return note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.ASCII, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.UNDERSCORE_DOUBLE)
         return f"""{str(self.staff.clef)}_chord_{"_".join(name(note) for note in self.staff.notes)}{va_part}"""
 
@@ -36,5 +42,6 @@ class LilyChordSheet(LilySheetSingleStaff):
     #     return args, kwargs
 
 def lily_chord_sheet(notes: List, clef: Clef, key: Key=key_of_C) ->LilyChordSheet:
+    """Build a `LilyChordSheet` from a plain list of `notes`, a `clef`, and a `key` (defaulting to C major)."""
     staff = LilyChordStaff.make(notes= notes, clef=clef, first_key = key)
     return LilyChordSheet.make(staff=staff)

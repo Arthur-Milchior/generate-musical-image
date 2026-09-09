@@ -5,6 +5,7 @@ from sh import shell
 
 class TestLily(unittest.TestCase):
     def setUp(self):
+        """Build the two hand fixtures (`c_pentatonic_minor_5th_right`/`_left`) shared by the tests below."""
         from instruments.piano.piano_note import PianoNote
 
         self.c_pentatonic_minor_5th_right = [
@@ -73,6 +74,7 @@ class TestLily(unittest.TestCase):
 }"""
 
     def test_indent(self):
+        """indent() prefixes every line of its input with two spaces."""
         self.assertEqual(indent("""foo
   bar"""), """  foo
     bar""")
@@ -219,6 +221,7 @@ class TestLily(unittest.TestCase):
     #         )
 
     def test_chord(self):
+        """chord() renders a list of simultaneous notes as one LilyPond `<...>` chord on a single staff."""
         generated = chord(self.c_pentatonic_minor_5th_right, )
         self.assertEqual(generated,
                           """\\version "2.20.0"
@@ -236,6 +239,7 @@ class TestLily(unittest.TestCase):
 }""")
 
     def test_compile(self):
+        """compile_() writes the .ly source for a two-hand piece to disk and returns a callable that renders it to audio (played back via `vlc`, so this test requires manual audio verification)."""
         prefix_path = "test_arpeggio"
         lily_path = f"{prefix_path}.ly"
         if os.path.isfile(lily_path):
@@ -249,6 +253,7 @@ class TestLily(unittest.TestCase):
         shell(f"vlc {prefix_path}.wav&")
 
     def test_chord_compile(self):
+        """Like test_compile, but for a chord (`chords_lily`) rather than a melodic two-hand piece."""
         prefix_path = "test_chords"
         lily_path = f"{prefix_path}.ly"
         if os.path.isfile(lily_path):

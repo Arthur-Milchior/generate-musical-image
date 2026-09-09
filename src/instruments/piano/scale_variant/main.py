@@ -61,12 +61,12 @@ for scale_pattern in scale_patterns:
                     alteration_output = AlterationOutput.SYMBOL, 
                     note_output = NoteOutput.LETTER, 
                     fixed_length = FixedLengthOutput.NO
-                    ))}_{first_direction}_{second_key_note.get_name_with_octave(
+                    )}_{first_direction}_{second_key_note.get_name_with_octave(
                     octave_notation=OctaveOutput.MIDDLE_IS_4,
-                    alteration_output = AlterationOutput.SYMBOL, 
-                    note_output = NoteOutput.LETTER, 
+                    alteration_output = AlterationOutput.SYMBOL,
+                    note_output = NoteOutput.LETTER,
                     fixed_length = FixedLengthOutput.NO
-                    ))}_{second_direction}"
+                    )}_{second_direction}"
                 compile_(two_scales.lily(False), f"{scale_folder}/{file_prefix}", False)
                 anki_entries.append(
                     f"""{img_tag("{file_prefix}.svg")}|{pattern_name} in {first_key.note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )} and {second_key_note.get_name_with_octave(octave_notation=OctaveOutput.OCTAVE_MIDDLE_PIANO_4, ascii=False, )}""")

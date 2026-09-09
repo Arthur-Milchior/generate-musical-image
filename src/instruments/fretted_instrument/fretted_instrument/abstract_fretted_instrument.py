@@ -14,20 +14,38 @@ from utils.util import assert_optional_typing, assert_typing, ensure_folder
 
 @dataclass(frozen=True, unsafe_hash=True)
 class AbstractFrettedInstrument(DataClassWithDefaultArgument):
+    """The tuning-independent characteristics of a family of fretted instruments (e.g. "a guitar", regardless of
+    which tuning it is strung with) -- how many frets and strings it has, its clef, and how far apart fingers can
+    reasonably be placed. See `FrettedInstrument` for the class that pairs this with an actual `Tuning`."""
+
     _name: str
+    """The instrument family's identifier (e.g. "guitar", "bass", "ukulele"), used to build generated file/folder names."""
     number_of_frets: int
+    """How many frets the instrument has (excluding the open/nut position)."""
     clef: Clef
+    """The clef notes of this instrument are notated in."""
     number_of_strings: int
-    """finger_to_fret_delta_x[i][j] is the possible number of frets between fingers i and j when generating x"""
+    """How many strings the instrument has."""
     finger_to_fret_delta_chord: Dict[int, Dict[int, FretDelta]]=field(compare=False)
+    """finger_to_fret_delta_chord[i][j] is the range of fret distances allowed between fingers i and j when
+    generating chords (fingers can be spread further apart than when playing a scale, since a chord holds still)."""
     finger_to_fret_delta_scale: Dict[int, Dict[int, FretDelta]]=field(compare=False)
+    """Same as `finger_to_fret_delta_chord`, but the range of fret distances allowed between fingers i and j when
+    generating scales."""
     number_of_scales_reachable_per_string: IntFrozenList
+    """For each string (by index), how many of the generated multi-octave scales are expected to reach it -- used
+    to sanity-check scale generation coverage per instrument."""
 
     # pragma mark - DataClassWithDefaultArgument
-    
+
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Deep-copy and symmetrize `finger_to_fret_delta_chord`/`finger_to_fret_delta_scale` (deriving delta[j][i]
+        as `-delta[i][j]`) and coerce `clef`/`number_of_scales_reachable_per_string` to their expected types."""
         def clean_finger_to_fret_delta(open_strings: Dict[int, Dict[int, FretDelta]]):
+            """Deep-copy `open_strings` (a finger-to-finger-to-`FretDelta` mapping, named for the constructor
+            argument this coercion is applied to) and fill in the reverse deltas: `[higher][lower]` becomes
+            `-delta[lower][higher]` for every finger pair, so callers only need to specify one direction."""
             # Ensure modifications are not applied to the dic
             open_strings = copy.deepcopy(open_strings)
             assert_typing(open_strings, dict)
@@ -38,6 +56,8 @@ class AbstractFrettedInstrument(DataClassWithDefaultArgument):
                     open_strings[higher][lower] = -delta
             return open_strings
         def clean_open_strings(open_strings):
+            """Coerce a list of open-string notes into a `ChromaticNoteFrozenList`. (Currently unused by any
+            constructor argument below.)"""
             return ChromaticNoteFrozenList(open_strings)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "_name", type=str)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_frets", type=int)
@@ -50,6 +70,8 @@ class AbstractFrettedInstrument(DataClassWithDefaultArgument):
         return super()._clean_arguments_for_constructor(args, kwargs)
     
     def __post_init__(self):
+        """Validate finger/fret-delta ranges are within [0, 4] fingers, symmetric, and that
+        `number_of_scales_reachable_per_string` has one non-negative entry per string."""
         assert_typing(self._name, str)
         assert_typing(self.number_of_frets, int)
         assert_typing(self.clef, Clef)

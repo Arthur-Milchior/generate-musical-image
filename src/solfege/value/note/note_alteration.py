@@ -38,6 +38,9 @@ symbols = [s.replace(" ", "") for s in fixed_length_symbol_space_double]
 
 @dataclass(frozen=True)
 class NoteAlteration(Alteration):
+    """The alteration (sharp/flat count) applied to a note, e.g. the +1 in G#. Values range from
+    -2 (double flat) to +2 (double sharp)."""
+
     def syntax_for_lily(self):
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.value + 2]
@@ -82,6 +85,8 @@ class NoteAlteration(Alteration):
 
     @staticmethod
     def from_name(name: str):
+        """Parse a symbol ("#", "##", "", "♭", "♭♭", "𝄪") into the matching `NoteAlteration`
+        singleton."""
         return {
             "#": SHARP,
             "##": DOUBLE_SHARP,
@@ -94,7 +99,9 @@ class NoteAlteration(Alteration):
     #pragma mark - Alteration
 
     min_value: ClassVar[int] = -2
+    """A note alteration may go as low as double flat."""
     max_value: ClassVar[int] = 2
+    """A note alteration may go as high as double sharp."""
 
 
 alteration_symbols = "𝄪♭#"

@@ -34,6 +34,7 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     name, other names, instrument, source, description, for chord (1, 2, 3, 4, 5, 6, 7, remaining): (the chord black, chord colored)
     """
     instrument: FrettedInstrument
+    """The instrument these fingerings are played on."""
     key: ChromaticInversionInstantiation
     """The pattern, potentially inversed, with a lowest note."""
     fretted_instrument_chords: List[ChordOnFrettedInstrument] = field(hash=False, compare=False, default_factory=list)
@@ -42,9 +43,13 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     #pragma mark - InversionPatternGetter
 
     def get_inversion_pattern(self) -> InversionPattern:
+        """The chord pattern (with its inversion) this container is collecting fingerings for."""
         return self.key.pattern
 
     def append(self, fretted_instrument_chord: ChordOnFrettedInstrument):
+        """Register one more fingering of the chord, then keep `fretted_instrument_chords` sorted by ease of
+        play. Asserts `fretted_instrument_chord`'s actual chromatic intervals from its lowest note match one of
+        the interval lists expected for `key`'s pattern, and that it isn't already registered."""
         assert_typing(fretted_instrument_chord, ChordOnFrettedInstrument)
         expected_chromatic_intervals_lists = self.get_inversion_pattern().get_interval_lists()
         actual_chromatic_intervals = fretted_instrument_chord.intervals_frow_lowest_note_in_base_octave()
@@ -54,6 +59,7 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         self.fretted_instrument_chords.sort(key = lambda chord: chord.best_chord_key())
 
     def is_smaller_than_known_chord(self, small_chord: ChordOnFrettedInstrument):
+        """Whether some already-registered chord strictly contains `small_chord` (via `ChordOnFrettedInstrument.__lt__`)."""
         for big_chord in self.fretted_instrument_chords:
             if small_chord < big_chord:
                 return True
@@ -76,13 +82,17 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         ], key=lambda decomposition: decomposition.easy_key())
 
     def all_fretted_instrument_chords(self):
+        """All registered fingerings (not just the maximal ones), as a `FrettedInstrumentChordFrozenList`."""
         return FrettedInstrumentChordFrozenList(self.fretted_instrument_chords)
-    
+
     def __iter__(self):
+        """Iterate over the registered fingerings, sorted (see `sort`)."""
         self.sort()
         yield from self.fretted_instrument_chords
 
     def names(self):
+        """The chord's notation(s): the tonic-based name (e.g. "Cmaj7"), plus, for a non-root inversion, a second
+        "<chord>/<bass note>" slash-notation name."""
         inversion = self.get_inversion_pattern()
         chromatic_lowest_note: ChromaticNote = self.key.lowest_note
         lowest_note = inversion.intervals_with_all_notes().best_enharmonic_starting_note(chromatic_lowest_note)
@@ -100,6 +110,8 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
             return [f"""{chord_notation}/{lowest_note_name}"""]
 
     def lily_field(self, fretted_instrument_chord : PositionOnFrettedInstrument, interval_list: IntervalList) -> str:
+        """Render `interval_list` (from the container's lowest note) as staff notation and return its `<img>` tag.
+        `fretted_instrument_chord` is currently unused."""
         lowest_chromatic_note: ChromaticNote = self.key.lowest_note
         lowest_note: Note = Note.from_chromatic(lowest_chromatic_note)
         note_list: NoteList = interval_list.from_note(lowest_note)
@@ -110,12 +122,15 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     # Used for anki:
 
     def __len__(self):
+        """How many fingerings have been registered."""
         return len(self.fretted_instrument_chords)
-    
+
     def first_name(self):
+        """The chord's primary notation (see `names`)."""
         return self.names()[0]
-    
+
     def other_names(self):
+        """Any secondary notation(s) from `names` (typically the slash-chord form for an inversion), comma-joined."""
         names = self.names()
         assert_iterable_typing(names, str)
         other_names = names[1:]
@@ -159,6 +174,9 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     #Pragma mark - CsvGenerator
 
     def csv_content(self, folder_path: str):
+        """Yield this container's Anki fields: name, other names, instrument, source, description, then up to 7
+        maximal chords each as a (plain diagram, colored diagram) pair, padded with blanks if fewer than 7
+        exist, followed by any further maximal chords' diagrams comma-joined into two overflow fields."""
         yield self.first_name()
         yield self.other_names()
         yield self.instrument.get_name()
@@ -179,11 +197,13 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
+        """Default `fretted_instrument_chords` to an empty list when not supplied."""
         default = super()._default_arguments_for_constructor(args, kwargs)
         default["fretted_instrument_chords"] = list()
         return default
 
     def __post_init__(self):
+        """Validate the types of `key` and `fretted_instrument_chords`."""
         assert_typing(self.key, ChromaticInversionInstantiation)
         assert_typing(self.fretted_instrument_chords, list)
         assert_iterable_typing(self.fretted_instrument_chords, ChordOnFrettedInstrument)
@@ -191,8 +211,8 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
 
     # Must be implemented by subclasses
 
-    """Same As IdenticalInversionPatternsGetterType"""
     absolute: ClassVar[bool]
+    """Same As IdenticalInversionPatternsGetterType. Declared but never assigned/overridden here or by any known
+    subclass; not currently read anywhere in this class."""
 
     # The anki field for the partition if any.
-        

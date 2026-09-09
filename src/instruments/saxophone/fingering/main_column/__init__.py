@@ -1,8 +1,6 @@
+"""Saxophone fingering with the buttons on the main column, except for overtone."""
 from instruments.saxophone.buttons import *
 from instruments.saxophone.fingering.saxophone_fingering import *
-
-"""Saxophone fingering with the buttons on the main column, except for overtone.
-"""
 
 # Without octave button
 

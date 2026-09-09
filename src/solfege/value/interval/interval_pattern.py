@@ -6,19 +6,27 @@ from solfege.value.interval.interval import Interval
 
 @dataclass(frozen=True)
 class IntervalPattern(SolfegePattern, ABC):
-    """A pattern for a single interval."""
+    """A pattern for a single interval (e.g. "Third major"), as opposed to a chord/scale pattern which
+    holds several intervals. Built from a name and a single `interval` argument (relative to the
+    unison); see module-level `intervals_up_to_octave` below for the full registered list."""
 
     """See SoflegePattern"""
     name_to_pattern: ClassVar[Dict[str, "IntervalPattern"]] = dict()
+    """Registry of all `IntervalPattern` instances, keyed by name (see `SolfegePattern`)."""
     all_patterns: ClassVar[List['IntervalPattern']] = list()
-    
+    """All registered `IntervalPattern` instances, in creation order (see `SolfegePattern`)."""
+
     @classmethod
     def _get_instantiation_type(cls) -> Type["Chord"]:
+        """Interval patterns are never instantiated into a concrete note-holding object, unlike
+        chords/scales."""
         # We won't instantiate those
         return NotImplemented
 
     @classmethod
     def _new_record_keeper(cls):
+        """Interval patterns are not recorded in a `RecordKeeper` (there's no "which interval pattern
+        matches this interval" lookup use case, unlike chords/scales)."""
         # we won't record interval
         return NotImplemented
 
@@ -26,7 +34,11 @@ class IntervalPattern(SolfegePattern, ABC):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Translate the constructor's simplified `name`/`interval` arguments into the underlying
+        `SolfegePattern` fields: wraps `name` into a singleton `names` list, disables recording, and
+        builds `_absolute_intervals` as `[unison, interval]` (every pattern starts from the unison)."""
         def singleton(x):
+            """Wrap `x` in a single-element list."""
             return [x]
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "name", singleton)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "interval", lambda interval: [Interval.make(0,0), Interval.make_single_argument(interval)])

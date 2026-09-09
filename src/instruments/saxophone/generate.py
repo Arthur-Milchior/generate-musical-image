@@ -1,3 +1,8 @@
+"""Generation script: for every note in `saxophone_fingerings.value_to_fingerings`, renders each alternate
+fingering to an SVG file and assembles one Anki note per note (one image field per alternate fingering, padded
+with empty fields up to the largest number of alternates any note has), then writes them all to
+`<generate_root_folder>/saxophone/saxophone.csv`. Run via `python3 -m instruments.saxophone` (see
+`__main__.py`)."""
 #from instruments.saxophone.fingering.fingering import value_to_fingering
 from instruments.saxophone.fingering.saxophone_fingerings import value_to_fingerings
 from consts import generate_root_folder

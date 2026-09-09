@@ -12,14 +12,21 @@ from utils.frozenlist import FrozenList, MakeableWithSingleArgument
 from utils.util import assert_typing
 
 FingersType = FrozenSet[int]
+"""The set of finger numbers (1 to 4) that could plausibly play a given position."""
 ALL_FINGERS = frozenset(range(1,5))
+"""Every playable finger number: 1 (index) to 4 (pinky)."""
 
-"""Short label for each finger, as displayed below-right of a note on a fretboard diagram. 0 is reserved for the thumb, should it ever be used."""
 FINGER_LABELS: Dict[int, str] = {0: "T", 1: "1", 2: "2", 3: "3", 4: "4"}
+"""Short label for each finger, as displayed below-right of a note on a fretboard diagram. 0 is reserved for the thumb, should it ever be used."""
 
 @dataclass(frozen=True)
 class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, MakeableWithSingleArgument):
+    """A `PositionOnFrettedInstrument` annotated with the set of fingers that could plausibly play it.
+    `fingers` starts out as a candidate set (e.g. `ALL_FINGERS`) and is progressively narrowed (see
+    `restrict_to_compatible_fingering`/`restrict_to_specific_fingers`) as neighbouring notes constrain it,
+    down to a single resolved finger (see `finger_label`)."""
     fingers: FingersType
+    """The candidate finger numbers that could play this position; narrowed over time down to a single finger."""
 
     def finger_label(self) -> str:
         """The label ("1" to "4", or "T" for thumb) for the single finger this position is restricted to.
@@ -27,11 +34,14 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
         assert len(self.fingers) == 1, f"finger_label() requires a single resolved finger, got {self.fingers}"
         return FINGER_LABELS[next(iter(self.fingers))]
 
-    def restrict_to_compatible_fingering(self, 
+    def restrict_to_compatible_fingering(self,
                                          instrument:FrettedInstrument,
-                                         next_note: Self, 
+                                         next_note: Self,
                                          chord: bool,
                                          ):
+        """Return `self` with `fingers` narrowed to those candidates for `self` that admit some candidate finger
+        of `next_note` at a compatible fret distance (per `instrument.finger_to_fret_delta`, using the `chord`
+        vs. melodic tables). Used to propagate fingering constraints between consecutive notes."""
         assert_typing(instrument, FrettedInstrument)
         assert_typing(next_note, PositionOnFrettedInstrumentWithFingers)
         acceptable_fingers = set()
@@ -54,15 +64,21 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
 
     @classmethod
     def _make_single_argument(cls, arg) -> Self:
+        """Build an instance from a `(string, fret, fingers)` triple, as required by `MakeableWithSingleArgument`."""
         (string, fret, fingers) = arg
         return cls.make(string=string, fret=fret, fingers=fingers)
 
     def repr_single_argument(self) -> str:
+        """The `(string_value, fret_value, fingers_set)` triple, as a string, used by `MakeableWithSingleArgument`'s
+        repr machinery."""
         return f"""{(self.string.value, self.fret.value, set(self.fingers))}"""
 
 
     @staticmethod
     def from_fretted_instrument_position(pos: PositionOnFrettedInstrument, fingers: Optional[FingersType] = None):
+        """Wrap a plain `PositionOnFrettedInstrument` into one `fingers`-annotated, defaulting to `ALL_FINGERS`
+        as candidates. If `pos` is already a `PositionOnFrettedInstrumentWithFingers`, it is returned unchanged
+        (and `fingers` is then ignored)."""
         if isinstance(pos, PositionOnFrettedInstrumentWithFingers):
             return pos
         if fingers is None:
@@ -99,13 +115,17 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
              ) for next_pos, (fingers_for_current_pos, fingers_for_next_pos) in pos_to_fingers.items()]
     
     def __repr__(self):
+        """A `.make(...)` call that reconstructs this position, including its finger candidates."""
         return f"""FrettedInstrumentPositionWithFingers.make({self.string.value}, {self.fret.value}, {set(self.fingers)})"""
 
     # pragma mark - DataClassWithDefaultArgument
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Normalize constructor arguments: in addition to the base class's cleanup, `fingers` may be passed as
+        a single int (wrapped into a one-element set) and is always coerced to a `frozenset`."""
         def clean_fingers(fingers):
+            """Coerce `fingers` (a single int or any iterable of ints) into a `frozenset`."""
             if isinstance(fingers, int):
                 fingers = {fingers}
             return frozenset(fingers)
@@ -114,10 +134,13 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
         return args, kwargs
 
     def __post_init__(self):
+        """Validate that `fingers` is a non-empty frozenset of valid finger numbers (1 to 4)."""
         assert_typing(self.fingers, frozenset)
         for finger in self.fingers:
             assert 1 <= finger <= 4
         assert self.fingers
         super().__post_init__()
 class FrettedInstrumentPositionWithFingersFrozenList(FrozenList[PositionOnFrettedInstrumentWithFingers]):
+    """An immutable list of `PositionOnFrettedInstrumentWithFingers`."""
     type = PositionOnFrettedInstrumentWithFingers
+    """The element type enforced by this `FrozenList`."""

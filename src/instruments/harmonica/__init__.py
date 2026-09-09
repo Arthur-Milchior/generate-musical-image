@@ -1,9 +1,19 @@
+"""Generates the harmonica diagram SVGs under `images/` (one per hole/direction combination): for each of the
+10 holes and each of blow/draw, draws the 10-hole harmonica outline with that hole highlighted and an arrow
+showing air direction. Running this module (e.g. via `python3 -m instruments.harmonica`, see `__main__.py`)
+regenerates all 20 files. Smaller/less developed than the other instrument packages: unlike them it writes
+straight to a relative `harmonica/images/` path (not through `consts.generate_root_folder`) and has no
+solfege/note-to-fingering model — the images are static per hole/direction, not per note."""
 from utils.util import *
 
 square = 30
+"""Size (in SVG user units) of one grid cell; every coordinate in `drawHarmonica` is expressed as a multiple
+of this to keep the whole diagram proportional."""
 
 
 def drawHarmonica(f, pos, draw):
+    """Write one complete harmonica SVG to file object `f`: the 10-hole outline with each hole numbered, hole
+    `pos` (1-10) highlighted in red, and a red arrow through it pointing up if `draw` else down (draw vs. blow)."""
     f.write(
         """<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" version="1.1">""" % (square * 11, square * 3))
     # vertical

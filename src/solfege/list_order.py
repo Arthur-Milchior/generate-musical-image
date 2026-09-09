@@ -8,6 +8,7 @@ class ListOrder(Enum):
     NOT = "NOT"
 
 def reverse_list_order(order: ListOrder):
+    """Return the opposite ordering (INCREASING <-> DECREASING); NOT maps to itself."""
     if order is ListOrder.INCREASING:
         return ListOrder.DECREASING
     if order is ListOrder.DECREASING:

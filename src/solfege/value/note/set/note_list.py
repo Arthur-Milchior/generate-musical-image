@@ -17,10 +17,14 @@ from .chromatic_note_list import ChromaticNoteList
 
 
 class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness[int]):
+    """A list of `Note` (chromatic+diatonic pairs), e.g. the notes of a chord or scale."""
     interval_list_type: ClassVar[Type[AbstractIntervalListPattern]] = IntervalList
+    """The interval-list-pattern class produced by `interval_list_from_min_note`."""
     _frozen_list_type: ClassVar[Type[FrozenList[AbstractNote]]] = NoteFrozenList
+    """The `FrozenList` subclass used to store `notes`."""
 
     note_type: ClassVar[Type[AbstractNote]] = Note
+    """The concrete note class this list holds."""
 
     def find_note_from_list_up_to_octave(self, chromatic_note: ChromaticNote):
         """Return a note that is enharmonic to `chromatic_note` and equal - up to octave - to a note of `self`.
@@ -40,8 +44,8 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
         return f"""<{" ".join(note.syntax_for_lily() for note in self)}>"""
     
     def lily_file_with_only_chord(self, clef: Clef):
-        assert_typing(clef, Clef)
         """Lily code for a file containing just this as a chord"""
+        assert_typing(clef, Clef)
         return f"""\\version "2.20.0"
 \\score{{
   \\new Staff{{
@@ -69,8 +73,10 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
         return f"chord_{str(clef)}_{notes_str}"
     
     def chromatic(self):
+        """Return the `ChromaticNoteList` obtained by dropping the diatonic component of each note."""
         return ChromaticNoteList.make(note.get_chromatic() for note in self)
-        
+
+
     def change_octave_to_be_enharmonic(self, chromatic_note_list: ChromaticNoteList) -> Optional[Self]:
         """Return a list of note, enharmonic to `chromatic_note_list`, containing notes equals to note of the current list, up to octave.
         Return None if some note can't be found.
@@ -84,6 +90,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
         return self.__class__.make(notes)
 
     def __repr__(self):
+        """Debug representation as a `NoteList.make([(chromatic, diatonic), ...])` call."""
         return f"""NoteList.make([{", ".join(f"({note.get_chromatic().value}, {note._diatonic.value})" for note in self)}])"""
     
     def easy_key(self) -> int:

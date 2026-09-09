@@ -1,3 +1,11 @@
+"""Concrete `FrettedInstrument` singletons (`Guitar`, `Bass`, `Ukulele`) and their tunings.
+
+Each instrument is defined as an `AbstractFrettedInstrument` (frets, clef, allowed finger-to-fret distances for
+chords vs. scales) paired with a default `Tuning`; a handful of alternate guitar tunings are also defined here
+(`drop_d`, `double_drop_d`, `vestapol`, `english_guitar`, `overtone_G`) though only `fretted_instruments` (the
+three defaults) is actually iterated over by the generators.
+"""
+
 from typing import List, Optional
 from instruments.fretted_instrument.fretted_instrument.abstract_fretted_instrument import AbstractFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument

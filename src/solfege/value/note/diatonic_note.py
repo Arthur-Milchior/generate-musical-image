@@ -19,9 +19,13 @@ assert_equal_length(french_fixed_length_space)
 class DiatonicNote(AbstractSingletonNote[DiatonicInterval], Diatonic):
     """A diatonic note. Implemented as interval from C4"""
     IntervalClass: ClassVar[Type[Singleton]] = DiatonicInterval
-    
+    """The interval class produced when adding/subtracting `DiatonicNote` instances."""
+
+
     @classmethod
     def _make_single_argument(cls, value: Union[int, str]) -> Self:
+        """Build a `DiatonicNote` from either its diatonic int value or a note name string
+        (resolved through `Note.from_name`)."""
         if isinstance(value, str):
             from solfege.value.note.note import Note
             return Note.from_name(value).get_diatonic()
@@ -42,6 +46,8 @@ class DiatonicNote(AbstractSingletonNote[DiatonicInterval], Diatonic):
     #pragma mark - AbstractNote
 
     def get_name_up_to_octave(self, note_output: NoteOutput, fixed_length: FixedLengthOutput) -> str:
+        """Return the note's diatonic letter/syllable, formatted per `note_output` (and, for
+        French syllables, padded per `fixed_length`)."""
         if note_output == NoteOutput.LILY:
             return ["c", "d", "e", "f", "g", "a", "b"][self.value % 7]
         elif note_output == NoteOutput.FRENCH:
@@ -56,12 +62,14 @@ class DiatonicNote(AbstractSingletonNote[DiatonicInterval], Diatonic):
         assert_never(note_output)
 
     def non_ambiguous_string_for_file_name(self, fixed_length: FixedLengthOutput = FixedLengthOutput.NO) -> str:
+        """Return the note's letter name, usable unambiguously in a generated file name."""
         return self.get_name_up_to_octave(note_output=NoteOutput.LETTER, fixed_length=fixed_length)
 
 DiatonicNote.DiatonicClass = DiatonicNote
 
 
 class DiatonicNoteFrozenList(FrozenList[DiatonicNote]):
+    """A `FrozenList` specialized to hold `DiatonicNote` elements."""
     type = DiatonicNote
 
 DiatonicIntervalFrozenList.note_frozen_list_type = DiatonicNoteFrozenList

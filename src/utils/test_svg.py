@@ -7,25 +7,38 @@ from utils.util import assert_iterable_typing, assert_typing
 
 @dataclass(frozen=True)
 class FakeSvgGenerator(SvgGenerator):
+    """Minimal `SvgGenerator` fixture: returns a fixed list of lines and fixed dimensions, for testing the base
+    class's `svg()` assembly logic without any real drawing."""
+
     svgs: List[str]
+    """The raw lines to return from `svg_lines()`."""
+
     _width: int
+    """Fixed value returned by `svg_width()`."""
+
     _height: int
+    """Fixed value returned by `svg_height()`."""
 
     def __post_init__(self):
+        """Sanity-check the field types."""
         assert_iterable_typing(self.svgs, str)
         assert_typing(self._width, int)
         assert_typing(self._height, int)
 
     def svg_lines(self):
+        """Return the fixed `svgs` lines."""
         return self.svgs
 
     def svg_width(self):
+        """Return the fixed `_width`."""
         return self._width
-    
+
     def svg_height(self):
+        """Return the fixed `_height`."""
         return self._height
-    
+
     def _svg_name_base(self, **kwargs) -> str:
+        """Fixed file-name base, `"fake_svg"`."""
         return "fake_svg"
 
 
@@ -36,7 +49,10 @@ line_7 = """<line test/><!-- foo -->"""
 line_8 = """<line test 2/>"""
 
 class TestSvgGenerator(unittest.TestCase):
+    """Tests for `_SvgLine` indentation detection and `SvgGenerator.svg()` assembly."""
+
     def test_svg_line(self):
+        """`_SvgLine` detects opening/closing-tag indentation and renders itself indented by a given amount."""
         svg_line_2 = _SvgLine(line_2)
         self.assertEqual(svg_line_2.indent(), 1)
         self.assertEqual(svg_line_2.indented_line(0) , """<style text='style/css'>""")
@@ -47,6 +63,8 @@ class TestSvgGenerator(unittest.TestCase):
         self.assertEqual(svg_line_7.indented_line(1) , """  <line test/><!-- foo -->""")
 
     def test_svg_file(self):
+        """`svg()` wraps the generator's lines in an `<svg>` root with the right dimensions, indenting each
+        line according to its nesting."""
         fake = FakeSvgGenerator(
             [
     line_2,

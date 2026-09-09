@@ -10,8 +10,12 @@ from utils.util import assert_typing, indent
 
 @dataclass(frozen=True)
 class LilyStaff(DataClassWithDefaultArgument):
+    """Base class for the LilyPond code of a single staff (clef + key signature + note content), subclassed for a
+    single note, a scale, or a chord."""
     clef: Clef
+    """The clef (`Clef.TREBLE`/`Clef.BASS`) this staff is rendered with."""
     first_key: Key
+    """The key signature to display on the staff."""
 
     def staff_lily_code(self) -> str:
         """A lilypond staff.
@@ -39,10 +43,12 @@ class LilyStaff(DataClassWithDefaultArgument):
     # # Pragma mark - DataClassWithDefaultArgument
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
+        """No extra defaults beyond the parent's; forwards to `DataClassWithDefaultArgument`."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         return kwargs
-    
+
     def __post_init__(self):
+        """Validate that `clef` and `first_key` were given the right types."""
         assert_typing(self.clef, Clef)
         assert_typing(self.first_key, Key)
         return super().__post_init__()
@@ -51,13 +57,20 @@ class LilyStaff(DataClassWithDefaultArgument):
     # Must be implemented by subclass
 
     @abstractmethod
-    def staff_content(self) -> str:...
+    def staff_content(self) -> str:
+        """The LilyPond code for the notes/content of this staff (without the surrounding `\\new Staff{...}`
+        wrapper), to be implemented by each subclass."""
+        ...
 
 
 @dataclass(frozen=True)
 class FakeLilyStaff(LilyStaff):
+    """Test double for `LilyStaff` whose content is an arbitrary fixed string, useful when exercising
+    `staff_lily_code()` without going through a real note/scale/chord staff."""
     content: str
+    """The literal LilyPond content string returned by `staff_content()`."""
 
     #pragma mark - LilyStaff
     def staff_content(self):
+        """Return the fixed `content` string given at construction."""
         return self.content

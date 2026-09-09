@@ -1,6 +1,10 @@
+"""Fingerings that use a C1, C2, C3 or C4 button (H1-H3 in Jay's notation) — the folder's own `README.md`
+gives the precise definition — except when the fingering also uses the overtone button or a k-key (those live
+in `overtone`/`k` instead). Silent (non-pitch-changing) variants that also use a C_n button live in
+`cn_silent.py`."""
 from instruments.saxophone.buttons import *
 from instruments.saxophone.fingering.saxophone_fingering import SaxophoneFingering
-from instruments.saxophone.fingering import main_column 
+from instruments.saxophone.fingering import main_column
 from instruments.saxophone.fingering.saxophone_fingering import SaxophoneFingering
 from instruments.saxophone.fingering.saxophone_fingering import *
 

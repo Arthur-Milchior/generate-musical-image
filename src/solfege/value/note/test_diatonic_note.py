@@ -18,6 +18,7 @@ class TestDiatonicNote(TestDiatonicInterval):
     B2 = DiatonicNote(-8)
 
     def setUp(self):
+        """Restore `DiatonicNote.ChromaticClass`, which other tests may have overwritten."""
         super().setUp()
         from solfege.value.note.chromatic_note import ChromaticNote
         DiatonicNote.ChromaticClass = ChromaticNote
@@ -26,14 +27,17 @@ class TestDiatonicNote(TestDiatonicInterval):
     #     self.assertTrue(self.C4.is_note())
 
     def test_get_number(self):
+        """The `value` attribute exposes the raw diatonic (scale-step) position."""
         self.assertEqual(self.C4.value, 0)
 
     def test_equal(self):
+        """Equality compares by diatonic value."""
         self.assertEqual(self.C4, self.C4)
         self.assertNotEqual(self.D4, self.C4)
         self.assertEqual(self.D4, self.D4)
 
     def test_add(self):
+        """Adding a `DiatonicInterval` to a note (either order) shifts it; adding two notes fails."""
         self.assertEqual(self.D4 + self.third, self.F4)
         self.assertEqual(self.third + self.D4, self.F4)
         # self.assertEqual(self.D4 + Interval.make(4,2), self.F4)
@@ -42,24 +46,30 @@ class TestDiatonicNote(TestDiatonicInterval):
             _ = self.D4 + self.D4
 
     def test_neg(self):
+        """Negating a note is not supported."""
         with self.assertRaises(Exception):
             _ = -self.D4
 
     def test_sub(self):
+        """Subtracting an interval shifts the note; subtracting a note yields an interval; a note
+        cannot be subtracted from an interval."""
         self.assertEqual(self.F4 - self.third, self.D4)
         self.assertEqual(self.F4 - self.D4, self.third)
         with self.assertRaises(Exception):
             _ = self.third - self.D4
 
     def test_lt(self):
+        """Notes order by diatonic value."""
         self.assertLess(self.D4, self.F4)
         self.assertLessEqual(self.D4, self.F4)
         self.assertLessEqual(self.D4, self.D4)
 
     def test_repr(self):
+        """`repr` shows the constructor call that would rebuild the note."""
         self.assertEqual(repr(self.D4), "DiatonicNote(value=1)")
 
     def test_octave(self):
+        """`octave` returns the octave index (0 for the octave containing middle C)."""
         self.assertEqual(self.C4.octave(), 0)
         self.assertEqual(self.B4.octave(), 0)
         self.assertEqual(self.D3.octave(), -1)
@@ -68,12 +78,14 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEqual(self.C5.octave(), 1)
 
     def test_add_octave(self):
+        """`add_octave` shifts a note by whole octaves."""
         self.assertEqual(self.C5.add_octave(-1), self.C4)
         self.assertEqual(self.C4.add_octave(1), self.C5)
         self.assertEqual(self.C5.add_octave(-2), self.C3)
         self.assertEqual(self.C3.add_octave(2), self.C5)
 
     def test_same_note_in_base_octave(self):
+        """`in_base_octave` folds a note into the reference octave."""
         self.assertEqual(self.C5.in_base_octave(), self.C4)
         self.assertEqual(self.C3.in_base_octave(), self.C4)
         self.assertEqual(self.C4.in_base_octave(), self.C4)
@@ -81,6 +93,7 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEqual(self.B3.in_base_octave(), self.B4)
 
     def test_same_note_in_different_octaves(self):
+        """`equals_modulo_octave` is true only for the same diatonic letter across octaves."""
         self.assertFalse(self.D4.equals_modulo_octave(self.C4))
         self.assertFalse(self.D4.equals_modulo_octave(self.C5))
         self.assertFalse(self.D4.equals_modulo_octave(self.C3))
@@ -113,6 +126,8 @@ class TestDiatonicNote(TestDiatonicInterval):
     #     self.assertEqual(DiatonicNote(-9).get_chromatic(), ChromaticNote(-15))
 
     def test_get_note_name_LILY(self):
+        """`get_name_up_to_octave` with `NoteOutput.LILY` spells each diatonic value as its
+        LilyPond letter (c..b), wrapping across octaves."""
         self.assertEqual(DiatonicNote(0).get_name_up_to_octave(note_output = NoteOutput.LILY, fixed_length=FixedLengthOutput.NO, ), "c")
         self.assertEqual(DiatonicNote(1).get_name_up_to_octave(note_output = NoteOutput.LILY, fixed_length=FixedLengthOutput.NO, ), "d")
         self.assertEqual(DiatonicNote(2).get_name_up_to_octave(note_output = NoteOutput.LILY, fixed_length=FixedLengthOutput.NO, ), "e")
@@ -134,6 +149,8 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEqual(DiatonicNote(-9).get_name_up_to_octave(note_output = NoteOutput.LILY, fixed_length=FixedLengthOutput.NO, ), "a")
 
     def test_get_note_name_FILE_NAME(self):
+        """`get_name_up_to_octave` with `NoteOutput.LETTER` spells each diatonic value as its
+        letter name (C..B), wrapping across octaves."""
         self.assertEqual(DiatonicNote(0).get_name_up_to_octave(note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO), "C")
         self.assertEqual(DiatonicNote(1).get_name_up_to_octave(note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO), "D")
         self.assertEqual(DiatonicNote(2).get_name_up_to_octave(note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO), "E")
@@ -155,6 +172,8 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEqual(DiatonicNote(-9).get_name_up_to_octave(note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO), "A")
 
     def test_get_octave_name_LILY(self):
+        """`get_octave_name` with `OctaveOutput.LILY` renders the octave as repeated `'`
+        (above the reference octave) or `,` (below), one mark per octave."""
         self.assertEqual(DiatonicNote(0).get_octave_name(octave_notation=OctaveOutput.LILY), "'")
         self.assertEqual(DiatonicNote(1).get_octave_name(octave_notation=OctaveOutput.LILY), "'")
         self.assertEqual(DiatonicNote(2).get_octave_name(octave_notation=OctaveOutput.LILY), "'")
@@ -176,6 +195,8 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEqual(DiatonicNote(-9).get_octave_name(octave_notation=OctaveOutput.LILY), ",")
 
     def test_get_octave_name_FILE_NAME(self):
+        """`get_octave_name` with `OctaveOutput.MIDDLE_IS_4` renders the scientific-notation
+        octave number, with middle C's octave being 4."""
         self.assertEqual(DiatonicNote(0).get_octave_name(octave_notation = OctaveOutput.MIDDLE_IS_4), "4")
         self.assertEqual(DiatonicNote(1).get_octave_name(octave_notation = OctaveOutput.MIDDLE_IS_4), "4")
         self.assertEqual(DiatonicNote(2).get_octave_name(octave_notation = OctaveOutput.MIDDLE_IS_4), "4")
@@ -197,6 +218,7 @@ class TestDiatonicNote(TestDiatonicInterval):
         self.assertEqual(DiatonicNote(-9).get_octave_name(octave_notation = OctaveOutput.MIDDLE_IS_4), "2")
 
     def test_from_name(self):
+        """`from_name` parses a letter (case-insensitive) with an optional octave digit."""
         self.assertEqual(DiatonicNote(0), DiatonicNote.from_name("C"))
         self.assertEqual(DiatonicNote(0), DiatonicNote.from_name("c"))
         self.assertEqual(DiatonicNote(0), DiatonicNote.from_name("c4"))

@@ -17,30 +17,33 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
+    interval_for_signature: Interval
     """The interval between the signature for this scale and the signature for the major scale with the same key.
     E.g. for minor, use three_flats"""
 
-    interval_for_signature: Interval
-
-    """A unique id, in order of creations. For values of the same class, the smallest index is the first pattern to learn."""
     _pattern_index: int = field(compare=False, hash=False)
+    """A unique id, in order of creations. For values of the same class, the smallest index is the first pattern to learn."""
 
+    source: StrFrozenList = field(compare=False, hash=False)
     """The English Wikipedia page(s) (or other reference) documenting this pattern. See src/solfege/pattern/multi_octave_patterns.md
     for how patterns whose real-world span exceeds one octave are represented here."""
-    source: StrFrozenList = field(compare=False, hash=False)
 
+    description: str = field(compare=False, hash=False)
     """A short explanation of what is notable about this pattern: how its name/notation came to be, how it is
     constructed, or anything else that helps make sense of it."""
-    description: str = field(compare=False, hash=False)
 
     _is_chord_pattern: bool
+    """Whether this pattern is (or, for a chord's derived arpeggio, was originally) a `ChordPattern` rather than
+    a plain `ScalePattern`. Set by the constructor of the concrete subclass, not by the caller."""
 
 
     def __lt__(self, other: Self):
+        """Order patterns of the same class by creation order (`_pattern_index`), i.e. "easiness"."""
         assert_typing(other, self.__class__)
         return self._pattern_index < other._pattern_index
-    
+
     def __le__(self, other: Self):
+        """Same as `__lt__` but allowing equality (same `_pattern_index`)."""
         assert_typing(other, self.__class__)
         return self._pattern_index <= other._pattern_index
     
@@ -52,11 +55,14 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
     
     #pragma mark - Recordable
     _key_type: ClassVar[Type] = IntervalList
+    """Same as KeyType."""
 
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
+        """Default `interval_for_signature` to no alteration, `source`/`description` to empty, and
+        `_is_chord_pattern` to False; also allocates and assigns the next `_pattern_index`."""
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["interval_for_signature"] = nor_flat_nor_sharp
         default_dict["source"] = StrFrozenList()
@@ -68,7 +74,10 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Coerce `source` to a `StrFrozenList` (wrapping a bare string into a singleton list first), and pass
+        `interval_for_signature`/`description` through positional-to-keyword normalization."""
         def clean_source(source):
+            """Wrap a bare string into a singleton list, then coerce to a `StrFrozenList`."""
             if isinstance(source, str):
                 source = [source]
             return StrFrozenList(source)
@@ -78,6 +87,8 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
+        """Validate the types of `interval_for_signature`, `source`, and `description` before chaining to the
+        rest of the `SolfegePattern`/`PatternWithIntervalLists`/`PatternWithName` construction chain."""
         assert_typing(self.interval_for_signature, Interval)
         assert_typing(self.source, StrFrozenList)
         assert_iterable_typing(self.source, str)

@@ -1,3 +1,5 @@
+"""Generation script for `python3 -m instruments.piano.scales` (via `__main__.py`): renders every scale/arpeggio
+pattern's fingerings for every starting note (see `generate.py`'s `generate_scores`)."""
 from utils import util
 from instruments.piano.scales.generate import generate_scores
 import solfege.scale.scale_pattern #Ensure that the arpeggios are generated from the scales

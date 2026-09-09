@@ -13,8 +13,14 @@ from utils.svg.svg_atom import svg_circle
 
 @dataclass(frozen=True)
 class Colors(FrettedPositionMaker):
+    """A `FrettedPositionMaker` that draws each played position as a filled circle (or, if not played, an "X"
+    marker) whose color is derived from the position's note, via `get_color_from_note`. Open frets are drawn
+    white with a colored outline; fretted notes are filled solid with the color."""
 
     def svg_lines(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> Generator[str]:
+        """Yield the SVG for `pos`: the "not played" marker if `pos` isn't played, otherwise a circle at the
+        position's coordinates, filled white (open string) or the note's color (fretted), outlined in the
+        note's color."""
         stroke_color = self.get_color_from_note(pos.get_chromatic())
         fill_color = "white" if pos.fret.is_open() else (stroke_color)
         if pos.fret.is_not_played():
@@ -25,6 +31,8 @@ class Colors(FrettedPositionMaker):
         yield f"""{svg_circle(int(x), int(y), int(CIRCLE_RADIUS), fill_color, stroke_color, STROKE_WIDTH)}<!-- String N° {pos.string.value}, position {pos.fret.value}-->"""
 
 
-    # Must be implemented by subclasses
+    # Must be implemented by subclasses
     @abstractmethod
-    def get_color_from_note(self, chromatic_note: ChromaticNote) -> str:...
+    def get_color_from_note(self, chromatic_note: ChromaticNote) -> str:
+        """The color to draw `chromatic_note` in. Implemented by subclasses."""
+        ...

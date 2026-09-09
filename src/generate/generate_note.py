@@ -29,6 +29,7 @@ util.ensure_folder(folder_path)
 
 
 def generate(clef:Clef, notes: Iterable[Note]):
+    """Generate (or skip, if already up to date) one single-note staff image per note in `notes`, using `clef`."""
     for note in notes:
         sheet = sheet_single_note(note, clef)
         sheet.maybe_generate()

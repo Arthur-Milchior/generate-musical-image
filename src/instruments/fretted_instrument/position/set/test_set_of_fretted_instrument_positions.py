@@ -17,6 +17,8 @@ from utils.util import assert_typing
 class SetOfPositionOnGuitar(SetOfPositionOnFrettedInstrument):
     """Same as SetOfPositionOnFrettedInstrument, but allows to add with ints"""
     def add(self, arg):
+        """Like `AbstractSetOfFrettedPositions.add`, but a `(string, fret)` tuple may use raw ints instead of
+        `String`/`Fret` instances (test convenience)."""
         if isinstance(arg, tuple):
             string, fret = arg
             if isinstance(string, int):
@@ -29,9 +31,11 @@ class SetOfPositionOnGuitar(SetOfPositionOnFrettedInstrument):
         return super().add(arg)
     
 def pos_make(string, fret):
+    """Shorthand to build a `PositionOnFrettedInstrument` from raw Guitar string/fret numbers."""
     return PositionOnFrettedInstrument(Guitar.string(string), Fret.make(fret, True))
 
 def _make(l):
+    """Shorthand to build an absolute `SetOfPositionOnGuitar` from an iterable of positions."""
     return SetOfPositionOnGuitar.make(positions=l, absolute=True)
 
 
@@ -49,10 +53,12 @@ not_played = Fret.make( None, True)
 instrument = Guitar
 
 def position_make(string, fret):
+    """Shorthand to build a `PositionOnFrettedInstrument` from a string and a fret."""
     return PositionOnFrettedInstrument(string, fret)
 
 class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
     def test_eq(self):
+        """Equality is order-independent (set-like) and sensitive to the exact positions added."""
         self.assertEqual(empty_set_of_fretted_instrument_position, empty_set_of_fretted_instrument_position)
         self.assertNotEqual(empty_set_of_fretted_instrument_position.add((0, 1)),
                              empty_set_of_fretted_instrument_position.add((0, 2)))
@@ -68,15 +74,18 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                           .add((0, 2)))
         
     def test_number_of_frets(self):
+        """`number_of_frets` spans min to max fret, with `allow_open` controlling whether open strings count."""
         self.assertEqual(CM.number_of_frets(allow_open=True), 3)
         self.assertEqual(CM.number_of_frets(allow_open=False), 2)
         
     def test_lt(self):
+        """A set is strictly less than a superset of its played positions."""
         self.assertLess(CM_, CM)
         self.assertLessEqual(CM_, CM)
         self.assertLessEqual(CM_, CM_)
 
     def test_iter(self):
+        """Iterating a set yields positions in `PositionOnFrettedInstrument` order, regardless of add order."""
         self.assertEqual(list(empty_set_of_fretted_instrument_position),
                           [])
         self.assertEqual(list(empty_set_of_fretted_instrument_position.add(position_make(strings[0], Fret.make(1, True)))),
@@ -89,6 +98,7 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                           [position_make(strings[0], Fret.make(1, True)), position_make(strings[1], Fret.make(2, True))])
 
     def test_max_fret(self):
+        """`_max_fret` ignores not-played positions and returns the highest fret among played ones, or `None` if empty."""
         self.assertEqual(empty_set_of_fretted_instrument_position._max_fret(), None)
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add(position_make(strings[0], fret=not_played))
@@ -103,6 +113,7 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                          ._max_fret(), Fret.make(2, True))
         
     def test_min_fret_open(self):
+        """`_min_fret(allow_open=True)` includes the open string when looking for the lowest fret."""
         self.assertEqual(empty_set_of_fretted_instrument_position._min_fret(allow_open=True), None)
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add(position_make(strings[0], fret=not_played))
@@ -120,6 +131,7 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                          ._min_fret(allow_open=True), Fret.make(0, True))
         
     def test_min_fret_closed(self):
+        """`_min_fret(allow_open=False)` ignores the open string when looking for the lowest fret."""
         self.assertEqual(empty_set_of_fretted_instrument_position._min_fret(allow_open=False), None)
         self.assertEqual(empty_set_of_fretted_instrument_position
                          .add(position_make(strings[0], fret=not_played))
@@ -137,13 +149,16 @@ class TestSetOfFrettedInstrumentPositions(unittest.TestCase):
                          ._min_fret(allow_open=False), Fret.make(1, True))
         
     def test_transpose(self):
+        """`transpose_same_string` shifts every position by the same number of frets on its own string."""
         self.assertEqual(G4M.transpose_same_string(-2, False, False), F4M)
 
     def test_transpose_to_fret_one(self):
+        """`transpose_to_fret_one` shifts a set down so its lowest closed fret becomes 1, and is a no-op when already there."""
         self.assertEqual(G4M.transpose_to_fret_one(), (F4M, ChromaticInterval.make(-2)))
         self.assertEqual(F4M.transpose_to_fret_one(), (F4M, ChromaticInterval.make(0)))
 
     def test_intervals_frow_lowest_note(self):
+        """`intervals_frow_lowest_note`/`..._in_base_octave` compute each note's interval above the chord's lowest note."""
         frets = [0, 2, 1, 1, None, None]
         chord = ChordOnFrettedInstrument.make(instrument=Guitar, frets=frets, absolute=True)
         actual = chord.intervals_frow_lowest_note()

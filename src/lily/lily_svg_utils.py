@@ -5,6 +5,7 @@ from utils.util import save_file
 
 
 def rect(svg, color):
+    """Build a `<rect>` SVG element, filled with `color`, sized/positioned to exactly cover `svg`'s `viewBox`."""
     match = re.search(r"""viewBox="(?P<x>[^ ]*) (?P<y>[^ ]*) (?P<width>[^ ]*) (?P<height>[^"]*)">""", svg)
     x = match.group("x")
     y = match.group("y")
@@ -14,10 +15,12 @@ def rect(svg, color):
 
 
 def display_svg_file(path: str):
+    """Open `path` in VS Code (`code`), in the background, for quick visual inspection during development."""
     shell(f"""code "{path}"&""")
 
 
 def add_background(svg: str, background_color: str):
+    """Return `svg` with a `background_color`-filled `rect` (see `rect`) inserted right after its `</style>` tag, so it's drawn behind everything else."""
     prefix, content = svg.split("""
 </style>
 """)
@@ -37,4 +40,5 @@ def clean_svg(svg_input_path: str, svg_output_path: str, background_color: str):
 
 
 def remove_xlink(input: str):
+    """Strip every `xlink:href="..."` attribute from `input` (an SVG document), removing LilyPond's font-glyph references."""
     return re.sub(r' xlink:href="[^"]*"', "", input)

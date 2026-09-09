@@ -16,14 +16,23 @@ RoleMaker = Callable[[int], IntervalRole]
 
 @dataclass(frozen=True, unsafe_hash=True)
 class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[IntervalType]):
+    """An ordered list of intervals, all relative to a common starting note (unison always first),
+    used to represent a chord/scale's shape independently of any concrete tonic. `IntervalList`
+    (chromatic+diatonic) and `ChromaticIntervalListPattern` (chromatic-only) are the concrete
+    subclasses. Build with `make_absolute` (intervals already relative to the tonic) or
+    `make_relative` (intervals relative to the previous note)."""
     interval_type: ClassVar[Type[AbstractInterval]]
-    """The list of intervals, all relative to a common starting note."""
+    """The interval class held by `_absolute_intervals` (e.g. `Interval` or `ChromaticInterval`)."""
     _absolute_intervals: FrozenList[IntervalType]
+    """The list of intervals, all relative to a common starting note."""
     _frozen_list_type: ClassVar[Type[FrozenList[IntervalType]]]
+    """The `FrozenList` subclass used to store `_absolute_intervals`."""
     increasing: bool
+    """Whether consecutive intervals in `_absolute_intervals` must be strictly increasing (True) or
+    strictly decreasing (False); enforced in `__post_init__`."""
 
-    
     def __len__(self):
+        """Number of intervals in the list (including the leading unison)."""
         return len(self._absolute_intervals)
 
     @classmethod
@@ -57,6 +66,7 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
         return cls.make(*args, _absolute_intervals=cls._frozen_list_type(absolute_intervals), **kwargs)
 
     def absolute_intervals(self) -> FrozenList[IntervalType]:
+        """Return `_absolute_intervals` (the intervals relative to the shared starting note)."""
         return self._absolute_intervals
 
     def relative_intervals(self, assume_implicit_zero=True) -> FrozenList[IntervalType]:
@@ -67,11 +77,16 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
 
     @classmethod
     @abstractmethod
-    def _note_list_constructor(cls) -> Callable[["NoteType"], "AbstractNoteList"]:...
+    def _note_list_constructor(cls) -> Callable[["NoteType"], "AbstractNoteList"]:
+        """Return the `AbstractNoteList` subclass constructor matching this interval-list type
+        (e.g. `NoteList` for `IntervalList`, `ChromaticNoteList` for `ChromaticIntervalListPattern`)."""
+        ...
     def _from_note(self, note: "NoteType") -> FrozenList["NoteType"]:
+        """Add each absolute interval to `note`, returning the resulting notes as a frozen list."""
         return self._frozen_list_type.note_frozen_list_type([note + absolute_interval for absolute_interval in self._absolute_intervals])
-    
+
     def from_note(self, note: "NoteType") -> "NoteList":
+        """Instantiate this pattern starting at `note`, returning a `NoteList` (increasing order)."""
         from solfege.value.note.set.note_list import NoteList
         return self._note_list_constructor()(self._from_note(note), ListOrder.INCREASING)
 
@@ -88,6 +103,7 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
     #     return self._frozen_list_type([interval.get_diatonic() for interval in self.absolute_intervals()])
     
     def __repr__(self):
+        """Evaluable repr, e.g. `IntervalList.make_absolute([(0, 0), (4, 2), (7, 4)])`."""
         l = [f"{self.__class__.__name__}.make_absolute(["""]
         l.append(", ".join(self.interval_repr(chromatic_interval) for chromatic_interval in self.absolute_intervals()))
         if self.increasing is not True:
@@ -97,14 +113,20 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
     
     @staticmethod
     @abstractmethod
-    def interval_repr(interval: IntervalType) -> str:...
-    "How to display the interval in make."
-    
+    def interval_repr(interval: IntervalType) -> str:
+        """How to display the interval in make."""
+        ...
+
+
     def in_base_octave(self) -> Self:
+        """Return the same pattern with every interval folded into the base octave, deduplicated
+        and sorted."""
         intervals_in_base_octave = sorted_unique(interval.in_base_octave() for interval in self._absolute_intervals)
         return self.__class__.make(intervals_in_base_octave)
-    
+
     def is_in_base_octave(self, accepting_octave: bool = False):
+        """Whether every interval in the list is already in the base octave (see
+        `Abstract.is_in_base_octave`)."""
         for interval in self._absolute_intervals:
             if not interval.is_in_base_octave(accepting_octave):
                 return False
@@ -113,13 +135,17 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
+        """Default `increasing` to `True`."""
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["increasing"] = True
         return default_dict
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Coerce `_absolute_intervals` into `cls._frozen_list_type` if it isn't already one."""
         def clean_absolute_intervals(intervals):
+            """Wrap a plain iterable of intervals into `cls._frozen_list_type`, leaving an
+            already-correct instance untouched."""
             if not isinstance(intervals, cls._frozen_list_type):
                 return cls._frozen_list_type(intervals)
             return intervals
@@ -128,6 +154,8 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
+        """Validate that the list starts with the unison, holds only `interval_type` instances, and
+        is strictly monotonic in the direction given by `increasing`."""
         assert self._absolute_intervals[0] == self.interval_type.unison()
         assert_typing(self._absolute_intervals, self._frozen_list_type)
         assert_iterable_typing(self._absolute_intervals, self.interval_type)
@@ -139,4 +167,6 @@ class AbstractIntervalListPattern(DataClassWithDefaultArgument, ABC, Generic[Int
         super().__post_init__()
 
 IntervalListPatternType = TypeVar("IntervalListPatternType", bound=AbstractIntervalListPattern)
+"""Type variable bound to `AbstractIntervalListPattern`, used to parametrize generic classes over the
+concrete interval-list-pattern type."""
 

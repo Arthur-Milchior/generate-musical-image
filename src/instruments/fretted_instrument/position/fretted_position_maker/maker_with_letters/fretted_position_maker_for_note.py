@@ -11,9 +11,13 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True)
 class FrettedPositionMakerForNote(FrettedPositionMakerWithLetter):
+    """A `FrettedPositionMakerWithLetter` that labels each position with its absolute note name (e.g. "C#4")
+    rather than an interval role."""
     #pragma mark - FrettedPositionMakerForInterval
 
     def text(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument):
+        """The note name (with octave, symbol-style alteration, letter notation, no fixed length) for `pos`'s
+        chromatic note."""
         note = pos.get_chromatic()
         return note.get_name_with_octave(
             octave_notation=OctaveOutput.MIDDLE_IS_4, 

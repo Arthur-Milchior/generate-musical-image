@@ -14,15 +14,20 @@ class PatternWithName(DataClassWithDefaultArgument):
     """To be inherited by classes implementing a specific kind of pattern (scale, chord), that can be retrieved by
     name or iterated upon all patterns"""
 
-    """Associate a name to its pattern"""
     name_to_pattern: ClassVar[Dict[str, "PatternWithName"]]
-    """associate to each class the list of all instances of this class"""
+    """Associate a name to its pattern"""
     all_patterns: ClassVar[List['PatternWithName']]
+    """associate to each class the list of all instances of this class"""
 
     names: StrFrozenList
+    """All the names/aliases this pattern is known by; the first is the canonical one (see
+    `first_of_the_names()`)."""
+
     notation: Optional[str]
-    """Whether to record this pattern in the list of patterns."""
+    """A short symbolic notation for this pattern (e.g. "M" for a major chord), or None if it has none."""
+
     record: bool = field(compare=False)
+    """Whether to record this pattern in the list of patterns."""
 
 
     def first_of_the_names(self, for_file= False) -> str:
@@ -38,10 +43,12 @@ class PatternWithName(DataClassWithDefaultArgument):
 
     @classmethod
     def get_all_instances(cls):
+        """All recorded instances of this concrete pattern class, in creation order."""
         return cls.all_patterns
 
     @classmethod
     def get_from_name(cls, name: str):
+        """The recorded instance of this class registered under `name`, or None if there is none."""
         return cls.name_to_pattern.get(name)
 
 
@@ -49,6 +56,7 @@ class PatternWithName(DataClassWithDefaultArgument):
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
+        """Default `record` to True (register on construction) and `notation` to None (no symbolic notation)."""
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["record"] = True
         default_dict["notation"] = None
@@ -56,12 +64,17 @@ class PatternWithName(DataClassWithDefaultArgument):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Coerce `names` into a `StrFrozenList` and pass `notation`/`record` through positional-to-keyword
+        normalization."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "names", StrFrozenList)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "notation")
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "record")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
+        """Validate field types, then, when `record` is True, register `self` into `all_patterns` and
+        `name_to_pattern` under every one of `names` -- asserting each name isn't already taken (the usual
+        cause of that assertion firing is a module being imported twice)."""
         assert_typing(self.interval_for_signature, Interval)
         assert_typing(self.names, StrFrozenList)
         assert_typing(self.record, bool)

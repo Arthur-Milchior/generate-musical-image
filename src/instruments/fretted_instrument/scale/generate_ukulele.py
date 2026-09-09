@@ -24,18 +24,21 @@ ensure_folder(scale_transposable_folder)
 
 @dataclass(frozen=True)
 class ScaleOnUkuleleAnkiNote(CsvGenerator):
-    """
-
-    """
+    """Anki note for one scale/arpeggio pattern on ukulele: gathers every one-octave fingering starting on
+    string 2 (restricted to move to the same string or a higher-numbered one) and renders a diagram for each."""
     scale_pattern: ScalePattern
-    # note 3 and 4 are the same. One octave higher than note 1. This ensure that 
-    # if we generate a scale starting on note 3 and 4 and it's the same pattern than a two-octave scale on note 1, the actual positions are the same. 
+    """The scale/arpeggio pattern this note is generated for."""
+    # note 3 and 4 are the same. One octave higher than note 1. This ensure that
+    # if we generate a scale starting on note 3 and 4 and it's the same pattern than a two-octave scale on note 1, the actual positions are the same.
     start_pos = PositionOnFrettedInstrument.make(Ukulele.string(2), Fret.make(5, absolute=False))
 
     def __post_init__(self):
+        """Validate that `scale_pattern` has the right type."""
         assert_typing(self.scale_pattern, ScalePattern)
-    
+
     def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
+        """Transpose `scale` to start at fret one, resolve its fingering, render it, and return the saved
+        SVG's file name."""
         assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
         scale, transposition = scale.transpose_to_fret_one()
@@ -47,6 +50,9 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
     #Pragma mark - CsvGenerator
 
     def csv_content(self) -> Generator[str]:
+        """Yield the Anki fields: primary name, remaining names, then a diagram image for each of the first
+        three fingerings and one field with the (comma-joined) images for the rest, or an empty field if
+        there are 3 or fewer."""
         names = list(self.scale_pattern.names)
         first_name = names.pop(0)
         yield first_name
@@ -64,6 +70,8 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
             yield ""
 
 def generate_ukulele():
+    """Generate the Anki notes (and diagrams) for every registered scale/arpeggio pattern on ukulele, and
+    save them as a CSV."""
     anki_notes = []
     for scale_pattern in ScalePattern.all_patterns:
         print(f"Generating {scale_pattern.first_of_the_names()}")

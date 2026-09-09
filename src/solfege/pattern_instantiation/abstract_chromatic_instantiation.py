@@ -17,11 +17,25 @@ from utils.util import T, assert_typing
 
 @dataclass(frozen=True, eq=True)
 class AbstractChromaticInstantiation(AbstractPatternInstantiation[T, ChromaticNote, ChromaticInterval, KeyType], Generic[T, KeyType]):
+    """An instantiation anchored on a `ChromaticNote` (chromatic pitch only, no diatonic spelling) rather than
+    a full `Note`. Produced by `AbstractPairInstantiation.get_chromatic_instantiation()`."""
+
     note_type: ClassVar[AbstractNote] = ChromaticNote
+    """Notes here are chromatic-only (`ChromaticNote`), unlike `AbstractPairInstantiation`'s `Note`."""
+
     interval_type: ClassVar[AbstractInterval] = ChromaticInterval
+    """Intervals here are chromatic-only (`ChromaticInterval`)."""
+
     interval_list_type: ClassVar[FrozenList[IntervalType]] = ChromaticIntervalListPattern
+    """The frozen-list-of-intervals class used to hold this instantiation's intervals."""
+
     note_list_type: ClassVar[FrozenList[NoteType]] = ChromaticNoteList
+    """The frozen-list-of-notes class returned by `get_notes()`."""
 
 
     def get_intervals(self) -> AbstractIntervalListPattern[Interval]:
+        """The pattern's full set of intervals (`intervals_with_all_notes()`, all notes -- e.g. a chord's fifth
+        is never dropped here even if `optional_fifth`), as chromatic-only intervals from `lowest_note`. Only
+        `ChordPattern`/`InversionPattern` define `intervals_with_all_notes()`; `ScalePattern` does not, so this
+        is only exercised through `ChromaticChord`/`ChromaticInversionInstantiation` in practice."""
         return self.pattern.intervals_with_all_notes()

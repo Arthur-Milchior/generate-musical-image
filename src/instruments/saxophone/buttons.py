@@ -1,3 +1,7 @@
+"""Defines `SaxophoneButton` (one physical key on the saxophone) and creates the module-level instance for
+every button on the horn (e.g. `jay_H1`/`londeix_C1`/`high_d`, `b_flat`, `jay_k1`/`londeix_tf`, ...). Each
+button is created exactly once here via `SaxophoneButton.make()`; other modules import these names to say
+which buttons a given `SaxophoneFingering` presses."""
 from dataclasses import dataclass, field
 from typing import ClassVar, List, Optional, Self
 
@@ -7,13 +11,32 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True)
 class SaxophoneButton(SvgLine):
+    """One physical key/button on the saxophone, drawn as a single SVG shape that can be rendered either
+    unfilled (not pressed) or filled (pressed) as part of a `SaxophoneFingering` diagram.
+
+    Every button used anywhere in the fingering charts is created once, at import time, via `make()` (see the
+    module-level instances below); creation order determines `index`, and every instance is also appended to
+    the module-level `buttons` registry so a full fingering diagram can draw every button (selected or not)."""
     first_free_index: ClassVar[int] = 0
+    """Running counter used by `make()` to assign each new button a unique, creation-order `index`."""
 
     svg_unfilled: str
+    """The button's shape as a raw SVG element string (e.g. `<ellipse .../>`), with `fill:none` so it can be
+    turned on/off by `svg_line()`."""
+
     londeix: str
+    """The button's name in Londeix notation (e.g. `"C4"`, `"1"`, `"Tf"`)."""
+
     index: int
+    """Creation-order index, assigned by `make()` from `first_free_index`; used to sort buttons deterministically."""
+
     name:Optional[str]=None
+    """Human-readable note/key name (e.g. `"F6"`, `"B♭3"`), used in `__repr__` and in the SVG comment; `None`
+    for buttons that have no associated note name (e.g. the octave key)."""
+
     jay_name: Optional[str]= None
+    """The button's name in Jay's notation (e.g. `"H3"`, `"L1"`, `"k1"`); `None` when Jay's book has no name
+    for this button."""
 
     @classmethod
     def make(cls,
@@ -21,34 +44,46 @@ class SaxophoneButton(SvgLine):
              jay_name: Optional[str],
              londeix: str,
              name: Optional[str] = None) -> Self:
+        """Create a new button, assign it the next `index`, and return it. `__post_init__` registers it in the
+        module-level `buttons` list."""
         index = SaxophoneButton.first_free_index
         SaxophoneButton.first_free_index += 1
         return cls(svg_unfilled=svg_unfilled, jay_name=jay_name, londeix=londeix, name=name, index=index)
-    
+
     def __post_init__(self):
+        """Register this button in the module-level `buttons` list so it appears (unselected by default) in
+        every rendered fingering diagram."""
         buttons.append(self)
 
     def __repr__(self):
+        """Return the button's human-readable `name`."""
         return self.name
-    
+
     def __lt__(self, other):
+        """Order buttons by creation-order `index`."""
         assert isinstance(other, SaxophoneButton)
         return self.index < other.index
-    
+
     def __eq__(self, other: "SaxophoneButton"):
+        """Buttons are unique objects: equal only to themselves (identity), never to an equivalent copy."""
         assert_typing(other, SaxophoneButton)
         return self is other
-    
+
     def __hash__(self):
+        """Hash by `svg_unfilled`, which is unique per button."""
         return hash(self.svg_unfilled)
-    
+
     #pragma mark - SvgLine
 
-    def svg_line(self, selected: bool):
+    def svg_line(self, selected: bool) -> str:
+        """Return this button's SVG element, filled in black if `selected` (pressed) or white otherwise (not
+        pressed), with a trailing SVG comment naming the button for readability of the generated file."""
         color = "000000" if selected else "ffffff"
         svg = self.svg_unfilled.replace("fill:none", f"fill:#{color}")
         return f"{svg}<!-- {self.name} -->"
 
+# Registry of every button ever created (in creation order); `SaxophoneFingering.svg_lines` draws all of them,
+# selected or not, so a diagram always shows the full instrument.
 buttons: List[SaxophoneButton] = []
 
 jay_H3 = londeix_C4 = high_f = SaxophoneButton.make(

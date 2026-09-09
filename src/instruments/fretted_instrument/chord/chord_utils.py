@@ -1,3 +1,6 @@
+"""Brute-force enumeration of chord fingerings: every combination of one fret (from a given `Frets` range, or
+not-played) per string of an instrument."""
+
 from typing import Generator, Optional
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
@@ -11,7 +14,9 @@ from instruments.fretted_instrument.position.set.set_of_fretted_instrument_posit
 
 
 def enumerate_frets(instrument: FrettedInstrument, frets: Frets, strings: Optional[Strings]= None) -> Generator[SetOfPositionOnFrettedInstrument]:
-    """Generate a maping from each string to one of the fret."""
+    """Recursively generate every mapping from each of `strings` (defaulting to all of `instrument`'s strings) to
+    one of the frets allowed by `frets` -- i.e. the cartesian product of `frets` across `strings`, each
+    combination returned as a `SetOfPositionOnFrettedInstrument`. Yields nothing if `frets.is_contradiction()`."""
     assert_typing(instrument, FrettedInstrument)
     assert_typing(frets, Frets)
     if strings is None:
@@ -31,6 +36,8 @@ def enumerate_frets(instrument: FrettedInstrument, frets: Frets, strings: Option
             yield set_of_fretted_instrument_position.add(fretted_instrument_position)
 
 def enumerate_fretted_instrument_chords(instrument: FrettedInstrument, frets: Optional[Frets] = None) ->Generator[ChordOnFrettedInstrument]:
+    """Wrap `enumerate_frets` to yield every fingering as a `ChordOnFrettedInstrument` rather than a generic
+    `SetOfPositionOnFrettedInstrument`, using `frets.absolute` for the chord's absolute/transposable-ness."""
     assert_typing(instrument, FrettedInstrument)
     for fret in enumerate_frets(instrument, frets = frets):
         yield ChordOnFrettedInstrument(fret.positions, absolute=frets.absolute)

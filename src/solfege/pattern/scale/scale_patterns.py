@@ -1,3 +1,9 @@
+"""The catalog of concrete `ScalePattern` instances used elsewhere in the app: pentatonic/diatonic/church-mode
+scales, jazz and bebop scales, world-music scales, synthetic/symmetric scales, and every chord in
+`chord_patterns.py` re-exposed as an arpeggio scale (`chord_patterns_as_scales`). See ../README.md for the
+mechanics of `ScalePattern.make_relative(...)`/`ScalePattern.make(...)` and this folder's conventions
+(one octave, softer than chords; `_descending`/`role_maker`; scales are a singleton-per-shape registry, so add
+a new name to an existing entry rather than duplicating an identical interval list)."""
 
 from typing import List
 from solfege.pattern.chord.chord_patterns import chord_patterns

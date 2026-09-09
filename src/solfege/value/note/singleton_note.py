@@ -11,10 +11,14 @@ from solfege.value.singleton import Singleton
 
 @dataclass(frozen=True)
 class AbstractSingletonNote(AbstractNote[IntervalType], Singleton, Generic[IntervalType]):
+    """Base for notes represented by a single number (chromatic-only or diatonic-only), as
+    opposed to `Note`'s chromatic+diatonic pair."""
 
     #Pragma mark - AbstractNote
 
     def __add__(self, other: IntervalType) -> Self:
+        """Add an interval of `self.IntervalClass` to this note's value, returning a note of the
+        same class."""
         if isinstance(other, self.IntervalClass):
             return dataclasses.replace(self, value = self.value + other.value)
         return NotImplemented
@@ -22,11 +26,13 @@ class AbstractSingletonNote(AbstractNote[IntervalType], Singleton, Generic[Inter
     #Pragma mark - Abstract
 
     def __sub__(self, other: Union[Self, IntervalType]) -> Union[Self, IntervalType]:
+        """Subtract another note of the same class (yielding an interval) or an interval
+        (yielding a shifted note of the same class)."""
         new_value = self.value - other.value
         if isinstance(self, other.__class__):
             return self.IntervalClass.make(new_value)
         else:
-            assert isinstance(other, self.IntervalClass) 
+            assert isinstance(other, self.IntervalClass)
             return dataclasses.replace(self, value = new_value)
-        
+
 AbstractSingletonNote.IntervalClass = AbstractSingletonInterval

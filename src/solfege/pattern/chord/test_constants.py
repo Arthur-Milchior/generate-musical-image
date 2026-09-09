@@ -1,3 +1,7 @@
+"""Shared test fixtures for the chord/inversion tests: a fresh pair of record keepers (`interval_to_chord`,
+`interval_to_inversion`) plus every inversion (fifth included and omitted) of `dominant_seventh_chord`,
+pre-built and pre-registered so tests can assert against them without relying on the app-wide catalog."""
+
 from typing import ClassVar, Optional, Type
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.chord.interval_list_to_chord_pattern import IntervalListToChordPattern
@@ -15,6 +19,9 @@ interval_to_chord = IntervalListToChordPattern.make()
 dominant_seventh_chord._associate_keys_to_self(record_keeper=interval_to_chord)
 
 def make_inversion(inversion: int, base: ChordPattern, tonic_minus_lowest_note, fifth_omitted:bool = False):
+    """Build (without recording) an `InversionPattern` of `base` -- a lower-level, more direct constructor than
+    `ChordPattern.inversion()`, letting the test fixtures pass `tonic_minus_lowest_note` explicitly rather than
+    computing it from the chord's interval list."""
     assert_typing(inversion, int)
     assert_typing(base, ChordPattern)
     assert_typing(fifth_omitted, bool)

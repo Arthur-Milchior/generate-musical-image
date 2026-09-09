@@ -30,20 +30,30 @@ class PenaltyForScale:
     """
 
     fingering: Optional[Fingering]
+    """The `Fingering` this penalty was computed for, or None while it is not yet known (see `Penalty`)."""
 
     """Number of time a white note is played after the thumb"""
     _nb_same_color_after_thumb_at_distance_diatonic: Dict[int, Dict[int, int]]
+    """Keyed by diatonic distance then by the other finger involved: how many times a thumb-passing keeps the
+    same key color (white-after-white-thumb or black-after-black-thumb) at that distance/finger."""
 
     """Number of time a white note is played after the thumb on a black note"""
     _nb_black_after_white_thumb_at_distance_diatonic: Dict[int, Dict[int, int]]
+    """Keyed by diatonic distance then by the other finger involved: how many times a black note is played
+    right after the thumb was on a white note, at that distance/finger."""
 
     """Number of time a black thumb is succeeded by a white note"""
     _nb_white_after_black_thumb: int
+    """Count of transitions where a white note follows a thumb that was on a black note (theoretically
+    impossible/never expected to happen; see the comment in `_ordinal`)."""
 
     """The number of times two far away consecutive note are played by 3rd and 4rth finger"""
     _three_four_interval_of_two: int
+    """Number of non-adjacent 3rd/4th-finger transitions spanning a diatonic distance of 2."""
     _three_four_interval_of_three: int
+    """Number of non-adjacent 3rd/4th-finger transitions spanning a diatonic distance of 3."""
     _number_of_thumbs_on_black: int
+    """Number of notes played with the thumb (finger 1) on a black key."""
 
     def __init__(self, fingering: Optional[Fingering] = None,
                  nb_black_after_white_thumb_at_distance_diatonic: Optional[Dict[int, Dict[int, int]]] = None,
@@ -51,6 +61,7 @@ class PenaltyForScale:
                  nb_same_color_after_thumb_at_distance_diatonic: Optional[Dict[int, Dict[int, int]]] = None,
                  three_four_interval_of_three: int = 0,
                  three_four_interval_of_two: int = 0, number_of_thumbs_on_black: int = 0):
+        """Create a penalty from its raw component counts (all default to zero/empty, i.e. no penalty)."""
         self.fingering = fingering
         self._nb_black_after_white_thumb_at_distance_diatonic = nb_black_after_white_thumb_at_distance_diatonic or {}
         self._nb_white_after_black_thumb = nb_white_after_black_thumb
@@ -60,6 +71,7 @@ class PenaltyForScale:
         self._number_of_thumbs_on_black = number_of_thumbs_on_black
 
     def __eq__(self, other: PenaltyForScale):
+        """Equal if `fingering` and every component count/dict are equal."""
         return (self.fingering == other.fingering
                 and
                 self._nb_black_after_white_thumb_at_distance_diatonic == other._nb_black_after_white_thumb_at_distance_diatonic
@@ -73,6 +85,7 @@ class PenaltyForScale:
                 )
 
     def __repr__(self):
+        """`eval`-able-looking representation listing every component count/dict."""
         return f"""PenaltyForScale(
   fingering = {self.fingering},
   nb_black_after_white_thumb_at_distance_diatonic = {self._nb_black_after_white_thumb_at_distance_diatonic},
@@ -85,6 +98,7 @@ class PenaltyForScale:
 
     @staticmethod
     def _and_optional(left: Optional[bool], right: Optional[bool]) -> bool:
+        """Boolean `and` of `left`/`right`, treating a missing (None) operand as not constraining the result."""
         if left is None:
             return right
         if right is None:
@@ -93,6 +107,7 @@ class PenaltyForScale:
 
     @staticmethod
     def _at_most_one_non_optional(left: Optional[int], right: Optional[int]) -> int:
+        """Return whichever of `left`/`right` is not None; asserts that at most one of them is set."""
         if left is None:
             return right
         assert right is None
@@ -100,6 +115,7 @@ class PenaltyForScale:
 
     @staticmethod
     def _add_optional(left: Optional[int], right: Optional[int]) -> int:
+        """Sum `left`/`right`, treating a missing (None) operand as zero."""
         if left is None:
             return right
         if right is None:
@@ -131,11 +147,15 @@ class PenaltyForScale:
                                three_four_interval_of_three=self._three_four_interval_of_three + other._three_four_interval_of_three)
 
     def add_thumb_on_black(self, fingering=None):  # -> Self:
+        """Return a copy of this penalty with one more thumb-on-a-black-key note recorded."""
         c = self._copy(fingering=fingering)
         c._number_of_thumbs_on_black += 1
         return c
 
     def add_three_and_four_non_adjacent(self, distance: int, fingering=None):  # -> Self:
+        """Return a copy of this penalty recording a non-adjacent 3rd/4th-finger transition spanning `distance`
+        diatonic steps (absolute value). No-op if `distance` is 0 or 1 (adjacent); returns None (unfingerable)
+        if `distance` is more than 3."""
         distance = abs(distance)
         if distance <= 1:
             return self
@@ -149,6 +169,10 @@ class PenaltyForScale:
         return c
 
     def add_same_color_after_thumb(self, distance: int, other_finger: int, fingering=None):  # -> Self:
+        """Return a copy of this penalty recording a thumb-passing that keeps the same key color (white after
+        white, or black after black), `distance` diatonic steps away, landing on `other_finger`.
+
+        Returns None (unfingerable) if `distance` is more than 4."""
         assert 1 <= distance
         if distance > 4:
             return None
@@ -158,17 +182,22 @@ class PenaltyForScale:
 
     @staticmethod
     def _add_to_dict(dict, distance: int, other_finger: int):
+        """Increment, in-place, `dict[distance][other_finger]` (creating either level as needed)."""
         assert 2 <= other_finger <= 5
         if distance not in dict:
             dict[distance] = {}
         dict[distance][other_finger] = dict[distance].get(other_finger, 0) + 1
 
     def add_white_after_black_thumb(self, fingering=None):  # -> Self:
+        """Return a copy of this penalty with one more white-note-after-black-thumb transition recorded."""
         c = self._copy(fingering=fingering)
         c._nb_white_after_black_thumb += 1
         return c
 
     def add_black_after_white_thumb(self, distance: int, other_finger: int, fingering=None):  # -> Self:
+        """Return a copy of this penalty recording a black note played `distance` diatonic steps after a thumb
+        that was on a white note, landing on `other_finger`. Returns None (unfingerable) if `distance` is more
+        than 4."""
         assert 1 <= distance
         if distance > 4:
             return None
@@ -178,17 +207,23 @@ class PenaltyForScale:
 
     @staticmethod
     def _sum_values(d: Dict[Any, int]) -> int:
+        """Sum of the values of a single-level counts dict."""
         return sum(d.values())
 
     @staticmethod
     def _sum_sum_values(ds: Dict[Any, Dict[Any, int]]) -> int:
+        """Sum of the values of every nested counts dict in a two-level counts dict."""
         return sum(PenaltyForScale._sum_values(d) for d in ds.values())
 
     @staticmethod
     def _ordinal_for_thumbover(dict: Dict[int, int]) -> Tuple[int, int, int]:
+        """Return the counts for fingers 2, 4 and 3 (in that priority order) from a by-finger counts dict, used
+        as a sortable tuple in `_ordinal`."""
         return dict.get(2, 0), dict.get(4, 0), dict.get(3, 0)
 
     def _ordinal(self):  # -> Self:
+        """Return a tuple encoding this penalty's rank, comparable lexicographically (see the class docstring
+        for the exact ordering of criteria, worst-first)."""
         nb_thumbover = self._sum_sum_values(
             self._nb_same_color_after_thumb_at_distance_diatonic) + self._sum_sum_values(
             self._nb_black_after_white_thumb_at_distance_diatonic)
@@ -244,6 +279,8 @@ class PenaltyForScale:
         return self._ordinal() > other._ordinal()
 
     def best_known_is_at_least_as_good(self, other: Optional[PenaltyForScale]) -> bool:
+        """Whether `self` is at least as complex as `other` (see `__ge__`), treating a `TypeError` raised while
+        comparing (e.g. because one side's `pinky_side_tonic_finger` is not known yet) as False."""
         try:
             return self >= other
         except TypeError:
@@ -262,6 +299,9 @@ class PenaltyForScale:
     #     return text
 
     def acceptable(self) -> bool:
+        """Whether this fingering is playable at all: no thumb-passing spans 3+ diatonic steps, and (unless the
+        scale starts and ends on the same finger) the thumb-side tonic finger is the thumb (or unset) and the
+        pinky-side tonic finger is 4, 5 or unset."""
         for distance, _ in self._nb_black_after_white_thumb_at_distance_diatonic:
             if distance >= 3:
                 return False
@@ -277,6 +317,8 @@ class PenaltyForScale:
         return True
 
     def _copy(self, fingering=None):  # -> Self:
+        """Return a deep-enough copy of this penalty (independent nested dicts), optionally replacing
+        `fingering` if one is given."""
         c = copy.copy(self)
         c._nb_black_after_white_thumb_at_distance_diatonic = copy.deepcopy(
             c._nb_black_after_white_thumb_at_distance_diatonic)
@@ -286,6 +328,8 @@ class PenaltyForScale:
         return c
 
     def add_penalty_for_note(self, note: PianoNote):  # -> Self:
+        """Return the penalty for `self` plus the (single-note) penalty of playing `note`: a thumb-on-black
+        penalty if `note` is a black key fingered with the thumb, otherwise `self` unchanged."""
         if note.is_black_key_on_piano() and note.finger == 1:
             return self.add_thumb_on_black()
         return self
@@ -330,6 +374,8 @@ class PenaltyForScale:
 
     @classmethod
     def from_scale(cls, notes: List[PianoNote], for_right_hand: bool):
+        """Compute the total penalty of a fully-fingered `notes` sequence: the per-note penalty of each note
+        plus the per-transition penalty between each pair of consecutive notes."""
         penalty = cls()
         for note in notes:
             penalty = penalty.add_penalty_for_note(note)

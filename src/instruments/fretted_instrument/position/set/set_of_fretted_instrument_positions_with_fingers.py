@@ -14,12 +14,17 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True, repr=False)
 class ScaleColors(ColorsWithTonic):
+    """Coloring scheme for a scale diagram: tonic, third, fifth, and "quality" notes each get their own color,
+    every other degree gets `DEFAULT_COLOR`."""
     #pragma mark - Colors
     name: ClassVar[str] = "scale_colors"
+    """Human-readable identifier used when naming generated files."""
 
     #pragma mark - ColorsWithTonic
     def get_color_from_interval(self, chromatic_interval: ChromaticInterval):
-        color = [COLOR_TONIC, 
+        """The color for a note at `chromatic_interval` above the tonic, indexed by that interval folded into
+        the base octave (0 to 11 half-steps)."""
+        color = [COLOR_TONIC,
          DEFAULT_COLOR, DEFAULT_COLOR,
          COLOR_THIRD, COLOR_THIRD,
          DEFAULT_COLOR,
@@ -32,7 +37,9 @@ class ScaleColors(ColorsWithTonic):
 class SetOfFrettedInstrumentPositionsWithFingers(AbstractSetOfFrettedPositions[PositionOnFrettedInstrumentWithFingers]):
     """A set of position on the instrument, each position with a finger."""
     type: ClassVar[Type[PositionOnFrettedInstrument]] = PositionOnFrettedInstrumentWithFingers
+    """The element type held in this set: `PositionOnFrettedInstrumentWithFingers`."""
     _frozen_list_type: ClassVar[Type[FrozenList[PositionOnFrettedInstrumentType]]] = FrettedInstrumentPositionWithFingersFrozenList
+    """The `FrozenList` subclass matching `type`."""
 
     def resolve_fingers(self, instrument: FrettedInstrument) -> Self:
         """Return `self` with each position's candidate `fingers` narrowed to the single finger expected to play it.
@@ -59,10 +66,13 @@ class SetOfFrettedInstrumentPositionsWithFingers(AbstractSetOfFrettedPositions[P
     #pragma mark - SvgSaver
 
     def _svg_name_base(self, **kwargs) -> str:
-        # The diagram also displays a finger number on each note (see `resolve_fingers`); make that explicit in the
-        # file name so it's unambiguous which images have finger numbers and which don't.
+        """The base filename, suffixed with `_with_finger_numbers`.
+
+        The diagram also displays a finger number on each note (see `resolve_fingers`); make that explicit in
+        the file name so it's unambiguous which images have finger numbers and which don't."""
         return f"{super()._svg_name_base(**kwargs)}_with_finger_numbers"
 
 class SetOfFrettedInstrumentPositionsWithFingersFrozenList(FrozenList[SetOfFrettedInstrumentPositionsWithFingers]):
     """A list containing sets of fingered-positions on the instrument."""
     type = SetOfFrettedInstrumentPositionsWithFingers
+    """The element type enforced by this `FrozenList`."""

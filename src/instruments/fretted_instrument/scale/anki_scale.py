@@ -21,24 +21,28 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
 
 
     instrument: FrettedInstrument
-    """On which string this scale start"""
+    """The instrument this scale is played on."""
     start_string: String
-    """The number of octaves to play."""
+    """The string on which this scale starts."""
     number_of_octaves: int
-    """The set of fingers on which this scale can start"""
+    """The number of octaves to play."""
     first_fingers: FingersType
-    """The scale that is played by self."""
+    """The set of fingers on which this scale can start."""
     pattern: ScalePattern
-    """The list of way to play `pattern` on `instrument`."""
+    """The scale that is played by self."""
     scales: SetOfFrettedInstrumentPositionsWithFingersFrozenList
+    """The list of ways to play `pattern` on `instrument`."""
 
     def __len__(self):
+        """Number of distinct ways to play this scale (with these starting fingers)."""
         return len(self.scales)
 
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Normalize positional/keyword constructor arguments: coerce `instrument`, `first_fingers` (to
+        `frozenset`) and `scales` (to `SetOfFrettedInstrumentPositionsWithFingersFrozenList`) into keyword form."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
         instrument = kwargs["instrument"]
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "start_string")
@@ -49,6 +53,7 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
+        """Validate every field's type and that `number_of_octaves` is 1 or 2."""
         assert_typing(self.scales, SetOfFrettedInstrumentPositionsWithFingersFrozenList)
         assert_iterable_typing(self.scales, SetOfFrettedInstrumentPositionsWithFingers)
         assert_typing(self.instrument, FrettedInstrument)
@@ -72,19 +77,30 @@ class AnkiScaleWithFingersAndString(DataClassWithDefaultArgument):
 class AnkiScalesWithSameFirstString(DataClassWithDefaultArgument):
     """Represents a set of scales all starting on the same string"""
     instrument: FrettedInstrument
+    """The instrument this scale is played on."""
     start_string: String
+    """The string on which every scale in `fingers_to_scales` starts."""
     number_of_octaves: int
+    """The number of octaves played by every scale in `fingers_to_scales`."""
     pattern: ScalePattern
-    """Associate to each set of finger Fingers the way to play the scale `pattern` starting with any of the finger of Fingers."""
+    """The scale pattern played by every scale in `fingers_to_scales`."""
     fingers_to_scales: FrozenDict[FingersType, AnkiScaleWithFingersAndString] = field(hash=False)
+    """Associates to each set of starting fingers the way(s) to play the scale `pattern` starting with any of
+    those fingers."""
 
     def __len__(self):
+        """Total number of ways to play this scale, across every set of starting fingers."""
         return sum (len(scales) for scales in self.fingers_to_scales.values())
     
     def all_scales(self) -> List[Tuple[FingersType, SetOfFrettedInstrumentPositionsWithFingers]]:
-        """Returns the way to play """
+        """Return every (starting fingers, scale) pair across all finger sets, sorted from fewest to most
+        frets spanned (open strings excluded from the span)."""
         l = [(aswfas.first_fingers, scale) for aswfas in self.fingers_to_scales.values() for scale in aswfas.scales]
-        l.sort(key = lambda fingers_scale: fingers_scale[1].number_of_frets(allow_open=False))
+        def key(fingers_scale: Tuple[FingersType, SetOfFrettedInstrumentPositionsWithFingers]):
+            """Sort key: number of (non-open) frets spanned by the scale in this (fingers, scale) pair."""
+            scale = fingers_scale[1]
+            return scale.number_of_frets(allow_open=False)
+        l.sort(key=sort_key())
         return l
     
     def scales_starting_with_finger(self, finger: int, excluded_fingers: Set[int]= frozenset()):
@@ -131,6 +147,7 @@ class AnkiScalesWithSameFirstString(DataClassWithDefaultArgument):
                     best_fourth_fingers_scale = fingers, scale
                     continue
         def pair_to_scale(pair: Optional[Tuple[FingersType, SetOfPositionOnFrettedInstrument]]):
+            """Extract the scale from a (fingers, scale) pair, or return `None` if there is no pair."""
             if pair is None:
                 return None
             fingers, scale = pair
@@ -141,6 +158,8 @@ class AnkiScalesWithSameFirstString(DataClassWithDefaultArgument):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Normalize positional/keyword constructor arguments: coerce `instrument` and `fingers_to_scales`
+        (to `FrozenDict`) into keyword form."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument", type=FrettedInstrument)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "start_string")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_octaves")
@@ -150,6 +169,8 @@ class AnkiScalesWithSameFirstString(DataClassWithDefaultArgument):
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
+        """Validate types and that every entry of `fingers_to_scales` agrees with self on `start_string`,
+        `number_of_octaves`, `pattern`, and is keyed by its own `first_fingers`."""
         all_fingers = set()
         # To find case where the same finger occurs in multiple places.
         assert_typing(self.fingers_to_scales, FrozenDict)
@@ -170,9 +191,10 @@ def _generate_scale(instrument: FrettedInstrument,
                     starting_note: PositionOnFrettedInstrumentWithFingers,
                     relative_intervals: ChromaticIntervalFrozenList,
                     string_delta: Optional[Union[StringDelta]] = None, ) -> Generator[List[PositionOnFrettedInstrumentWithFingers]]:
-    """
-    Generates the list of fingered notes, such that the first note is starting_note_fingered, the intervals are in `relative_intervals`, each next string 
-    """
+    """Recursively generate every fingering of a scale: each yielded list starts with `starting_note` (with its
+    `fingers` narrowed to what's compatible with the rest of the fingering) followed by one fingered position
+    per interval in `relative_intervals`, each reached from the previous one via
+    `PositionOnFrettedInstrumentWithFingers.positions_for_interval`."""
     assert_typing(starting_note, PositionOnFrettedInstrumentWithFingers)
     if not relative_intervals:
         yield [starting_note]
@@ -194,11 +216,11 @@ def generate_scale(
         pattern_to_avoid_list: List[SetOfFrettedInstrumentPositionsWithFingers] = [],
         string_delta: Optional[Union[StringDelta]] = None, 
     ) -> AnkiScalesWithSameFirstString:
-    """
-    Returns the set of ways to play `self.pattern` on `number_of_octaves`, starting at `start_pos` on `instrument`. 
-    Only keep what satisfies the filter. 
-    pattern_to_avoid - don't return any position that is a subset of this one.
-    ."""
+    """Return the set of ways to play `scale_pattern` over `number_of_octaves`, starting at `start_pos` on
+    `instrument`, grouped by starting finger set.
+
+    Only fingerings satisfying `filter` are kept, and any fingering that is a subset of one of
+    `pattern_to_avoid_list` is discarded (used to skip fingerings already covered by another starting position)."""
     assert_iterable_typing(pattern_to_avoid_list, SetOfFrettedInstrumentPositionsWithFingers)
     fingers_to_scales: Dict[FingersType, List[SetOfFrettedInstrumentPositionsWithFingers]] = dict()
     starting_note = PositionOnFrettedInstrumentWithFingers.from_fretted_instrument_position(start_pos)
@@ -236,4 +258,9 @@ def generate_scale(
             pattern=scale_pattern, 
             scales=scales
             )
-    return AnkiScalesWithSameFirstString.make(instrument=instrument, start_string =starting_note.string, number_of_octaves = number_of_octaves, pattern=scale_pattern, fingers_to_scales=finger_to_anki_scale_with_fingers_and_strings)
+    return AnkiScalesWithSameFirstString.make(
+        instrument=instrument, 
+        start_string =starting_note.string, 
+        number_of_octaves = number_of_octaves, 
+        pattern=scale_pattern, 
+        fingers_to_scales=finger_to_anki_scale_with_fingers_and_strings)

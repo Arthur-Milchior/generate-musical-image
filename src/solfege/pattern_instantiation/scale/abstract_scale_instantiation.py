@@ -13,12 +13,18 @@ from solfege.value.note.set.abstract_note_list import AbstractNoteList
 
 
 @dataclass(frozen=True)
-class AbstractScale(AbstractPatternInstantiation[ScalePattern, NoteType, IntervalType, int],  Generic[NoteType, IntervalType]): 
+class AbstractScale(AbstractPatternInstantiation[ScalePattern, NoteType, IntervalType, int],  Generic[NoteType, IntervalType]):
+    """Shared base for `Scale` and `ChromaticScale`: an instantiation whose pattern is specifically a
+    `ScalePattern`. Overrides `get_notes()` to walk the scale's relative steps (possibly over several
+    octaves and/or descending) instead of relying on `AbstractPatternInstantiation`'s single-pass version."""
+
     pattern_type: ClassVar[PatternWithIntervalLists] = ScalePattern
+    """Restricts `pattern` (via `AbstractPatternInstantiation.__post_init__`'s type check) to `ScalePattern`."""
 
     def get_key(self) -> Key:
+        """The key obtained by transposing `lowest_note` by `pattern.interval_for_signature`."""
         return Key.from_note(self.lowest_note + self.pattern.interval_for_signature)
-    
+
     def get_notes(self,
                   number_of_octaves: int = 1,
                   add_an_extra_note: bool = False) -> AbstractNoteList[NoteType, IntervalType, ScalePattern]:

@@ -14,10 +14,16 @@ from utils.util import assert_typing
 
 
 class Chord(AbstractChord[Note, Interval], AbstractPairInstantiation[ChordPattern, int]):
-    
+    """A `ChordPattern` anchored on a concrete (diatonic+chromatic) `Note` root -- e.g. "C major triad"."""
+
     chromatic_instantiation_type: ClassVar = ChromaticChord
+    """`get_chromatic_instantiation()` builds a `ChromaticChord` from this chord."""
 
     def names(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
+        """This chord's full names: `lowest_note`'s spelled name followed by each of `pattern.names`, e.g.
+        ["C Major triad"]. `alteration_output`/`note_output`/`fixed_length` control how the note is spelled.
+        Note: `note_name` is built as a one-element set literal below, so the returned strings currently
+        include Python's set braces/quoting (e.g. "{'C'} Major triad") -- pre-existing, not fixed here."""
         names = []
         for name in self.pattern.names:
             note_name = {self.lowest_note.get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)}
@@ -25,6 +31,7 @@ class Chord(AbstractChord[Note, Interval], AbstractPairInstantiation[ChordPatter
         return names
 
     def notation(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
+        """This chord's short notation: `lowest_note`'s spelled name followed by `pattern.notation`, e.g. "CM"."""
         note_notation = self.lowest_note.get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
         return f"{note_notation}{self.pattern.notation}"
     

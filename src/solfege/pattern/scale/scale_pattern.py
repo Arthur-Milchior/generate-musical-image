@@ -24,21 +24,30 @@ class ScalePattern(SolfegePattern, IntervalList):
 
     """See SolfegePattern"""
     name_to_pattern: ClassVar[Dict[str, "ScalePattern"]] = dict()
+    """Maps each registered name to its `ScalePattern` instance (see `PatternWithName.name_to_pattern`)."""
     all_patterns: ClassVar[List['ScalePattern']] = list()
+    """Every registered `ScalePattern` instance, in creation order (see `PatternWithName.all_patterns`)."""
 
+    _descending: Optional["ScalePattern"] = None
     """The descending pattern if different from the ascending one. Mostly used for minor melodic. It's stored in an ascending way.
     If it's none, the descending is self"""
-    _descending: Optional["ScalePattern"] = None
-    """If True, add a warning if the result is not a perfect octave"""
+
     suppress_warning: bool = field(compare = False, default=False)
+    """If True, add a warning if the result is not a perfect octave"""
 
 
     @classmethod
     def _new_record_keeper(cls):
+        """Build this class's `IntervalListToScalePattern` record keeper."""
         from solfege.pattern.scale.interval_list_to_scale_pattern import IntervalListToScalePattern
         return IntervalListToScalePattern.make()
 
     def __post_init__(self):
+        """Validate `_descending`/`suppress_warning`'s types, chain to the rest of construction, then (unless
+        `suppress_warning`) flag scales whose last absolute interval isn't exactly one octave.
+
+        Note: the check below uses a bare `assert f"..."` (a non-empty string is always truthy), so it never
+        actually raises -- this is a pre-existing no-op, not a working warning."""
         assert_optional_typing(self._descending, ScalePattern)
         assert_optional_typing(self.suppress_warning, bool)
         super().__post_init__()
@@ -52,8 +61,10 @@ class ScalePattern(SolfegePattern, IntervalList):
         return ScalePattern.make_relative(names=self.names, notation=self.notation, relative_intervals=[-interval for interval in reversed(list(self.relative_intervals()))],
                             interval_for_signature=self.interval_for_signature, suppress_warning=True, increasing = not self.increasing, _descending=self._descending,
                             record=False)
-    
+
     def descending(self):
+        """This scale's descending form: `_descending` if one was given, else this same pattern (most scales
+        are played the same way in both directions)."""
         if self._descending:
             return self._descending
         return self
@@ -77,13 +88,20 @@ class ScalePattern(SolfegePattern, IntervalList):
     #     return Scale[NoteType](notes=notes, pattern=self, key = notes[0] + self.interval_for_signature)
 
     def __len__(self):
+        """The number of steps (relative intervals) in this scale."""
         return len(self.relative_intervals)
 
     def multiple_octaves(self, nb_octave: int):
+        """This scale's relative intervals repeated `nb_octave` times, as a single `IntervalList` (e.g. to walk
+        the scale over several octaves in one pass). `nb_octave` must be non-negative."""
         assert nb_octave >= 0
         return IntervalList.make_relative(self.relative_intervals()*nb_octave)
-    
+
     @classmethod
     def _get_instantiation_type(cls) -> Type["Scale"]:
+        """`Scale` is the `AbstractPairInstantiation` used to anchor a `ScalePattern` to a concrete note.
+
+        Note: the import below pulls in `Chord`, not `Scale` -- `Scale` is never imported in this module, so
+        this method raises `NameError` if actually called. Pre-existing bug, not fixed here."""
         from solfege.pattern_instantiation.chord.chord import Chord
         return Scale

@@ -1,11 +1,15 @@
+"""Fingerings introduced in Sigurd M. Rascher's "Top Tones" four-octave range book: altissimo-register
+fingerings that all rely on overtones, hence always implicitly press the `octave` and `e_flat` keys (see
+`RascherFingering.make`)."""
 from instruments.saxophone.buttons import *
 from instruments.saxophone.fingering.saxophone_fingering import *
-
-"Fingerings introduceds in Sigurd M. Raschèr four-octave range book"
 
 
 rascher_authors = frozenset({"Rascher"})
 class RascherFingering(SaxophoneFingering):
+    """A `SaxophoneFingering` from Rascher's book: always attributed to `rascher_authors` and tagged
+    `FingeringSymbol.RASCHER`, and always implicitly presses `octave` and `e_flat` in addition to the buttons
+    given explicitly."""
 
     @classmethod
     def make(cls,
@@ -14,13 +18,18 @@ class RascherFingering(SaxophoneFingering):
             fingering_symbol: FingeringSymbol = FingeringSymbol.RASCHER,
             test:bool = False,
             authors = rascher_authors) -> Self:
-        """The two last argument allows to use the same constructor"""
+        """Build a Rascher fingering for `chromatic_note_description`, pressing `buttons` plus the implicit
+        `octave`/`e_flat` keys. `fingering_symbol` and `authors` accept only their default values (Rascher-only
+        author/symbol) so that `add_semi_tone`/`add_octave`/etc. (which call this via `SaxophoneFingering`'s
+        chaining helpers, passing through the same arguments) keep working without change."""
         assert authors == rascher_authors, f"Unexpected author {authors}"
         assert fingering_symbol == FingeringSymbol.RASCHER, f"{fingering_symbol=}"
         buttons = frozenset(buttons) | {octave, e_flat}
         return super().make(chromatic_note_description=chromatic_note_description, buttons=buttons, authors=authors, fingering_symbol=fingering_symbol, test=test)
 
     def _add_buttons_interval(self, interval, *args):
+        """Like `SaxophoneFingering._add_buttons_interval`, but always tags the result `FingeringSymbol.RASCHER`
+        (Rascher fingerings never carry another symbol)."""
         return super()._add_buttons_interval(interval, *args, FingeringSymbol.RASCHER)
 
 f_sharp6 = RascherFingering.make("F#6", {e, f, b})

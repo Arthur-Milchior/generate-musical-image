@@ -8,6 +8,7 @@ from solfege.value.note.set.chromatic_note_list import ChromaticNoteList
 
 class TestChord(unittest.TestCase):
     def test_generation(self):
+        """A first-inversion major triad anchored on chromatic note 0 yields chromatic pitches [0, 3, 8]."""
         inversion = ChromaticInversionInstantiation(major_triad.inversion(1), ChromaticNote(0))
         actual = inversion.get_notes()
         expected = ChromaticNoteList.make(notes=[0, 3, 8], list_order=ListOrder.INCREASING)

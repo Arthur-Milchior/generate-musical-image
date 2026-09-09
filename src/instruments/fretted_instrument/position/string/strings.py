@@ -12,25 +12,31 @@ from utils.util import assert_iterable_typing, assert_typing
 class Strings(DataClassWithDefaultArgument, SvgLines):
     """Represents a set of string of the fretted_instrument."""
     strings: StringFrozenList
+    """The strings in this set."""
 
     @classmethod
     def make_interval(cls, instrument: "FrettedInstrument", lower: String, higher: String):
+        """All strings on `instrument` between `lower` and `higher` (inclusive)."""
         assert lower <= higher
         return super().make(instrument.string(string) for string in range(lower.value, higher.value+1) )
 
     def __iter__(self):
+        """Iterate over the strings in this set."""
         yield from self.strings
 
     def __lt__(self, other: Self):
+        """Strict subset comparison, by the underlying set of strings."""
         return set(self.strings) < set(other.strings)
-    
+
     def __le__(self, other: Self):
+        """Subset-or-equal comparison, by the underlying set of strings."""
         return set(self.strings) <= set(other.strings)
-    
+
     def __eq__(self, other: Self):
+        """Equal iff the same strings (order-sensitive, since `strings` is a `StringFrozenList`)."""
         assert_typing(other, Strings)
         return self.strings == other.strings
-    
+
     def pop(self):
         """Returns the first string, the set of strings without this element. Or None if the set is empty."""
         if not self.strings:
@@ -61,9 +67,11 @@ class Strings(DataClassWithDefaultArgument, SvgLines):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Normalize constructor arguments: `strings` becomes a keyword argument, coerced to a `StringFrozenList`."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "strings", StringFrozenList)
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
+        """Validate that `strings` is a `StringFrozenList` of `String`."""
         assert_typing(self.strings, StringFrozenList)
         assert_iterable_typing(self.strings, String)

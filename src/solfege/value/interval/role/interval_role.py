@@ -13,4 +13,6 @@ class IntervalRole(ABC, DataClassWithDefaultArgument):
     """
 
     @abstractmethod
-    def text_for_guitar_image(self) -> str: ...
+    def text_for_guitar_image(self) -> str:
+        """The short text label to print for this role on a generated fretted-instrument diagram."""
+        ...

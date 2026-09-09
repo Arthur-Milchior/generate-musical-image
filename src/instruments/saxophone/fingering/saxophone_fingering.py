@@ -1,3 +1,8 @@
+"""Defines `SaxophoneFingering` (a single way to finger one note: which buttons are pressed, what its role is)
+and `FingeringSymbol` (the vocabulary of roles a fingering can have: normal, trill, alternate, drop...). Every
+concrete fingering created anywhere in `instruments.saxophone.fingering` (`main_column`, `k`, `cn`, `overtone`,
+`rascher`, and their `*_silent` siblings) is a `SaxophoneFingering` built via `SaxophoneFingering.make()` or one
+of the `add_*`/`remove_*`/`silent_button` helpers below, and registers itself in `value_to_fingering`."""
 from abc import abstractmethod
 from dataclasses import dataclass
 from enum import Enum
@@ -9,6 +14,10 @@ from utils.svg.svg_generator import SvgGenerator
 from utils.util import assert_typing
 
 class FingeringSymbol(Enum):
+    """The vocabulary of roles/annotations a `SaxophoneFingering` can carry (normal, alternate, trill, drop,
+    velocity...), following the terminology used in Jay's and Rascher's fingering books. `exposure`,
+    `symbols_to_description` and `fingering_symbols` below map each symbol to how exposed the fingering is and
+    to a human-readable description used in the generated Anki notes (`SaxophoneFingering.anki_comment`)."""
     A = "A"
     B = "B"
     C = "C"
@@ -116,21 +125,38 @@ fingering_symbols = {
 
 @dataclass(frozen=True)
 class SaxophoneFingering(ChromaticNote, SvgGenerator):
+    """One way of fingering a given note: the set of `SaxophoneButton`s pressed, plus metadata about the role
+    of this fingering (its `fingering_symbol`, who documented it). Instances are normally built through
+    `make()` or the `add_*`/`remove_*`/`silent_button` chaining helpers rather than the constructor directly,
+    and (unless `test=True`) register themselves under their pitch `value` in `value_to_fingering`."""
     buttons: frozenset[SaxophoneButton]
+    """The buttons that must be pressed to produce this fingering."""
+
     authors: frozenset[str]
+    """Names of the source(s)/author(s) this fingering is attributed to (e.g. `{"Rascher"}`); may be empty."""
+
     fingering_symbol: str
+    """The `FingeringSymbol` classifying this fingering's role (normal, trill, alternate, drop...)."""
+
     test: bool
-    """The list of fingerings to which it's added"""
+    """True if this instance exists only for a test/equality check and must not be registered in
+    `value_to_fingering`."""
+
     fingerings: List
+    """The list of `Fingerings` groups (alternatives for the same note) this fingering has been added to."""
 
     @classmethod
-    def make(cls, 
-            chromatic_note_description: Union[str, int], 
+    def make(cls,
+            chromatic_note_description: Union[str, int],
             buttons: Iterable[SaxophoneButton],
             fingering_symbol: str = FingeringSymbol.N_COMPLETLY_EXPOSED,
-            *, 
-            authors: Union[None, str, Iterator[str]] = None, 
+            *,
+            authors: Union[None, str, Iterator[str]] = None,
             test: bool = False) -> Self:
+        """Build a `SaxophoneFingering` for the note described by `chromatic_note_description` (a note name
+        such as `"d#5"`, or a raw chromatic value) pressing `buttons`. `authors` may be `None`, a single author
+        name, or an iterable of names. Unless `test` is True, the new instance auto-registers itself in
+        `value_to_fingering` (via `__post_init__`)."""
         buttons = frozenset(list(sorted(buttons)))
         if authors is None:
             authors = {}
@@ -147,6 +173,8 @@ class SaxophoneFingering(ChromaticNote, SvgGenerator):
         return cls(buttons = buttons, fingering_symbol=fingering_symbol, authors = authors, test= test, value = value, fingerings=[])
 
     def __post_init__(self):
+        """Validate `buttons`, then (unless `test`) register `self` under its pitch `value` in
+        `value_to_fingering` so it's picked up when generating the fingering charts."""
         super().__post_init__()
         assert_typing(self.buttons, frozenset)
         for button in self.buttons:
@@ -157,18 +185,27 @@ class SaxophoneFingering(ChromaticNote, SvgGenerator):
         if self.value not in value_to_fingering:
             value_to_fingering[self.value] = []
         value_to_fingering[self.value].append(self)
-    
+
     def  __repr__(self):
+        """Return a `SaxophoneFingering.make(...)`-shaped string that reconstructs this fingering, for
+        debugging/assertion messages."""
         return f"""Fingering.make(value={self.get_name_with_octave()}, buttons={", ".join(str(button) for button in self.buttons)}, fingering_symbol={self.fingering_symbol})"""
 
     def __eq__(self, other: "SaxophoneFingering"):
+        """Two fingerings are equal if they're for the same pitch and press the same `buttons`."""
         assert isinstance(other, SaxophoneFingering), f"""Comparing {other} to a fingering"""
         return self.buttons == other.buttons and super().__eq__(other)
-    
+
     def __hash__(self):
+        """Hash consistently with `__eq__`, combining the pitch hash with `buttons`."""
         return hash((super().__hash__(), self.buttons))
-    
+
     def _add_buttons_interval(self, interval: int, *args):
+        """Build a new `SaxophoneFingering` `interval` semitones away from `self`, adding the given buttons on
+        top of `self.buttons`. `args` is the buttons to add, optionally followed by a trailing `FingeringSymbol`
+        (defaulting to `N_COMPLETLY_EXPOSED` otherwise); shared by `add_octave`/`add_semi_tone`/`remove_semi_tone`/
+        `silent_button`/`add_tone`/`remove_tone` (a negative or zero `interval` removes/keeps the pitch while
+        still adding buttons, e.g. a silent transitional key)."""
         buttons = list(args)
         last = buttons[-1]
         if isinstance (last, FingeringSymbol):
@@ -182,26 +219,41 @@ class SaxophoneFingering(ChromaticNote, SvgGenerator):
         return self.__class__.make(chromatic_note_description =self.value + interval, buttons = self.buttons | frozenset(buttons), authors = self.authors, fingering_symbol=fingering_symbol)        
 
     def add_octave(self, fingering_symbol: Optional[str] = None) -> "SaxophoneFingering":
+        """Return the fingering one octave higher: same buttons plus the `octave` key. Reuses `self`'s
+        `fingering_symbol` unless a different one is given."""
         if fingering_symbol is None:
             fingering_symbol = self.fingering_symbol
         return self._add_buttons_interval(12, octave, fingering_symbol)
-    
+
     def add_semi_tone(self, *args) -> "SaxophoneFingering":
+        """Return the fingering a semitone higher, additionally pressing the given buttons (optionally ending
+        in a `FingeringSymbol`)."""
         return self._add_buttons_interval(1, *args)
-    
+
     def remove_semi_tone(self, *args) -> "SaxophoneFingering":
+        """Return the fingering a semitone lower, additionally pressing the given buttons (optionally ending
+        in a `FingeringSymbol`)."""
         return self._add_buttons_interval(-1, *args)
 
     def silent_button(self, *args) -> "SaxophoneFingering":
+        """Return a fingering for the *same* pitch, additionally pressing the given buttons (optionally ending
+        in a `FingeringSymbol`) — used for buttons that don't change the sound (e.g. held down only to ease a
+        transition to/from an adjacent note)."""
         return self._add_buttons_interval(0, *args)
-    
+
     def add_tone(self, *args) -> "SaxophoneFingering":
+        """Return the fingering a whole tone higher, additionally pressing the given buttons (optionally ending
+        in a `FingeringSymbol`)."""
         return self._add_buttons_interval(2, *args)
-    
+
     def remove_tone(self, *args) -> "SaxophoneFingering":
+        """Return the fingering a whole tone lower, additionally pressing the given buttons (optionally ending
+        in a `FingeringSymbol`)."""
         return self._add_buttons_interval(-2, *args)
-    
-    def anki_comment(self):
+
+    def anki_comment(self) -> str:
+        """Return the human-readable description shown alongside this fingering's image in the generated Anki
+        note: its `symbols_to_description` text (if any) plus its `exposure` level."""
         exp = exposure[self.fingering_symbol]
         desc = symbols_to_description.get(self.fingering_symbol, None)
         if desc:
@@ -224,11 +276,16 @@ class SaxophoneFingering(ChromaticNote, SvgGenerator):
         return 75
     
     def svg_lines(self) -> Iterable[str]:
+        """Yield the SVG for every button on the instrument (from the module-level `buttons` registry),
+        unfilled, then re-yield the SVG for this fingering's own `buttons`, filled — so later (filled) shapes
+        are drawn on top of the full, unfilled instrument outline."""
         for button in buttons:
             yield button.svg_line(selected=False)
         for button in self.buttons:
             yield button.svg_line(selected=True)
 
+# Every registered (non-`test`) fingering, keyed by chromatic pitch `value`; populated by
+# `SaxophoneFingering.__post_init__` and consumed when building `Fingerings` groups in `saxophone_fingerings.py`.
 value_to_fingering: Dict[int, List[SaxophoneFingering]] = dict()
 
 from instruments.saxophone.fingering import k, cn, overtone, rascher, main_column

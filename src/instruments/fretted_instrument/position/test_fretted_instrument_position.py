@@ -10,6 +10,7 @@ instrument = Guitar
 strings = list(Guitar.strings())
 
 def position_make(string, fret):
+    """Shorthand to build a `PositionOnFrettedInstrument` from a string and a fret."""
     return PositionOnFrettedInstrument(string, fret)
 
 empty_first_string = position_make(strings[0], Fret.make(0, True))
@@ -25,12 +26,14 @@ E5_6 = position_make(strings[5], Fret.make(0, True))
 not_played = Fret.make( None, True)
 
 def frets_make(*args, **kwargs):
+    """Shorthand to build a `Frets` range, defaulting `absolute` to `True` when not given."""
     if "absolute" not in kwargs:
         args = [True] + list(args) 
     return Frets.make(*args, **kwargs)
 
 class TestFrettedInstrumentPosition(unittest.TestCase):
     def test_get_chromatic(self):
+        """A not-played position has no chromatic note; a played one resolves via string + fret."""
         self.assertEqual(position_make(strings[0], fret=not_played).get_chromatic(), None)
         self.assertEqual(empty_first_string.get_chromatic(), ChromaticNote(value=-8))
         self.assertEqual(position_make(strings[2], Fret.make(3, True)).get_chromatic(), ChromaticNote(value=5))
@@ -41,10 +44,12 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
     #     self.assertEqual(PositionOnFrettedInstrument(strings[0], Fret.make(3, True)).svg(), """<circle cx="15" cy="150" r="11" fill="black" stroke="black" stroke-width="3"/>""")
 
     def test_repr(self):
+        """`repr()` produces a `.make(string, fret)` call string."""
         self.assertEqual(repr(position_make(strings[0], fret=not_played)), "PositionOnFrettedInstrument.make(1, None)")
         self.assertEqual(repr(empty_first_string), "PositionOnFrettedInstrument.make(1, 0)")
 
     def test_eq(self):
+        """Equality holds iff both string and fret match; differs otherwise, including for not-played positions."""
         self.assertEqual(position_make(strings[0], fret=not_played), position_make(strings[0], fret=not_played))
         self.assertEqual(position_make(strings[0], Fret.make(8, True)), position_make(strings[0], Fret.make(8, True)))
         self.assertNotEqual(position_make(strings[1], Fret.make(8, True)), position_make(strings[0], Fret.make(8, True)))
@@ -52,12 +57,14 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
         self.assertNotEqual(position_make(strings[0], fret=not_played), position_make(strings[0], Fret.make(8, True)))
 
     def test_lt(self):
+        """Ordering follows chromatic pitch first, string second, with not-played sorting as maximal."""
         self.assertLess( position_make(strings[0], Fret.make(1, True)), position_make(strings[0], fret=not_played))
         self.assertLess(position_make(strings[0], Fret.make(1, True)), position_make(strings[0], Fret.make(2, True)))
         self.assertLess(position_make(strings[0], Fret.make(1, True)), position_make(strings[1], Fret.make(1, True)))
         self.assertLess(position_make(strings[0], Fret.make(1, True)), position_make(strings[1], fret=not_played))
 
     def test_le(self):
+        """`<=` holds both on equal positions and on strictly-less ones."""
         self.assertEqual(position_make(strings[0], fret=not_played), position_make(strings[0], fret=not_played))
         self.assertEqual(position_make(strings[0], Fret.make(8, True)), position_make(strings[0], Fret.make(8, True)))
         self.assertLessEqual(position_make(strings[0], Fret.make(1, True)), position_make(strings[0], fret=not_played))
@@ -66,6 +73,7 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
         self.assertLessEqual(position_make(strings[0], Fret.make(1, True)), position_make(strings[1], fret=not_played))
 
     def test_from_chromatic(self):
+        """`from_chromatic` finds every position playing a given note, filtered by optional fret/string restrictions."""
         strings_interval = Strings.make_interval(Guitar, strings[3], strings[5])
         self.assertEqual(PositionOnFrettedInstrument.from_chromatic(Guitar, E5, True),
                          [
@@ -104,6 +112,7 @@ class TestFrettedInstrumentPosition(unittest.TestCase):
                           ])
         
     def test_add(self):
+        """`positions_for_interval_with_restrictions` finds positions reachable by an interval, filtered by string/fret restrictions."""
         C5 = position_make(strings[0], Fret.make(20, True))
         third_major = ChromaticInterval.make(4)
         self.assertEqual(C5.positions_for_interval_with_restrictions(Guitar,third_major, strings=StringDelta.SAME_STRING_ONLY(Guitar)),

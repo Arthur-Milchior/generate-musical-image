@@ -13,11 +13,18 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True)
 class FrettedPositionMakerForInterval(FrettedPositionMakerWithLetter):
+    """A `FrettedPositionMakerWithLetter` that labels each position with its interval role (e.g. "3m", "5",
+    "T") relative to `tonic`, as defined by `pattern` (the scale/chord being drawn)."""
     tonic: ChromaticNote
+    """The reference note (scale/chord root) that interval labels are computed relative to."""
     pattern: SolfegePattern
+    """The scale/chord pattern whose interval roles supply the text label for each degree."""
 
     #pragma mark - FrettedPositionMakerForInterval
     def text(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument):
+        """The interval-role label (e.g. "3m", "5", "T") for `pos`'s note relative to `tonic`, looked up in
+        `pattern`'s first interval list by matching base-octave interval value. Asserts if no matching interval
+        is found in the pattern."""
         chromatic_note = pos.get_chromatic()
         chromatic_interval = chromatic_note - self.tonic
         value_of_interval_in_base_octave = chromatic_interval.in_base_octave().value
@@ -38,11 +45,13 @@ class FrettedPositionMakerForInterval(FrettedPositionMakerWithLetter):
 
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Normalize constructor arguments: make positional `tonic` a keyword argument."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "tonic")
         return args, kwargs
-    
+
     def __post_init__(self):
+        """Validate that `tonic` is a `ChromaticNote` within the base octave."""
         assert_typing(self.tonic, ChromaticNote)
         assert self.tonic.is_in_base_octave(accepting_octave=False)
         super().__post_init__()

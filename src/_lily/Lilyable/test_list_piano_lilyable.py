@@ -14,6 +14,8 @@ class TestList(unittest.TestCase):
     )
 
     def test_lily(self):
+        """`ListPianoLilyable.lily()` concatenates its elements' code (inserting `\\key` changes between
+        elements with different keys) and its `first_key`/`left_lily`/`right_lily`/`annotations_lily` match."""
         lily = self.value.lily()
         self.assertEqual(r"""\version "2.20.0"
 \score{
@@ -51,5 +53,7 @@ class TestList(unittest.TestCase):
         self.assertEqual(self.value.annotations_lily(), """IV am b""")
 
     def test_eq(self):
+        """A `ListPianoLilyable` equals a `LiteralPianoLilyable` built from its own concatenated left/right/key/
+        annotation code, since `PianoLilyable.__eq__` compares by generated code."""
         expected = LiteralPianoLilyable("aes", r"""cis gauche \key c \major izquierda""", """gis' droit \key c \major derecha""", """IV am b""")
         self.assertEqual(self.value, expected)

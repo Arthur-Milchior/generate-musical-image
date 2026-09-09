@@ -1,4 +1,6 @@
-
+"""Left-hand finger assignment for chords: given a `ChordOnFrettedInstrument`, work out which of the up-to-4
+fretting fingers (plus, potentially, a bar) covers each closed position, and whether that assignment is
+physically playable."""
 
 from dataclasses import dataclass
 from enum import Enum
@@ -18,18 +20,28 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True)
 class HandForChordForFrettedInstrument:
+    """The left-hand finger assignment used to play one `ChordOnFrettedInstrument`: which position (if any) each
+    of fingers 1 (index) to 4 (pinky) covers, whether the index finger bars across multiple strings, and which
+    strings are left open. Built by `compute_hand`."""
+
     instrument: FrettedInstrument
+    """The instrument the chord is played on."""
 
-    """The thumb. If played, it's on the first string."""
     zero_fret: Optional[Fret] = None
+    """The thumb. If played, it's on the first string."""
 
-    """The index for potentially a barred note. """
     one: Optional[PositionOnFrettedInstrument] = None
+    """The index finger's position, if used (also the barred fret's position when `barred` is not `Barred.NO`)."""
     barred: Barred = Barred.NO
+    """Whether/how the index finger must bar across multiple strings -- see `Barred`."""
     two: Optional[PositionOnFrettedInstrument] = None
+    """The middle finger's position, if used."""
     three: Optional[PositionOnFrettedInstrument] = None
+    """The ring finger's position, if used."""
     four: Optional[PositionOnFrettedInstrument] = None
-    opens: StringFrozenList = StringFrozenList() 
+    """The pinky's position, if used."""
+    opens: StringFrozenList = StringFrozenList()
+    """The strings played open (no finger needed)."""
 
     @staticmethod
     def _make_hand_for_only_zero(instrument: FrettedInstrument, fretted_instrument_chord: ChordOnFrettedInstrument):
@@ -39,6 +51,9 @@ class HandForChordForFrettedInstrument:
 
     @staticmethod
     def compute_hand(instrument: FrettedInstrument, fretted_instrument_chord: ChordOnFrettedInstrument, potential_thumb: bool = False):
+        """Compute the `HandForChordForFrettedInstrument` needed to play `fretted_instrument_chord` on
+        `instrument`: delegates to `make_hand_for_closed` if any string is fretted, or to `_make_hand_for_only_zero`
+        if the chord is entirely open strings. `potential_thumb` is not yet implemented and must be `False`."""
         assert_typing(fretted_instrument_chord, ChordOnFrettedInstrument)
         assert not potential_thumb
         # Searching whether there is any closed position.
@@ -50,6 +65,12 @@ class HandForChordForFrettedInstrument:
 
     @staticmethod
     def make_hand_for_closed(instrument: FrettedInstrument, chord_on_fretted: ChordOnFrettedInstrument, potential_thumb:bool = False) -> Optional["HandForChordForFrettedInstrument"]:
+        """Assign fingers 1-4 to `chord_on_fretted`'s closed positions, lowest fret/string first: finger 1 takes
+        (and, if `is_barred()`, bars across) the lowest fret, remaining positions are assigned to 2/3/4 by fret
+        order, with the note closest to finger 1 going to finger 2 rather than 3 when there are only 3 remaining
+        positions. Returns `None` if more than 3 positions remain to finger after accounting for finger 1/the
+        bar (i.e. the chord needs more than 4 fingers). `potential_thumb` is not yet implemented and must be
+        `False`."""
         assert_typing(instrument, FrettedInstrument)
         assert_typing(chord_on_fretted, ChordOnFrettedInstrument)
         assert not potential_thumb
@@ -88,6 +109,9 @@ class HandForChordForFrettedInstrument:
         return HandForChordForFrettedInstrument(instrument = instrument, zero_fret = None, one=one, barred=barred, two=two, three=three, four=four, opens=StringFrozenList(opens))
 
     def playable(self) -> Playable:
+        """Whether every pair of used fingers is within the instrument's allowed chord fret-spread
+        (`FrettedInstrument.finger_to_fret_delta`): `Playable.NO` if any pair violates it, `Playable.EASY`
+        otherwise."""
         non_thumb_position = [self.one, self.two, self.three, self.four]
         finger_to_optional_fret = [self.zero_fret] + [pos.fret if pos is not None else None for pos in non_thumb_position]
         for lower_finger in range(4): #e.g. index
@@ -105,6 +129,7 @@ class HandForChordForFrettedInstrument:
         return Playable.EASY
     
     def __post_init__(self):
+        """Validate every assigned finger position is actually played, and that a bar spans at least two strings."""
         for pos in (self.zero_fret, self.one, self.two, self.three, self.four):
             if pos is not None:
                 assert pos.fret.is_played()
@@ -114,10 +139,14 @@ class HandForChordForFrettedInstrument:
             """Barred mean two strings at least"""
 
     def not_barred_positions(self):
+        """The positions covered by fingers 1-4/thumb, excluding the bar itself (i.e. `one` is omitted when it's
+        the barred position; the bar's own positions are added back by `positions`)."""
         l = [PositionOnFrettedInstrument(self.instrument.string(1), self.zero_fret) if self.zero_fret else None, self.one if not self.barred else None, self.two, self.three, self.four]
         return [pos for pos in l if pos is not None]
-    
+
     def positions(self):
+        """This hand's positions as a `ChordOnFrettedInstrument`: `not_barred_positions` plus, if barred, one
+        position per string from the bar's string down to the instrument's last string."""
         positions = self.not_barred_positions()
         if self.barred:
             barred_fret = self.one.fret

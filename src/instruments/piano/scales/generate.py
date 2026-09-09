@@ -40,8 +40,12 @@ scales_the_algorithm_failed_to_generate = []
 
 @dataclass(frozen=True)
 class ScoreFixedPatternFirstNoteDirectionNumberOfOctavesLeftOrRightOrBoth:
+    """The result of rendering one score (for a fixed scale pattern, starting note, direction, number of
+    octaves, and hand selection): the generated SVG and the HTML snippet linking to it."""
     image_tag: str
+    """`<img>` tag pointing at the generated SVG, for use in an Anki note field."""
     html_line: str
+    """`<li>` HTML snippet linking to the `.ly` source and showing the image, for the browsable index pages."""
 
 
 def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_right_or_both(scale_name: str,
@@ -69,11 +73,16 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves_left_or_
 
 @dataclass(frozen=True)
 class ScoreFixedPatternFirstNoteNumberOfOctaves:
+    """The results of rendering every hand-selection score for a fixed scale pattern, starting note and number
+    of octaves (one entry per (left, right, both) x direction combination)."""
     image_tags: List[str]
+    """`<img>` tags for every rendered score, in generation order."""
     html_lines: List[str]
+    """`<li>` HTML snippets for every rendered score, in generation order."""
 
 
 def flatten(notess: List[List[PianoNote]]):
+    """Concatenate a list of note-lists (e.g. one list per octave/pattern repetition) into a single flat list."""
     return [note for notes in notess for note in notes]
 
 
@@ -88,6 +97,11 @@ def generate_score_fixed_pattern_first_note_direction_number_of_octaves(key: str
                                                                         execute_lily: bool,
                                                                         wav: bool,
                                                                         ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
+    """Render the left-hand-only, right-hand-only and both-hands scores for one already-fingered `direction`.
+
+    `left_scales_fingering`/`right_scales_fingering` each hold one fully-fingered note sequence (covering the
+    requested number of octaves and direction already) per alternative equally-good fingering; `flatten`
+    concatenates those alternatives before rendering, so every alternative is shown in the same score."""
     anki_fields_for_this_note_scale_direction = []
     html_lines = []
     left_flattened = flatten(left_scales_fingering)
@@ -139,6 +153,11 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
                                                               execute_lily: bool,
                                                               wav: bool
                                                               ) -> ScoreFixedPatternFirstNoteNumberOfOctaves:
+    """Apply every candidate `left_fingerings`/`right_fingerings` to `number_of_octaves` octaves of
+    `scale_pattern` starting on `right_hand_lowest_note` (the left hand starts one octave below), derive the
+    increasing/decreasing/total (increasing then decreasing)/reverse (decreasing then increasing) note
+    sequences, and render a score for each direction (see
+    `generate_score_fixed_pattern_first_note_direction_number_of_octaves`)."""
     anki_fields_for_this_scale_pattern_lowest_note_and_number_of_octaves = []
     html_lines = []
     left_hand_scales_increasing = [left_fingering.generate(first_played_note=right_hand_lowest_note.add_octave(-1),
@@ -190,22 +209,34 @@ def generate_score_fixed_pattern_first_note_number_of_octaves(key: str,
 
 @dataclass(frozen=True)
 class ScoreFixedPatternFirstNote:
+    """The results for one scale pattern starting on one specific note: every rendered score plus the
+    corresponding Anki/HTML index entries."""
     anki_note_as_csv: str
+    """One Anki note (as a CSV line: scale name, starting note, then every rendered score's `<img>` tag)."""
     html_link_for_this_starting_note: str
+    """`<li>` HTML snippet linking to this starting note's own index page."""
 
 
 @dataclass(frozen=True)
 class MissingFingering:
+    """Records that no acceptable fingering could be generated for one hand playing `scale_pattern` starting on
+    `note` (see the `cant_exists.txt` output file, and the module README)."""
     scale_pattern: ScalePattern
+    """The scale/arpeggio pattern that could not be fingered."""
     note: Note
+    """The starting note of the scale for which fingering failed."""
     for_right_hand: bool
+    """Whether it's the right hand (True) or left hand (False) fingering that is missing."""
 
     def __str__(self):
+        """Human-readable one-line description, as written to `cant_exists.txt`."""
         return f"""Missing {"right" if self.for_right_hand else "left"} {self.note} {self.scale_pattern.first_of_the_names()}"""
 
 
 def generate_fingering(fundamental: Note, scale_pattern: ScalePattern, for_right_hand: bool) -> Optional[
     BestPenaltyScale]:
+    """Compute the best fingering(s) (see `generate_best_fingering_for_scale`) for one octave of
+    `scale_pattern` starting on `fundamental`, for one hand. Returns None if none is acceptable."""
     scale = scale_pattern.from_note(fundamental)
     return generate_best_fingering_for_scale(scale.notes, for_right_hand)
 
@@ -217,13 +248,16 @@ def generate_score_fixed_pattern_first_note(key: str,
                                             execute_lily: bool,
                                             wav: bool,
                                             ) -> Union[ScoreFixedPatternFirstNote, List[MissingFingering]]:
-    """
+    """Generate every score (1 and 2 octaves, all 4 directions, left/right/both hands) for `scale_pattern`
+    starting on `right_hand_lowest_note`, write this starting note's own `index.html`, and return the
+    corresponding Anki/HTML index entries.
 
-    Key: indication for lily about flats and sharps
-    Right_hand_lowest_note: where to start the scale.
+    `key`: LilyPond key signature (flats vs. sharps) to render with.
+    `right_hand_lowest_note`: where the right hand's scale starts (usually close to `key`, but not necessarily
+    the same note).
 
-    Bot are usually similar.
-    """
+    Returns the list of `MissingFingering` (up to one per hand) instead if no acceptable fingering could be
+    found for either hand, in which case nothing is rendered."""
     left_penalty = generate_fingering(right_hand_lowest_note, scale_pattern=scale_pattern, for_right_hand=False)
     right_penalty = generate_fingering(right_hand_lowest_note, scale_pattern=scale_pattern, for_right_hand=True)
     missing_scales = []
@@ -300,11 +334,16 @@ def generate_score_fixed_pattern_first_note(key: str,
 
 @dataclass(frozen=True)
 class ScoreFixedPattern:
+    """The results for one whole scale pattern, across every starting note (one per enharmonic key)."""
     # State that scale_pattern on note is missing for
     missing_scores: List[MissingFingering]
+    """Every (starting note, hand) for which no acceptable fingering could be generated."""
     too_big_alterations: List[TooBigAlterationException]
+    """Every starting note for which rendering failed because a note needed too many sharps/flats to notate."""
     html_link_for_this_scale_pattern: str
+    """`<li>` HTML snippet linking to this scale pattern's own index page."""
     anki_notes_as_csv: List[str]
+    """One Anki note (CSV line) per starting note for which generation succeeded."""
 
 
 def generate_score_fixed_pattern(scale_pattern: ScalePattern,
@@ -312,6 +351,9 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
                                  execute_lily: bool,
                                  wav: bool,
                                  ) -> ScoreFixedPattern:
+    """Generate every score for `scale_pattern`, for every enharmonic key's representative starting note
+    (skipping/recording notes for which fingering fails or an alteration is too big), writing this pattern's
+    `anki.csv` and `index.html` under `folder_path`."""
     anki_notes_as_csv: List[str] = []
     missing: List[MissingFingering] = []
     html_lines_for_pattern: List[str] = []
@@ -362,7 +404,7 @@ def generate_score_fixed_pattern(scale_pattern: ScalePattern,
     </footer>
   </body>
 </html>""")
-        return ScoreFixedPattern(
+    return ScoreFixedPattern(
             missing_scores=missing,
             html_link_for_this_scale_pattern=f"""<li><a href='{scale_pattern.first_of_the_names().replace(" ", "_")}'>{scale_pattern.first_of_the_names()}</a></li>""",
             anki_notes_as_csv=anki_notes_as_csv,
@@ -413,11 +455,21 @@ Author: <a href="mailto:arthur@milchior.fr"/>Arthur Milchior</a>. Don't hesitate
 
 @dataclass(frozen=True)
 class GenerateScoreOutput:
+    """The aggregate results of generating every scale pattern's scores."""
     missing_scores: List[MissingFingering]
+    """Every (scale pattern, starting note, hand) for which no acceptable fingering could be generated, across
+    every scale pattern."""
     too_big_alterations: List[TooBigAlterationException]
+    """Every rendering that failed because a note needed too many sharps/flats to notate, across every scale
+    pattern."""
 
 
 def generate_scores(folder_path: str, execute_lily: bool, wav: bool) -> GenerateScoreOutput:
+    """Top-level entry point: generate scores for every scale pattern in `scale_patterns` (from
+    `solfege.pattern.scale.scale_patterns`; note that this module does not actually import that name, which is
+    a pre-existing bug — see the module README), writing the overall `index.html`, `about.html`, `anki.csv`,
+    `cant_exists.txt` and `too_big_alterations.txt` under `folder_path` (see `generate_score_fixed_pattern` for
+    the per-pattern generation, and the module README for what each output file is)."""
     missing_fingerings: List[MissingFingering] = []
     too_big_alterations = []
     html_main_index_lines = []
@@ -455,8 +507,8 @@ def generate_scores(folder_path: str, execute_lily: bool, wav: bool) -> Generate
   </body>
 </html>""")
     save_file(f"{folder_path}/about.html", about_page_content)
-    with open(f"""{folder_path}/anki.csv""", "w") as anki_file:
-    save_file(f"""{folder_path}/anki.csv""", "\n".join(anki_every_notes_as_csv)compute.txt""", "w") as cant:
-        cant.write("\n".join(str(missing_fingering) for missing_fingering in missing_fingerings))
+    save_file(f"""{folder_path}/anki.csv""", "\n".join(anki_every_notes_as_csv))
+    save_file(f"""{folder_path}/cant_exists.txt""",
+             "\n".join(str(missing_fingering) for missing_fingering in missing_fingerings))
     save_file(f"""{folder_path}/too_big_alterations.txt""", "\n".join(repr(tba) for tba in too_big_alterations))
     return GenerateScoreOutput(missing_scores=missing_fingerings, too_big_alterations=too_big_alterations)

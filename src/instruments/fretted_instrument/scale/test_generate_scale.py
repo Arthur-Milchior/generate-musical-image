@@ -113,15 +113,19 @@ for i, notes in enumerate([major_2_octave_1, major_2_octave_2, major_2_octave_3,
     # display_svg_file(path)
 
 def anki_scale_make(*args, **kwargs):
+    """Build an `AnkiScaleWithFingersAndString` for Guitar from the given arguments, for use in test fixtures."""
     return AnkiScaleWithFingersAndString.make(Guitar, *args, **kwargs)
 
 def set_of_pos_make(*args, **kwargs):
+    """Build an absolute `SetOfPositionOnFrettedInstrument` from the given positions, for use in test fixtures."""
     return SetOfPositionOnFrettedInstrument.make(*args, **kwargs, absolute=True)
 
 chromatic_relative_intervals = major_scale.get_interval_list().get_chromatic_interval_list().relative_intervals()
 chromatic_relative_intervals_2_octaves = major_scale.multiple_octaves(2).get_chromatic_interval_list().relative_intervals()
 class TestGenerateScale(unittest.TestCase):
     def assertEqualAnkiScaleWithFingersAndString(self, expected:AnkiScaleWithFingersAndString, actual: AnkiScaleWithFingersAndString):
+        """Assert that two `AnkiScaleWithFingersAndString` instances have the same start string, octave count,
+        starting fingers, pattern, and list of scales."""
         self.assertEqual(expected.start_string, actual.start_string)
         self.assertEqual(expected.number_of_octaves, actual.number_of_octaves)
         self.assertEqual(expected.first_fingers, actual.first_fingers)
@@ -129,6 +133,8 @@ class TestGenerateScale(unittest.TestCase):
         self.assert_equal_list_of_scales(expected.scales, actual.scales)
 
     def assertEqualAnkiScaleWithString(self, expected:AnkiScalesWithSameFirstString, actual: AnkiScalesWithSameFirstString):
+        """Assert that two `AnkiScalesWithSameFirstString` instances have the same start string, octave count,
+        and pattern, and that their `fingers_to_scales` maps hold the same keys with equal values."""
         self.assertEqual(expected.start_string, actual.start_string)
         self.assertEqual(expected.number_of_octaves, actual.number_of_octaves)
         self.assertEqual(expected.pattern, actual.pattern)
@@ -140,11 +146,15 @@ class TestGenerateScale(unittest.TestCase):
             self.assertEqualAnkiScaleWithFingersAndString(expected.fingers_to_scales[actual_fingers], actual.fingers_to_scales[actual_fingers])
 
     def assert_equal_list_of_scales(self, expecteds, actuals):
+        """Assert that two lists of scales have the same length and equal elements, reporting the index of
+        the first mismatch."""
         self.assertEqual(len(expecteds), len(actuals))
         for i, (expected, actual) in enumerate(itertools.zip_longest(expecteds, actuals)):
             self.assertEqual(expected, actual, f"\n\n{i}-th scale differs:\n{expecteds[i]}\n{actuals[i]}")
 
     def assert_equal_list_of_anki_notes(self, expected, actual):
+        """Assert that two lists of Anki notes have the same length and equal elements, reporting the index
+        of the first mismatch."""
         self.assertEqual(len(expected), len(actual))
         for i in range(len(expected)):
             self.assertEqual(expected[i], actual[i], f"\n\n{i}-th anki note differs:\n{expected[i]}\n{actual[i]}")

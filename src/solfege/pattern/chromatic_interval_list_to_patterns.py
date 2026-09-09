@@ -20,13 +20,13 @@ class ChromaticIntervalListToPatterns(RecordKeeper[ChromaticIntervalListPattern,
     """
 
 
-    """Same as RecordedType"""
     _recorded_type: ClassVar[Type]
-    """Same as KeyType"""
+    """Same as RecordedType"""
     _key_type: ClassVar[Type] = ChromaticIntervalListPattern
-    """Same as RecordedContainerType"""
+    """Same as KeyType"""
     _recorded_container_type: ClassVar[Type] = SingletonContainer
-    
+    """Same as RecordedContainerType"""
+
 
     def get_pattern_from_chromatic_interval(self, chromatic_interval_list: ChromaticIntervalListPattern) -> Optional[PatternType]:
         """Given a set of interval, return the object having this set of intervals."""

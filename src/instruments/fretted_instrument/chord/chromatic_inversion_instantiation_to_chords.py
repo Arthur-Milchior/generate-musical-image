@@ -10,7 +10,13 @@ from utils.util import assert_typing
 
 @dataclass(frozen=True)
 class ChromaticInversionInstantiationToChords(RecordKeeper[ChromaticInversionInstantiation, ChordOnFrettedInstrument, ChromaticInversionInstantiationAndItsChords]):
+    """A `RecordKeeper` mapping each `ChromaticInversionInstantiation` (a chord pattern/inversion anchored to a
+    specific chromatic note) to a `ChromaticInversionInstantiationAndItsChords` collecting every way to finger
+    that chord on `instrument`. Built and populated by `AnkiNotesPreparation.register_all_chords` in
+    `generate_chords.py`."""
+
     instrument: FrettedInstrument
+    """The instrument the chords are played on."""
 
     #pragma mark - RecordKeeper
     """Same as RecordedType"""
@@ -19,6 +25,7 @@ class ChromaticInversionInstantiationToChords(RecordKeeper[ChromaticInversionIns
     _key_type: ClassVar[Type] = ChromaticInversionInstantiation
     """Same as RecordedContainerType"""
     _recorded_container_type: ClassVar[Type] = ChromaticInversionInstantiationAndItsChords
+    """The container class instantiated to hold the chords recorded for each key."""
 
     def is_key_valid(self, key: ChromaticInversionInstantiation) -> bool:
         """Whether the key is a valid entry. assert if not."""
@@ -26,4 +33,5 @@ class ChromaticInversionInstantiationToChords(RecordKeeper[ChromaticInversionIns
         return True
 
     def _new_container(self, key: ChromaticInversionInstantiation) -> ChromaticInversionInstantiationAndItsChords:
+        """Create the (initially empty) container that will collect chords registered under `key`."""
         return ChromaticInversionInstantiationAndItsChords(instrument=self.instrument, key=key)

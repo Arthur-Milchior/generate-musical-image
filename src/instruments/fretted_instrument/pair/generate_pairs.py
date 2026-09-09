@@ -11,6 +11,8 @@ from utils.util import ensure_folder, save_file
 
 
 def anki_note_(instrument: FrettedInstrument, low_string: String, high_string: String, low_fret: Fret, high_fret: Fret):
+    """Build the interval Anki note for the position pair (`low_string`, `low_fret`) and (`high_string`,
+    `high_fret`); `low_string` must precede `high_string`."""
     assert low_string < high_string
     return FrettedInstrumentIntervalAnkiNote(instrument,
         PositionOnFrettedInstrument(low_string, low_fret,),
@@ -18,6 +20,9 @@ def anki_note_(instrument: FrettedInstrument, low_string: String, high_string: S
         )
 
 def generate_instrument(instrument: FrettedInstrument, folder_path:str):
+    """Generate, for every pair of strings on `instrument`, a diagram highlighting that string pair plus one
+    interval-distance Anki note (with its own diagram) per fret combination from `pairs_of_frets_values`.
+    Writes each diagram's SVG under `folder_path` and returns the list of generated CSV rows."""
     anki_notes = []
     for low_string_number in range(instrument.number_of_strings()):
         low_string = instrument.string(low_string_number+1)
@@ -48,6 +53,7 @@ def generate_instrument(instrument: FrettedInstrument, folder_path:str):
     return anki_notes
 
 def generate():
+    """Generate and save the interval-pair diagrams and `anki.csv` for every fretted instrument."""
     for instrument in fretted_instruments:
         folder_path = f"{instrument.generated_folder_name()}/pair"
         ensure_folder(folder_path)

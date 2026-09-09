@@ -16,19 +16,26 @@ class IntervalListToInversionPattern(IntervalListToPattern[InversionPattern]):
     #pragma mark - RecordKeeper
 
     _recorded_type: ClassVar[Type] = InversionPattern
+    """Same as RecordedType."""
     _recorded_container_type: ClassVar[Type] = SingletonContainer
+    """Same as RecordedContainerType."""
     _chromatic_recorded_container_type: ClassVar[Type] = SingletonContainer
+    """The container type used by the chromatic-only companion record keeper (see `make_chromatic_record_keeper`)."""
 
     def is_key_valid(self, key: ChromaticIntervalListPattern):
+        """Only interval lists strictly within one octave are valid chord/inversion shapes."""
         return key.is_in_base_octave()
-    
+
     @classmethod
     def _new_container(self, key: IntervalList) -> List[InversionPattern]:
+        """A fresh `SingletonContainer` for `key` that keeps the easiest (`SameKeyBehavior.MINIMUM`) inversion
+        when several are registered under the same exact shape."""
         assert_typing(key, IntervalList)
         return SingletonContainer[InversionPattern](SameKeyBehavior.MINIMUM)
-    
+
     #pragma mark - IntervalListToPattern
 
     @classmethod
     def make_chromatic_record_keeper(cls):
+        """Build the companion `ChromaticIntervalListToInversionPattern`."""
         return ChromaticIntervalListToInversionPattern.make()

@@ -1,7 +1,6 @@
+"""Saxophone fingering with overtone button."""
 from instruments.saxophone.buttons import *
 from instruments.saxophone.fingering.saxophone_fingering import *
-
-"""Saxophone fingering with overtone button"""
 
 g6_t = SaxophoneFingering.make("g6", {octave, overtone, b}, fingering_symbol=FingeringSymbol.T)
 g_flat6_t = g6_t.remove_semi_tone(b_flat, FingeringSymbol.T)

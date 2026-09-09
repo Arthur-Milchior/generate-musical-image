@@ -12,15 +12,22 @@ from solfege.value.note.note import Note
 class ChromaticInversionInstantiation(AbstractInversionInstantiation[Note, Interval], AbstractChromaticInstantiation[InversionPattern, Tuple[int, int]]):
     """The inversion of a pattern, and its first note, considering only its chromatic values."""
     def _get_inversion(self):
-        """The chord with a note with this chromatic."""
+        """This inversion respelled onto a concrete diatonic lowest note: picks the best enharmonic spelling
+        of `lowest_note` for this pattern's interval list, then re-normalizes it into the base octave (needed
+        a second time since, e.g., `ChromaticNote(11)` can respell to `Note(11, 7)`, which is no longer in the
+        base octave by itself)."""
         from solfege.pattern_instantiation.inversion.inversion_instantiation import InversionInstantiation
         interval_list_pattern = self.pattern.intervals_with_all_notes()
         lowest_note = interval_list_pattern.best_enharmonic_starting_note(self.lowest_note)
         lowest_note = lowest_note.in_base_octave() # In base octave applied a second time because ChromaticNote(11) could lead to Note(11, 7) which is not in base octave anymore.
         return InversionInstantiation.make(self.pattern, lowest_note)
-    
+
     def names(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
+        """Delegates to `InversionInstantiation.names()` on a diatonic respelling of this inversion (see
+        `_get_inversion()`)."""
         return self._get_inversion().names(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
-    
+
     def notation(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
+        """Delegates to `InversionInstantiation.notation()` on a diatonic respelling of this inversion (see
+        `_get_inversion()`)."""
         return self._get_inversion().notation(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)

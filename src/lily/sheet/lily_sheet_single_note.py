@@ -9,6 +9,8 @@ from utils.util import assert_typing
 
 
 def sheet_single_note(note: Note, clef: Clef, key: Optional[Key] = None):
+    """Build a `LilyChordSheet` containing just `note` on a single staff with the given `clef`, defaulting the
+    key signature to C major when `key` is not given."""
     assert_typing(note, Note)
     assert_typing(clef, Clef)
     if key is None:

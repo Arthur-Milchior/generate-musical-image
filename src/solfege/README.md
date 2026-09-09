@@ -1,25 +1,32 @@
-This folder contains everything which is related to musical theory.
+# solfege
 
-## Files
-scales.py: contains a class to represent scales pattern. This class contains the list of scales pattern, and a dictionary from name to scales.
-It also contains a method to generate a concrete list of note from a scale pattern and a tonic.
+The music-theory model: notes, intervals, keys, and the chord/scale/inversion *patterns* built from them.
+Nothing here draws anything or knows about any particular instrument — that's [`../instruments/`](../instruments/README.md);
+this package only knows about music theory.
 
-chords.py: contains a class to represent chord pattern, and a list of chords.
-It also contains a method to generate a concrete list of note from a chord pattern and a tonic.
+## Layout
 
-interval/: contains class used to represent interval.
---A diatonic interval is an interval, counting only notes in the scale
---A chromatic interval is an interval, counting each half-tone
---Alternation is a chromatic interval used to represents sharps and bemol
---Solfege interval is a pair with a diatonic interval and a chromatic interval. Or equivalently, a diatonic interval and an alteration. This is what allows to distinguish between G and G# (same diatonic interval) and G# and Ab (same chromatic interval) 
+- [`value/`](value/README.md) — the base values everything else is built from: notes (`value/note/`),
+  intervals (`value/interval/`), and key signatures (`value/key/`), each in chromatic-only, diatonic-only, or
+  chromatic+diatonic-pair flavors.
+- [`pattern/`](pattern/README.md) — note-less *shapes* (a `ChordPattern`, `ScalePattern`, `InversionPattern`,
+  or single-`IntervalPattern`), e.g. "Major triad" as opposed to "C major triad". See
+  [`pattern/multi_octave_patterns.md`](pattern/multi_octave_patterns.md) for why patterns are capped at one
+  octave.
+- [`pattern_instantiation/`](pattern_instantiation/README.md) — anchors a `pattern/` shape to a concrete
+  lowest note, producing the actual playable object (a `Chord`, `Scale`, or `InversionInstantiation`, and
+  their chromatic-only counterparts).
+- [`list_order.py`](list_order.py) — the `ListOrder` enum (`INCREASING`/`DECREASING`/`NOT`) used by
+  `value/note/set/`'s note lists and `pattern_instantiation/` to track/enforce how a list of notes is sorted.
 
-note/: contain classes to represents notes.
---DiatonicNote represents a note as its index in the scale.
---ChromaticNote represents a note as its index in the chromatic scale.
---Note represents a note using its diatonic and chromatic position
-
+`__main__.py` and `tests.py` at the top level are empty/stale (an empty file, and a file of commented-out
+imports referencing module names from before the current `value`/`pattern`/`pattern_instantiation` layout),
+and `generate.py~` is a leftover editor backup — none of the three are part of the current module structure.
+See [`../README.md`](../README.md) for the repo's actual generator/test entry points.
 
 ## Dependencies
 
-Key can depends on Note which can depend on interval.
-If other import is needed, do it inside function body.
+`pattern_instantiation` depends on `pattern`, which depends on `value` (specifically `value/note` and
+`value/interval`; `value/key` is not used by patterns). Within `value`, `key` depends on `note`, which depends
+on `interval` — see [`value/README.md`](value/README.md#dependencies). Where the reverse direction is needed,
+the import is deferred to inside a function body to avoid a cycle.

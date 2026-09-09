@@ -27,8 +27,11 @@ lilyProgram = "lilypond "
 
 @dataclass(frozen=True)
 class BestPenaltyMelody:
+    """The best (lowest) penalty found so far for fingering a melody, together with every fingering achieving it."""
     penalty: PenaltyForScale
+    """The lowest penalty achieved."""
     fingerings: List[List[PianoNote]]
+    """Every fingering (as a list of fingered notes) that achieves `penalty`."""
 
 
 def generate_best_fingering(fingered_notes: List[PianoNote], penalty_for_fingered_notes: PenaltyForScale,
@@ -98,6 +101,8 @@ def generate_best_fingering_for_melody(notes_to_finger: List[Note],
                                        for_right_hand: bool,
                                        potential_finger_for_next_note: Optional[int] = None) -> \
         Optional[BestPenaltyMelody]:
+    """Find the best fingering(s) for an arbitrary melody (not necessarily a full scale): a thin wrapper over
+    `generate_best_fingering` starting from an empty fingering and the neutral `Penalty` (see `penalty.py`)."""
     return generate_best_fingering(fingered_notes=[], penalty_for_fingered_notes=Penalty(),
                                    notes_to_finger=notes_to_finger,
                                    best_known_penalty_for_full_fingering=None, for_right_hand=for_right_hand,
@@ -106,10 +111,15 @@ def generate_best_fingering_for_melody(notes_to_finger: List[Note],
 
 @dataclass(frozen=True)
 class BestPenaltyScale:
+    """The best (lowest) penalty found so far for fingering a full scale, together with every (fingered-notes,
+    `Fingering`) pair achieving it."""
     penalty: PenaltyForScale
+    """The lowest penalty achieved."""
     fingerings: List[Tuple[List[PianoNote], Fingering]]
+    """Every fingering achieving `penalty`, as a (fingered notes, summarizing `Fingering`) pair."""
 
     def __iter__(self):
+        """Iterate over `(penalty, fingerings)`, so a `BestPenaltyScale` can be unpacked like a 2-tuple."""
         return iter(astuple(self))
 
 
@@ -120,6 +130,9 @@ def generate_best_fingering_for_scale(scale: List[Note], for_right_hand: bool) -
     assert scale[0].in_base_octave() == scale[-1].in_base_octave()
 
     def penalty_scale(notes: List[PianoNote], penalty: PenaltyForScale) -> Optional[PenaltyForScale]:
+        """`add_penalty_for_whole` callback: once `notes` is a complete scale, derive its `Fingering` (returning
+        None if the scale is not fingerable that way) and add the penalty of the wrap-around transition from the
+        pinky-side extremity back to the thumb-side finger (the repeated note starting the next octave)."""
         fingering = FingeringSymbol.from_scale(notes, for_right_hand)
         if fingering is None:
             return None

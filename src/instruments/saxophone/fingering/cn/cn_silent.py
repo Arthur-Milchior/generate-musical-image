@@ -1,10 +1,9 @@
+"""Contains fingering that add buttons that don't change the sounds, and that contains a C1, C2, C3 or C4."""
 from instruments.saxophone.fingering import cn
-from instruments.saxophone.fingering import main_column 
+from instruments.saxophone.fingering import main_column
 from instruments.saxophone.fingering.saxophone_fingering import SaxophoneFingering
 from instruments.saxophone.buttons import *
 from instruments.saxophone.fingering.saxophone_fingering import *
-
-"""Contains fingering that add buttons that don't change the sounds, and that contains a C1, C2, C3 or C4"""
 
 d5_tw = cn.d5_th.silent_button(c, FingeringSymbol.TW)
 d5_vb = cn.d5_v.silent_button(b_flat, FingeringSymbol.VB)

@@ -1,3 +1,6 @@
+"""Generates, for every single note in the accordina's range, an SVG showing that one note's position (button)
+on the instrument, plus an Anki notes CSV (`accordina_fingering.csv`) mapping each note to its image. Run as
+part of `python3 -m instruments.accordina` (see `../generate.py`/`../__main__.py`)."""
 from fileinput import filename
 from instruments.accordina.set_of_accordina_notes import SetOfAccordinaNote
 from utils.util import img_tag, save_file

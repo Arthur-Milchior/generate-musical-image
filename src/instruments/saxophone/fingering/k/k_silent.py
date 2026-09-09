@@ -1,4 +1,6 @@
-from instruments.saxophone.fingering import main_column 
+"""Fingerings that add a k1/k2/k3 side-key button that doesn't change the pitch (a silent aid used for trills
+or fast passages), built from either `main_column`'s or `k`'s base fingerings."""
+from instruments.saxophone.fingering import main_column
 from instruments.saxophone.buttons import *
 from instruments.saxophone.fingering.saxophone_fingering import *
 from instruments.saxophone.fingering import k

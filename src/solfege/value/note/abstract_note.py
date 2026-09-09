@@ -12,45 +12,73 @@ from solfege.value.singleton import Singleton
 from utils.util import assert_optional_typing, assert_typing, img_tag
 
 class AlterationOutput(Enum):
+    """How to render a note's alteration (sharp/flat) as text."""
     ASCII = "ASCII"
+    """Plain ASCII, e.g. "sharp"/"flat"."""
     SYMBOL = "SYMBOL"
+    """Musical symbols, e.g. "#"/"♭"."""
     LILY = "LILY"
+    """LilyPond syntax, e.g. "is"/"es"."""
 
 class NoteOutput(Enum):
+    """How to render a note's diatonic letter as text."""
     LETTER = "LETTER" # C, D, ..., B
+    """Letter names: C, D, ..., B."""
     NUMBER = "NUMBER" # 1, ..., 7
+    """Scale-degree numbers: 1, ..., 7."""
     FRENCH = "FRENCH" # do, ..., si
+    """French solfège syllables: do, ..., si."""
     LILY = "LILY" #c, ..., b
+    """LilyPond syntax: c, ..., b."""
 
 class OctaveOutput(Enum):
+    """How to render a note's octave as text."""
     MIDDLE_IS_0 = "0"
+    """Octave numbering where middle C is octave 0."""
     MIDDLE_IS_4 = "4"
+    """Scientific-pitch-notation-style numbering where middle C is octave 4."""
     LILY = "LILY"
+    """LilyPond syntax (repeated `'`/`,` relative to the LilyPond default octave)."""
 
 class FixedLengthOutput(Enum):
+    """Whether/how an alteration's text rendering should be padded to a fixed width, so tables of
+    note names line up."""
     SPACE_DOUBLE = "SPACE_DOUBLE"  # if we must consider double sharp and double flat
+    """Fixed-width, padded with spaces, wide enough for double sharp/flat."""
     SPACE_SIMPLE = "SPACE_SIMPLE" # If we only deal with at moste one alteration
+    """Fixed-width, padded with spaces, wide enough for a single sharp/flat only."""
     UNDERSCORE_DOUBLE = "DOUBLE"  # if we must consider double sharp and double flat
+    """Fixed-width, padded with underscores, wide enough for double sharp/flat."""
     UNDERSCORE_SIMPLE = "SIMPLE" # If we only deal with at moste one alteration
+    """Fixed-width, padded with underscores, wide enough for a single sharp/flat only."""
     NO = "NO"
+    """Not padded: just the alteration text, however long it is."""
 
 @dataclass(frozen=True)
 class AbstractNote(Abstract, ABC, Generic[IntervalType]):
-    make_instance_of_selfs_class: ClassVar[Type["AbstractNote"]]
     """A note. Similar to an interval.
 
     -To a note may be added or subtracted an interval, but not to a note
     -Two note may be subtracted, leading to an interval.
 
     """
+    make_instance_of_selfs_class: ClassVar[Type["AbstractNote"]]
+    """Constructor used to build a new instance of this exact class (see `Singleton`/`Pair`)."""
+
     def __radd__(self, other: IntervalType) -> Self:
+        """Support `interval + note` by delegating to `note + interval`, since addition here is
+        commutative."""
         return self + other
-    
+
     @overload
-    def __sub__(self, other: IntervalType) -> Self: ...
-    
+    def __sub__(self, other: IntervalType) -> Self:
+        """Subtracting an interval from a note yields a note."""
+        ...
+
     @overload
-    def __sub__(self, other: Self) -> IntervalType: ...
+    def __sub__(self, other: Self) -> IntervalType:
+        """Subtracting a note from a note yields an interval."""
+        ...
 
     def get_octave_name(self, octave_notation: OctaveOutput) -> str:
         """The octave.  By default, starting at middle c. If scientific_notation, starting at C0"""
@@ -74,20 +102,30 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
         return f"_{str(clef)}_{self.non_ambiguous_string_for_file_name()}"
 
     def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs):
+        """Return the note's full name (`get_name_up_to_octave`) followed by its octave marker
+        (`get_octave_name`). `kwargs` are forwarded to `get_name_up_to_octave`."""
         return f"{self.get_name_up_to_octave(**kwargs)}{str(self.get_octave_name(octave_notation=octave_notation))}"
-    
+
     # Must be implemented by subclasses
-    
+
     @abstractmethod
-    def __add__(self, other: IntervalType) -> Self:...
+    def __add__(self, other: IntervalType) -> Self:
+        """Add an interval to this note, returning a note of the same class."""
+        ...
 
     @abstractmethod
     def get_name_up_to_octave(self,
                               **kwargs
                                # potential argument. alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput = FixedLengthOutput.NOT_FIXED_LENGTH
-                              ) -> str:...
+                              ) -> str:
+        """Return the note's name without any octave information (e.g. "C#"), formatted
+        according to `kwargs` (alteration/letter/padding output options, subclass-dependent)."""
+        ...
     @abstractmethod
-    def non_ambiguous_string_for_file_name(self) -> str:...
+    def non_ambiguous_string_for_file_name(self) -> str:
+        """Return a string uniquely identifying this note, safe to use as part of a generated
+        file name."""
+        ...
 
 
 NoteType = TypeVar('NoteType', bound=AbstractNote)

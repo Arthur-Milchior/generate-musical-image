@@ -51,6 +51,9 @@ through `_default_arguments_for_constructor`.
   for internal invariant violations — a failing assert means a bug in the pattern definition, not bad user
   input).
 - [`recording/`](recording/): see [recording/README.md](recording/README.md).
-- [`svg/`](svg/), [`csv.py`](csv.py), [`constants.py`](constants.py), [`debug_file.py`](debug_file.py):
-  unrelated small utilities (SVG helpers, CSV export, a couple of hard-coded local paths, scratch debug notes)
-  — no deep mechanics to document.
+- [`svg/`](svg/): generic SVG-generation base classes (`SvgGenerator`, `SvgSaver`, `SvgLines`) used by every
+  instrument's diagram code — see [svg/README.md](svg/README.md).
+- [`csv.py`](csv.py), [`constants.py`](constants.py), [`debug_file.py`](debug_file.py): unrelated small utilities
+  (CSV export, a couple of hard-coded local paths, scratch debug notes) — no deep mechanics to document.
+- [`singleton_container.py`](singleton_container.py): empty file (not to be confused with
+  [`recording/singleton_container.py`](recording/singleton_container.py), which does the real work).

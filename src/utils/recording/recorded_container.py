@@ -11,10 +11,17 @@ class RecordedContainer(ABC, Generic[RecordedType]):
     
     Should not be called "value" as this word is already used for interval and notes."""
     @abstractmethod
-    def append(self, pattern: RecordedType):...
+    def append(self, pattern: RecordedType):
+        """Add `pattern` to the container. Subclasses decide what happens on a duplicate/conflicting key (see
+        e.g. `SingletonContainer.same_key_behavior`)."""
 
     @abstractmethod
-    def __iter__(self) -> Iterable[RecordedType]:...
+    def __iter__(self) -> Iterable[RecordedType]:
+        """Iterate over the recorded values currently held."""
 
 RecordedContainerType = TypeVar("RecordedContainerType", bound=RecordedContainer[RecordedType])
+"""Type variable for a concrete `RecordedContainer` subclass."""
+
 ChromaticRecordedContainerType = TypeVar("ChromaticRecordedContainerType", bound=RecordedContainer[RecordedType])
+"""Same shape as `RecordedContainerType`; used specifically for record keepers indexed by chromatic-interval
+lists (see `solfege/pattern/interval_list_to_pattern.py`, `solfege/pattern/chromatic_interval_list_to_patterns.py`)."""

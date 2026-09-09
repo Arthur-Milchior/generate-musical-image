@@ -19,35 +19,45 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
 
     None represents a string that is not played and is assumed to be greater than any played string."""
     value: Optional[int]
+    """The fret number (0 = open string), or `None` if the string is not played."""
     absolute: bool
+    """Whether `value` is an absolute fret number on the instrument (used for e.g. dot markers/nut thickness,
+    which only make sense for absolute positions) or a relative offset (e.g. a fret delta/transposition amount)."""
 
     def require_value(self):
-        """Assert this fret corresponds to a played note."""
+        """Assert this fret corresponds to a played note, and return its (int) `value`."""
         assert self.value is not None
         assert_typing(self.value, int)
         return self.value
 
     def name(self):
+        """`"x"` if not played, else the fret number as a string."""
         if self.value is None:
             return "x"
         return str(self.value)
-    
+
     def is_played(self):
+        """Whether this fret corresponds to a note actually sounded (`value` is an int, open or closed)."""
         return isinstance(self.value, int)
-    
+
     def is_open(self):
+        """Whether this is the open string (`value == 0`), only meaningful for absolute frets."""
         return self.value == 0 and self.absolute
-    
+
     def is_not_played(self):
+        """Whether this string is not played (`value is None`)."""
         return self.value == None
-    
+
     def is_closed(self):
+        """Whether this fret is played with a finger pressed down (excludes the open string, when absolute)."""
         return isinstance(self.value, int) and (self.absolute is False or self.value > 0)
 
     def add(self, instrument: "FrettedInstrument", other: Union[ChromaticInterval, int]) -> Self:
+        """The fret reached by moving `other` half-steps up from `self` on `instrument` (delegates to `sub` with
+        the interval negated); `None`/out-of-range results are possible, see `sub`."""
         from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
         return self.sub(instrument, -other)
-    
+
     def thickness(self, absolute: bool):
         """The thickness of the fret. If absolute, the 0th fret is bigger to represents the top of the board."""
         if self.require_value() == 0 and absolute:
@@ -55,11 +65,14 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
         return FRET_THICKNESS
     
     def __le__(self, other: "Fret"):
+        """`self == other or self < other`."""
         if not isinstance(other, Fret):
             return NotImplemented
         return self == other or self < other
 
     def __lt__(self, other: "Fret"):
+        """Order by `value`; not-played (`None`) sorts as greater than any played fret. Both frets must share
+        the same `absolute` flag."""
         if not isinstance(other, Fret):
             return NotImplemented
         assert self.absolute == other.absolute
@@ -68,25 +81,31 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
         if other.value is None:
             return True
         return self.value < other.value
-    
+
     def __eq__(self, other: "Fret"):
+        """Equal iff same `value` (both frets must share the same `absolute` flag)."""
         if not isinstance(other, Fret):
             return NotImplemented
         assert self.absolute == other.absolute
         return self.value == other.value
-    
+
     def height(self):
+        """The vertical size (svg units) of this fret's cell: 0 for the open string, otherwise
+        `HEIGHT_OF_FIRST_FRET` scaled down by `RATIO_FRET_HEIGHT` per fret above the first."""
         value = self.require_value()
-        if value == 0: 
+        if value == 0:
             return 0
         return HEIGHT_OF_FIRST_FRET * pow(RATIO_FRET_HEIGHT, value-1)
-    
+
     def y_fret(self):
+        """The y-coordinate (svg units) of this fret's line, measured from the top of the fretboard drawing."""
         return MARGIN + HEIGHT_OF_FIRST_FRET * ((1-pow(RATIO_FRET_HEIGHT, self.require_value())) / (1-RATIO_FRET_HEIGHT))
-    
+
     def y_dots(self):
+        """The y-coordinate (svg units) at which to draw this fret's position-marker dot(s), i.e. the vertical
+        middle of the fret's cell."""
         return self.y_fret() - self.height() / 2
-    
+
     def x_dots(self, instrument: "FrettedInstrument") -> List[float]:
         """The x position of the dots, if any."""
         from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
@@ -110,9 +129,11 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
         return f"""<line x1="{0}" y1="{y}" x2="{instrument.width()}" y2="{y}" stroke-width="{self.thickness(absolute)}" stroke="black" /><!--Fret {self.value}-->"""
 
     def dot_svg(self, x:float):
+        """The svg `<circle>` tag for a single position-marker dot at horizontal position `x`."""
         return f"""<circle cx="{int(x)}" cy="{int(self.y_dots())}" r="{int(CIRCLE_RADIUS*.80)}" fill="url(#diagonalHatch)" stroke-width="4"/>"""
-    
+
     def dots_svg(self, instrument: "FrettedInstrument") -> Generator[str]:
+        """Yield the svg `<circle>` tag(s) for this fret's position-marker dot(s) on `instrument`, if any."""
         from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
         instrument: FrettedInstrument = instrument
         for x in self.x_dots(instrument):
@@ -126,8 +147,11 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
         else:
             closed_fret_interval = (Fret.make(1, self.absolute), self.value)
         return Frets.make(closed_fret_interval=closed_fret_interval, allow_open=allow_open, absolute=self.absolute)
-    
+
     def transpose(self, transpose: Union[int, ChromaticInterval], transpose_open: bool, transpose_not_played: bool):
+        """Return this fret shifted by `transpose` half-steps. A not-played fret is left unchanged (asserting
+        `transpose_not_played` is set, i.e. the caller acknowledged this can't actually be transposed); an open
+        fret is left unchanged unless `transpose_open` is set."""
         transpose = ChromaticInterval.make_single_argument(transpose)
         if self.is_not_played():
             assert transpose_not_played
@@ -135,12 +159,17 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
         if not transpose_open and self.is_open():
             return self
         return dataclasses.replace(self, value=self.require_value() + transpose.value)
-    
+
     def __neg__(self):
-        # A fret has no inverse value.
+        """Unsupported: a fret has no inverse value (it isn't a relative offset)."""
         return NotImplemented
-    
+
     def sub(self, instrument: "FrettedInstrument", other: Tuple[Self, ChromaticInterval, int]) -> ChromaticInterval:
+        """Subtract `other` from this fret. If `other` is another `Fret` (same `absolute` flag), returns the
+        `ChromaticInterval` between them. If `other` is a `ChromaticInterval`/int, returns the `Fret` reached by
+        moving down by that many half-steps, or `None` if that would fall outside `[0, instrument.last_fret()]`
+        (or beyond `instrument.number_of_frets()`). Returns `self` unchanged (still not played) if `self.value`
+        is `None`."""
         from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
         instrument: FrettedInstrument = instrument
         if self.value is None:
@@ -153,7 +182,7 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
             return ChromaticInterval.make(delta)
         if not isinstance(other, ChromaticInterval):
             return NotImplemented
-        
+
         delta = self.value - other.value
         if delta < 0:
             return None
@@ -163,11 +192,13 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
             return None
 
         return Fret.make(delta, self.absolute)
-    
+
     def get_chromatic(self):
+        """This fret's value as a `ChromaticInterval` (the number of half-steps above the open string)."""
         return ChromaticInterval.make(self.value)
-    
+
     def __sub__(self, other):
+        """Disabled: use `.sub(instrument, other)` instead, since fret subtraction needs the instrument context."""
         raise Exception("Use .sub")
     
     #pragma mark - SvgLines
@@ -181,31 +212,37 @@ class Fret(DataClassWithDefaultArgument, MakeableWithSingleArgument, SvgLines):
         yield from self.dots_svg(instrument)
     
     #pragma mark - MakeableWithSingleArgument
-    
+
     @classmethod
     def _make_single_argument(cls, arg: Tuple[int, bool]) -> Self:
+        """Build a `Fret` from a `(value, absolute)` pair, as required by `MakeableWithSingleArgument`."""
         value, absolute = arg
         assert_typing(value, int)
         assert_typing(absolute, bool)
         return cls(value, absolute)
 
     def repr_single_argument(self) -> str:
+        """The fret's `value`, as a string, used by `MakeableWithSingleArgument`'s repr machinery."""
         return str(self.value)
-    
+
     # pragma mark - DataClassWithDefaultArgument
 
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
+        """No defaults of its own; delegates entirely to the base class."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         return kwargs
-    
+
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Normalize constructor arguments: positional `value`/`absolute` become keyword arguments."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "value")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "absolute")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
     def __post_init__(self):
+        """Validate `value` (optional int) and `absolute` (bool). Deliberately does not call `super().__post_init__()`,
+        since the base class does not expect `value` to be `None`."""
         # not calling super because we accept None value
         #super().__post_init__()
         assert_optional_typing(self.value, int)

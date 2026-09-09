@@ -1,3 +1,7 @@
+"""Module-level registry of concrete `Key` instances: builds every key up to a wide range of
+enharmonic spellings, groups them by enharmonic equivalence (registering each group via
+`Key.add_enharmonic_set`), and exposes the `Interval` shifts needed to go from playing a C scale to
+each standard key signature (`one_sharp`, `two_flats`, etc. — used when drawing key signatures)."""
 
 from solfege.value.interval.interval import Interval
 from solfege.value.key.key import Key
@@ -5,7 +9,9 @@ from solfege.value.note.note import Note
 
 
 key_of_C = Key.make(note=Note.from_name("C"))
+"""The key of C major (no alterations) — also the simplest enharmonic of its group."""
 key_of_A = Key.make(note=Note.from_name("A3"), number_of_sharps=3)
+"""The key of A major (3 sharps) — also used as the reference for `simplest_enharmonic_minor`."""
 
 """All keys, grouped by enharmonic, sorted by minimal number of alteration"""
 sets_of_enharmonic_keys = [

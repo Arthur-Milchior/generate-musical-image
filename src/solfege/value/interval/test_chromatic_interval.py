@@ -5,6 +5,7 @@ from solfege.value.interval.diatonic_interval import DiatonicInterval
 from solfege.value.interval.chromatic_interval import *
 
 class TestChromaticInterval(unittest.TestCase):
+    """Tests for `ChromaticInterval`."""
     unison = ChromaticInterval.make(0)
     second_minor = ChromaticInterval.make(1)
     second_minor_descending = ChromaticInterval.make(-1)
@@ -22,6 +23,8 @@ class TestChromaticInterval(unittest.TestCase):
     eighth_descending = ChromaticInterval.make(-13)
 
     def setUp(self):
+        """Re-wire `ChromaticInterval`'s cross-class links (`DiatonicClass`/`PairClass`/`AlterationClass`)
+        before each test, since other test modules may have mutated them."""
         super().setUp()
         from solfege.value.interval.diatonic_interval import DiatonicInterval
         from solfege.value.interval.interval import Interval
@@ -30,6 +33,7 @@ class TestChromaticInterval(unittest.TestCase):
         ChromaticInterval.AlterationClass = Alteration
 
     def test_classes(self):
+        """The cross-class `ClassVar` links point at the expected classes."""
         self.assertEqual(ChromaticInterval.IntervalClass, ChromaticInterval)
         self.assertEqual(ChromaticInterval.ChromaticClass, ChromaticInterval)
         self.assertEqual(ChromaticInterval.make_instance_of_selfs_class(0), ChromaticInterval.make(0))
@@ -37,26 +41,33 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval.DiatonicClass, DiatonicInterval)
 
     def test_is_note(self):
+        """A chromatic interval is never a note."""
         self.assertFalse(self.unison.is_note())
 
     def test_get_number(self):
+        """`value` returns the raw semitone count."""
         self.assertEqual(self.unison.value, 0)
 
     def test_equal(self):
+        """Equality compares by semitone value."""
         self.assertEqual(self.unison, self.unison)
         self.assertNotEqual(self.second_minor, self.unison)
         self.assertEqual(self.second_minor, self.second_minor)
 
     def test_add(self):
+        """Addition sums the semitone values."""
         self.assertEqual(self.second_minor + self.second_major, self.third_minor)
 
     def test_neg(self):
+        """Negation flips the sign of the semitone value."""
         self.assertEqual(-self.second_minor, self.second_minor_descending)
 
     def test_sub(self):
+        """Subtraction is addition of the negation."""
         self.assertEqual(self.third_minor - self.second_major, self.second_minor)
 
     def test_lt(self):
+        """Ordering compares by semitone value."""
         self.assertLess(self.second_minor, self.second_major)
         self.assertLessEqual(self.second_minor, self.second_major)
         self.assertLessEqual(self.second_minor, self.second_minor)
@@ -65,6 +76,7 @@ class TestChromaticInterval(unittest.TestCase):
     #     self.assertEqual(repr(self.second_minor), "ChromaticInterval.make(value=1)")
 
     def test_octave(self):
+        """`octave()` on increasing/decreasing intervals of various sizes."""
         self.assertEqual(self.unison.octave(), 0)
         self.assertEqual(self.six.octave(), 0)
         self.assertEqual(self.seventh_descending.octave(), -1)
@@ -73,12 +85,14 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(self.octave.octave(), 1)
 
     def test_add_octave(self):
+        """`add_octave` shifts the value by whole octaves."""
         self.assertEqual(self.octave.add_octave(-1), self.unison)
         self.assertEqual(self.unison.add_octave(1), self.octave)
         self.assertEqual(self.octave.add_octave(-2), self.octave_descending)
         self.assertEqual(self.octave_descending.add_octave(2), self.octave)
 
     def test_same_interval_in_base_octave(self):
+        """`in_base_octave` folds intervals of various octaves down to the base octave."""
         self.assertEqual(self.octave.in_base_octave(), self.unison)
         self.assertEqual(self.octave_descending.in_base_octave(), self.unison)
         self.assertEqual(self.unison.in_base_octave(), self.unison)
@@ -86,6 +100,7 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(self.second_minor_descending.in_base_octave(), self.seventh)
 
     def test_same_interval_in_different_octave(self):
+        """`equals_modulo_octave` ignores octave but not the base interval."""
         self.assertFalse(self.second_minor.equals_modulo_octave(self.unison))
         self.assertFalse(self.second_minor.equals_modulo_octave(self.octave))
         self.assertFalse(self.second_minor.equals_modulo_octave(self.octave_descending))
@@ -189,6 +204,7 @@ class TestChromaticInterval(unittest.TestCase):
     #     self.assertEqual(ChromaticInterval.make(-14).get_alteration(), IntervalMode(-1))
 
     def test_get_interval_name_octave_NEVER_side(self):
+        """`get_interval_name` with the default `side=NEVER`: no increasing/decreasing suffix."""
         self.assertEqual(ChromaticInterval.make(0).get_interval_name(), "unison")
         self.assertEqual(ChromaticInterval.make(1).get_interval_name(), "second minor")
         self.assertEqual(ChromaticInterval.make(2).get_interval_name(), "second major")
@@ -212,6 +228,8 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval.make(-25).get_interval_name(), "2 octaves and second minor")
 
     def test_get_interval_name_octave_ALWAYS_side(self):
+        """`get_interval_name` with `side=ALWAYS`: every non-unison interval gets an
+        increasing/decreasing suffix."""
         self.assertEqual(ChromaticInterval.make(0).get_interval_name(side=IntervalNameCreasing.ALWAYS), "unison")
         self.assertEqual(ChromaticInterval.make(1).get_interval_name(side=IntervalNameCreasing.ALWAYS), "second minor increasing")
         self.assertEqual(ChromaticInterval.make(2).get_interval_name(side=IntervalNameCreasing.ALWAYS), "second major increasing")
@@ -235,6 +253,7 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval.make(-25).get_interval_name(side=IntervalNameCreasing.ALWAYS), "2 octaves and second minor decreasing")
 
     def test_get_interval_name_octave_DECREASING_side(self):
+        """`get_interval_name` with `side=DECREASING_ONLY`: only decreasing intervals get a suffix."""
         self.assertEqual(ChromaticInterval.make(0).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "unison")
         self.assertEqual(ChromaticInterval.make(1).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "second minor")
         self.assertEqual(ChromaticInterval.make(2).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "second major")
@@ -258,10 +277,12 @@ class TestChromaticInterval(unittest.TestCase):
         self.assertEqual(ChromaticInterval.make(-25).get_interval_name(side=IntervalNameCreasing.DECREASING_ONLY), "2 octaves and second minor decreasing")
 
     def test_mul(self):
+        """Multiplying by an int scales the semitone value."""
         self.assertEqual(self.unison * 4, self.unison)
         self.assertEqual(self.second_minor * 2, self.second_major)
         # self.assertEqual(2 * self.second_minor, self.second_major)
         # self.assertEqual(4 * self.unison, self.unison)
 
     def test_one_octave(self):
+        """`one_octave()` equals 12 semitones."""
         self.assertEqual(ChromaticInterval.one_octave(), ChromaticInterval.make(value=12))

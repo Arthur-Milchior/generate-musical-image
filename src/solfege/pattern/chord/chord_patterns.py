@@ -1,3 +1,9 @@
+"""The catalog of concrete `ChordPattern` instances used elsewhere in the app (triads, seventh chords,
+added-tone chords, augmented sixth chords, thirteenth chords...). See ../README.md for the mechanics of
+`ChordPattern.make(...)` and this folder's conventions (one octave hard limit, `extension_intervals`,
+`optional_fifth`, arpeggios). Unlike scales, chords record into a plain list, so two entries here may
+legitimately share the exact same interval list under different names (e.g. distinct enharmonic spellings);
+there's no registration-level duplicate check to rely on the way there is for `ScalePattern`."""
 
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.value.key.keys import *

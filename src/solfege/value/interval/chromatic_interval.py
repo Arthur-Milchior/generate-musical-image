@@ -10,9 +10,13 @@ from utils.frozenlist import FrozenList
 from utils.util import assert_typing
 
 class IntervalNameCreasing(Enum):
+    """Whether/how `get_interval_name` should indicate the interval's direction (increasing/decreasing)."""
     ALWAYS = "ALWAYS"
+    """Always suffix the name with "increasing"/"decreasing"."""
     NEVER = "NEVER"
+    """Never mention direction in the name."""
     DECREASING_ONLY = "DECREASING_ONLY"
+    """Only suffix the name when the interval is decreasing."""
 
 @dataclass(frozen=True, eq=False)
 class ChromaticInterval(AbstractSingletonInterval, Chromatic):
@@ -20,9 +24,9 @@ class ChromaticInterval(AbstractSingletonInterval, Chromatic):
 
     #Pragma mark - Singleton
     number_of_interval_in_an_octave: ClassVar[int] = 12
+    """Chromatic intervals divide the octave into 12 semitones."""
     AlterationClass: ClassVar[type[ChromaticInterval]]  # more specific an alteration
-
-    """the diatonic class to which such a chromatic class must be converted"""
+    """The alteration class used to represent this interval's chromatic value as a sharp/flat count."""
 
     #Public
 

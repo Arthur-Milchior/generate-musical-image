@@ -14,8 +14,14 @@ from utils.util import assert_typing, ensure_folder
 
 @dataclass(frozen=True)
 class LilySheet(ABC, DataClassWithDefaultArgument):
+    """Base class for a full LilyPond sheet: one or more staves (see [`../staff/`](../staff/)), plus the
+    machinery to write its own `.ly` source, shell out to `lilypond` to compile it to SVG, and skip
+    recompilation when nothing changed (`maybe_generate()`)."""
     version: str
+    """The LilyPond `\\version` string embedded at the top of the generated `.ly` file."""
     time: Optional[tuple[int, int]]
+    """Optional time signature as `(numerator, denominator)`; currently unused by `_lily_code()`/`lily_code()`
+    (the staff itself hard-codes a hidden 30/4 time signature) but reserved for future use."""
 
     def maybe_generate(self):
         """Generate the svg, return the name of the svg without folder."""
@@ -48,22 +54,23 @@ class LilySheet(ABC, DataClassWithDefaultArgument):
         self.remove_preview_from_filename()
         
     def remove_preview_from_filename(self):
+        """Rename the `lilypond -dpreview` output (`*.preview.svg`) to the final output path (`*.svg`)."""
         shell(f"""mv -f "{self.preview_path()}" "{self.output_path()}" """)
 
     def preview_path(self):
-        """The path of the file generated with dpreview."""
+        """The full path of the file generated with `-dpreview`, before it's renamed to the final output path."""
         return f"{self.folder_path()}/{self.preview_file_name()}"
-    
+
     def preview_file_name(self):
-        """The path of the file generated with dpreview."""
+        """The file name (without folder) of the file generated with `-dpreview`."""
         return f"{self.file_prefix()}.preview.svg"
-    
+
     def output_file_name(self):
-        """The path of the file generated with dpreview."""
+        """The final output SVG file name (without folder)."""
         return f"{self.file_prefix()}.svg"
 
     def output_path(self):
-        """The path of the file generated with dpreview."""
+        """The full path of the final output SVG file."""
         return f"{self.folder_path()}/{self.output_file_name()}"
 
     # def compile_wav(self):
@@ -71,51 +78,61 @@ class LilySheet(ABC, DataClassWithDefaultArgument):
     #     shell(f"""timidity "{self.file_prefix()}.midi" --output-mode=w -o "{self.file_prefix()}.wav" """)
 
     def lily_path(self):
+        """The full path of the `.ly` source file."""
         return f"{self.folder_path()}/{self.lily_file_name()}"
-    
+
     def lily_file_name(self):
+        """The `.ly` source file name (without folder), derived from `file_prefix()`."""
         return f"{self.file_prefix()}.ly"
-    
+
     def show(self):
         """Show the output (assuming it's generated)"""
         display_svg_file(self.output_path())
-    
+
     def folder_path(self):
+        """The output folder (`<generate_root_folder>/lily`), created if it doesn't exist yet."""
         folder_path = f"{generate_root_folder}/lily"
         ensure_folder(folder_path)
         return folder_path
-    
+
     def prefix_path(self):
+        """The full path (folder + `file_prefix()`) passed to `lilypond` as the `-o` output prefix."""
         return f"{self.folder_path()}/{self.file_prefix()}"
-    
+
     def lily_code(self):
+        """The complete `.ly` source: a `\\version` header followed by `_lily_code()`."""
         return f"""\\version "{self.version}"
 {self._lily_code()}"""
 
     # Must be implemented by subclasses.
 
     @abstractmethod
-    def file_prefix(self) -> str: ...
-    """Return the file name, without any extension."""
+    def file_prefix(self) -> str:
+        """Return the file name, without any extension."""
+        ...
 
     @abstractmethod
-    def _lily_code(self) -> str: ...
-    """Return the lily code."""
+    def _lily_code(self) -> str:
+        """Return the lily code."""
+        ...
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod
     def _default_arguments_for_constructor(cls, args, kwargs):
+        """Default `version` to LilyPond `"2.24.3"` and `time` to `None` when not supplied."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         kwargs["version"] = "2.24.3"
         kwargs["time"] = None
         return kwargs
-    
+
     @classmethod
     def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+        """Pass `version`/`time` through unchanged if the caller supplied them."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "version")
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "time")
         return args, kwargs
 
     def __post_init__(self):
+        """Delegate to `DataClassWithDefaultArgument.__post_init__`."""
         super().__post_init__()

@@ -1,3 +1,7 @@
+"""Generates, for every interval up to two octaves, SVGs showing that interval starting from 3 different
+button positions (so the learner recognizes the shape regardless of which column it starts on), plus an Anki
+notes CSV (`accordina_intervals.csv`). Run as part of `python3 -m instruments.accordina` (see
+`../generate.py`/`../__main__.py`)."""
 from instruments.accordina.accordina_note import AccordinaNote
 from instruments.accordina.set_of_accordina_notes import SetOfAccordinaNote
 from solfege.value.interval.interval import Interval

@@ -7,4 +7,8 @@ from solfege.value.note.chromatic_note import ChromaticNote, ChromaticNoteFrozen
 
 
 class ChromaticScale(AbstractChromaticInstantiation[ScalePattern, int], AbstractScale[ChromaticNote, ChromaticInterval]):
+    """A `ScalePattern` anchored on a chromatic-only (no diatonic spelling) tonic. Behavior is entirely
+    inherited: `AbstractScale.get_notes()` (via MRO) provides note generation instead of
+    `AbstractChromaticInstantiation.get_intervals()` (which would not work for a `ScalePattern`, see
+    `AbstractChromaticInstantiation.get_intervals()`)."""
     pass

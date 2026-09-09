@@ -1,4 +1,7 @@
-from instruments.saxophone.fingering import main_column 
+"""Fingerings using k1, k2 or k3 (Jay's notation) — Tf, Ta, Tc in Londeix's — except when the fingering also
+uses the overtone button or a C_n key (those live in `overtone`/`cn` instead); see the folder's own
+`README.md`. Silent (non-pitch-changing) variants that also use a k-key live in `k_silent.py`."""
+from instruments.saxophone.fingering import main_column
 from instruments.saxophone.fingering.saxophone_fingering import *
 from instruments.saxophone.buttons import *
 

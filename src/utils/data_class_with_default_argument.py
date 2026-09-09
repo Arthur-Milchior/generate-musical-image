@@ -10,11 +10,16 @@ _DEFAULT_ADDED = "_default_arguments_for_constructor"
 class DataClassWithDefaultArgument:
     """Must always be added as last ancestor. Order is creation time."""
 
-    """The maximal value of `index`"""
     max_index: ClassVar[int] = 0
+    """Running counter of instances created so far, shared by the whole subclass hierarchy (e.g. incremented by
+    `SolfegePattern.__post_init__` to give each pattern a stable creation-order index); not touched by this class
+    itself."""
 
     @classmethod
     def make(cls, *args, **kwargs) -> Self:
+        """Construct an instance from loosely-typed `args`/`kwargs`: clean/coerce what's supplied
+        (`_clean_arguments_for_constructor`), fill in defaults for what isn't (`_default_arguments_for_constructor`),
+        then call the real dataclass `__init__` with the merge (explicit values win over defaults)."""
         args = list(args)
         cleaned_args, cleaned_kwargs = cls._clean_arguments_for_constructor(args, kwargs)
         default_kwargs = cls._default_arguments_for_constructor(cleaned_args, cleaned_kwargs)
@@ -29,6 +34,8 @@ class DataClassWithDefaultArgument:
     
     @classmethod
     def clean_kwargs(cls, kwargs, name, clean: Optional[Callable] = None, type: Optional[Type] = None) -> Dict:
+        """Apply `clean` (if given) to `kwargs[name]` and, if `type` is given, assert the cleaned value has that
+        type. `name` must already be present in `kwargs`. Returns `kwargs`, mutated in place."""
         assert name in kwargs
         value = kwargs[name]
         if clean is not None:
@@ -68,6 +75,8 @@ class DataClassWithDefaultArgument:
     # Must be implemented by children classes.
 
     def __post_init__(self):
+        """Assert that `self` is hashable (frozen dataclasses should be, but a mutable/unhashable field would
+        silently break that); raises if `hash(self)` fails."""
         try:
             hash(self) #check that hash can be computed
         except :
