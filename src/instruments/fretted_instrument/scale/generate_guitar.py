@@ -45,6 +45,7 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
         ensure_folder(folder_path)
         maker = FrettedPositionMakerForInterval.make(tonic=first_note.in_base_octave(), pattern=self.scale_pattern)
+        scale = scale.resolve_fingers(Guitar)
         return scale.save_svg(folder_path=folder_path, instrument=Guitar, absolute=False, fretted_position_maker = maker)
 
     #Pragma mark - CsvGenerator

@@ -5,10 +5,11 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Generator, List, Optional
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
-from instruments.fretted_instrument.position.positions_consts import CIRCLE_RADIUS, CIRCLE_STROKE_WIDTH, FONT_SIZE
+from instruments.fretted_instrument.position.positions_consts import CIRCLE_RADIUS, CIRCLE_STROKE_WIDTH, FINGER_LABEL_FONT_SIZE_RATIO, FINGER_LABEL_OFFSET_RATIO, FONT_SIZE
 from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.constants import BACKGROUND_COLOR, DEFAULT_COLOR
 from instruments.fretted_instrument.position.fretted_position_maker.fretted_position_maker import FrettedPositionMaker, FrettedPositionMaker
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
+from instruments.fretted_instrument.position.fretted_instrument_position_with_fingers import PositionOnFrettedInstrumentWithFingers
 from utils.svg.svg_atom import svg_circle, svg_text
 
 
@@ -36,6 +37,11 @@ class FrettedPositionMakerWithLetter(FrettedPositionMaker):
         yield f"""{svg_circle(x, y, int(CIRCLE_RADIUS), BACKGROUND_COLOR, self.require_color(), CIRCLE_STROKE_WIDTH)}<!-- String N° {pos.string.value}, position {pos.fret.value}-->"""
         text = self.text(instrument, pos)
         yield from svg_text(text, x, y, style=self.style, font_size=self.text_size, )
+        if isinstance(pos, PositionOnFrettedInstrumentWithFingers):
+            finger_x = x + CIRCLE_RADIUS * FINGER_LABEL_OFFSET_RATIO
+            finger_y = y + CIRCLE_RADIUS * FINGER_LABEL_OFFSET_RATIO
+            finger_font_size = round(self.text_size * FINGER_LABEL_FONT_SIZE_RATIO)
+            yield from svg_text(pos.finger_label(), finger_x, finger_y, style=self.style, font_size=finger_font_size)
 
     def __str__(self) -> str:
         return f"tonic_{self.tonic.value}"

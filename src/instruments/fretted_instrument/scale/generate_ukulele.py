@@ -40,6 +40,7 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
         scale, transposition = scale.transpose_to_fret_one()
         first_note = scale.get_most_grave_note().get_chromatic()
+        scale = scale.resolve_fingers(Ukulele)
         file_name = scale.save_svg(folder_path, instrument=Ukulele, absolute=False, fretted_position_maker=FrettedPositionMakerForInterval.make(tonic=first_note, pattern=self.scale_pattern))
         return file_name
 

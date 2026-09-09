@@ -14,9 +14,18 @@ from utils.util import assert_typing
 FingersType = FrozenSet[int]
 ALL_FINGERS = frozenset(range(1,5))
 
+"""Short label for each finger, as displayed below-right of a note on a fretboard diagram. 0 is reserved for the thumb, should it ever be used."""
+FINGER_LABELS: Dict[int, str] = {0: "T", 1: "1", 2: "2", 3: "3", 4: "4"}
+
 @dataclass(frozen=True)
 class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, MakeableWithSingleArgument):
     fingers: FingersType
+
+    def finger_label(self) -> str:
+        """The label ("1" to "4", or "T" for thumb) for the single finger this position is restricted to.
+        Requires `self.fingers` to have been narrowed to a single finger, e.g. via `SetOfFrettedInstrumentPositionsWithFingers.resolve_fingers`."""
+        assert len(self.fingers) == 1, f"finger_label() requires a single resolved finger, got {self.fingers}"
+        return FINGER_LABELS[next(iter(self.fingers))]
 
     def restrict_to_compatible_fingering(self, 
                                          instrument:FrettedInstrument,

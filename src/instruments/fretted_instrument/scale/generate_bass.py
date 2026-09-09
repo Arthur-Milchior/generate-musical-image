@@ -39,6 +39,7 @@ class ScaleOnBassAnkiNote(CsvGenerator):
         first_note = scale.get_most_grave_note().get_chromatic()
         folder_path = f"{scale_transposable_folder}/{self.scale_pattern.first_of_the_names()}"
         ensure_folder(folder_path)
+        scale = scale.resolve_fingers(Bass)
         file_name = scale.save_svg(folder_path=folder_path, instrument=Bass, absolute=False, fretted_position_maker = FrettedPositionMakerForInterval.make(tonic=first_note.in_base_octave(), pattern=self.scale_pattern))
         return file_name
 

@@ -26,3 +26,7 @@ CIRCLE_RADIUS = DISTANCE_BETWEEN_STRING * .47
 CIRCLE_STROKE_WIDTH = 5 * RATIO_IMAGE
 
 FONT_SIZE =12
+
+"""Below-right offset (relative to CIRCLE_RADIUS) and font size ratio (relative to the main text size) for the small finger-number label."""
+FINGER_LABEL_OFFSET_RATIO = 1
+FINGER_LABEL_FONT_SIZE_RATIO = 0.9
