@@ -20,7 +20,7 @@ class IntervalListToChordPattern(IntervalListToPattern["ChordPattern"]):
     _chromatic_recorded_container_type: ClassVar[Type] = list
     """The container type used by the chromatic-only companion record keeper (see `make_chromatic_record_keeper`)."""
 
-    def is_key_valid(self, key: IntervalList):
+    def is_key_valid(self, key: IntervalList) -> bool:
         """Only interval lists strictly within one octave are valid chord shapes."""
         return key.is_in_base_octave()
 
@@ -31,6 +31,6 @@ class IntervalListToChordPattern(IntervalListToPattern["ChordPattern"]):
 
     #pragma mark - IntervalListToPatterns
     @classmethod
-    def make_chromatic_record_keeper(self):
+    def make_chromatic_record_keeper(self) -> ChromaticIntervalListToChordPattern:
         """Build the companion `ChromaticIntervalListToChordPattern`."""
         return ChromaticIntervalListToChordPattern.make()

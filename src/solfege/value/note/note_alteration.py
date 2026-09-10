@@ -41,11 +41,11 @@ class NoteAlteration(Alteration):
     """The alteration (sharp/flat count) applied to a note, e.g. the +1 in G#. Values range from
     -2 (double flat) to +2 (double sharp)."""
 
-    def syntax_for_lily(self):
+    def syntax_for_lily(self) -> str:
         """Text to obtain this alteration in Lilypond"""
         return ["eses", "es", "", "is", "isis"][self.value + 2]
 
-    def get_name(self, alteration_output: AlterationOutput, fixed_length: FixedLengthOutput = FixedLengthOutput.NO):
+    def get_name(self, alteration_output: AlterationOutput, fixed_length: FixedLengthOutput = FixedLengthOutput.NO) -> str:
         """return fixed length except for double alteration"""
         if alteration_output == AlterationOutput.LILY:
             assert fixed_length == FixedLengthOutput.NO
@@ -84,7 +84,7 @@ class NoteAlteration(Alteration):
             assert_never(fixed_length)
 
     @staticmethod
-    def from_name(name: str):
+    def from_name(name: str) -> "NoteAlteration":
         """Parse a symbol ("#", "##", "", "♭", "♭♭", "𝄪") into the matching `NoteAlteration`
         singleton."""
         return {

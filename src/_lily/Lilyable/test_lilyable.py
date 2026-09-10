@@ -3,20 +3,20 @@ from _lily.Lilyable.lilyable import *
 
 
 class TestLilyable(unittest.TestCase):
-    def test_lily(self):
+    def test_lily(self) -> None:
         """`LiteralLilyable.lily()` returns the fixed string it was constructed with."""
         self.assertEqual("aes", LiteralLilyable("aes").lily())
 
-    def test_eq_diff_class(self):
+    def test_eq_diff_class(self) -> None:
         """`Lilyable.__eq__` compares by generated code, so instances of unrelated subclasses producing the same
         code are equal."""
         class MockLily(Lilyable):
-            def lily(self):
+            def lily(self) -> str:
                 """Fixed code `"aes"`, matching `LiteralLilyable("aes")`."""
                 return "aes"
 
         self.assertEqual(LiteralLilyable("aes"), MockLily())
 
-    def test_eq(self):
+    def test_eq(self) -> None:
         """Two `LiteralLilyable`s with the same fixed string are equal."""
         self.assertEqual(LiteralLilyable("aes"), LiteralLilyable("aes"))

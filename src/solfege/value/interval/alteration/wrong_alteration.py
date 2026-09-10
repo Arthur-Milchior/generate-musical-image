@@ -29,6 +29,6 @@ class WrongAlteration(IntervalAlteration):
 
     #pragma mark - DataClassWithDefaultArgument
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Delegates to the superclass chain (range validation happens in `Alteration.__post_init__`)."""
         super().__post_init__()

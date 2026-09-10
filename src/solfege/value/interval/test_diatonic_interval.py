@@ -14,39 +14,39 @@ class TestDiatonicInterval(unittest.TestCase):
     octave_descending = DiatonicInterval.make(-7)
     second_twice_descending = DiatonicInterval.make(-8)
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Re-wire `DiatonicInterval.ChromaticClass` before each test."""
         super().setUp()
         from solfege.value.interval.chromatic_interval import ChromaticInterval
         DiatonicInterval.ChromaticClass = ChromaticInterval
 
-    def test_is_note(self):
+    def test_is_note(self) -> None:
         """A diatonic interval is never a note."""
         self.assertFalse(self.unison.is_note())
 
-    def test_get_number(self):
+    def test_get_number(self) -> None:
         """`value` returns the raw scale-degree count."""
         self.assertEqual(self.unison.value, 0)
 
-    def test_equal(self):
+    def test_equal(self) -> None:
         """Equality compares by scale-degree value."""
         self.assertEqual(self.unison, self.unison)
         self.assertNotEqual(self.second, self.unison)
         self.assertEqual(self.second, self.second)
 
-    def test_add(self):
+    def test_add(self) -> None:
         """Addition sums the scale-degree values."""
         self.assertEqual(self.second + self.third, self.fourth)
 
-    def test_neg(self):
+    def test_neg(self) -> None:
         """Negation flips the sign of the scale-degree value."""
         self.assertEqual(-self.second, self.second_descending)
 
-    def test_sub(self):
+    def test_sub(self) -> None:
         """Subtraction is addition of the negation."""
         self.assertEqual(self.fourth - self.third, self.second)
 
-    def test_lt(self):
+    def test_lt(self) -> None:
         """Ordering compares by scale-degree value."""
         self.assertLess(self.second, self.third)
         self.assertLessEqual(self.second, self.third)
@@ -55,7 +55,7 @@ class TestDiatonicInterval(unittest.TestCase):
     # def test_repr(self):
     #     self.assertEqual(repr(self.second), "DiatonicInterval.make(value=1)")
 
-    def test_octave(self):
+    def test_octave(self) -> None:
         """`octave()` on increasing/decreasing intervals of various sizes."""
         self.assertEqual(self.unison.octave(), 0)
         self.assertEqual(self.seventh.octave(), 0)
@@ -64,14 +64,14 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertEqual(self.second_twice_descending.octave(), -2)
         self.assertEqual(self.octave.octave(), 1)
 
-    def test_add_octave(self):
+    def test_add_octave(self) -> None:
         """`add_octave` shifts the value by whole octaves."""
         self.assertEqual(self.octave.add_octave(-1), self.unison)
         self.assertEqual(self.unison.add_octave(1), self.octave)
         self.assertEqual(self.octave.add_octave(-2), self.octave_descending)
         self.assertEqual(self.octave_descending.add_octave(2), self.octave)
 
-    def test_same_interval_in_base_octave(self):
+    def test_same_interval_in_base_octave(self) -> None:
         """`in_base_octave` folds intervals of various octaves down to the base octave."""
         self.assertEqual(self.octave.in_base_octave(), self.unison)
         self.assertEqual(self.octave_descending.in_base_octave(), self.unison)
@@ -79,7 +79,7 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertEqual(self.second.in_base_octave(), self.second)
         self.assertEqual(self.second_descending.in_base_octave(), self.seventh)
 
-    def test_same_interval_in_different_octaves(self):
+    def test_same_interval_in_different_octaves(self) -> None:
         """`equals_modulo_octave` ignores octave but not the base interval."""
         self.assertFalse(self.second.equals_modulo_octave(self.unison))
         self.assertFalse(self.second.equals_modulo_octave(self.octave))
@@ -112,7 +112,7 @@ class TestDiatonicInterval(unittest.TestCase):
     #     self.assertEqual(DiatonicInterval.make(-8).get_chromatic(), ChromaticInterval.make(-13))
     #     self.assertEqual(DiatonicInterval.make(-9).get_chromatic(), ChromaticInterval.make(-15))
 
-    def test_get_name_no_octave(self):
+    def test_get_name_no_octave(self) -> None:
         """`get_interval_name(showOctave=False)` never mentions extra octaves."""
         self.assertEqual(DiatonicInterval.make(0).get_interval_name(showOctave=False), "unison")
         self.assertEqual(DiatonicInterval.make(1).get_interval_name(showOctave=False), "second")
@@ -134,7 +134,7 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertEqual(DiatonicInterval.make(-8).get_interval_name(showOctave=False), "second decreasing")
         self.assertEqual(DiatonicInterval.make(-9).get_interval_name(showOctave=False), "third decreasing")
 
-    def test_get_name_with_octave(self):
+    def test_get_name_with_octave(self) -> None:
         """`get_interval_name(showOctave=True)` prefixes the degree name with the octave count."""
         self.assertEqual(DiatonicInterval.make(0).get_interval_name(showOctave=True), "unison")
         self.assertEqual(DiatonicInterval.make(1).get_interval_name(showOctave=True), "second")
@@ -174,13 +174,13 @@ class TestDiatonicInterval(unittest.TestCase):
         self.assertEqual(DiatonicInterval.make(-15).get_interval_name(showOctave=True), "2 octaves and second decreasing")
         self.assertEqual(DiatonicInterval.make(-16).get_interval_name(showOctave=True), "2 octaves and third decreasing")
 
-    def test_mul(self):
+    def test_mul(self) -> None:
         """Multiplying by an int scales the scale-degree value."""
         self.assertEqual(self.unison * 4, self.unison)
         self.assertEqual(self.second * 2, self.third)
         # self.assertEqual(2 * self.second, self.third)
         # self.assertEqual(4 * self.unison, self.unison)
 
-    def test_one_octave(self):
+    def test_one_octave(self) -> None:
         """`one_octave()` equals 7 scale degrees."""
         self.assertEqual(DiatonicInterval.one_octave(), DiatonicInterval.make(value=7))

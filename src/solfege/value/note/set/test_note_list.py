@@ -3,7 +3,7 @@ import unittest
 from .note_list import *
 
 class TestNoteList(unittest.TestCase):
-    def test_find_note(self):
+    def test_find_note(self) -> None:
         """`find_note_from_list_up_to_octave` finds the list's note enharmonic to a given
         chromatic note, regardless of octave."""
         c4_major = NoteList.make([(0, 0), (4, 2), (7, 4)])

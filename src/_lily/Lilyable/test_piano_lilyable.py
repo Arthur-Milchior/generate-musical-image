@@ -52,7 +52,7 @@ class TestPianoLilyable(unittest.TestCase):
   >>
 }"""
 
-    def test_both_hand(self):
+    def test_both_hand(self) -> None:
         """`lily()` with both hands and no annotation renders a `PianoStaff` with treble+bass staves and no
         `\\midi`/`\\layout`/lyrics blocks."""
         generated = LiteralPianoLilyable("aes", "cis", "gis'", None).lily()
@@ -83,7 +83,7 @@ class TestPianoLilyable(unittest.TestCase):
 }"""
         self.assertEqual(expected, generated)
 
-    def test_right_hand(self):
+    def test_right_hand(self) -> None:
         """`lily()` with only a right hand renders a single treble staff (no `PianoStaff` group), and the result
         actually compiles via `lilypond`."""
         generated = LiteralPianoLilyable("aes", None, "gis'", None).lily()
@@ -91,7 +91,7 @@ class TestPianoLilyable(unittest.TestCase):
         test_file_path = f"{test_folder}/piano_lily_right"
         compile_(generated, test_file_path, True, force_recompile=True)()
 
-    def test_both_hand_annotation(self):
+    def test_both_hand_annotation(self) -> None:
         """`lily(midi=True)` with both hands and an annotation renders the `\\midi`/`\\layout` block and a
         `\\new Lyrics` block, and the result actually compiles via `lilypond`."""
         generated = LiteralPianoLilyable("aes", "cis", "gis'", "IV").lily(True)
@@ -99,7 +99,7 @@ class TestPianoLilyable(unittest.TestCase):
         test_file_path = f"{test_folder}/piano_lily_both"
         compile_(generated, test_file_path, True, force_recompile=True)()
 
-    def test_eq_diff_class(self):
+    def test_eq_diff_class(self) -> None:
         """`PianoLilyable.__eq__` compares by generated code, so an unrelated subclass producing the same
         key/hands/annotation as `self.value` compares equal to it."""
         class MockPianoLilyable(PianoLilyable):
@@ -126,6 +126,6 @@ class TestPianoLilyable(unittest.TestCase):
         self.assertEqual(self.value.annotations_lily(), "IV")
         self.assertEqual(self.value, MockPianoLilyable())
 
-    def test_eq(self):
+    def test_eq(self) -> None:
         """Two `LiteralPianoLilyable`s with the same key/hands/annotation are equal."""
         self.assertEqual(self.value, LiteralPianoLilyable("aes", "cis", "gis'", "IV"))

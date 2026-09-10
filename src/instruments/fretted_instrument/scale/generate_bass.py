@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Generator
+from typing import ClassVar, Generator
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Bass
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
@@ -28,13 +28,14 @@ class ScaleOnBassAnkiNote(CsvGenerator):
     string 1 and renders a diagram for each."""
     scale_pattern: ScalePattern
     """The scale/arpeggio pattern this note is generated for."""
-    start_pos = PositionOnFrettedInstrument.make(Bass.string(1), Fret.make(12, absolute=False))
+    start_pos: ClassVar[PositionOnFrettedInstrument] = PositionOnFrettedInstrument.make(Bass.string(1), Fret.make(12, absolute=False))
+    """Fixed reference position (string 1, 12th fret) used as the transposition anchor when generating each fingering."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `scale_pattern` has the right type."""
         assert_typing(self.scale_pattern, ScalePattern)
 
-    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
+    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers) -> str:
         """Transpose `scale` to start at fret one, resolve its fingering, render it, and return the saved
         SVG's file name."""
         assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
@@ -68,7 +69,7 @@ class ScaleOnBassAnkiNote(CsvGenerator):
         else:
             yield ""
 
-def generate_bass():
+def generate_bass() -> None:
     """Generate the Anki notes (and diagrams) for every registered scale/arpeggio pattern on bass, and save
     them as a CSV."""
     anki_notes = []

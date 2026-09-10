@@ -15,7 +15,7 @@ class ChromaticIntervalListToScalePattern(ChromaticIntervalListToPatterns[ScaleP
     _recorded_container_type: ClassVar[Type] = list
     """Same as RecordedContainerType."""
 
-    def is_key_valid(self, key: ChromaticIntervalListPattern):
+    def is_key_valid(self, key: ChromaticIntervalListPattern) -> bool:
         """Only interval lists within one octave (the last note may land exactly on the octave) are valid
         scale shapes."""
         return key.is_in_base_octave(accepting_octave=True)

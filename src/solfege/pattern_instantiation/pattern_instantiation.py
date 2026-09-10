@@ -46,7 +46,7 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[Pa
     note_list_type: ClassVar[AbstractNoteList[NoteType, IntervalType, PatternWithIntervalLists]]
     """The frozen-list-of-notes class returned by `get_notes()`."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `lowest_note`/`pattern` have the expected types and that `lowest_note` sits in the
         base octave (an instantiation is always anchored on the base-octave lowest note; `add_octave` is used
         afterwards to shift the whole thing)."""
@@ -71,7 +71,7 @@ class AbstractPatternInstantiation(DataClassWithDefaultArgument, ABC, Generic[Pa
         """The key. Assuming notes are not diatonic"""
         return Key.from_note(self.lowest_note + self.pattern.interval_for_signature)
 
-    def all_blacks(self):
+    def all_blacks(self) -> bool:
         """Whether all notes are black on a piano. assert if note is diatonic."""
         return all(note.is_black_key_on_piano() for note in self.get_notes())
 

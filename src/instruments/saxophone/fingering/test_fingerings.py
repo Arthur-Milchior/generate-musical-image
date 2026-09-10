@@ -16,7 +16,7 @@ class TestFingerings(unittest.TestCase):
     """Sanity checks that the catalog built in `saxophone_fingerings.py` matches what's expected for a sample
     note (`e6`): the right alternates, in the right order, with the right buttons."""
 
-    def test_e6(self):
+    def test_e6(self) -> None:
         """`saxophone_fingerings.e6` contains exactly the expected alternate fingerings, in order, and its
         first (`cn.e6_k`) fingering presses the expected buttons."""
         ordered_fingerings = list(saxophone_fingerings.e6)

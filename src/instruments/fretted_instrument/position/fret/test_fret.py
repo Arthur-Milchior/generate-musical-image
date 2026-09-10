@@ -6,7 +6,7 @@ open_fret = Fret.make( 0, True)
 not_played_fret = Fret.make( None, True)
 
 class TestFrettedInstrumentAddString(unittest.TestCase):
-    def test_eq(self):
+    def test_eq(self) -> None:
         """Equality, and `add`'s behavior on not-played/open/out-of-range/in-range frets."""
         self.assertEqual(not_played_fret, not_played_fret)
         self.assertEqual(not_played_fret.add(Guitar, ChromaticInterval.make(4)), not_played_fret)
@@ -17,19 +17,19 @@ class TestFrettedInstrumentAddString(unittest.TestCase):
         self.assertEqual(Fret.make(4, True).add(Guitar, ChromaticInterval.make(30)), None)
         self.assertEqual(Fret.make(4, True).add(Guitar, ChromaticInterval.make(5)), Fret.make(9, True))
 
-    def test_lt(self):
+    def test_lt(self) -> None:
         """Ordering: open < closed < not-played."""
         self.assertLess(open_fret, not_played_fret)
         self.assertLess(Fret.make(1, True), not_played_fret)
         self.assertLess(open_fret, Fret.make(1, True))
 
-    def test_raise(self):
+    def test_raise(self) -> None:
         """Constructing a `Fret` with a non-int value raises an `AssertionError`."""
         #Fret.make("a", True)
         with self.assertRaises(AssertionError):
             Fret.make("a", True)
 
-    def test_height(self):
+    def test_height(self) -> None:
         """The open fret has zero height, and each successive fret's height shrinks by `RATIO_FRET_HEIGHT`."""
         self.assertEqual(open_fret.height(), 0)
         self.assertEqual(Fret.make(1, True).height(), HEIGHT_OF_FIRST_FRET)
@@ -37,7 +37,7 @@ class TestFrettedInstrumentAddString(unittest.TestCase):
         for i in range(1, 24):
             self.assertAlmostEqual(Fret.make(i+1, True).height()/Fret.make(i, True).height(), RATIO_FRET_HEIGHT)
 
-    def test_y(self):
+    def test_y(self) -> None:
         """`y_fret()` accumulates each fret's `height()` starting from `MARGIN`."""
         self.assertEqual(open_fret.y_fret(), MARGIN)
         self.assertEqual(Fret.make(1, True).y_fret(), HEIGHT_OF_FIRST_FRET + MARGIN)

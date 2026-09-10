@@ -8,7 +8,7 @@ from solfege.value.key.keys import key_of_C
 from utils.util import assert_typing
 
 
-def sheet_single_note(note: Note, clef: Clef, key: Optional[Key] = None):
+def sheet_single_note(note: Note, clef: Clef, key: Optional[Key] = None) -> LilyChordSheet:
     """Build a `LilyChordSheet` containing just `note` on a single staff with the given `clef`, defaulting the
     key signature to C major when `key` is not given."""
     assert_typing(note, Note)

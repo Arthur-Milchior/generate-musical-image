@@ -32,6 +32,6 @@ class AbstractSingletonInterval(AbstractInterval, Singleton):
         return self.make_instance_of_selfs_class(value=-self.value)
 
     @classmethod
-    def unison(cls):
+    def unison(cls) -> Self:
         """The unison (zero-valued) interval."""
         return cls.make(0)

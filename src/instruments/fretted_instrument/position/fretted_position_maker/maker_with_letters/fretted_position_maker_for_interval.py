@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
 from instruments.fretted_instrument.position.fretted_position_maker.maker_with_letters.fretted_position_maker_with_letters import FrettedPositionMakerWithLetter
@@ -21,7 +21,7 @@ class FrettedPositionMakerForInterval(FrettedPositionMakerWithLetter):
     """The scale/chord pattern whose interval roles supply the text label for each degree."""
 
     #pragma mark - FrettedPositionMakerForInterval
-    def text(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument):
+    def text(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> str:
         """The interval-role label (e.g. "3m", "5", "T") for `pos`'s note relative to `tonic`, looked up in
         `pattern`'s first interval list by matching base-octave interval value. Asserts if no matching interval
         is found in the pattern."""
@@ -44,13 +44,13 @@ class FrettedPositionMakerForInterval(FrettedPositionMakerWithLetter):
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Normalize constructor arguments: make positional `tonic` a keyword argument."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "tonic")
         return args, kwargs
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `tonic` is a `ChromaticNote` within the base octave."""
         assert_typing(self.tonic, ChromaticNote)
         assert self.tonic.is_in_base_octave(accepting_octave=False)

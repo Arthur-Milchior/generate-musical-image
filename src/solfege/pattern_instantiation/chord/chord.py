@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, Generic, TypeVar
+from typing import ClassVar, Generic, List, TypeVar
 
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern_instantiation.chord.abstract_chord import AbstractChord
@@ -19,7 +19,7 @@ class Chord(AbstractChord[Note, Interval], AbstractPairInstantiation[ChordPatter
     chromatic_instantiation_type: ClassVar = ChromaticChord
     """`get_chromatic_instantiation()` builds a `ChromaticChord` from this chord."""
 
-    def names(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
+    def names(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO) -> List[str]:
         """This chord's full names: `lowest_note`'s spelled name followed by each of `pattern.names`, e.g.
         ["C Major triad"]. `alteration_output`/`note_output`/`fixed_length` control how the note is spelled."""
         names = []
@@ -31,7 +31,7 @@ class Chord(AbstractChord[Note, Interval], AbstractPairInstantiation[ChordPatter
             names.append(f"{note_name} {name}")
         return names
 
-    def notation(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
+    def notation(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO) -> str:
         """This chord's short notation: `lowest_note`'s spelled name followed by `pattern.notation`, e.g. "CM"."""
         note_notation = self.lowest_note.get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
         return f"{note_notation}{self.pattern.notation}"

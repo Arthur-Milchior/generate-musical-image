@@ -32,7 +32,7 @@ class String(MakeableWithSingleArgument, SvgLine):
             return None
         return instrument.string(new_string_value)
 
-    def __sub__(self, other: int):
+    def __sub__(self, other: int) -> Optional[Self]:
         """Intended as the string `other` positions below `self`."""
         return self + (-other)
 
@@ -48,7 +48,7 @@ class String(MakeableWithSingleArgument, SvgLine):
             return None
         return fret
     
-    def position_for_note(self, instrument: FrettedInstrument, note:ChromaticNote, absolute: bool):
+    def position_for_note(self, instrument: FrettedInstrument, note:ChromaticNote, absolute: bool) -> Optional["PositionOnFrettedInstrument"]:
         """The position to play `note` on `self`. None if it can't be done on `instrument`."""
         from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
         assert_typing(instrument, FrettedInstrument)
@@ -58,25 +58,25 @@ class String(MakeableWithSingleArgument, SvgLine):
         if fret is None:
             return None
         return PositionOnFrettedInstrument(self, fret)
-    
-    def __lt__(self, other: "String"):
+
+    def __lt__(self, other: "String") -> bool:
         """Order by `value`."""
         return self.value < other.value
 
-    def __le__(self, other: "String"):
+    def __le__(self, other: "String") -> bool:
         """`self.value <= other.value`."""
         return self.value <= other.value
 
-    def __eq__(self, other: "String"):
+    def __eq__(self, other: "String") -> bool:
         """Equal iff same `value` and same `note_open`."""
         assert_typing(other, String)
         return self.value == other.value and self.note_open == other.note_open
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """A short debug representation showing just the string number."""
         return f"String[{self.value}]"
 
-    def x(self):
+    def x(self) -> float:
         """The horizontal position (svg units) of this string on the fretboard diagram."""
         return MARGIN + (self.value-1) * DISTANCE_BETWEEN_STRING
 
@@ -90,7 +90,7 @@ class String(MakeableWithSingleArgument, SvgLine):
 
     #pragma mark - SvgLine
 
-    def svg_line(self, lowest_fret: Fret, show_open_fret: bool, color: Optional[str] = None):
+    def svg_line(self, lowest_fret: Fret, show_open_fret: bool, color: Optional[str] = None) -> str:
         """
         The svg to display current string.
         If `show_open_fret`, a margin at the top represents the top of the board.
@@ -115,7 +115,7 @@ class String(MakeableWithSingleArgument, SvgLine):
         return f"""{self.value}"""
 
     @staticmethod
-    def _make_single_argument(arg: Tuple[FrettedInstrument, int]):
+    def _make_single_argument(arg: Tuple[FrettedInstrument, int]) -> "String":
         """Build a `String` from a `(instrument, string_number)` pair, as required by `MakeableWithSingleArgument`."""
         instrument, string = arg
         assert_typing(instrument, FrettedInstrument)
@@ -124,7 +124,7 @@ class String(MakeableWithSingleArgument, SvgLine):
 
     #pragma mark - MakeableWithSingleArgument
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `value` and `note_open` have the expected types."""
         assert_typing(self.value, int)
         assert_typing(self.note_open, ChromaticNote)

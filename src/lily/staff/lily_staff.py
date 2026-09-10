@@ -1,6 +1,7 @@
 
 from abc import abstractmethod
 from dataclasses import dataclass
+from typing import Dict, List
 
 from solfege.value.key.key import Key
 from solfege.value.note.clef import Clef
@@ -42,12 +43,12 @@ class LilyStaff(DataClassWithDefaultArgument):
 
     # # Pragma mark - DataClassWithDefaultArgument
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """No extra defaults beyond the parent's; forwards to `DataClassWithDefaultArgument`."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         return kwargs
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `clef` and `first_key` were given the right types."""
         assert_typing(self.clef, Clef)
         assert_typing(self.first_key, Key)
@@ -71,6 +72,6 @@ class FakeLilyStaff(LilyStaff):
     """The literal LilyPond content string returned by `staff_content()`."""
 
     #pragma mark - LilyStaff
-    def staff_content(self):
+    def staff_content(self) -> str:
         """Return the fixed `content` string given at construction."""
         return self.content

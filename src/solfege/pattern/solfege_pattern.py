@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ClassVar, Dict, List, Self, Type
+from typing import ClassVar, Dict, List, Self, Tuple, Type, Union
 
 from solfege.pattern.pattern_with_interval_lists import PatternWithIntervalLists
 from solfege.pattern.pattern_with_name import PatternWithName
@@ -37,12 +37,12 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
     a plain `ScalePattern`. Set by the constructor of the concrete subclass, not by the caller."""
 
 
-    def __lt__(self, other: Self):
+    def __lt__(self, other: Self) -> bool:
         """Order patterns of the same class by creation order (`_pattern_index`), i.e. "easiness"."""
         assert_typing(other, self.__class__)
         return self._pattern_index < other._pattern_index
 
-    def __le__(self, other: Self):
+    def __le__(self, other: Self) -> bool:
         """Same as `__lt__` but allowing equality (same `_pattern_index`)."""
         assert_typing(other, self.__class__)
         return self._pattern_index <= other._pattern_index
@@ -60,7 +60,7 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `interval_for_signature` to no alteration, `source`/`description` to empty, and
         `_is_chord_pattern` to False; also allocates and assigns the next `_pattern_index`."""
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
@@ -73,10 +73,10 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
         return default_dict
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce `source` to a `StrFrozenList` (wrapping a bare string into a singleton list first), and pass
         `interval_for_signature`/`description` through positional-to-keyword normalization."""
-        def clean_source(source):
+        def clean_source(source: Union[str, List[str]]) -> StrFrozenList:
             """Wrap a bare string into a singleton list, then coerce to a `StrFrozenList`."""
             if isinstance(source, str):
                 source = [source]
@@ -86,7 +86,7 @@ class SolfegePattern(PatternWithName, PatternWithIntervalLists, ClassWithEasynes
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "description")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate the types of `interval_for_signature`, `source`, and `description` before chaining to the
         rest of the `SolfegePattern`/`PatternWithIntervalLists`/`PatternWithName` construction chain."""
         assert_typing(self.interval_for_signature, Interval)

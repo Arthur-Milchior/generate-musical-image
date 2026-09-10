@@ -37,7 +37,7 @@ class ChordColors(ColorsWithTonic):
     #pragma mark - Colors
 
     #pragma mark - ColorsWithTonic
-    def get_color_from_interval(self, chromatic_interval: ChromaticInterval):
+    def get_color_from_interval(self, chromatic_interval: ChromaticInterval) -> str:
         """The color to draw a note at `chromatic_interval` from the chord's tonic."""
         assert_typing(chromatic_interval, ChromaticInterval)
         return [COLOR_TONIC,
@@ -93,15 +93,15 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
             frets[string] = pos.fret
         return [frets.get(string, Fret.make(None, self.absolute)) for string in range(1, max_string+1)]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """E.g. `"ChordOnFrettedInstrument.make([None, 3, 2, 0, 1, 0])"` -- code that reconstructs this chord."""
         return f"""{self.__class__.__name__}.make([{", ".join(str(fret.value) for fret in self.get_frets())}])"""
 
-    def chord_pattern_is_redundant(self):
+    def chord_pattern_is_redundant(self) -> bool:
         """Whether the same fingering pattern can be played higher on the fretted_instrument"""
         return self._min_fret(allow_open=True) > Fret.make(1, self.absolute)
-    
-    def is_barred(self):
+
+    def is_barred(self) -> Barred:
         """Whether playing this chord requires barring the index finger (see `Barred`): `NO` if at most one
         string is closed at the lowest fret, `FULLY` if a bar at that fret would need to cover every string down
         to the last one, `PARTIALLY` if a bar is needed but an open string beyond it means it needn't reach the
@@ -123,7 +123,7 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
             return Barred.NO
         return Barred.PARTIALLY
     
-    def has_not_played_in_middle(self):
+    def has_not_played_in_middle(self) -> bool:
         """Whether a not-played string is sandwiched between two played strings (e.g. x-2-x-2-x-x has a gap
         between its second and fourth strings) -- such chords are unplayable/unrealistic and get filtered out.
         Status can be not_played_start, then played, then not_played_end."""
@@ -156,7 +156,7 @@ class ChordOnFrettedInstrument(SetOfPositionOnFrettedInstrument):
 
     # Pragma mark - SetOfPositionOnFrettedInstrument
 
-    def _svg_name_base(self, instrument:FrettedInstrument, fretted_position_maker: FrettedPositionMaker, minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs):
+    def _svg_name_base(self, instrument:FrettedInstrument, fretted_position_maker: FrettedPositionMaker, minimal_number_of_frets: Optional[Fret] = None, *args, **kwargs) -> str:
         """The chord diagram's file-name stem: instrument, open/transposable, number of frets shown, the
         position-maker's identity, and the frets played on each string (joined with "_", "x" for not-played)."""
         fret_values = [fret.value for fret in self.get_frets(instrument)]

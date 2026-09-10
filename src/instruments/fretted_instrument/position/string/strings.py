@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Generator, Iterable, List, Optional, Self
+from typing import Dict, Generator, Iterable, List, Optional, Self, Tuple
 
 from instruments.fretted_instrument.position.fretted_position_maker.colored_position_maker.constants import DEFAULT_COLOR, SELECTED_STRING_COLOR
 from instruments.fretted_instrument.position.string.string import String, StringFrozenList
@@ -15,29 +15,29 @@ class Strings(DataClassWithDefaultArgument, SvgLines):
     """The strings in this set."""
 
     @classmethod
-    def make_interval(cls, instrument: "FrettedInstrument", lower: String, higher: String):
+    def make_interval(cls, instrument: "FrettedInstrument", lower: String, higher: String) -> Self:
         """All strings on `instrument` between `lower` and `higher` (inclusive)."""
         assert lower <= higher
         return super().make(instrument.string(string) for string in range(lower.value, higher.value+1) )
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[String]:
         """Iterate over the strings in this set."""
         yield from self.strings
 
-    def __lt__(self, other: Self):
+    def __lt__(self, other: Self) -> bool:
         """Strict subset comparison, by the underlying set of strings."""
         return set(self.strings) < set(other.strings)
 
-    def __le__(self, other: Self):
+    def __le__(self, other: Self) -> bool:
         """Subset-or-equal comparison, by the underlying set of strings."""
         return set(self.strings) <= set(other.strings)
 
-    def __eq__(self, other: Self):
+    def __eq__(self, other: Self) -> bool:
         """Equal iff the same strings (order-sensitive, since `strings` is a `StringFrozenList`)."""
         assert_typing(other, Strings)
         return self.strings == other.strings
 
-    def pop(self):
+    def pop(self) -> Optional[Tuple[String, "Strings"]]:
         """Returns the first string, the set of strings without this element. Or None if the set is empty."""
         if not self.strings:
             return None
@@ -66,12 +66,12 @@ class Strings(DataClassWithDefaultArgument, SvgLines):
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Normalize constructor arguments: `strings` becomes a keyword argument, coerced to a `StringFrozenList`."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "strings", StringFrozenList)
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `strings` is a `StringFrozenList` of `String`."""
         assert_typing(self.strings, StringFrozenList)
         assert_iterable_typing(self.strings, String)

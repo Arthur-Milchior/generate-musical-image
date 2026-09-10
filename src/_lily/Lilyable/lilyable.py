@@ -9,12 +9,12 @@ from _lily import Lilyable
 class Lilyable(ABC):
     """Represents a class that implements `lily` that generates the lily code to put in a file to then call lilypond on it."""
     @abstractmethod
-    def lily(self, midi: bool = False):
+    def lily(self, midi: bool = False) -> str:
         """Return the full LilyPond source code (a `\\score{...}` block or similar), optionally including a
         `\\midi{}`/`\\layout{}` block when `midi` is true."""
         ...
 
-    def __eq__(self, other: Lilyable):
+    def __eq__(self, other: Lilyable) -> bool:
         """Two `Lilyable`s are equal if they generate the same LilyPond code."""
         return self.lily() == other.lily()
 

@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from enum import Enum
 from solfege.pattern.chord.chord_patterns import chord_patterns
 from solfege.pattern.scale.scale_patterns import scale_patterns, chord_patterns_as_scales
@@ -6,7 +7,7 @@ from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput
 from utils import util
 from solfege.value.key.key import Key 
 from solfege.value.key.keys import sets_of_enharmonic_keys
-from typing import Optional, Dict, List, assert_never
+from typing import Any, Optional, Dict, List, Self, assert_never
 from solfege.pattern.scale.scale_pattern import ScalePattern
 from operator import itemgetter
 from _lily.lily import compile_
@@ -59,11 +60,11 @@ class Instrument:
     image_extension: str = "png"
     """File extension used for this instrument's fingering images."""
 
-    def difficulty(self, note) -> Optional[int]:
+    def difficulty(self, note: Note) -> Optional[int]:
         """Return `0` if `note` is within the instrument's playable range, else `None` (not playable)."""
         return 0 if self.lowest_instrument_note <= note <= self.highest_instrument_note else None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """The instrument's `name`."""
         return self.name
 
@@ -72,7 +73,11 @@ class ChromaticInstrumentWithDifficultNote(Instrument):
 
     difficulty_notes: map from chromatic note to the difficulty of playing it.
     """
-    def __init__(self, name: str, lowest: Note, highest: Note, difficulty_notes: Dict[str, int], transposition: Optional[Interval]= None):
+
+    difficulty_notes: Dict[ChromaticNote, int]
+    """Map from chromatic note (base octave) to the extra difficulty of playing it."""
+
+    def __init__(self, name: str, lowest: Note, highest: Note, difficulty_notes: Dict[str, int], transposition: Optional[Interval]= None) -> None:
         """Build from a `{note name: extra difficulty}` map (`difficulty_notes`); note names are normalized to
         their chromatic, base-octave form as keys, and the max difficulty wins if a note is listed more than
         once."""
@@ -82,7 +87,7 @@ class ChromaticInstrumentWithDifficultNote(Instrument):
             note = Note.from_name(note).get_chromatic().in_base_octave()
             self.difficulty_notes[note] = max(value, self.difficulty_notes.get(note, 0))
 
-    def difficulty(self, note: Note):
+    def difficulty(self, note: Note) -> Optional[int]:
         """Return the extra difficulty recorded for `note` in `difficulty_notes`, or fall back to
         `Instrument.difficulty` (playable-range check) if it isn't specially listed."""
         return self.difficulty_notes.get(note.get_chromatic().in_base_octave(), super().difficulty(note))
@@ -156,28 +161,34 @@ class Difficulties:
     weight given to how many notes hit the hardest difficulty level reached (`biggest`), then, tie-broken
     from hardest to easiest level, by how many notes hit each level (fewer hard notes sorts as easier)."""
 
-    def __init__(self):
+    difficulties: Dict[int, int]
+    """Map from difficulty level to how many notes of the scale hit that level."""
+
+    biggest: int
+    """The hardest difficulty level reached so far."""
+
+    def __init__(self) -> None:
         """Start with no notes counted."""
         self.difficulties = dict()
         self.biggest = 0
 
-    def add(self, d):
+    def add(self, d: int) -> Self:
         """Record one more note at difficulty level `d`; updates `biggest` if `d` is a new max. Returns `self`
         for chaining."""
         self.biggest = max(d, self.biggest)
         self.difficulties[d] = self.difficulties.get(d, 0) + 1
         return self
 
-    def __eq__(self, value):
+    def __eq__(self, value: "Difficulties") -> bool:
         """Equal iff the per-level note counts match exactly."""
         return self.difficulties == value.difficulties
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Note: `self.difficulties` is a plain (unhashable) `dict`, so calling this currently raises
         `TypeError`; pre-existing bug, not fixed here (documentation-only pass)."""
         return hash(self.difficulties)
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Difficulties") -> bool:
         """Easier-than comparison: fewer notes at the single hardest level reached (`biggest`) wins; ties are
         broken by comparing counts level by level, from hardest to easiest."""
         if self.biggest > other.biggest:
@@ -191,7 +202,7 @@ class Difficulties:
                  return True
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Render as the underlying `difficulties` dict, e.g. for debugging/logging."""
         return str(self.difficulties)
 
@@ -212,28 +223,28 @@ class AnkiNote:
     set_of_enharmonic_keys: List[Key]
     """The enharmonically-equivalent keys to pick the tonic/spelling from (see `solfege.value.key.keys`)."""
 
-    def csv_path(self):
+    def csv_path(self) -> str:
         """Output CSV path for this note's instrument."""
         return f"{folder_path}/{self.instrument}.csv"
 
-    def instrument_image(self):
+    def instrument_image(self) -> str:
         """`<img>` tag for this instrument's picture."""
         return util.img_tag(f"{self.instrument}.png")
 
-    def interval(self):
+    def interval(self) -> Interval:
         """Interval to transpose the key's tonic by to get this instrument's bass note (instrument transposition
         minus the pattern's own signature interval)."""
         return self.instrument.transposition - self.scale_pattern.interval_for_signature
 
-    def scale_name(self):
+    def scale_name(self) -> str:
         """The pattern's primary (first) name."""
         return self.scale_pattern.names[0]
 
-    def scale_notation(self):
+    def scale_notation(self) -> str:
         """The pattern's notation string, or `""` if it has none."""
         return self.scale_pattern.notation or ""
 
-    def bass_note(self):
+    def bass_note(self) -> Note:
         """The lowest playable tonic for this note: `interval()` applied to the enharmonic key's note, then
         octave-shifted until it falls within the instrument's lowest octave."""
         bass_note = self.set_of_enharmonic_keys[0].note + self.interval()
@@ -243,14 +254,14 @@ class AnkiNote:
             bass_note = bass_note.add_octave(-1)
         return bass_note
 
-    def scale_for_difficulty(self):
+    def scale_for_difficulty(self) -> Any:
         """The one-octave scale, starting at `bass_note()`, used to compute `difficulties()`."""
         return self.scale_pattern.from_note(
                         tonic=self.bass_note(),
                         number_of_octaves=1,
                         )
 
-    def difficulties(self):
+    def difficulties(self) -> Optional[Difficulties]:
         """None if not playable"""
         difficulties = Difficulties()
         for note in self.scale_for_difficulty().notes:
@@ -260,7 +271,7 @@ class AnkiNote:
             difficulties = difficulties.add(difficulty)
         return difficulties
 
-    def tonic_name(self):
+    def tonic_name(self) -> str:
         """`bass_note()`'s name, ASCII-symbol alterations, octave numbered from middle C = 4."""
         return self.bass_note().get_name_with_octave(
                     octave_notation=OctaveOutput.MIDDLE_IS_4,
@@ -269,11 +280,11 @@ class AnkiNote:
                     fixed_length = FixedLengthOutput.NO,
                 )
 
-    def key(self):
+    def key(self) -> str:
         "A value uniquely identifiying this anki note"
         return f"""\"{self.instrument} {self.scale_name().replace(",", "")} {self.tonic_name()} difficulty {self.difficulties()}\""""
 
-    def anki_fields(self):
+    def anki_fields(self) -> Generator[str]:
         """Yield this note's Anki fields: first the header block (key, instrument image, blanks,
         tonic/scale name/notation, bass note images), then one field per `(start_octave, number_of_octaves,
         direction)` combination, generating and compiling each variant's LilyPond image along the way."""
@@ -301,7 +312,7 @@ class AnkiNote:
                 yield anki_field.field()
                 anki_field.generate_and_compile_lily()
     
-    def anki_csv(self):
+    def anki_csv(self) -> str:
         """Render this note as one comma-joined CSV row of `anki_fields()`."""
         return ",".join(self.anki_fields())
 
@@ -322,11 +333,11 @@ class AnkiField:
     direction: Direction
     """Whether this variant plays ascending, descending, or both (see `Direction`)."""
 
-    def scale_lowest_note(self):
+    def scale_lowest_note(self) -> Note:
         """The starting note for this variant: the parent note's bass note, shifted up by `start_octave`."""
         return self.anki_note.bass_note().add_octave(self.start_octave)
 
-    def scale(self):
+    def scale(self) -> Any:
         """Build this variant's note sequence per `direction`: ascending only, descending only, ascending then
         descending (`TOTAL`), or descending then ascending (`REVERSE`)."""
         increasing = self.anki_note.scale_pattern.from_note(
@@ -347,11 +358,11 @@ class AnkiField:
             return decreasing.concatenate(increasing)
         assert_never(self.direction)
 
-    def playable(self):
+    def playable(self) -> bool:
         """Whether this variant's starting note is still within the instrument's playable range."""
         return self.anki_note.bass_note() <= self.anki_note.instrument.highest_instrument_note
 
-    def scale_note_name(self):
+    def scale_note_name(self) -> str:
         """`scale_lowest_note()`'s name, ASCII alterations, octave numbered from middle C = 4."""
         return self.scale_lowest_note().get_name_with_octave(
                                 octave_notation=OctaveOutput.MIDDLE_IS_4,
@@ -360,27 +371,27 @@ class AnkiField:
                                 fixed_length = FixedLengthOutput.NO)
 
 
-    def svg_scale_file_name(self):
+    def svg_scale_file_name(self) -> str:
         """The file name without extension."""
         return f"""{self.anki_note.scale_name()}-{self.scale_note_name()}-{self.number_of_octaves}-{self.direction}"""
 
-    def path(self):
+    def path(self) -> str:
         """Output path (without extension) for this variant's generated image."""
         return f"{folder_path}/{self.svg_scale_file_name()}"
 
-    def lily(self):
+    def lily(self) -> str:
         """This variant's LilyPond source."""
         return self.scale().lily()
 
-    def generate_and_compile_lily(self):
+    def generate_and_compile_lily(self) -> None:
         """Compile `lily()` to an SVG (no audio) at `path()`."""
         compile_(self.lily(), file_prefix=self.path(), wav = False)
 
-    def svg_scale_html(self):
+    def svg_scale_html(self) -> str:
         """`<img>` tag for this variant's generated SVG."""
         return img_tag(f"{self.svg_scale_file_name()}.svg")
 
-    def fingerings_html(self):
+    def fingerings_html(self) -> List[str]:
         """Return one `<img>` tag per note in this variant, naming each instrument-specific fingering image."""
         field_parts = []
         for note_in_scale in self.scale().notes:
@@ -395,7 +406,7 @@ class AnkiField:
         return field_parts            
 
 
-    def field(self):
+    def field(self) -> str:
         """This variant's Anki field HTML: empty if not `playable()`, else the scale SVG plus, if the
         instrument wants fingerings, a line break and per-note fingering images."""
         if not self.playable():

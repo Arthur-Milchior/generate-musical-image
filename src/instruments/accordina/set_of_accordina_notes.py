@@ -15,7 +15,20 @@ class SetOfAccordinaNote(SvgGenerator):
     chord), plus enough context (`min`/`max` pictured notes) to know which unselected buttons around them
     also need to be drawn so the diagram reads as a coherent chunk of the instrument."""
 
-    def __init__(self, notes: List[AccordinaNote], min:Optional[AccordinaNote] = None, max:Optional[AccordinaNote] = None, absolute=False):
+    notes: List[AccordinaNote]
+    """The notes to highlight (selected), sorted."""
+
+    absolute: bool
+    """Whether the notes in this set represent absolute (fixed) places on the instrument rather than
+    relative positions within, e.g., a movable scale/chord shape."""
+
+    min: AccordinaNote
+    """The lowest note pictured in the diagram."""
+
+    max: AccordinaNote
+    """The highest note pictured in the diagram."""
+
+    def __init__(self, notes: List[AccordinaNote], min:Optional[AccordinaNote] = None, max:Optional[AccordinaNote] = None, absolute: bool = False) -> None:
         """`notes` are the notes to highlight (selected); marked `absolute` if given. `min`/`max` bound the
         range of buttons pictured around them, defaulting to the full diagonals containing the lowest/highest
         of `notes` (see `_min_pictured_note`/`_max_pictured_note`)."""
@@ -26,7 +39,7 @@ class SetOfAccordinaNote(SvgGenerator):
         self.min = min if min is not None else self._min_pictured_note()
         self.max = max if max is not None else self._max_pictured_note()
 
-    def number_of_rows(self):
+    def number_of_rows(self) -> int:
         """Return how many grid rows (inclusive) span from `self.min` to `self.max`."""
         return self.max._row() - self.min._row() + 1
 
@@ -58,7 +71,7 @@ class SetOfAccordinaNote(SvgGenerator):
         l.append(self.notes[-1])
         return l
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a `<ClassName>(value=..., selected=...)`-shaped string for debugging.
 
         Note: this references `self.value`/`self.selected`, which this class does not define — inherited from

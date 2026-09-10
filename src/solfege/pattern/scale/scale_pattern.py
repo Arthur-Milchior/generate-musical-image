@@ -37,12 +37,12 @@ class ScalePattern(SolfegePattern, IntervalList):
 
 
     @classmethod
-    def _new_record_keeper(cls):
+    def _new_record_keeper(cls) -> "IntervalListToScalePattern":
         """Build this class's `IntervalListToScalePattern` record keeper."""
         from solfege.pattern.scale.interval_list_to_scale_pattern import IntervalListToScalePattern
         return IntervalListToScalePattern.make()
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate `_descending`/`suppress_warning`'s types, chain to the rest of construction, then (unless
         `suppress_warning`) flag scales whose last absolute interval isn't exactly one octave.
 
@@ -56,13 +56,13 @@ class ScalePattern(SolfegePattern, IntervalList):
             if last_interval != octave:
                 assert f"Warning: scale {self.names[0]} has a last interval of {last_interval}"
 
-    def __neg__(self):
+    def __neg__(self) -> "ScalePattern":
         """The same pattern, reversed. Ignore the descending option"""
         return ScalePattern.make_relative(names=self.names, notation=self.notation, relative_intervals=[-interval for interval in reversed(list(self.relative_intervals()))],
                             interval_for_signature=self.interval_for_signature, suppress_warning=True, increasing = not self.increasing, _descending=self._descending,
                             record=False)
 
-    def descending(self):
+    def descending(self) -> "ScalePattern":
         """This scale's descending form: `_descending` if one was given, else this same pattern (most scales
         are played the same way in both directions)."""
         if self._descending:
@@ -87,11 +87,11 @@ class ScalePattern(SolfegePattern, IntervalList):
     #         notes.append(notes[-1] + relative_intervals[0])
     #     return Scale[NoteType](notes=notes, pattern=self, key = notes[0] + self.interval_for_signature)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """The number of steps (relative intervals) in this scale."""
         return len(self.relative_intervals)
 
-    def multiple_octaves(self, nb_octave: int):
+    def multiple_octaves(self, nb_octave: int) -> IntervalList:
         """This scale's relative intervals repeated `nb_octave` times, as a single `IntervalList` (e.g. to walk
         the scale over several octaves in one pass). `nb_octave` must be non-negative."""
         assert nb_octave >= 0

@@ -34,7 +34,7 @@ class SingletonContainer(RecordedContainer[RecordedType], Generic[RecordedType])
     """The single recorded value, or `None` if nothing has been recorded yet."""
 
     #pragma mark - RecordedContainer
-    def append(self, recorded: RecordedType):
+    def append(self, recorded: RecordedType) -> None:
         """Record `recorded`. If a value is already recorded, resolve the conflict according to
         `same_key_behavior` (assert-fail for `IMPOSSIBLE`, assert-equal for `ASSERT_SAME`, keep the easier of the
         two for `MINIMUM`, keep the old one for `IGNORE`, or overwrite for `REPLACE`)."""

@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, TypeVar
+from typing import ClassVar, Self, TypeVar
 
 from solfege.value.interval.chromatic_interval import ChromaticInterval
 from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
@@ -16,7 +16,7 @@ class Alteration(ChromaticInterval, ClassWithEasyness[int]):
 
     #pragma mark - Abstract
 
-    def in_base_octave(self):
+    def in_base_octave(self) -> Self:
         """Not meaningful for an alteration (it has no octave); always raises."""
         raise Exception("Alteration has no base octave")
 
@@ -26,7 +26,7 @@ class Alteration(ChromaticInterval, ClassWithEasyness[int]):
 
     #pragma mark - DataClassWithDefaultArgument
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate `value` falls within `[min_value, max_value]`, raising `TooBigAlterationException`
         otherwise."""
         super().__post_init__()

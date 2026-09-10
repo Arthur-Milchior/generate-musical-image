@@ -39,11 +39,11 @@ class IntervalListToPattern(RecordKeeper[IntervalList, PatternType, SingletonCon
         ...
     #public
 
-    def get_easiest_pattern_from_chromatic_interval(self, chromatic_interval_list: ChromaticIntervalListPattern):
+    def get_easiest_pattern_from_chromatic_interval(self, chromatic_interval_list: ChromaticIntervalListPattern) -> Optional[PatternType]:
         """The single pattern registered under `chromatic_interval_list`'s chromatic-only key, or None."""
         return self.chromatic.get_pattern_from_chromatic_interval(chromatic_interval_list)
 
-    def register(self, key: IntervalList, recorded: PatternType):
+    def register(self, key: IntervalList, recorded: PatternType) -> None:
         """Register `recorded` under `key` here, and also under `key`'s chromatic-only equivalent in
         `self.chromatic`, keeping both record keepers in sync."""
         super().register(key, recorded)
@@ -65,7 +65,7 @@ class IntervalListToPattern(RecordKeeper[IntervalList, PatternType, SingletonCon
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `chromatic` to a freshly built companion record keeper (`make_chromatic_record_keeper()`)."""
         default = super()._default_arguments_for_constructor(args, kwargs)
         chromatic = cls.make_chromatic_record_keeper()
@@ -73,7 +73,7 @@ class IntervalListToPattern(RecordKeeper[IntervalList, PatternType, SingletonCon
         default["chromatic"] = chromatic
         return default
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate `chromatic`'s type before chaining to the rest of construction."""
         assert_typing(self.chromatic, ChromaticIntervalListToPatterns)
         super().__post_init__()

@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import math
-from typing import Dict, List, Optional, TypeVar
+from typing import Dict, List, Optional, Self, Tuple, TypeVar, Union
 
 from solfege.value.abstract import Abstract
 from solfege.value.interval.role.interval_role import IntervalRole
@@ -27,7 +27,7 @@ class AbstractInterval(Abstract, ABC):
     """The interval's role (e.g. "root", "third") within the pattern it was generated from, if any.
     Not used for hashing/equality; may be `None` when the interval has no known role."""
 
-    def __neg__(self):
+    def __neg__(self) -> Self:
         """The opposite interval (e.g. a fifth up becomes a fifth down)."""
         return self * -1
 
@@ -38,17 +38,17 @@ class AbstractInterval(Abstract, ABC):
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `_role` to `None` when not supplied."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         kwargs["_role"] = None
         return kwargs
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce a `_role` argument given as a plain string into an `IntervalRole` via
         `IntervalRoleFromString`."""
-        def clean_role(role):
+        def clean_role(role: Union[str, IntervalRole]) -> IntervalRole:
             """Convert `role` to an `IntervalRole`, parsing it from a string if needed."""
             if isinstance(role, str):
                 return IntervalRoleFromString(role)
@@ -58,7 +58,7 @@ class AbstractInterval(Abstract, ABC):
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "_role", clean_role)
         return args, kwargs
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `_role`, if set, is an `IntervalRole`."""
         assert_optional_typing(self._role, IntervalRole)
         super().__post_init__()
@@ -67,7 +67,7 @@ class AbstractInterval(Abstract, ABC):
 
     @classmethod
     @abstractmethod
-    def unison(cls):
+    def unison(cls) -> Self:
         """Return the unison (zero-sized) interval for this class."""
         ...
 

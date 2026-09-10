@@ -7,7 +7,7 @@ from utils.frozendict import KeyType
 class TestClef(unittest.TestCase):
     """Tests for `Key` and the `sets_of_enharmonic_keys` registry in `keys.py`."""
 
-    def test_enharmonic(self):
+    def test_enharmonic(self) -> None:
         """Every enharmonic set shares one chromatic value, keys within a set are sorted, and no
         chromatic value appears in more than one set."""
         found = set()
@@ -21,18 +21,18 @@ class TestClef(unittest.TestCase):
             for lower, higher in pairwise(enharmonic_key):
                 self.assertLessEqual(lower, higher)
 
-    def test_simplest_major(self):
+    def test_simplest_major(self) -> None:
         """`simplest_enharmonic_major` returns the key with fewest alterations in the enharmonic set."""
         self.assertEqual(key_of_C, key_of_C.simplest_enharmonic_major())
         self.assertEqual(key_of_C, Key(Note.from_name("D♭♭"), number_of_flats=12).simplest_enharmonic_major())
 
-    def test_simplest_minor(self):
+    def test_simplest_minor(self) -> None:
         """`simplest_enharmonic_minor` returns the key with fewest alterations, computed via the
         relative major."""
         self.assertEqual(key_of_A, key_of_A.simplest_enharmonic_minor())
         self.assertEqual(key_of_A, Key(Note.from_name("B♭♭3"), number_of_flats=9).simplest_enharmonic_minor())
         self.assertEqual(key_of_A, Key(Note.from_name("B♭♭"), number_of_flats=9).simplest_enharmonic_minor())
 
-    def test_get(self):
+    def test_get(self) -> None:
         """`Key.from_note` looks up a previously registered key by its tonic note."""
         self.assertEqual(key_of_C, Key.from_note(Note.from_name("C")))

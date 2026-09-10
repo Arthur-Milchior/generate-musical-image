@@ -28,7 +28,7 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval, Inter
     """The alteration base class used to express this interval's diatonic degree as minor/major or
     diminished/just/augmented (the concrete constructor is picked by `get_alteration_constructor`)."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate component types, and that the chromatic component's role (if set) agrees with this
         interval's own role."""
         super().__post_init__()
@@ -80,7 +80,7 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval, Inter
         return self._role
 
     @classmethod
-    def unison(cls):
+    def unison(cls) -> Self:
         """The unison interval (chromatic 0, diatonic 0)."""
         return cls.make(0, 0)
 
@@ -104,7 +104,7 @@ class Interval(AbstractInterval, Pair[ChromaticInterval, DiatonicInterval, Inter
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `_role` to `None` when not supplied."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         kwargs["_role"] = None

@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 import dataclasses
 from enum import Enum
-from typing import Callable, ClassVar, Dict, Generic, List, Self, Type
+from typing import Callable, ClassVar, Dict, Generic, Iterable, Iterator, List, Self, Tuple, Type
 
 from solfege.list_order import ListOrder, reverse_list_order
 from solfege.value.interval.abstract_interval import IntervalType
@@ -38,15 +38,15 @@ class AbstractNoteList(DataClassWithDefaultArgument, Generic[NoteType, IntervalT
         min_note = self.notes[0]
         return self.interval_list_type.make(note-min_note for note in self.notes)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[NoteType]:
         """Iterate over the notes in `list_order`."""
         return iter (self.notes)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Number of notes in the list."""
         return len(self.notes)
 
-    def is_in_base_octave(self, accepting_octave: bool = False):
+    def is_in_base_octave(self, accepting_octave: bool = False) -> bool:
         """Whether every note in the list is in its base octave (see
         `AbstractNote.is_in_base_octave`)."""
         for note in self.notes:
@@ -54,7 +54,7 @@ class AbstractNoteList(DataClassWithDefaultArgument, Generic[NoteType, IntervalT
                 return False
         return True
 
-    def all_blacks(self):
+    def all_blacks(self) -> bool:
         """Whether every note in the list is a black key on the piano."""
         return all(note.is_black_key_on_piano() for note in self.notes)
 
@@ -62,30 +62,30 @@ class AbstractNoteList(DataClassWithDefaultArgument, Generic[NoteType, IntervalT
         """Return the same notes in reverse order, with `list_order` flipped accordingly."""
         return dataclasses.replace(self, notes=reversed(self.notes), list_order=reverse_list_order(self.list_order))
 
-    def add_octave(self, nb_octave) -> Self:
+    def add_octave(self, nb_octave: int) -> Self:
         """Return the list with every note shifted by `nb_octave` whole octaves."""
         return dataclasses.replace(self, notes = self.notes.map(lambda note: note.add_octave(nb_octave)))
 
     # pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `list_order` to `INCREASING` when not supplied."""
         default = super()._default_arguments_for_constructor(args, kwargs)
         default["list_order"] = ListOrder.INCREASING
         return default
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce each element of the `notes` argument into `note_type` via
         `make_single_argument`, and wrap the result in `_frozen_list_type`."""
-        def clean_note(notes):
+        def clean_note(notes: Iterable) -> FrozenList[NoteType]:
             """Coerce each element of `notes` into `note_type` and collect the result into `_frozen_list_type`."""
             return cls._frozen_list_type(cls.note_type.make_single_argument(note) for note in notes)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "notes", clean_note)
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate `notes`' container/element types and that it respects the declared
         `list_order`."""
         assert_typing(self.notes, self._frozen_list_type)

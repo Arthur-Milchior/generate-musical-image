@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import dataclasses
-from typing import ClassVar, Optional, Self, Tuple, Type, Union
+from typing import Callable, ClassVar, Optional, Self, Tuple, Type, Union
 
 from _lily.Lilyable.local_lilyable import LocalLilyable
 from solfege.value.chromatic import Chromatic
@@ -31,7 +31,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
     AlterationClass: ClassVar[Type[Alteration]] = NoteAlteration
     """The alteration class used to express this note's diatonic degree as natural/sharp/flat."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that the chromatic/diatonic components have the expected concrete types."""
         super().__post_init__()
         assert_typing(self.get_chromatic(), ChromaticNote)
@@ -46,7 +46,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
         return cls.make(*arg)
 
     @staticmethod
-    def from_name(name: str):
+    def from_name(name: str) -> Note:
         """Parse a note name such as "C#4" into a `Note`, splitting it into its diatonic letter
         and alteration symbol(s) and reassembling the matching chromatic value."""
         name = name.strip()
@@ -57,7 +57,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
         chromatic = Note.from_diatonic(diatonic).get_chromatic() + alteration
         return Note(chromatic, diatonic)
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Debug representation as a `Note.make(chromatic, diatonic)` call."""
         return f"Note.make({self.get_chromatic().value}, {self._diatonic.value})"
 
@@ -68,11 +68,11 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
 
         return self.IntervalClass.make_instance_of_selfs_class(chromatic, diatonic)
 
-    def correctAlteration(self):
+    def correctAlteration(self) -> bool:
         """Whether the note has a printable alteration."""
         return self.get_alteration().printable()
 
-    def adjacent(self, other: Note):
+    def adjacent(self, other: Note) -> bool:
         """Whether `other` is at most two half-tone away"""
         lower, higher = low_and_high(self, other)
         from solfege.value.interval.interval import Interval
@@ -87,7 +87,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
             return False
         return True
 
-    def simplest_enharmonic(self):
+    def simplest_enharmonic(self) -> Self:
         """Enharmonic note, with 0 alteration if possible or one of the same alteration"""
         from solfege.value.interval.interval import Interval
         enharmonic = self
@@ -109,7 +109,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
                 return below
         return enharmonic
 
-    def canonize(self, for_sharp: bool):
+    def canonize(self, for_sharp: bool) -> Self:
         """Enharmonic note, with no alteration if possible, or a single sharp (if `for_sharp`) or
         single flat (otherwise)."""
         from solfege.value.interval.interval import Interval
@@ -132,39 +132,39 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
                 return below
         return enharmonic
     
-    def syntax_for_lily(self):
+    def syntax_for_lily(self) -> str:
         """A string valid in a scale in lily"""
         return self.get_name_with_octave(alteration_output=AlterationOutput.LILY, note_output=NoteOutput.LILY, octave_notation=OctaveOutput.LILY, fixed_length=FixedLengthOutput.NO, )
-    
-    def lily_key(self):
+
+    def lily_key(self) -> str:
         """A string valid as key indication for lily"""
         return self.get_name_up_to_octave(alteration_output=AlterationOutput.LILY, note_output=NoteOutput.LILY, fixed_length=FixedLengthOutput.NO)
 
-    def is_natural(self):
+    def is_natural(self) -> bool:
         """Whether this note has no alteration."""
         return self.get_alteration() == NATURAL
 
-    def is_sharp(self):
+    def is_sharp(self) -> bool:
         """Whether this note is a single sharp."""
         return self.get_alteration() == SHARP
 
-    def is_flat(self):
+    def is_flat(self) -> bool:
         """Whether this note is a single flat."""
         return self.get_alteration() == FLAT
 
-    def is_double_sharp(self):
+    def is_double_sharp(self) -> bool:
         """Whether this note is a double sharp."""
         return self.get_alteration() == DOUBLE_SHARP
 
-    def is_double_flat(self):
+    def is_double_flat(self) -> bool:
         """Whether this note is a double flat."""
         return self.get_alteration() == DOUBLE_FLAT
 
-    def is_black_key_on_piano(self):
+    def is_black_key_on_piano(self) -> bool:
         """Whether this note corresponds to a black key of the keyboard."""
         return self.get_chromatic().is_black_key_on_piano()
 
-    def is_white_key_on_piano(self):
+    def is_white_key_on_piano(self) -> bool:
         """Whether this note corresponds to a white key of the keyboard."""
         return self.get_chromatic().is_white_key_on_piano()
 
@@ -194,7 +194,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
         
     #Pragma mark - AbstractNote
 
-    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput):
+    def get_name_up_to_octave(self, alteration_output: AlterationOutput, note_output: NoteOutput, fixed_length: FixedLengthOutput) -> str:
         """Return the note's diatonic name followed by its alteration text, per the given output
         options."""
         diatonic_note: DiatonicNote = self.get_diatonic()
@@ -209,7 +209,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
             return dataclasses.replace(self, _chromatic=self.get_chromatic() + other.get_chromatic(), _diatonic=self._diatonic + other._diatonic)
         return NotImplemented
 
-    def non_ambiguous_string_for_file_name(self):
+    def non_ambiguous_string_for_file_name(self) -> str:
         """Return the file name without extension nor folder"""
         return self.get_name_with_octave(
                     octave_notation=OctaveOutput.MIDDLE_IS_4,
@@ -226,7 +226,7 @@ class Note(AbstractNote[Interval], Pair[ChromaticNote, DiatonicNote, NoteAlterat
     
     #pragma mark - Pair
 
-    def get_alteration_constructor(self):
+    def get_alteration_constructor(self) -> Callable[[int], NoteAlteration]:
         """Return the callable used to build a `NoteAlteration` from a raw int value."""
         return NoteAlteration.make
 

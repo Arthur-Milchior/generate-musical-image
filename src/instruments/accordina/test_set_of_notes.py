@@ -8,7 +8,7 @@ from instruments.accordina.accordina_note import *
 
 class FakeSetOfAccordinaNote(SetOfAccordinaNote):
     """Minimal concrete `SetOfAccordinaNote` used only to exercise the abstract class in tests."""
-    def _svg_name_base(self):
+    def _svg_name_base(self) -> str:
         """Fixed dummy name; the SVG file name itself isn't under test here."""
         return "fake"
 
@@ -18,7 +18,7 @@ class TestSetOfAccordinaNote(unittest.TestCase):
     set_c_dsharp = FakeSetOfAccordinaNote({C4, D4_sharp})
     """Shared fixture: the set of `{C4, D4_sharp}`, reused by `test`."""
 
-    def test(self):
+    def test(self) -> None:
         """The pictured range spans 5 rows from C4 to F4, with C4/D#4 selected and the rest not."""
         self.assertEqual(self.set_c_dsharp.number_of_rows(), 5)
         self.assertEqual(self.set_c_dsharp._min_pictured_note(), C4)

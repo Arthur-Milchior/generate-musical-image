@@ -93,12 +93,12 @@ class Frets(DataClassWithDefaultArgument, SvgLines):
     #     return self.limit_max(fret + interval_size).limit_min(fret - interval_size)
     
     @classmethod
-    def empty(cls):
+    def empty(cls) -> "Frets":
         """A `Frets` range allowing nothing at all (no closed fret, no open string, no not-played)."""
         return cls(None, False, False)
 
     @classmethod
-    def all_played(cls, instrument: "FrettedInstrument"):
+    def all_played(cls, instrument: "FrettedInstrument") -> "Frets":
         """Every playable absolute fret on `instrument` (fret 1 to its last fret, plus the open string)."""
         first_fret = Fret.make(1, True)
         last_fret = instrument.last_fret()
@@ -122,7 +122,7 @@ class Frets(DataClassWithDefaultArgument, SvgLines):
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default to disallowing everything (`closed_fret_interval=None`, `allow_open=False`,
         `allow_not_played=False`); the base class's own defaults are computed first."""
         default = super()._default_arguments_for_constructor(args, kwargs)
@@ -132,11 +132,11 @@ class Frets(DataClassWithDefaultArgument, SvgLines):
         return default
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Normalize constructor arguments: `closed_fret_interval` may be given as a `(m, M)` pair of raw ints
         or `Fret`s (coerced to `Fret`s sharing `absolute`); `absolute`/`allow_open`/`allow_not_played` are made
         keyword arguments."""
-        def clean_closed_fret_interval(closed_fret_interval: Optional[Union[Fret, ]]):
+        def clean_closed_fret_interval(closed_fret_interval: Optional[Union[Fret, ]]) -> Optional[Tuple[Fret, Fret]]:
             """Coerce a `(m, M)` pair (raw ints and/or `Fret`s) into a pair of `Fret`s sharing `absolute`, or
             pass `None` through unchanged."""
             if closed_fret_interval is None:
@@ -156,8 +156,8 @@ class Frets(DataClassWithDefaultArgument, SvgLines):
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_open")
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "allow_not_played")
         return (args, kwargs)
-    
-    def __post_init__(self):
+
+    def __post_init__(self) -> None:
         """Validate field types and, if `closed_fret_interval` is set, that its bounds are ordered `Fret`s
         sharing `self.absolute`."""
         assert_typing(self.allow_open, int)

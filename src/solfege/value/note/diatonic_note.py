@@ -33,7 +33,7 @@ class DiatonicNote(AbstractSingletonNote[DiatonicInterval], Diatonic):
         return cls(value)
 
     @staticmethod
-    def from_name(name: str):
+    def from_name(name: str) -> DiatonicNote:
         """Get name assumed to be in notation with letter. Only consider the first letter, A, B,.., G"""
         assert 1 <= len(name) <= 2
         letter = name[0].lower()

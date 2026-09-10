@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable, ClassVar, Dict, List, Optional, Self, Tuple, Type
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Self, Tuple, Type
 
 from utils.util import assert_typing
 
@@ -33,7 +33,7 @@ class DataClassWithDefaultArgument:
     # Protected methods
     
     @classmethod
-    def clean_kwargs(cls, kwargs, name, clean: Optional[Callable] = None, type: Optional[Type] = None) -> Dict:
+    def clean_kwargs(cls, kwargs: Dict[str, Any], name: str, clean: Optional[Callable] = None, type: Optional[Type] = None) -> Dict:
         """Apply `clean` (if given) to `kwargs[name]` and, if `type` is given, assert the cleaned value has that
         type. `name` must already be present in `kwargs`. Returns `kwargs`, mutated in place."""
         assert name in kwargs
@@ -46,7 +46,7 @@ class DataClassWithDefaultArgument:
         return kwargs
     
     @classmethod
-    def arg_to_kwargs(cls, args: List, kwargs: Dict, name, clean: Optional[Callable] = None, type: Optional[Type] = None) -> Tuple[List, Dict]:
+    def arg_to_kwargs(cls, args: List, kwargs: Dict, name: str, clean: Optional[Callable] = None, type: Optional[Type] = None) -> Tuple[List, Dict]:
         """If there is args, the first value is assumed to be name, not in kwargs, and is added in kwargs.
         Otherwise check that name in `kwargs`.
 
@@ -63,7 +63,7 @@ class DataClassWithDefaultArgument:
         return (args, kwargs)
     
     @classmethod
-    def _maybe_arg_to_kwargs(cls, args: List, kwargs: Dict, name: str, clean: Callable = lambda x:x, type: Optional[Type] = None):
+    def _maybe_arg_to_kwargs(cls, args: List, kwargs: Dict, name: str, clean: Callable = lambda x:x, type: Optional[Type] = None) -> Tuple[List, Dict]:
         """Clean the value associated to name, by default the first of args, if it exists. Otherwise do nothing."""
         if name not in kwargs and args:
             kwargs[name] = args.pop(0)
@@ -74,7 +74,7 @@ class DataClassWithDefaultArgument:
     
     # Must be implemented by children classes.
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Assert that `self` is hashable (frozen dataclasses should be, but a mutable/unhashable field would
         silently break that); raises if `hash(self)` fails."""
         try:
@@ -83,13 +83,13 @@ class DataClassWithDefaultArgument:
             raise Exception(f"Can't hash {self}")
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs) ->Dict:
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) ->Dict:
         """Returns the association from argument name to default argument value.
         Class inheriting must call super."""
         return {_DEFAULT_ADDED: True}
     
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Ensure that any value is changed so that it gets the correct type. E.g. transform list in frozenlist
         and pair of int in interval.
         Class inheriting must call super."""

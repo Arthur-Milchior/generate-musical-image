@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Self, TypeVar
+from typing import ClassVar, Optional, Self, TypeVar, Union
 
 from solfege.value.getters import ChromaticGetter
 from solfege.value.singleton import Singleton
@@ -20,7 +20,7 @@ class Chromatic(Singleton, ChromaticGetter[Self]):
 
     #Public
 
-    def __add__(self, other):
+    def __add__(self, other: Union["Pair", Self]) -> Self:
         """Add another value. If `other` is a `Pair` (chromatic+diatonic), only its chromatic component
         is used, since a purely chromatic value has no diatonic part to add."""
         from solfege.value.pair import Pair
@@ -30,7 +30,7 @@ class Chromatic(Singleton, ChromaticGetter[Self]):
 
     #pragma mark - ChromaticGetter
 
-    def get_chromatic(self):
+    def get_chromatic(self) -> Self:
         """Return self: a `Chromatic` value is already its own chromatic component."""
         return self
 

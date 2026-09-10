@@ -21,24 +21,24 @@ test_folder = "test"
 not_played_fret = fret(None)
 
 class TestFrettedInstrumentChord(unittest.TestCase):
-    def test_eq(self):
+    def test_eq(self) -> None:
         """Two all-not-played chords are equal; an all-not-played chord differs from an all-open chord."""
         self.assertEqual(_make([not_played_fret] * 6), _make([not_played_fret] * 6))
         self.assertNotEqual(_make([not_played_fret] * 6), entirely_open_chord)
 
-    def test_get_fret(self):
+    def test_get_fret(self) -> None:
         """`get_fret` returns the fret held on the requested string."""
         self.assertEqual(entirely_open_chord.get_fret(Guitar.string(1)), fret( 0))
 
-    def test_get_frets(self):
+    def test_get_frets(self) -> None:
         """`get_frets` returns the fret (or not-played) per string, in string order."""
         self.assertEqual(C4M.get_frets(Guitar), [not_played_fret, fret(3), fret(2), fret(0), fret(1), fret(0)])
 
-    def test_repr(self):
+    def test_repr(self) -> None:
         """`repr` produces `make()`-reconstructable code."""
         self.assertEqual(repr(C4M), "ChordOnFrettedInstrument.make([None, 3, 2, 0, 1, 0])")
 
-    def test_show_chord(self):
+    def test_show_chord(self) -> None:
         """Smoke test: saving an SVG with a `ConditionalFrettedPositionMaker` doesn't raise."""
         tonic = ChromaticNote(9)
         black_letter_maker = FrettedPositionMakerForInterval.make(tonic=tonic, pattern=major_triad)
@@ -53,7 +53,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         #display_svg_file(f"{test_folder}/{file_name}" )
         # uncomment to see what the image looks like
         
-    def test_is_open(self):
+    def test_is_open(self) -> None:
         """A chord is open iff at least one string is played open."""
         self.assertTrue(entirely_open_chord.is_open())
         self.assertTrue(diag.is_open())
@@ -61,7 +61,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertTrue(C4M.is_open())
         self.assertFalse(F4M.is_open())
 
-    def test_is_transposable(self):
+    def test_is_transposable(self) -> None:
         """A chord is transposable iff it has no open string (so it can be moved up/down the neck unchanged)."""
         self.assertFalse(entirely_open_chord.is_transposable())
         self.assertFalse(diag.is_transposable())
@@ -70,7 +70,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertFalse(C4M.is_transposable())
         self.assertTrue(F4M.is_transposable())
 
-    def test_is_barred(self):
+    def test_is_barred(self) -> None:
         """`is_barred` reports NO/FULLY correctly across several fingering shapes, including two regression
         fixtures (x02025, 222220)."""
         self.assertEqual(entirely_open_chord.is_barred(), Barred.NO)
@@ -84,7 +84,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         x22220 = ChordOnFrettedInstrument.make(Guitar, [None, 2,2,2,2,0], absolute=True)
         self.assertEqual(x02025.is_barred(), Barred.NO)
         
-    def test_is_playable(self):
+    def test_is_playable(self) -> None:
         """`playable` rates open/simple shapes as EASY and unplayably-spread shapes (all six different frets)
         as NO."""
         self.assertEqual(C4M.playable(Guitar), Playable.EASY)
@@ -94,7 +94,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertEqual(diag_two.playable(Guitar), Playable.NO)
         self.assertEqual(F4M.playable(Guitar), Playable.EASY)
         
-    def test_chord_pattern_is_redundant(self):
+    def test_chord_pattern_is_redundant(self) -> None:
         """`chord_pattern_is_redundant` is true only for `diag_two` (six consecutive frets starting at 2),
         the sole fixture that repeats a chord pattern already covered by a simpler shape."""
         self.assertFalse(entirely_open_chord.chord_pattern_is_redundant())
@@ -104,7 +104,7 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertFalse(C4M.chord_pattern_is_redundant())
         self.assertFalse(F4M.chord_pattern_is_redundant())
 
-    def test_has_not_played_in_the_middle(self):
+    def test_has_not_played_in_the_middle(self) -> None:
         """`has_not_played_in_middle` is true only when a not-played string sits strictly between two played
         strings."""
         self.assertFalse(_make([1, 3, 3, 4, 1, 1]).has_not_played_in_middle())
@@ -113,13 +113,13 @@ class TestFrettedInstrumentChord(unittest.TestCase):
         self.assertFalse(_make([None, 3, 3, 4, 1, None]).has_not_played_in_middle())
         self.assertFalse(_make([1, 3, 3, 4, 1, None]).has_not_played_in_middle())
         
-    def test_lt(self):
+    def test_lt(self) -> None:
         """Ordering is consistent with equality: `CM_ < CM`, and every chord is `<=` itself."""
         self.assertLess(CM_, CM)
         self.assertLessEqual(CM_, CM)
         self.assertLessEqual(CM_, CM_)
 
-    def test_regression_502220(self):
+    def test_regression_502220(self) -> None:
         """Regression: the 5-0-2-2-2-0 shape must stay rated unplayable (NO)."""
         chord = ChordOnFrettedInstrument.make(Guitar, [5, 0, 2, 2, 2, 0], absolute=True)
         hand = chord.playable(Guitar)

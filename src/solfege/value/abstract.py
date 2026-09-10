@@ -26,7 +26,7 @@ class Abstract(DataClassWithDefaultArgument, MakeableWithSingleArgument, ABC):
     # """The class with both Chromatic and Diatonic similar to the current class"""
     # PairClass: ClassVar[type]# abstract interval
 
-    def __radd__(self, other):
+    def __radd__(self, other: Self) -> Self:
         """Support `other + self` by delegating to `self.__add__`, since addition here is commutative."""
         return self.__add__(other)
 
@@ -43,11 +43,11 @@ class Abstract(DataClassWithDefaultArgument, MakeableWithSingleArgument, ABC):
         """Same note in the base octave"""
         return self.add_octave(-self.octave())
 
-    def equals_modulo_octave(self, other) -> bool:
+    def equals_modulo_octave(self, other: Self) -> bool:
         """Whether self and other are same note, potentially at distinct octaves"""
         return self.in_base_octave() == other.in_base_octave()
-    
-    def __sub__(self, other):
+
+    def __sub__(self, other: Self) -> Self:
         """Subtraction, defined as addition of the negation (`-other` must be implemented by subclasses)."""
         return self + (-other)
 

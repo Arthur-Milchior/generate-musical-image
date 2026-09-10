@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from lily.staff.lily_staff import LilyStaff
 from solfege.value.key.key import Key
 from solfege.value.note.note import NoteFrozenList
@@ -20,14 +20,14 @@ class LilyChordStaff(LilyStaff):
 {indent(" ".join(note.syntax_for_lily() for note in self.notes))}
 >"""
 
-    def _get_ottava_str(self):
+    def _get_ottava_str(self) -> str:
          """The `\\ottava N` LilyPond directive line for the current octave shift, or `""` if no shift is needed."""
          ot = self.get_ottava()
          if ot is 0:
               return ""
          return f"\ottava {ot}\n"
 
-    def get_ottava(self):
+    def get_ottava(self) -> int:
          """The net `\\ottava` shift to apply: `get_8_va()` if positive (notes above the staff), the negation of
          `get_8_vb()` if that is positive (notes below the staff), else 0. At most one of the two is expected to be
          non-zero."""
@@ -40,28 +40,28 @@ class LilyChordStaff(LilyStaff):
               return -vb
          return 0
 
-    def get_8_va(self):
+    def get_8_va(self) -> int:
          """Return the number of octave in 8va"""
          return 0
 
-    def get_8_vb(self):
+    def get_8_vb(self) -> int:
          """Return the number of octave in 8vb"""
          return 0
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """No extra defaults beyond the parent's; forwards to `LilyStaff`."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         return kwargs
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce a plain iterable passed as `notes` into a `NoteFrozenList`."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "notes", NoteFrozenList)
         return args, kwargs
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Delegate validation to `LilyStaff.__post_init__`."""
         super().__post_init__()

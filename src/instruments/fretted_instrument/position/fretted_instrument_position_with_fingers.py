@@ -5,6 +5,7 @@ from typing import Dict, FrozenSet, List, Optional, Self, Set, Tuple, Union
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
+from instruments.fretted_instrument.position.string.string import String
 from instruments.fretted_instrument.position.string.string_deltas import StringDelta
 from instruments.fretted_instrument.position.string.strings import Strings
 from solfege.value.interval.chromatic_interval import ChromaticInterval
@@ -38,7 +39,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
                                          instrument:FrettedInstrument,
                                          next_note: Self,
                                          chord: bool,
-                                         ):
+                                         ) -> Self:
         """Return `self` with `fingers` narrowed to those candidates for `self` that admit some candidate finger
         of `next_note` at a compatible fret distance (per `instrument.finger_to_fret_delta`, using the `chord`
         vs. melodic tables). Used to propagate fingering constraints between consecutive notes."""
@@ -55,7 +56,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
         return self.restrict_to_specific_fingers(frozenset(acceptable_fingers))
 
 
-    def restrict_to_specific_fingers(self, fingers: FingersType):
+    def restrict_to_specific_fingers(self, fingers: FingersType) -> Self:
         """Return `self` with `fingers`. Assert that the new set is smaller than the old one."""
         assert fingers <= self.fingers
         return dataclasses.replace(self, fingers=fingers)
@@ -63,7 +64,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
     #pragma mark - MakeableWithSingleArgument
 
     @classmethod
-    def _make_single_argument(cls, arg) -> Self:
+    def _make_single_argument(cls, arg: Tuple[Union[String, int], Union[Fret, int], Union[FingersType, int]]) -> Self:
         """Build an instance from a `(string, fret, fingers)` triple, as required by `MakeableWithSingleArgument`."""
         (string, fret, fingers) = arg
         return cls.make(string=string, fret=fret, fingers=fingers)
@@ -75,7 +76,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
 
 
     @staticmethod
-    def from_fretted_instrument_position(pos: PositionOnFrettedInstrument, fingers: Optional[FingersType] = None):
+    def from_fretted_instrument_position(pos: PositionOnFrettedInstrument, fingers: Optional[FingersType] = None) -> "PositionOnFrettedInstrumentWithFingers":
         """Wrap a plain `PositionOnFrettedInstrument` into one `fingers`-annotated, defaulting to `ALL_FINGERS`
         as candidates. If `pos` is already a `PositionOnFrettedInstrumentWithFingers`, it is returned unchanged
         (and `fingers` is then ignored)."""
@@ -114,17 +115,17 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
              PositionOnFrettedInstrumentWithFingers.make(string=next_pos.string, fret=next_pos.fret, fingers=fingers_for_next_pos)
              ) for next_pos, (fingers_for_current_pos, fingers_for_next_pos) in pos_to_fingers.items()]
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         """A `.make(...)` call that reconstructs this position, including its finger candidates."""
         return f"""FrettedInstrumentPositionWithFingers.make({self.string.value}, {self.fret.value}, {set(self.fingers)})"""
 
     # pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Normalize constructor arguments: in addition to the base class's cleanup, `fingers` may be passed as
         a single int (wrapped into a one-element set) and is always coerced to a `frozenset`."""
-        def clean_fingers(fingers):
+        def clean_fingers(fingers: Union[int, FingersType]) -> FrozenSet[int]:
             """Coerce `fingers` (a single int or any iterable of ints) into a `frozenset`."""
             if isinstance(fingers, int):
                 fingers = {fingers}
@@ -133,7 +134,7 @@ class PositionOnFrettedInstrumentWithFingers(PositionOnFrettedInstrument, Makeab
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "fingers", clean_fingers)
         return args, kwargs
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `fingers` is a non-empty frozenset of valid finger numbers (1 to 4)."""
         assert_typing(self.fingers, frozenset)
         for finger in self.fingers:

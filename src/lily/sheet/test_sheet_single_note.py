@@ -8,7 +8,7 @@ from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note
 
 class TestLilySheetSingleNote(unittest.TestCase):
-    def test_single_note(self):
+    def test_single_note(self) -> None:
         """A single-note chord sheet compiles to the expected `.ly` code and file-prefix name."""
         C4 = Note.make(0, 0)
         sheet = LilyChordSheet.make(staff=LilySingleNoteStaff.make(note=C4, clef=Clef.TREBLE, first_key=key_of_C))

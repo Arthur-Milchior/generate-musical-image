@@ -21,7 +21,7 @@ class LilyScaleSheet(LilySheetSingleStaff):
     def file_prefix(self) -> str:
         """A file name built from `"scale_"` followed by each note's name (ASCII, fixed-width), underscore
         joined."""
-        def name(note: Note):
+        def name(note: Note) -> str:
             """The note's ASCII, fixed-width name (e.g. `C____________4`), used as a filesystem-safe token."""
             return note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.ASCII, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.UNDERSCORE_DOUBLE)
         return f"""scale_{"_".join(name(note) for note in self.staff.notes)}"""

@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Dict, List, Type
+from typing import ClassVar, Dict, List, Tuple, Type
 import unittest
 
 from solfege.pattern.solfege_pattern import SolfegePattern
@@ -20,7 +20,7 @@ class PatternEmpty(SolfegePattern):
     """Every registered `PatternEmpty` instance, in creation order (see `PatternWithName.all_patterns`)."""
 
     @classmethod
-    def _new_record_keeper(cls):
+    def _new_record_keeper(cls) -> "RecordKeeperForPatternEmpty":
         """Build this class's `RecordKeeperForPatternEmpty`."""
         return RecordKeeperForPatternEmpty.make()
 
@@ -31,7 +31,7 @@ class PatternEmpty(SolfegePattern):
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Force `record=False` so `PatternEmpty` instances are never registered."""
         kwargs["record"] = False
         return super()._clean_arguments_for_constructor(args, kwargs)
@@ -47,7 +47,7 @@ class RecordKeeperForPatternEmpty(RecordKeeper[IntervalList, PatternEmpty, Singl
     _recorded_container_type: ClassVar[Type] = List
     """Same as RecordedContainerType"""
 
-    def is_key_valid(self, key: IntervalList):
+    def is_key_valid(self, key: IntervalList) -> bool:
         """Any key is accepted."""
         return True
 
@@ -70,11 +70,11 @@ class PatternDeux(SolfegePattern):
 
 
     @classmethod
-    def _new_record_keeper(cls):
+    def _new_record_keeper(cls) -> "RecordKeeperForPatternDeux":
         """Build this class's `RecordKeeperForPatternDeux`."""
         return RecordKeeperForPatternDeux.make()
 
-    def get_interval_list(self):
+    def get_interval_list(self) -> IntervalList:
         """This test pattern's interval list, i.e. `il`."""
         return self.il
 
@@ -85,7 +85,7 @@ class PatternDeux(SolfegePattern):
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce `il` into an `IntervalList` via `IntervalList.make`."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "il", IntervalList.make)
         return super()._clean_arguments_for_constructor(args, kwargs)
@@ -103,7 +103,7 @@ class RecordKeeperForPatternDeux(RecordKeeper[IntervalList, PatternDeux, Singlet
     """Same as RecordedContainerType"""
 
 
-    def is_key_valid(self, key: IntervalList):
+    def is_key_valid(self, key: IntervalList) -> bool:
         """Any key is accepted."""
         return True
 
@@ -118,22 +118,22 @@ class TestSolfegePattern(unittest.TestCase):
     instance_1 = PatternDeux.make(il=[(0,0)], names=["1a", "1b"])
     instance_2 = PatternDeux.make(il=[(0, 0)], names=["2a"])
 
-    def test_empty_set(self):
+    def test_empty_set(self) -> None:
         """A `PatternEmpty` instance (record=False) never gets registered: no instances, no name lookup."""
         self.assertEqual(PatternEmpty.get_all_instances(), [])
         self.assertIsNone(PatternEmpty.get_from_name("foo"))
 
-    def test_pattern_deux_not_in_1(self):
+    def test_pattern_deux_not_in_1(self) -> None:
         """Registration is per-class: a name registered on `PatternDeux` is not visible from `PatternEmpty`."""
         self.assertEqual(PatternEmpty.get_all_instances(), [])
         self.assertEqual(PatternEmpty.get_from_name("1a"), None)
 
-    def test_pattern_deux(self):
+    def test_pattern_deux(self) -> None:
         """`PatternDeux` instances are recorded in creation order and retrievable by any of their names."""
         self.assertEqual(PatternDeux.get_all_instances(), [self.instance_1, self.instance_2])
         self.assertEqual(PatternDeux.get_from_name("1a"), self.instance_1)
 
-    def test_name(self):
+    def test_name(self) -> None:
         """`get_names()` returns every alias; `first_of_the_names()` returns the canonical (first) one."""
         self.assertEqual(self.instance_1.get_names(), StrFrozenList(["1a", "1b"]))
         self.assertEqual(self.instance_1.first_of_the_names(), "1a")

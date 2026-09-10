@@ -24,7 +24,7 @@ class ConditionalFrettedPositionMaker(FrettedPositionMaker):
     tonic: ChromaticNote
     """The reference note that intervals are computed relative to."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate the types of `maker_for_non_selected_intervals`, `selected_intervals`, and `tonic`."""
         assert_typing(self.maker_for_non_selected_intervals, FrettedPositionMaker)
         assert_iterable_typing(self.selected_intervals, int)
@@ -46,7 +46,7 @@ class ConditionalFrettedPositionMaker(FrettedPositionMaker):
             fretted_position_maker = self.maker_for_non_selected_intervals
         yield from fretted_position_maker.svg_content(instrument, pos)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """A composite identifier encoding both delegate makers, the tonic, and the selected intervals, used
         when naming generated files."""
         return f"""{str(self.maker_for_selected_interval)}_tonic_{self.tonic.value}_{"-".join(str(interval) for interval in self.selected_intervals)}_{str(self.maker_for_non_selected_intervals)}"""

@@ -2,7 +2,7 @@
 
 from collections.abc import Generator
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, List
 
 from solfege.pattern.scale.scale_pattern import ScalePattern
 from utils.csv import CsvGenerator
@@ -57,36 +57,36 @@ class AnkiNote(CsvGenerator):
         yield "x" if self.scale._is_chord_pattern else ""
         AnkiNote.max_number_of_names = max(AnkiNote.max_number_of_names, len(self.scale.names))
 
-    def _chromatic_relative_list(self):
+    def _chromatic_relative_list(self) -> List[int]:
         """The scale's chromatic intervals between consecutive notes, as plain ints."""
         return [interval.value
                 for interval in self.scale.get_chromatic_interval_list().relative_intervals()]
 
-    def _chromatic_absolute_list(self):
+    def _chromatic_absolute_list(self) -> List[int]:
         """The scale's chromatic intervals from the tonic, as plain ints, excluding the unison (0) and octave
         (12) endpoints."""
         # Removing the first and last element which are 0 and 12.
         return [interval.value
                 for interval in self.scale.get_chromatic_interval_list().absolute_intervals()][1:-1]
 
-    def _absolute_list(self):
+    def _absolute_list(self) -> List[Interval]:
         """The scale's (diatonic) intervals from the tonic, excluding the unison and octave endpoints."""
         # Removing the first and last element which are 0 and 12.
         return self.scale.get_interval_list().absolute_intervals()[1:-1]
 
-    def increasing_relative_field(self):
+    def increasing_relative_field(self) -> str:
         """Comma-separated chromatic step sizes, tonic to octave."""
         return ", ".join(str(value) for value in self._chromatic_relative_list())
 
-    def decreasing_relative_field(self):
+    def decreasing_relative_field(self) -> str:
         """Comma-separated chromatic step sizes, octave down to tonic."""
         return ", ".join(str(value) for value in reversed(self._chromatic_relative_list()))
 
-    def increasing_absolute_field(self):
+    def increasing_absolute_field(self) -> str:
         """Comma-separated interval notations from the tonic, ascending."""
         return ", ".join(interval.notation() for interval in self._absolute_list())
 
-    def decreasing_absolute_field(self):
+    def decreasing_absolute_field(self) -> str:
         """Comma-separated interval notations from the octave, descending (each interval expressed as its
         distance down from the octave)."""
         return ", ".join((Interval.unison().add_octave(1) -interval).notation() for interval in reversed(self._absolute_list()))

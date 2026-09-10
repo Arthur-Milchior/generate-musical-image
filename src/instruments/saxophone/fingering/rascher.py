@@ -17,7 +17,7 @@ class RascherFingering(SaxophoneFingering):
             buttons: Iterator[SaxophoneButton],
             fingering_symbol: FingeringSymbol = FingeringSymbol.RASCHER,
             test:bool = False,
-            authors = rascher_authors) -> Self:
+            authors: frozenset[str] = rascher_authors) -> Self:
         """Build a Rascher fingering for `chromatic_note_description`, pressing `buttons` plus the implicit
         `octave`/`e_flat` keys. `fingering_symbol` and `authors` accept only their default values (Rascher-only
         author/symbol) so that `add_semi_tone`/`add_octave`/etc. (which call this via `SaxophoneFingering`'s
@@ -27,7 +27,7 @@ class RascherFingering(SaxophoneFingering):
         buttons = frozenset(buttons) | {octave, e_flat}
         return super().make(chromatic_note_description=chromatic_note_description, buttons=buttons, authors=authors, fingering_symbol=fingering_symbol, test=test)
 
-    def _add_buttons_interval(self, interval, *args):
+    def _add_buttons_interval(self, interval: int, *args: Union[SaxophoneButton, FingeringSymbol]) -> "SaxophoneFingering":
         """Like `SaxophoneFingering._add_buttons_interval`, but always tags the result `FingeringSymbol.RASCHER`
         (Rascher fingerings never carry another symbol)."""
         return super()._add_buttons_interval(interval, *args, FingeringSymbol.RASCHER)

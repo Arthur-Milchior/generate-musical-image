@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import sys
-from typing import ClassVar, Dict, Generic, List, Optional, Self, Type, TypeVar, Union
+from typing import ClassVar, Dict, Generic, List, Optional, Self, Tuple, Type, TypeVar, Union
 
 from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern, IntervalList
 from solfege.value.note.chromatic_note import ChromaticNote
@@ -56,19 +56,19 @@ class PatternWithIntervalLists(Recordable[IntervalList, RecordKeeperType], Class
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `record` to True (register into the record keeper on construction)."""
         defaut_dict = super()._default_arguments_for_constructor(args, kwargs)
         defaut_dict["record"] = True
         return defaut_dict
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Pass `record` through positional-to-keyword normalization."""
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "record")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate `record`'s type, then, if True, register this pattern's interval list(s) into the
         record keeper (`_associate_keys_to_self()`)."""
         assert_typing(self.record, bool)

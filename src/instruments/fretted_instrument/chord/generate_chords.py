@@ -7,7 +7,7 @@ at the bottom of the file."""
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cache
-from typing import Callable, Dict, Generic, List, Optional, Type
+from typing import Callable, Dict, Generic, List, Optional, Tuple, Type
 from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
 from instruments.fretted_instrument.chord.chord_utils import enumerate_fretted_instrument_chords
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
@@ -50,31 +50,31 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
     """Accumulates one `ChordDecompositionAnkiNote` per maximal, non-redundant chord fingering (populated by
     `register_decompositions`)."""
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Constant hash: instances are mutable containers not expected to be hashed meaningfully."""
         # Not expected to be needed.
         return 0
 
-    def min_fret(self):
+    def min_fret(self) -> int:
         """The lowest fret considered when enumerating chord fingerings."""
         return 1
 
-    def max_fret(self):
+    def max_fret(self) -> int:
         """The highest fret considered when enumerating chord fingerings."""
         return 6
 
-    def recorded_container_getter(self, pattern: InversionInstantiation, chromatic_note: ChromaticNote):
+    def recorded_container_getter(self, pattern: InversionInstantiation, chromatic_note: ChromaticNote) -> ChromaticInversionInstantiation:
         """Build the `ChromaticInversionInstantiation` key identifying `pattern` anchored at `chromatic_note`."""
         assert_typing(chromatic_note, ChromaticNote)
         return ChromaticInversionInstantiation(pattern, chromatic_note)
 
-    def folder_name(self):
+    def folder_name(self) -> str:
         """The output folder for this instrument's chord CSVs/SVGs (created if missing)."""
         path = f"{self.instrument.generated_folder_name()}/chord"
         ensure_folder(path)
         return path
 
-    def register_all_chords(self):
+    def register_all_chords(self) -> RecordKeeper[ChromaticInversionInstantiation, ChordOnFrettedInstrument, ChromaticInversionInstantiationAndItsChords]:
         """Enumerate every fingering (frets `min_fret()`-`max_fret()`, plus open/not-played) on `instrument`,
         keep only those with at least 4 distinct notes, no gap of not-played strings between played ones, and an
         `EASY` playability, then -- if its chromatic intervals match a registered `InversionPattern` and it
@@ -120,7 +120,7 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
             self.record_keeper.register(key=chromatic_inversion_instantiation, recorded=fretted_instrument_chord)
         return self.record_keeper
     
-    def register_decompositions(self):
+    def register_decompositions(self) -> None:
         """For each registered chord group, take its maximal fingerings (excluding redundant ones and ones with
         repeated notes) and append a `ChordDecompositionAnkiNote` for each to `decompositions`."""
         for chromatic_identical_inversion_and_its_open_chords in self.anki_note_containers():
@@ -140,7 +140,7 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
 
     #pragma mark - DataClassWithDefaultArgument
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Build a fresh `record_keeper` for `instrument` and default `decompositions` to an empty list."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "instrument")
         instrument = kwargs["instrument"]
@@ -148,13 +148,13 @@ class AnkiNotesPreparation(DataClassWithDefaultArgument):
         kwargs["decompositions"] = list()
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Immediately run chord enumeration and decomposition registration on construction."""
         super().__post_init__()
         self.register_all_chords()
         self.register_decompositions()
 
-def generate_instrument(instrument: FrettedInstrument):
+def generate_instrument(instrument: FrettedInstrument) -> None:
     """Generate `instrument`'s two chord Anki CSVs: `decomposition.csv` (maximal fingerings broken down by note
     role, sorted by ease of play) and `equivalent_chords.csv` (fingerings grouped by chord, sorted by ease of
     the underlying pattern/inversion), both written under `instrument`'s "chord" output folder."""
@@ -176,7 +176,7 @@ def generate_instrument(instrument: FrettedInstrument):
     anki_note_container_csv = "\n".join(anki_note_container.csv(folder_path=folder_path) for anki_note_container in anki_note_containers)
     save_file(f"{folder_path}/equivalent_chords.csv", anki_note_container_csv)
 
-def generate_instruments():
+def generate_instruments() -> None:
     """Run `generate_instrument` for every instrument in `fretted_instruments` (Guitar, Ukulele, Bass)."""
     for instrument in fretted_instruments:
         generate_instrument(instrument)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from lily.staff.lily_chord_staff import LilyChordStaff
 from solfege.value.interval.diatonic_interval import DiatonicInterval
 from solfege.value.interval.interval import Interval
@@ -20,7 +20,7 @@ class LilySingleNoteStaff(LilyChordStaff):
     # Pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce `note` via `Note.make_single_argument`, then force `notes` to the singleton list `[note]` so the
         inherited `LilyChordStaff` rendering has exactly one note to draw."""
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "note", Note.make_single_argument)
@@ -28,7 +28,7 @@ class LilySingleNoteStaff(LilyChordStaff):
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         return args, kwargs
 
-    def get_8_va(self):
+    def get_8_va(self) -> int:
         """Number of octaves of `\\ottava` shift needed above the staff: 0 if `note` is within the normal ambitus
         for the clef (up to F6 for treble, F4 for bass), else how many octaves above that threshold it sits
         (rounded up)."""
@@ -43,7 +43,7 @@ class LilySingleNoteStaff(LilyChordStaff):
             return 0
         return (self.note.get_diatonic() - first_note_in_ottavia).octave()+1
 
-    def get_8_vb(self):
+    def get_8_vb(self) -> int:
         """Number of octaves of `\\ottava` shift needed below the staff: 0 if `note` is within the normal ambitus
         for the clef (down to E3 for treble, C2 for bass), else how many octaves below that threshold it sits
         (rounded up)."""

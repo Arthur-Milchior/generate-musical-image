@@ -40,6 +40,6 @@ class FretDelta(AbstractDelta[Frets, Fret]):
         return Frets.make(closed_fret_interval=(min_t, max_t), allow_open=False, allow_not_played=False, absolute=origine.absolute)
 
     @classmethod
-    def create_empty_ts(cls):
+    def create_empty_ts(cls) -> Frets:
         """The empty `Frets` range."""
         return Frets.empty()

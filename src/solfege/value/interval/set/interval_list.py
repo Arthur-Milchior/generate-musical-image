@@ -19,7 +19,7 @@ class IntervalList(AbstractIntervalListPattern[Interval]):
     """Storage type for `_absolute_intervals`."""
 
     @classmethod
-    def _note_list_constructor(cls):
+    def _note_list_constructor(cls) -> Callable[["NoteType"], "AbstractNoteList"]:
         """Return `NoteList`, the note-list type matching full (chromatic+diatonic) intervals."""
         from solfege.value.note.set.note_list import NoteList
         return NoteList
@@ -40,7 +40,7 @@ class IntervalList(AbstractIntervalListPattern[Interval]):
         `make`'s coercion, since the fields are already the right types)."""
         return IntervalList(self._absolute_intervals, self.increasing)
 
-    def best_enharmonic_starting_note(self, chromatic_note: "ChromaticNote"):
+    def best_enharmonic_starting_note(self, chromatic_note: "ChromaticNote") -> "Note":
         """Among every enharmonic spelling of `chromatic_note` (e.g. C# vs Db), pick the one that
         yields the "easiest" (fewest/smallest alterations) instantiation of this pattern."""
         from solfege.value.note.chromatic_note import ChromaticNote

@@ -30,12 +30,12 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
     """The diatonic (scale-degree) component of this value."""
 
     @classmethod
-    def make_instance_of_selfs_class(cls: Type["Pair"], _chromatic: ChromaticType, _diatonic: DiatonicType):
+    def make_instance_of_selfs_class(cls: Type["Pair"], _chromatic: ChromaticType, _diatonic: DiatonicType) -> "Pair":
         """Build a new instance of `cls` from an explicit chromatic and diatonic component."""
         return cls.make(_chromatic, _diatonic)
 
     @classmethod
-    def from_chromatic(cls, chromatic: ChromaticType):
+    def from_chromatic(cls, chromatic: ChromaticType) -> "Pair":
         """Return the `Pair` matching `chromatic`, spelled using the diatonic note that a major scale
         would use at that chromatic position (i.e. no sharps/flats: black keys are spelled as the
         diatonic note below them, e.g. C# is spelled using diatonic C). Use `all_from_chromatic` to get
@@ -46,7 +46,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         return cls(chromatic, diatonic)
 
     @classmethod
-    def all_from_chromatic(cls, chromatic: ChromaticType):
+    def all_from_chromatic(cls, chromatic: ChromaticType) -> List["Pair"]:
         """Return every `Pair` (i.e. every valid diatonic spelling, such as C#/Db, or B#/C/Dbb) that
         shares the given chromatic value, within one octave of enharmonic spellings."""
         assert_typing(chromatic, cls.ChromaticClass)
@@ -69,7 +69,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         return [cls(chromatic, diatonic) for diatonic in diatonics]
 
     @classmethod
-    def from_diatonic(cls, diatonic: DiatonicType, scale: str="Major"):
+    def from_diatonic(cls, diatonic: DiatonicType, scale: str="Major") -> "Pair":
         """Return the `Pair` combining `diatonic` with the chromatic value it has in `scale` (only
         "Major" is currently supported, i.e. no sharps/flats)."""
         assert_typing(diatonic, cls.DiatonicClass)
@@ -78,7 +78,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
                                              diatonic.in_base_octave().value] + 12 * diatonic.octave())
         return cls.make(chromatic, diatonic)
 
-    def __eq__(self, other: "Pair"):
+    def __eq__(self, other: "Pair") -> bool:
         """Two pairs are equal iff both their diatonic and chromatic components are equal (so G# != Ab)."""
         diatonicEq = self._diatonic == other._diatonic
         chromaticEq = self.get_chromatic() == other.get_chromatic()
@@ -105,16 +105,16 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
             tba["The note which is too big"] = self
             raise
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Evaluable repr, e.g. `Note.make(0, 0)`, reusing the raw chromatic/diatonic int values."""
         return f"{self.__class__.__name__}.make({self.get_chromatic().value}, {self._diatonic.value})"
 
-    def __le__(self, other: "Pair"):
+    def __le__(self, other: "Pair") -> bool:
         """Ordered by (chromatic, diatonic), chromatic taking precedence."""
         assert_typing(other, self.__class__)
         return (self.get_chromatic(), self._diatonic) <= (other.get_chromatic(), other._diatonic)
 
-    def __lt__(self, other: "Pair"):
+    def __lt__(self, other: "Pair") -> bool:
         """Ordered by (chromatic, diatonic), chromatic taking precedence."""
         assert_typing(other, self.__class__)
         return (self.get_chromatic(), self._diatonic) < (other.get_chromatic(), other._diatonic)
@@ -126,7 +126,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         return f"""{self.get_chromatic().value, self._diatonic.value}"""
 
     @classmethod
-    def _make_single_argument(cls, arg: Union[Tuple[int, int], int]):
+    def _make_single_argument(cls, arg: Union[Tuple[int, int], int]) -> "Pair":
         """If there are two arguments, it's chromatic, diatonic. If there is a single arg, it's chromatic, diatonic is one (useful for most scale). If it's already a Pair, return it."""
         if isinstance(arg, tuple):
             assert 2<=len(arg) <= 3
@@ -136,7 +136,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
     
     #pragma mark - ChromaticGetter
 
-    def get_chromatic(self):
+    def get_chromatic(self) -> ChromaticType:
         """Return the chromatic component of this pair."""
         return self._chromatic
 
@@ -148,7 +148,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
 
     #pragma mark - Abstract
 
-    def octave(self):
+    def octave(self) -> int:
         """The octave, derived from the diatonic component (see `Singleton.octave`)."""
         return self._diatonic.octave()
 
@@ -164,7 +164,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         ...
 
     # Pragma mark - DataClassWithDefaultArgument
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that the chromatic/diatonic components are instances of this class's declared
         `ChromaticClass`/`DiatonicClass`."""
         assert_typing(self.get_chromatic(), self.ChromaticClass)
@@ -172,7 +172,7 @@ class Pair(Abstract, MakeableWithSingleArgument, ChromaticGetter, DiatonicGetter
         super().__post_init__()
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce the `_chromatic`/`_diatonic` constructor arguments via each component class's
         `make_single_argument`, so e.g. a bare int can be passed instead of a full `Chromatic` instance."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)

@@ -15,7 +15,7 @@ class FrettedPositionMakerForNote(FrettedPositionMakerWithLetter):
     rather than an interval role."""
     #pragma mark - FrettedPositionMakerForInterval
 
-    def text(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument):
+    def text(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> str:
         """The note name (with octave, symbol-style alteration, letter notation, no fixed length) for `pos`'s
         chromatic note."""
         note = pos.get_chromatic()

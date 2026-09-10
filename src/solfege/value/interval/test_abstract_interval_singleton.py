@@ -1,14 +1,15 @@
 import unittest
+from typing import Self
 
 from solfege.value.interval.singleton_interval import AbstractSingletonInterval
 
 class FakeSingletonInterval(AbstractSingletonInterval):
     """Minimal concrete `AbstractSingletonInterval` used only to exercise the base class's behavior
     in isolation, without pulling in `ChromaticInterval`/`DiatonicInterval` specifics."""
-    def get_chromatic(self):
+    def get_chromatic(self) -> Self:
         """Return self: a test double, its chromatic component is itself."""
         return self
-    def get_diatonic(self):
+    def get_diatonic(self) -> Self:
         """Return self: a test double, its diatonic component is itself."""
         return self
 
@@ -20,33 +21,33 @@ class TestBaseIntervalSingleton(unittest.TestCase):
     deux = FakeSingletonInterval.make(2)
     trois = FakeSingletonInterval.make(3)
 
-    def test_is_note(self):
+    def test_is_note(self) -> None:
         """An interval is never a note."""
         self.assertFalse(self.zero.is_note())
 
-    def test_get_number(self):
+    def test_get_number(self) -> None:
         """`value` returns the raw int passed to `make`."""
         self.assertEqual(self.zero.value, 0)
 
-    def test_equal(self):
+    def test_equal(self) -> None:
         """Equality compares by value."""
         self.assertEqual(self.zero, self.zero)
         self.assertNotEqual(self.un, self.zero)
         self.assertEqual(self.un, self.un)
 
-    def test_add(self):
+    def test_add(self) -> None:
         """Addition sums the raw values."""
         self.assertEqual(self.un + self.deux, self.trois)
 
-    def test_neg(self):
+    def test_neg(self) -> None:
         """Negation flips the sign of the raw value."""
         self.assertEqual(-self.un, self.moins_un)
 
-    def test_sub(self):
+    def test_sub(self) -> None:
         """Subtraction is addition of the negation."""
         self.assertEqual(self.trois - self.deux, self.un)
 
-    def test_lt(self):
+    def test_lt(self) -> None:
         """Ordering compares by raw value."""
         self.assertLess(self.un, self.deux)
         self.assertLessEqual(self.un, self.deux)
@@ -57,7 +58,7 @@ class TestBaseIntervalSingleton(unittest.TestCase):
     #     expected = "FakeSingletonInterval.make(value=1)"
     #     self.assertEqual(actual, expected)
 
-    def test_mul(self):
+    def test_mul(self) -> None:
         """Multiplying by an int scales the raw value."""
         self.assertEqual(self.zero * 4, self.zero)
         # self.assertEqual(self.un * 2, self.deux)

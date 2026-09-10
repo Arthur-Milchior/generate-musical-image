@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, Self, TypeVar
+from typing import ClassVar, Self, TypeVar, Union
 from solfege.value.getters import DiatonicGetter
 from solfege.value.singleton import Singleton
 from utils.util import assert_typing
@@ -17,7 +17,7 @@ class Diatonic(Singleton, DiatonicGetter[Self]):
     """Diatonic values divide the octave into 7 scale degrees."""
 
     #Pragma public
-    def __add__(self, other):
+    def __add__(self, other: Union["Pair", Self]) -> Self:
         """Add another value. If `other` is a `Pair` (chromatic+diatonic), only its diatonic component
         is used, since a purely diatonic value has no chromatic part to add."""
         from solfege.value.pair import Pair
@@ -27,7 +27,7 @@ class Diatonic(Singleton, DiatonicGetter[Self]):
 
     #pragma mark - DiatonicGetter
 
-    def get_diatonic(self):
+    def get_diatonic(self) -> Self:
         """Return self: a `Diatonic` value is already its own diatonic component."""
         return self
 

@@ -1,6 +1,6 @@
 
 
-from typing import ClassVar, List, Type
+from typing import ClassVar, List, Optional, Type
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.chromatic_interval_list_to_patterns import ChromaticIntervalListToPatterns
 from solfege.value.interval.set.interval_list import ChromaticIntervalListPattern
@@ -16,7 +16,7 @@ class ChromaticIntervalListToChordPattern(ChromaticIntervalListToPatterns[ChordP
     _recorded_container_type: ClassVar[Type] = list
     """Same as RecordedContainerType."""
 
-    def is_key_valid(self, key: ChromaticIntervalListPattern):
+    def is_key_valid(self, key: ChromaticIntervalListPattern) -> bool:
         """Only interval lists strictly within one octave are valid chord shapes."""
         return key.is_in_base_octave()
 
@@ -26,7 +26,7 @@ class ChromaticIntervalListToChordPattern(ChromaticIntervalListToPatterns[ChordP
         return list()
 
     # public
-    def get_chord(self, chromatic_interval_list: ChromaticIntervalListPattern):
+    def get_chord(self, chromatic_interval_list: ChromaticIntervalListPattern) -> Optional[ChordPattern]:
         """The single `ChordPattern` registered under `chromatic_interval_list`, or None if there is none."""
         patterns = self.get_recorded_container(chromatic_interval_list)
         if patterns:

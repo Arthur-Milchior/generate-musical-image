@@ -21,7 +21,7 @@ class ColorsWithTonic(Colors, ABC):
         ...
     #pragma mark - dataclass
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `tonic` is a `ChromaticNote`."""
         assert_typing(self.tonic, ChromaticNote)
 
@@ -31,7 +31,7 @@ class ColorsWithTonic(Colors, ABC):
         """A short identifier for this maker, including the tonic's value, used when naming generated files."""
         return f"{self.__class__.__name__}_with_tonic_{self.tonic.value}"
 
-    def get_color_from_note(self, chromatic_note: ChromaticNote):
+    def get_color_from_note(self, chromatic_note: ChromaticNote) -> str:
         """The color for `chromatic_note`, computed from its interval above `tonic` via `get_color_from_interval`."""
         assert_typing(chromatic_note, ChromaticNote)
         return self.get_color_from_interval(chromatic_note - self.tonic)

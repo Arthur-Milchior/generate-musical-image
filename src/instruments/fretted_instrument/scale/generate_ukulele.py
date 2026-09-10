@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Generator
+from typing import ClassVar, Generator
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Ukulele
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
@@ -30,13 +30,14 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
     """The scale/arpeggio pattern this note is generated for."""
     # note 3 and 4 are the same. One octave higher than note 1. This ensure that
     # if we generate a scale starting on note 3 and 4 and it's the same pattern than a two-octave scale on note 1, the actual positions are the same.
-    start_pos = PositionOnFrettedInstrument.make(Ukulele.string(2), Fret.make(5, absolute=False))
+    start_pos: ClassVar[PositionOnFrettedInstrument] = PositionOnFrettedInstrument.make(Ukulele.string(2), Fret.make(5, absolute=False))
+    """Fixed reference position (string 2, 5th fret) used as the transposition anchor when generating each fingering."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `scale_pattern` has the right type."""
         assert_typing(self.scale_pattern, ScalePattern)
 
-    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
+    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers) -> str:
         """Transpose `scale` to start at fret one, resolve its fingering, render it, and return the saved
         SVG's file name."""
         assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
@@ -69,7 +70,7 @@ class ScaleOnUkuleleAnkiNote(CsvGenerator):
         else:
             yield ""
 
-def generate_ukulele():
+def generate_ukulele() -> None:
     """Generate the Anki notes (and diagrams) for every registered scale/arpeggio pattern on ukulele, and
     save them as a CSV."""
     anki_notes = []

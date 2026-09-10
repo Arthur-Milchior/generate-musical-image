@@ -11,7 +11,7 @@ class RecordedContainer(ABC, Generic[RecordedType]):
     
     Should not be called "value" as this word is already used for interval and notes."""
     @abstractmethod
-    def append(self, pattern: RecordedType):
+    def append(self, pattern: RecordedType) -> None:
         """Add `pattern` to the container. Subclasses decide what happens on a duplicate/conflicting key (see
         e.g. `SingletonContainer.same_key_behavior`)."""
 

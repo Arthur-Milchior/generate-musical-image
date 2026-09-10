@@ -13,7 +13,7 @@ class FrettedPositionMaker(DataClassWithDefaultArgument, ABC):
     diagram, possibly with a color and/or a text label) as SVG. Subclasses vary in how they pick the dot's color
     (see `colored_position_maker/`) and whether they add letter/finger labels (see `maker_with_letters/`)."""
 
-    def svg_content(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument):
+    def svg_content(self, instrument: FrettedInstrument, pos: PositionOnFrettedInstrument) -> Generator[str]:
         """The full SVG content for `pos` (currently just `svg_lines`; kept separate as the hook for an
         eventual per-style `<style>` block, see the commented-out code below)."""
         # class_to_style = self.style()

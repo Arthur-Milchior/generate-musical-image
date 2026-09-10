@@ -15,7 +15,7 @@ class TestAccordinaNote(unittest.TestCase):
     """Checks the grid-geometry math on `AccordinaNote` (`_column`, `_diagonal_number`, `_row`,
     `first_note_of_diagonal`, `last_note_of_diagonal`) against a run of consecutive semitones from C4."""
 
-    def test_column(self):
+    def test_column(self) -> None:
         """`_column` cycles 0, 1, 2 every 3 semitones."""
         self.assertEqual(C4._column(), 0)
         self.assertEqual(C4_sharp._column(), 1)
@@ -23,7 +23,7 @@ class TestAccordinaNote(unittest.TestCase):
         self.assertEqual(D4_sharp._column(), 0)
         self.assertEqual(C5._column(), 0)
 
-    def test_diagonal_number(self):
+    def test_diagonal_number(self) -> None:
         """`_diagonal_number` increments every 3 semitones."""
         self.assertEqual(C4._diagonal_number(), 0)
         self.assertEqual(C4_sharp._diagonal_number(), 0)
@@ -31,7 +31,7 @@ class TestAccordinaNote(unittest.TestCase):
         self.assertEqual(D4_sharp._diagonal_number(), 1)
         self.assertEqual(C5._diagonal_number(), 4)
 
-    def test_first_diagonal(self):
+    def test_first_diagonal(self) -> None:
         """`first_note_of_diagonal` returns the lowest note sharing the same diagonal as `self`."""
         self.assertEqual(C4.first_note_of_diagonal(), C4)
         self.assertEqual(C4_sharp.first_note_of_diagonal(), C4)
@@ -39,7 +39,7 @@ class TestAccordinaNote(unittest.TestCase):
         self.assertEqual(D4_sharp.first_note_of_diagonal(), D4_sharp)
         self.assertEqual(E4.first_note_of_diagonal(), D4_sharp)
 
-    def test_last_diagonal(self):
+    def test_last_diagonal(self) -> None:
         """`last_note_of_diagonal` returns the highest note sharing the same diagonal as `self`."""
         self.assertEqual(C4.last_note_of_diagonal(), D4)
         self.assertEqual(C4_sharp.last_note_of_diagonal(), D4)
@@ -47,7 +47,7 @@ class TestAccordinaNote(unittest.TestCase):
         self.assertEqual(D4_sharp.last_note_of_diagonal(), F4)
         self.assertEqual(E4.last_note_of_diagonal(), F4)
 
-    def test_row(self):
+    def test_row(self) -> None:
         """`_row` combines column and diagonal number into the note's grid row."""
         self.assertEqual(C4._row(), 0)
         self.assertEqual(C4_sharp._row(), 1)

@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from functools import cache
-from typing import ClassVar, Generic, List, Type
+from typing import ClassVar, Dict, Generator, Generic, List, Tuple, Type, Union
 
 from instruments.fretted_instrument.chord.chord_decomposition_anki_note import ChordDecompositionAnkiNote
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument, FrettedInstrumentChordFrozenList
@@ -46,7 +46,7 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         """The chord pattern (with its inversion) this container is collecting fingerings for."""
         return self.key.pattern
 
-    def append(self, fretted_instrument_chord: ChordOnFrettedInstrument):
+    def append(self, fretted_instrument_chord: ChordOnFrettedInstrument) -> None:
         """Register one more fingering of the chord, then keep `fretted_instrument_chords` sorted by ease of
         play. Asserts `fretted_instrument_chord`'s actual chromatic intervals from its lowest note match one of
         the interval lists expected for `key`'s pattern, and that it isn't already registered."""
@@ -58,14 +58,14 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         self.fretted_instrument_chords.append(fretted_instrument_chord)
         self.fretted_instrument_chords.sort(key = lambda chord: chord.best_chord_key())
 
-    def is_smaller_than_known_chord(self, small_chord: ChordOnFrettedInstrument):
+    def is_smaller_than_known_chord(self, small_chord: ChordOnFrettedInstrument) -> bool:
         """Whether some already-registered chord strictly contains `small_chord` (via `ChordOnFrettedInstrument.__lt__`)."""
         for big_chord in self.fretted_instrument_chords:
             if small_chord < big_chord:
                 return True
         return False
-    
-    def sort(self):
+
+    def sort(self) -> None:
         """Sort the list of chords. Starting with smallest number of frets, and in case of equality greater number of notes"""
         self.fretted_instrument_chords.sort(key=lambda fretted_instrument_chord: (fretted_instrument_chord.number_of_frets(allow_open=False), -fretted_instrument_chord.number_of_distinct_notes()))
 
@@ -73,24 +73,24 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
         """Return the elements of the list that are not strictly contained in other elements of the list."""
         self.sort()
         return FrettedInstrumentChordFrozenList(fretted_instrument_chord for fretted_instrument_chord in self.fretted_instrument_chords if not self.is_smaller_than_known_chord(fretted_instrument_chord))
-    
-    def decompositions(self):
+
+    def decompositions(self) -> List[ChordDecompositionAnkiNote]:
         """Return ChordDecompositionAnkiNote for all maximal chords sorted by easyness"""
         return sorted([
             ChordDecompositionAnkiNote(self.instrument, self.key, chord)
             for chord in self.maximals()
         ], key=lambda decomposition: decomposition.easy_key())
 
-    def all_fretted_instrument_chords(self):
+    def all_fretted_instrument_chords(self) -> FrettedInstrumentChordFrozenList:
         """All registered fingerings (not just the maximal ones), as a `FrettedInstrumentChordFrozenList`."""
         return FrettedInstrumentChordFrozenList(self.fretted_instrument_chords)
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[ChordOnFrettedInstrument]:
         """Iterate over the registered fingerings, sorted (see `sort`)."""
         self.sort()
         yield from self.fretted_instrument_chords
 
-    def names(self):
+    def names(self) -> List[str]:
         """The chord's notation(s): the tonic-based name (e.g. "Cmaj7"), plus, for a non-root inversion, a second
         "<chord>/<bass note>" slash-notation name."""
         inversion = self.get_inversion_pattern()
@@ -121,33 +121,33 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
 
     # Used for anki:
 
-    def __len__(self):
+    def __len__(self) -> int:
         """How many fingerings have been registered."""
         return len(self.fretted_instrument_chords)
 
-    def first_name(self):
+    def first_name(self) -> str:
         """The chord's primary notation (see `names`)."""
         return self.names()[0]
 
-    def other_names(self):
+    def other_names(self) -> str:
         """Any secondary notation(s) from `names` (typically the slash-chord form for an inversion), comma-joined."""
         names = self.names()
         assert_iterable_typing(names, str)
         other_names = names[1:]
         return ", ".join(other_names)
 
-    def source_field(self):
+    def source_field(self) -> str:
         """The chord pattern's Wikipedia (or other) source(s), as clickable links -- see ChordPattern.source."""
         pattern = self.get_inversion_pattern().base
         links = ", ".join(f'<a href="{url}">{url}</a>' for url in pattern.source)
         return links.replace('"', "'")
 
-    def description_field(self):
+    def description_field(self) -> str:
         """The chord pattern's description -- see ChordPattern.description. May contain HTML links."""
         pattern = self.get_inversion_pattern().base
         return pattern.description.replace('"', "'")
 
-    def plain_and_numbered_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument):
+    def plain_and_numbered_field(self, folder_path: str, fretted_chord: ChordOnFrettedInstrument) -> Tuple[str, str]:
         """Generate the svg for the `fretted_chord` and its decompositions. Add the csv for decomposition in chord_decompositions"""
         is_open = fretted_chord.is_open()
         transposed_chord, transposition = fretted_chord, 0 if fretted_chord.is_open() else fretted_chord.transpose_to_fret_one()
@@ -167,13 +167,13 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     
     #pragma mark - ClassWithEasyness
 
-    def easy_key(self):
+    def easy_key(self) -> Tuple[Tuple[int, int], int]:
         """The easiest list of chords are the chords for the easiest pattern and then the one which has the easiest instantiation."""
         return (self.key.easy_key(), self.fretted_instrument_chords[0].easy_key())
 
     #Pragma mark - CsvGenerator
 
-    def csv_content(self, folder_path: str):
+    def csv_content(self, folder_path: str) -> Generator[str]:
         """Yield this container's Anki fields: name, other names, instrument, source, description, then up to 7
         maximal chords each as a (plain diagram, colored diagram) pair, padded with blanks if fewer than 7
         exist, followed by any further maximal chords' diagrams comma-joined into two overflow fields."""
@@ -196,13 +196,13 @@ class ChromaticInversionInstantiationAndItsChords(RecordedContainer[ChordOnFrett
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `fretted_instrument_chords` to an empty list when not supplied."""
         default = super()._default_arguments_for_constructor(args, kwargs)
         default["fretted_instrument_chords"] = list()
         return default
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate the types of `key` and `fretted_instrument_chords`."""
         assert_typing(self.key, ChromaticInversionInstantiation)
         assert_typing(self.fretted_instrument_chords, list)

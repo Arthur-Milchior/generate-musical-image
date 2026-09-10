@@ -22,7 +22,7 @@ class IntervalListToInversionPattern(IntervalListToPattern[InversionPattern]):
     _chromatic_recorded_container_type: ClassVar[Type] = SingletonContainer
     """The container type used by the chromatic-only companion record keeper (see `make_chromatic_record_keeper`)."""
 
-    def is_key_valid(self, key: ChromaticIntervalListPattern):
+    def is_key_valid(self, key: ChromaticIntervalListPattern) -> bool:
         """Only interval lists strictly within one octave are valid chord/inversion shapes."""
         return key.is_in_base_octave()
 
@@ -36,6 +36,6 @@ class IntervalListToInversionPattern(IntervalListToPattern[InversionPattern]):
     #pragma mark - IntervalListToPattern
 
     @classmethod
-    def make_chromatic_record_keeper(cls):
+    def make_chromatic_record_keeper(cls) -> ChromaticIntervalListToInversionPattern:
         """Build the companion `ChromaticIntervalListToInversionPattern`."""
         return ChromaticIntervalListToInversionPattern.make()

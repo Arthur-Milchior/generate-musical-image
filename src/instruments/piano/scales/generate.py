@@ -81,7 +81,7 @@ class ScoreFixedPatternFirstNoteNumberOfOctaves:
     """`<li>` HTML snippets for every rendered score, in generation order."""
 
 
-def flatten(notess: List[List[PianoNote]]):
+def flatten(notess: List[List[PianoNote]]) -> List[PianoNote]:
     """Concatenate a list of note-lists (e.g. one list per octave/pattern repetition) into a single flat list."""
     return [note for notes in notess for note in notes]
 
@@ -228,7 +228,7 @@ class MissingFingering:
     for_right_hand: bool
     """Whether it's the right hand (True) or left hand (False) fingering that is missing."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Human-readable one-line description, as written to `cant_exists.txt`."""
         return f"""Missing {"right" if self.for_right_hand else "left"} {self.note} {self.scale_pattern.first_of_the_names()}"""
 

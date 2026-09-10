@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import dataclasses
-from typing import Callable, ClassVar, Generic, Iterable, List, Self, Tuple, Type, TypeVar
+from typing import Any, Callable, ClassVar, Generic, Iterable, Iterator, List, Self, Tuple, Type, TypeVar, Union
 
 from utils.util import T, assert_all_same_class, assert_iterable_typing, assert_typing
 
@@ -12,7 +12,7 @@ class MakeableWithSingleArgument(ABC):
     value objects by hand (see `utils/README.md`)."""
 
     @classmethod
-    def make_single_argument(cls, arg) -> Self:
+    def make_single_argument(cls, arg: Any) -> Self:
         """Return `arg` unchanged if it's already an instance of `cls`, otherwise build one from it via
         `_make_single_argument` (and assert the result really is a `cls`)."""
         if isinstance(arg, cls):
@@ -25,7 +25,7 @@ class MakeableWithSingleArgument(ABC):
 
     @classmethod
     @abstractmethod
-    def _make_single_argument(cls, arg) -> Self:
+    def _make_single_argument(cls, arg: Any) -> Self:
         """Build an instance of `cls` from the loosely-typed `arg`. Only called when `arg` isn't already a `cls`."""
 
     @abstractmethod
@@ -46,7 +46,7 @@ class FrozenList(Generic[T]):
     type: ClassVar[Type]
     """The element type this list is restricted to; set by each concrete subclass."""
 
-    def __init__(self, arg: Iterable[T] = None):
+    def __init__(self, arg: Iterable[T] = None) -> None:
         """Build from `arg` (defaulting to empty). Makes a private copy of `arg`; if `type` implements
         `MakeableWithSingleArgument`, each element is coerced via `type.make_single_argument(...)` first. Asserts
         every resulting element is an instance of `type`."""
@@ -64,24 +64,24 @@ class FrozenList(Generic[T]):
         """Return a new instance of the same class with `f` applied to every element."""
         return self.__class__([f(t) for t in self._l])
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[T]:
         """Iterate over the elements, in order."""
         return iter(self._l)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash based on the elements as a tuple, so equal `FrozenList`s hash equal."""
         return hash(tuple(self._l))
 
-    def __eq__(self, other: Self):
+    def __eq__(self, other: Self) -> bool:
         """Equal iff `other` is the same class and holds the same elements in the same order."""
         assert_typing(other, self.__class__)
         return self._l == other._l
 
-    def list(self):
+    def list(self) -> List[T]:
         """Return a copy of the underlying list."""
         return list(self._l)
 
-    def append(self, value):
+    def append(self, value: T) -> Self:
         """Return a new instance with `value` appended (does not mutate `self`)."""
         l = self.list()
         l.append(value)
@@ -97,12 +97,12 @@ class FrozenList(Generic[T]):
             assert_all_same_class(other)
         return self.__class__(self._l + other)
 
-    def __getitem__(self, index) -> T:
+    def __getitem__(self, index: Union[int, slice]) -> T:
         """Return the element at `index` (`int`) or a new plain list slice (`slice`)."""
         assert isinstance(index, int) or isinstance(index, slice)
         return self._l[index]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """`ClassName([elt1, elt2, ...])`; elements use `repr_single_argument()` when `type` implements
         `MakeableWithSingleArgument` (to avoid nested class-name noise), else plain `repr()`."""
         if issubclass(self.type, MakeableWithSingleArgument):
@@ -111,7 +111,7 @@ class FrozenList(Generic[T]):
             l = [repr(elt) for elt in self]
         return f"{self.__class__.__name__}([{", ".join(l)}])"
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Number of elements."""
         return len(self._l)
 
@@ -119,7 +119,7 @@ class FrozenList(Generic[T]):
         """Return `(first element, remaining elements as a new instance)`. Raises `IndexError` if empty."""
         return (self._l[0], self.__class__(self._l[1:]))
 
-    def __mul__(self, other: int):
+    def __mul__(self, other: int) -> Self:
         """Return a new instance with the elements repeated `other` times, like `list * int`."""
         assert_typing(other, int)
         return self.__class__(self._l * other)

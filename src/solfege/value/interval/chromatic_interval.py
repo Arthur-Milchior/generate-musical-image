@@ -30,7 +30,7 @@ class ChromaticInterval(AbstractSingletonInterval, Chromatic):
 
     #Public
 
-    def get_interval_name(self, octave=True, side: IntervalNameCreasing=IntervalNameCreasing.NEVER):
+    def get_interval_name(self, octave: bool=True, side: IntervalNameCreasing=IntervalNameCreasing.NEVER) -> str:
         """The name of the interval.
 
         octave -- For example: if this variable is set true, the name is given as "supertonic and one octave".

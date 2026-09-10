@@ -33,7 +33,7 @@ class FrettedInstrumentIntervalAnkiNote(CsvGenerator, SvgSaver):
     pos2: PositionOnFrettedInstrument
     """The higher-numbered-string position of the pair."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate types, that at least one position is at fret 0 or 1, and that `pos1`'s string precedes
         `pos2`'s."""
         assert_typing(self.pos1, PositionOnFrettedInstrument)
@@ -41,15 +41,15 @@ class FrettedInstrumentIntervalAnkiNote(CsvGenerator, SvgSaver):
         assert self.pos1.fret.value < 2 or self.pos2.fret.value < 2
         assert self.pos1.string < self.pos2.string
 
-    def key(self):
+    def key(self) -> str:
         """Compact identifier for this pair: `"<string1><fret1>-<string2><fret2>"`."""
         return f"{self.pos1.string.value}{self.pos1.fret.value}-{self.pos2.string.value}{self.pos2.fret.value}"
 
-    def interval(self):
+    def interval(self) -> "ChromaticInterval":
         """The chromatic interval between the two positions (`pos2` minus `pos1`)."""
         return self.pos2 - self.pos1
 
-    def pos_difference(self):
+    def pos_difference(self) -> str:
         """The difference between the two frets, formatted as text with an explicit sign (`"=0"`, `"+n"` or
         `"-n"`)."""
         v = self.pos2.fret.value - self.pos1.fret.value
@@ -60,17 +60,17 @@ class FrettedInstrumentIntervalAnkiNote(CsvGenerator, SvgSaver):
         else:
             return f"+{v}"
 
-    def difference_name(self):
+    def difference_name(self) -> str:
         """Human-readable name of the interval (decreasing-only naming convention)."""
         return self.interval().get_interval_name(side = IntervalNameCreasing.DECREASING_ONLY)
 
     #pragma mark - SvgSaver
 
-    def _svg_name_base(self):
+    def _svg_name_base(self) -> str:
         """Base file name for the diagram: instrument name plus this pair's `key()`."""
         return f"{self.instrument.get_name()}_{self.key()}"
 
-    def svg(self):
+    def svg(self) -> str:
         """Render the diagram with both positions marked (in black, unlabeled)."""
         return SetOfPositionOnFrettedInstrument(PositionOnFrettedInstrumentFrozenList({self.pos1, self.pos2}), absolute=False).svg(instrument=self.instrument, fretted_position_maker=BlackOnly())
 

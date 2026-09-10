@@ -7,7 +7,7 @@
 # =18144 images
 # Taking 4 seconds each, it takes 20 hours
 from dataclasses import dataclass, astuple
-from typing import Optional, List, Callable, Tuple
+from typing import Optional, List, Callable, Tuple, Iterator, Union
 
 from _lily.Lilyable.list_piano_lilyable import ListPianoLilyable
 from _lily.Lilyable.piano_lilyable import LiteralPianoLilyable, lilypond_code_for_one_hand
@@ -118,7 +118,7 @@ class BestPenaltyScale:
     fingerings: List[Tuple[List[PianoNote], Fingering]]
     """Every fingering achieving `penalty`, as a (fingered notes, summarizing `Fingering`) pair."""
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Union[PenaltyForScale, List[Tuple[List[PianoNote], Fingering]]]]:
         """Iterate over `(penalty, fingerings)`, so a `BestPenaltyScale` can be unpacked like a 2-tuple."""
         return iter(astuple(self))
 

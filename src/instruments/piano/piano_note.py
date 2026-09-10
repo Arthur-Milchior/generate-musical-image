@@ -15,7 +15,7 @@ class PianoNote(Note):
     """The finger (1 = thumb, ..., 5 = pinky) used to play this note."""
 
     @classmethod
-    def make_instance_of_selfs_class(cls, _chromatic, _diatonic):
+    def make_instance_of_selfs_class(cls, _chromatic: ChromaticNote, _diatonic: DiatonicNote) -> Note:
         """Build the plain `Note` (not a `PianoNote`) resulting from arithmetic on this note.
 
         Overrides `AbstractNote.make_instance_of_selfs_class` so that adding/subtracting an interval to/from a
@@ -23,7 +23,7 @@ class PianoNote(Note):
         meaningless to keep `self.finger` around."""
         return Note.make(_chromatic, _diatonic)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate the note, then check that `finger` is a legal finger number (1 to 5)."""
         super().__post_init__()
         assert 1<=self.finger<=5
@@ -32,7 +32,7 @@ class PianoNote(Note):
     def make(cls,
              chromatic: Union[ChromaticNote, int],
              diatonic: Union[DiatonicNote, int],
-             finger=int) -> Self:
+             finger: int = int) -> Self:
         """Create a `PianoNote` from chromatic/diatonic values and a finger number.
 
         `chromatic`/`diatonic` may be raw ints or `ChromaticNote`/`DiatonicNote` instances, as accepted by
@@ -42,16 +42,16 @@ class PianoNote(Note):
         return cls.from_note_and_finger(note=note, finger=finger)
 
     @staticmethod
-    def from_note_and_finger(note: Note, finger: int):
+    def from_note_and_finger(note: Note, finger: int) -> "PianoNote":
         """Return the `PianoNote` obtained by attaching `finger` to an existing `note`."""
         return PianoNote(_chromatic=note.get_chromatic(), _diatonic=note.get_diatonic(), finger=finger)
 
     @staticmethod
-    def from_name(name: str, finger: int):
+    def from_name(name: str, finger: int) -> "PianoNote":
         """Return the `PianoNote` for the note spelled `name` (e.g. "C#4"), played with `finger`."""
         return PianoNote.from_note_and_finger(Note.from_name(name), finger)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Union["PianoNote", Note]) -> bool:
         """Equal to another `PianoNote` with the same pitch and finger, or to a plain `Note`/pitch with the same
         pitch (finger is then ignored)."""
         if isinstance(other, PianoNote):
@@ -59,19 +59,19 @@ class PianoNote(Note):
                 return False
         return self.value == other.value and self.get_diatonic() == other.get_diatonic()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash combining the underlying note's hash with the finger."""
         return hash((super().__hash__(), self.finger))
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Human-readable form: the note's own string representation, suffixed with `-<finger>`."""
         return f"{super().__str__()}-{self.finger}"
 
-    def lily_comment(self):
+    def lily_comment(self) -> str:
         """LilyPond comment text (just the finger number) attached to this note when rendering."""
         return str(self.finger)
 
-    def syntax_for_lily(self):
+    def syntax_for_lily(self) -> str:
         """LilyPond syntax for this note, suffixed with `-<finger>` so LilyPond prints the fingering annotation.
 
         Re-raises `TooBigAlterationException` from the parent with this note attached for context."""
@@ -81,11 +81,11 @@ class PianoNote(Note):
             tba["The note which is too big"] = self
             raise
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """`eval`-able representation, reconstructing this `PianoNote` via `PianoNote.make`."""
         return f"""PianoNote.make(_chromatic={self.value}, _diatonic={self.get_diatonic().value}, finger={self.finger})"""
 
-    def valid_next_fingers(self, next_note: Note, for_right_hand: bool):
+    def valid_next_fingers(self, next_note: Note, for_right_hand: bool) -> List[int]:
         """Return the fingers that may legally play `next_note` right after this note.
 
         Dispatches to `valid_next_fingers_for_same_note` if `next_note` is the same pitch, otherwise to

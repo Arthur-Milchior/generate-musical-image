@@ -27,7 +27,7 @@ class SetOfPositionsOnFrettedInstrumentFrozenList(FrozenList[SetOfPositionOnFret
     """The element type enforced by this `FrozenList`."""
 
 
-def empty_set_of_position(instrument: FrettedInstrument, absolute: bool):
+def empty_set_of_position(instrument: FrettedInstrument, absolute: bool) -> SetOfPositionOnFrettedInstrument:
     """An empty `SetOfPositionOnFrettedInstrument` for `instrument`, with the given `absolute` flag."""
     assert_typing(instrument, FrettedInstrument)
     return SetOfPositionOnFrettedInstrument.make([], absolute=absolute)

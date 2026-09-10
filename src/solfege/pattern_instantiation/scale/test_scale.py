@@ -10,7 +10,7 @@ C4 = Note.make(0, 0)
 minor_melodic_C4 = Scale(minor_melodic, C4)
 
 class TestScale(unittest.TestCase):
-    def test_generate(self):
+    def test_generate(self) -> None:
         """One ascending octave of C melodic minor matches the expected note-by-note spelling."""
 
         expected = NoteList.make(notes=[
@@ -26,7 +26,7 @@ class TestScale(unittest.TestCase):
         generated = minor_melodic_C4.get_notes()
         self.assertEqual(expected, generated)
 
-    def test_generate_two(self):
+    def test_generate_two(self) -> None:
         """Two ascending octaves of C melodic minor produce 15 notes spanning two octaves."""
         expected = NoteList.make(notes=[
             Note.make(0, 0),
@@ -48,7 +48,7 @@ class TestScale(unittest.TestCase):
         generated = minor_melodic_C4.get_notes(number_of_octaves=2)
         self.assertEqual(expected, generated)
 
-    def test_generate_two_extra(self):
+    def test_generate_two_extra(self) -> None:
         """Two ascending octaves plus `add_an_extra_note` appends one more note (a repeated tonic)."""
         expected = NoteList.make(notes=[
             Note.make(0, 0),
@@ -71,7 +71,7 @@ class TestScale(unittest.TestCase):
         generated = minor_melodic_C4.get_notes(number_of_octaves=2, add_an_extra_note=True)
         self.assertEqual(expected, generated)
 
-    def test_generate_minus_two(self):
+    def test_generate_minus_two(self) -> None:
         """A negative `number_of_octaves` generates the scale descending instead of ascending."""
         from solfege.pattern.scale.scale_patterns import minor_melodic
         expected = NoteList.make(notes=[
@@ -94,7 +94,7 @@ class TestScale(unittest.TestCase):
         generated = minor_melodic_C4.get_notes(number_of_octaves=-2)
         self.assertEqual(expected, generated)
 
-    def test_generate_minus_two_extra(self):
+    def test_generate_minus_two_extra(self) -> None:
         """Descending generation with `add_an_extra_note` appends one more note past the last full octave."""
         from solfege.pattern.scale.scale_patterns import minor_melodic
         expected = NoteList.make(notes=[

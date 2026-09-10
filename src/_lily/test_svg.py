@@ -573,15 +573,15 @@ c0 -74 18 -133 36 -194c80 97 146 198 146 324z" fill="currentColor"/>
 
     maxDiff = None
 
-    def test_remove_xlink(self):
+    def test_remove_xlink(self) -> None:
         """`remove_xlink` strips the `xlink:href="textedit:..."` editor-link attributes LilyPond embeds."""
         self.assertEqual(remove_xlink(self.example_input), self.example_no_xlink)
 
-    def test_rect(self):
+    def test_rect(self) -> None:
         """`rect` builds a background `<rect>` sized to the SVG's own `viewBox`."""
         self.assertEqual(rect(self.example_input, "white"), """<rect x="8.5358" width="38.5749" y="-0.0000" height="8.5450" fill="white"/>""")
 
-    def test_add_background(self):
+    def test_add_background(self) -> None:
         """`add_background` inserts a background `<rect>` right after the `<style>` block."""
         self.assertEqual(add_background(self.example_input, "white"), self.expected)
 
@@ -591,7 +591,7 @@ c0 -74 18 -133 36 -194c80 97 146 198 146 324z" fill="currentColor"/>
     example_output_path = "example_output.svg"
     """Scratch file path `test_file` writes the cleaned SVG to."""
 
-    def test_file(self):
+    def test_file(self) -> None:
         """`clean_svg` end-to-end: reads a raw SVG file, strips xlinks and adds a background, writes the result
         to a new file."""
         save_file(self.example_input_path, self.example_input)

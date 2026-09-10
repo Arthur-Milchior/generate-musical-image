@@ -30,24 +30,24 @@ class PatternWithName(DataClassWithDefaultArgument):
     """Whether to record this pattern in the list of patterns."""
 
 
-    def first_of_the_names(self, for_file= False) -> str:
+    def first_of_the_names(self, for_file: bool = False) -> str:
         """The first of all the names associated to this pattern. Hopefully the most canonical one"""
         name = self.names[0] 
         if for_file:
             return name.replace(" ", "_")
         return name
 
-    def get_names(self):
+    def get_names(self) -> StrFrozenList:
         """All the names associated to this pattern"""
         return self.names
 
     @classmethod
-    def get_all_instances(cls):
+    def get_all_instances(cls) -> List["PatternWithName"]:
         """All recorded instances of this concrete pattern class, in creation order."""
         return cls.all_patterns
 
     @classmethod
-    def get_from_name(cls, name: str):
+    def get_from_name(cls, name: str) -> Optional["PatternWithName"]:
         """The recorded instance of this class registered under `name`, or None if there is none."""
         return cls.name_to_pattern.get(name)
 
@@ -55,7 +55,7 @@ class PatternWithName(DataClassWithDefaultArgument):
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `record` to True (register on construction) and `notation` to None (no symbolic notation)."""
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["record"] = True
@@ -63,7 +63,7 @@ class PatternWithName(DataClassWithDefaultArgument):
         return default_dict
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce `names` into a `StrFrozenList` and pass `notation`/`record` through positional-to-keyword
         normalization."""
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "names", StrFrozenList)
@@ -71,7 +71,7 @@ class PatternWithName(DataClassWithDefaultArgument):
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "record")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate field types, then, when `record` is True, register `self` into `all_patterns` and
         `name_to_pattern` under every one of `names` -- asserting each name isn't already taken (the usual
         cause of that assertion firing is a module being imported twice)."""

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Dict, Iterator, List, Type, Union
+from typing import ClassVar, Dict, Iterator, List, Tuple, Type, Union
 from solfege.pattern.solfege_pattern import SolfegePattern
 from solfege.value.interval.interval import Interval
+from utils.recording.record_keeper import RecordKeeperType
 
 @dataclass(frozen=True)
 class IntervalPattern(SolfegePattern, ABC):
@@ -24,7 +25,7 @@ class IntervalPattern(SolfegePattern, ABC):
         return NotImplemented
 
     @classmethod
-    def _new_record_keeper(cls):
+    def _new_record_keeper(cls) -> RecordKeeperType:
         """Interval patterns are not recorded in a `RecordKeeper` (there's no "which interval pattern
         matches this interval" lookup use case, unlike chords/scales)."""
         # we won't record interval
@@ -33,11 +34,11 @@ class IntervalPattern(SolfegePattern, ABC):
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Translate the constructor's simplified `name`/`interval` arguments into the underlying
         `SolfegePattern` fields: wraps `name` into a singleton `names` list, disables recording, and
         builds `_absolute_intervals` as `[unison, interval]` (every pattern starts from the unison)."""
-        def singleton(x):
+        def singleton(x: str) -> List[str]:
             """Wrap `x` in a single-element list."""
             return [x]
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "name", singleton)

@@ -4,6 +4,8 @@ outline with that hole highlighted and an arrow showing air direction. Running t
 `python3 -m instruments.harmonica`, see `__main__.py`) regenerates all 20 files. Smaller/less developed than
 the other instrument packages: it has no solfege/note-to-fingering model — the images are static per
 hole/direction, not per note."""
+from typing import TextIO
+
 from consts import generate_root_folder
 from utils.util import *
 
@@ -15,7 +17,7 @@ square = 30
 of this to keep the whole diagram proportional."""
 
 
-def drawHarmonica(f, pos, draw):
+def drawHarmonica(f: TextIO, pos: int, draw: bool) -> None:
     """Write one complete harmonica SVG to file object `f`: the 10-hole outline with each hole numbered, hole
     `pos` (1-10) highlighted in red, and a red arrow through it pointing up if `draw` else down (draw vs. blow)."""
     f.write(

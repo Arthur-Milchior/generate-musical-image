@@ -8,7 +8,7 @@ from instruments.fretted_instrument.chord.test_constants import *
 
 strings = list(Guitar.strings())
 
-def position_make(string, fret):
+def position_make(string: Union[String, int], fret: Union[Fret, int]) -> PositionOnFrettedInstrument:
     """Build a `PositionOnFrettedInstrument` on Guitar, accepting either a `String`/`Fret` or a plain
     int (string number / absolute fret value) for either argument."""
     if isinstance(string, int):
@@ -18,7 +18,7 @@ def position_make(string, fret):
     return PositionOnFrettedInstrument.make(string=string, fret=fret)
 
 class TestHandForFrettedInstrumentChord(unittest.TestCase):
-    def assertHandEqual(self, expected: HandForChordForFrettedInstrument, actual: HandForChordForFrettedInstrument):
+    def assertHandEqual(self, expected: HandForChordForFrettedInstrument, actual: HandForChordForFrettedInstrument) -> None:
         """Assert that two `HandForChordForFrettedInstrument` instances assign the same position to each
         finger, the same barre status, and the same open strings."""
         self.assertEqual(expected.one, actual.one)
@@ -29,7 +29,7 @@ class TestHandForFrettedInstrumentChord(unittest.TestCase):
         self.assertEqual(expected.zero_fret, actual.zero_fret)
         self.assertEqual(expected.opens, actual.opens)
 
-    def test_make(self):
+    def test_make(self) -> None:
         """`compute_hand` assigns fingers/open strings matching hand-picked expectations for three chord
         shapes (C4M, C4M_, F4M — the last one barred)."""
         expected = HandForChordForFrettedInstrument(instrument = Guitar,
@@ -63,7 +63,7 @@ class TestHandForFrettedInstrumentChord(unittest.TestCase):
         )
 
 
-    def test_regression_502220(self):
+    def test_regression_502220(self) -> None:
         """Regression: the 5-0-2-2-2-0 shape's computed hand must match the expected finger assignment and
         stay rated unplayable."""
         chord = ChordOnFrettedInstrument.make(Guitar, [5, 0, 2, 2, 2, 0], absolute=True)

@@ -46,43 +46,43 @@ class AccordinaNote(ChromaticNote, SvgLine):
     """Whether this note represents a fixed, absolute place on the instrument (drawn black/white like a piano
     key when not selected) rather than a relative position within a displayed scale/chord/interval."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return an `AccordinaNote(...)`-shaped string for debugging."""
         return f"""AccordinaNote(value={self.value}, selected={self.selected}, absolute={self.absolute})"""
 
-    def _nunber_of_semitone_from_c(self):
+    def _nunber_of_semitone_from_c(self) -> int:
         """Return the chromatic `value`, i.e. the number of semitones from C (the grid's column/row math is
         expressed in terms of this)."""
         return self.value
 
-    def make_instance_of_selfs_class(self, value: int):
+    def make_instance_of_selfs_class(self, value: int) -> "AccordinaNote":
         """Return a new `AccordinaNote` at chromatic `value`, keeping this note's `selected`/`absolute` flags
         (used by `ChromaticNote` arithmetic, e.g. `+`/`-`, to build a same-typed result)."""
         return AccordinaNote(value, selected=self.selected, absolute = self.absolute)
 
-    def _column(self):
+    def _column(self) -> int:
         """Return the grid column (0, 1 or 2) this note falls into."""
         return self._nunber_of_semitone_from_c() % 3
 
-    def _diagonal_number(self):
+    def _diagonal_number(self) -> int:
         """Return the index of the diagonal (group of 3 consecutive semitones) this note belongs to."""
         return self._nunber_of_semitone_from_c() // 3
 
-    def _row(self):
+    def _row(self) -> int:
         """Return the grid row this note is drawn on, combining its column and diagonal number."""
         return self._column() + 2* self._diagonal_number()
 
-    def first_note_of_diagonal(self):
+    def first_note_of_diagonal(self) -> "AccordinaNote":
         """Return the lowest (leftmost) note on this note's diagonal, clamped to `min_accordina_note`, as an
         unselected note (used to determine where a diagram should start drawing)."""
         return max(self - ChromaticInterval.make(self._column()), min_accordina_note).copy(selected=False)
 
-    def last_note_of_diagonal(self):
+    def last_note_of_diagonal(self) -> "AccordinaNote":
         """Return the highest (rightmost) note on this note's diagonal, clamped to `max_accordina_note`, as an
         unselected note (used to determine where a diagram should stop drawing)."""
         return min(self + ChromaticInterval.make(2 - self._column()), max_accordina_note).copy(selected=False)
 
-    def copy(self, selected: Optional[bool] = None, absolute: Optional[bool] = None):
+    def copy(self, selected: Optional[bool] = None, absolute: Optional[bool] = None) -> "AccordinaNote":
         """Return a copy of this note, overriding `selected`/`absolute` where given and keeping the current
         value otherwise."""
         return AccordinaNote(value = self.value,
@@ -90,7 +90,7 @@ class AccordinaNote(ChromaticNote, SvgLine):
                               absolute=absolute if absolute is not None else self.absolute
                               )
 
-    def fill_color(self):
+    def fill_color(self) -> str:
         """Return this button's fill color: black/white by piano key color if `absolute`, else red if
         `selected` and white otherwise."""
         if self.absolute:
@@ -104,7 +104,7 @@ class AccordinaNote(ChromaticNote, SvgLine):
             else:
                 return "white"
 
-    def stroke_color(self):
+    def stroke_color(self) -> str:
         """Return this button's outline color: red if `absolute` and `selected`, black otherwise."""
         if self.absolute:
             if self.selected:
@@ -114,15 +114,15 @@ class AccordinaNote(ChromaticNote, SvgLine):
         else:
             return "black"
 
-    def __eq__(self, other):
+    def __eq__(self, other: "AccordinaNote") -> bool:
         """Equal if `other` is an `AccordinaNote` with the same pitch and the same `selected` state."""
         return isinstance(other, AccordinaNote) and super().__eq__(other) and self.selected == other.selected
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash consistently with `__eq__`, combining the pitch hash with `selected`."""
         return hash((super().__hash__(), self.selected))
 
-    def svg_line(self, min_note: Optional['AccordinaNote'] = None):
+    def svg_line(self, min_note: Optional['AccordinaNote'] = None) -> str:
         """Return this note's SVG `<circle>`. `min_note`, if given, is the lowest note pictured in the diagram
         (used as the row-0 reference so this note's row is expressed relative to it, i.e. how far up the
         diagram it is drawn); with no `min_note`, this note's own absolute row is used."""

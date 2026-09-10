@@ -20,7 +20,7 @@ class DiatonicInterval(AbstractSingletonInterval, Diatonic):
 
     #public
 
-    def get_interval_name(self, showOctave=True):
+    def get_interval_name(self, showOctave: bool=True) -> str:
         """The English name of the interval (e.g. "third", "octave and fifth"), decreasing intervals
         getting a " decreasing" suffix. `showOctave` controls whether extra octaves are mentioned."""
         if self.value == 0:

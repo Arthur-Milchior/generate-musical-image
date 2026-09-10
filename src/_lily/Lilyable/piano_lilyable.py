@@ -38,7 +38,7 @@ class PianoLilyable(Lilyable, ABC):
         """The lily code for the annotation"""
         ...
 
-    def __eq__(self, other: PianoLilyable):
+    def __eq__(self, other: PianoLilyable) -> bool:
         """Two `PianoLilyable`s are equal if they share the same first key, left/right-hand code, and
         annotations."""
         return self.first_key() == other.first_key() and self.left_lily() == other.left_lily() and self.right_lily() == other.right_lily() and self.annotations_lily() == other.annotations_lily()
@@ -76,7 +76,7 @@ class PianoLilyable(Lilyable, ABC):
         """The treble-clef staff for the right hand, or `None` if `right_lily()` is `None`."""
         return self._staff("treble", self.right_lily())
 
-    def _piano_staff(self):
+    def _piano_staff(self) -> Optional[str]:
         """The combined staff group: a `\\new PianoStaff<<...>>` with both hands if both are present, or just
         the single present staff otherwise. Asserts at least one hand is present."""
         left = self._left_staff()
@@ -89,7 +89,7 @@ class PianoLilyable(Lilyable, ABC):
 >>"""
         return left or right
 
-    def lily(self, midi: bool = False):
+    def lily(self, midi: bool = False) -> str:
         """The full `\\score{...}` block: the piano staff group, plus a `\\new Lyrics` block for the annotation
         if any, plus a `\\midi{}`/`\\layout{}` block if `midi` is true."""
         midi_str = """

@@ -18,7 +18,7 @@ class TestChromaticNote(TestChromaticInterval):
     C3 = ChromaticNote(-12)
     B2 = ChromaticNote(-13)
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Restore `ChromaticNote`'s cross-class links, which other tests may have overwritten."""
         super().setUp()
         from solfege.value.note.diatonic_note import DiatonicNote
@@ -28,7 +28,7 @@ class TestChromaticNote(TestChromaticInterval):
         ChromaticNote.PairClass = Note
         ChromaticNote.AlterationClass = NoteAlteration
 
-    def test_classes(self):
+    def test_classes(self) -> None:
         """`ChromaticNote`'s class-level links (interval/chromatic/pair/diatonic classes) point
         to the expected classes."""
         self.assertEqual(ChromaticNote.IntervalClass, ChromaticInterval)
@@ -40,17 +40,17 @@ class TestChromaticNote(TestChromaticInterval):
     # def test_is_note(self):
     #     self.assertTrue(self.C4.is_note())
 
-    def test_get_number(self):
+    def test_get_number(self) -> None:
         """The `value` attribute exposes the raw chromatic (half-tone) position."""
         self.assertEqual(self.C4.value, 0)
 
-    def test_equal(self):
+    def test_equal(self) -> None:
         """Equality compares by chromatic value."""
         self.assertEqual(self.C4, self.C4)
         self.assertNotEqual(self.D4, self.C4)
         self.assertEqual(self.D4, self.D4)
 
-    def test_add(self):
+    def test_add(self) -> None:
         """Adding a `ChromaticInterval` to a note (either order) shifts it; adding two notes fails."""
         self.assertEqual(self.D4 + self.third_minor, self.F4)
         self.assertEqual(self.third_minor + self.D4, self.F4)
@@ -59,12 +59,12 @@ class TestChromaticNote(TestChromaticInterval):
         with self.assertRaises(Exception):
             _ = self.D4 + self.D4
 
-    def test_neg(self):
+    def test_neg(self) -> None:
         """Negating a note is not supported."""
         with self.assertRaises(Exception):
             _ = -self.D4
 
-    def test_sub(self):
+    def test_sub(self) -> None:
         """Subtracting an interval shifts the note; subtracting a note yields an interval; a note
         cannot be subtracted from an interval."""
         self.assertEqual(self.F4 - self.third_minor, self.D4)
@@ -72,17 +72,17 @@ class TestChromaticNote(TestChromaticInterval):
         with self.assertRaises(Exception):
             _ = self.third_minor - self.D4
 
-    def test_lt(self):
+    def test_lt(self) -> None:
         """Notes order by chromatic value."""
         self.assertLess(self.D4, self.F4)
         self.assertLessEqual(self.D4, self.F4)
         self.assertLessEqual(self.D4, self.D4)
 
-    def test_repr(self):
+    def test_repr(self) -> None:
         """`repr` shows the constructor call that would rebuild the note."""
         self.assertEqual(repr(self.D4), "ChromaticNote(value=2)")
 
-    def test_octave(self):
+    def test_octave(self) -> None:
         """`octave` returns the octave index (0 for the octave containing middle C)."""
         self.assertEqual(self.C4.octave(), 0)
         self.assertEqual(self.B4.octave(), 0)
@@ -91,14 +91,14 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertEqual(self.B2.octave(), -2)
         self.assertEqual(self.C5.octave(), 1)
 
-    def test_add_octave(self):
+    def test_add_octave(self) -> None:
         """`add_octave` shifts a note by whole octaves."""
         self.assertEqual(self.C5.add_octave(-1), self.C4)
         self.assertEqual(self.C4.add_octave(1), self.C5)
         self.assertEqual(self.C5.add_octave(-2), self.C3)
         self.assertEqual(self.C3.add_octave(2), self.C5)
 
-    def test_same_note_in_base_octave(self):
+    def test_same_note_in_base_octave(self) -> None:
         """`in_base_octave` folds a note into the reference octave, keeping diatonic-letter
         identity (e.g. B3 folds to B4, not C4)."""
         self.assertEqual(self.C5.in_base_octave(), self.C4)
@@ -107,7 +107,7 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertEqual(self.D4.in_base_octave(), self.D4)
         self.assertEqual(self.B3.in_base_octave(), self.B4)
 
-    def test_same_note_in_different_octaves(self):
+    def test_same_note_in_different_octaves(self) -> None:
         """`equals_modulo_octave` is true only for the same pitch class across octaves."""
         self.assertFalse(self.D4.equals_modulo_octave(self.C4))
         self.assertFalse(self.D4.equals_modulo_octave(self.C5))
@@ -118,7 +118,7 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertTrue(self.C4.equals_modulo_octave(self.C3))
         self.assertTrue(self.C5.equals_modulo_octave(self.C3))
 
-    def test_get_interval_name(self):
+    def test_get_interval_name(self) -> None:
         """`get_name_up_to_octave` spells every chromatic value (0-14 and -1..-14) as a letter
         name with symbol alteration, using sharps ascending and flats descending."""
         self.assertEqual(ChromaticNote(0).get_name_up_to_octave(note_output=NoteOutput.LETTER, alteration_output=AlterationOutput.SYMBOL, fixed_length=FixedLengthOutput.NO), "C")
@@ -151,7 +151,7 @@ class TestChromaticNote(TestChromaticInterval):
         self.assertEqual(ChromaticNote(-13).get_name_up_to_octave(note_output=NoteOutput.LETTER, alteration_output=AlterationOutput.SYMBOL, fixed_length=FixedLengthOutput.NO), "B")
         self.assertEqual(ChromaticNote(-14).get_name_up_to_octave(note_output=NoteOutput.LETTER, alteration_output=AlterationOutput.SYMBOL, fixed_length=FixedLengthOutput.NO), "B♭")
 
-    def test_get_name_with_octave(self):
+    def test_get_name_with_octave(self) -> None:
         """`get_name_with_octave` appends the scientific-notation octave number to the note
         name, across a two-octave range."""
         self.assertEqual(ChromaticNote(0).get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.SYMBOL, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO), "C4")
@@ -216,7 +216,7 @@ class TestChromaticNote(TestChromaticInterval):
     #     self.assertEqual(ChromaticNote(-13).get_pair(), Note.make(-13, -8))
     #     self.assertEqual(ChromaticNote(-14).get_pair(), Note.make(-14, -8))
 
-    def test_mul(self):
+    def test_mul(self) -> None:
         """Multiplying a note by a scalar is not supported."""
         with self.assertRaises(Exception):
             _ = self.D4 * 4

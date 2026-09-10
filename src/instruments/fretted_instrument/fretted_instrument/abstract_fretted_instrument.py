@@ -1,6 +1,6 @@
 import copy
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Tuple
 
 from instruments.fretted_instrument.position.positions_consts import DISTANCE_BETWEEN_STRING
 from instruments.fretted_instrument.position.fret.fret_delta import FretDelta
@@ -39,10 +39,10 @@ class AbstractFrettedInstrument(DataClassWithDefaultArgument):
     # pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Deep-copy and symmetrize `finger_to_fret_delta_chord`/`finger_to_fret_delta_scale` (deriving delta[j][i]
         as `-delta[i][j]`) and coerce `clef`/`number_of_scales_reachable_per_string` to their expected types."""
-        def clean_finger_to_fret_delta(open_strings: Dict[int, Dict[int, FretDelta]]):
+        def clean_finger_to_fret_delta(open_strings: Dict[int, Dict[int, FretDelta]]) -> Dict[int, Dict[int, FretDelta]]:
             """Deep-copy `open_strings` (a finger-to-finger-to-`FretDelta` mapping, named for the constructor
             argument this coercion is applied to) and fill in the reverse deltas: `[higher][lower]` becomes
             `-delta[lower][higher]` for every finger pair, so callers only need to specify one direction."""
@@ -55,7 +55,7 @@ class AbstractFrettedInstrument(DataClassWithDefaultArgument):
                     assert_typing(delta, FretDelta)
                     open_strings[higher][lower] = -delta
             return open_strings
-        def clean_open_strings(open_strings):
+        def clean_open_strings(open_strings: Iterable) -> ChromaticNoteFrozenList:
             """Coerce a list of open-string notes into a `ChromaticNoteFrozenList`. (Currently unused by any
             constructor argument below.)"""
             return ChromaticNoteFrozenList(open_strings)
@@ -69,7 +69,7 @@ class AbstractFrettedInstrument(DataClassWithDefaultArgument):
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "number_of_scales_reachable_per_string", IntFrozenList, type=IntFrozenList)
         return super()._clean_arguments_for_constructor(args, kwargs)
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate finger/fret-delta ranges are within [0, 4] fingers, symmetric, and that
         `number_of_scales_reachable_per_string` has one non-negative entry per string."""
         assert_typing(self._name, str)

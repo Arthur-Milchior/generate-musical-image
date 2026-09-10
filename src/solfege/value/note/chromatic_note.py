@@ -20,16 +20,16 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness[
     IntervalClass: ClassVar[Type[Singleton]] = ChromaticInterval
     """The interval class produced when adding/subtracting `ChromaticNote` instances."""
     @staticmethod
-    def from_name(name) -> "ChromaticNote":
+    def from_name(name: str) -> "ChromaticNote":
         """Parse a note name (e.g. "C#4") via `Note.from_name` and return its chromatic part."""
         from solfege.value.note.note import Note
         return Note.from_name(name).get_chromatic()
 
-    def get_color(self, color=True):
+    def get_color(self, color: bool=True) -> str:
         """Color to print the note in lilypond"""
         return "black"
 
-    def get_note(self, cls=None):
+    def get_note(self, cls: Optional[Type["Note"]] = None) -> "Note":
         """A solfège note. Diatonic note is guessed. The default class is
         Note. May return None if no diatonic note can be guessed. """
         from solfege.value.note.note import Note
@@ -40,11 +40,11 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness[
         diatonic = diatonic
         return cls(_diatonic=diatonic, _chromatic=self)
 
-    def is_white_key_on_piano(self):
+    def is_white_key_on_piano(self) -> bool:
         """Whether this note corresponds to a black note of the keyboard"""
         return not self.is_black_key_on_piano()
 
-    def is_black_key_on_piano(self):
+    def is_black_key_on_piano(self) -> bool:
         """Whether this note corresponds to a black note of the keyboard"""
         blacks = {1, 3, 6, 8, 10}
         return (self.get_chromatic().value % 12) in blacks
@@ -64,7 +64,7 @@ class ChromaticNote(AbstractSingletonNote[ChromaticInterval], ClassWithEasyness[
     def get_name_up_to_octave(self,
                               alteration_output: AlterationOutput,
                               note_output: NoteOutput,
-                              fixed_length: FixedLengthOutput):
+                              fixed_length: FixedLengthOutput) -> str:
         """Guess a diatonic spelling (via `get_note`) and delegate name formatting to it."""
         return self.get_note().get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)
 

@@ -6,7 +6,7 @@ from instruments.fretted_instrument.position.fret.frets import Frets
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.string.string_deltas import *
 
-def frets_make(*args, **kwargs):
+def frets_make(*args, **kwargs) -> Frets:
     """Shorthand to build an absolute `Frets` range."""
     return Frets.make(*args, **kwargs, absolute=True)
 
@@ -29,7 +29,7 @@ open_fret = Fret.make( 0, True)
 not_played_fret = Fret.make( None, True)
 
 class TestFrettedInstrumentFrets(unittest.TestCase):
-    def test_eq(self):
+    def test_eq(self) -> None:
         """Two `Frets` built with the same parameters are equal."""
         self.assertEqual(ALL_PLAYED, frets_make(closed_fret_interval=(1, Guitar.last_fret()), allow_open=True))
         self.assertEqual(ALL_CLOSED, frets_make(closed_fret_interval=(1, Guitar.last_fret()), allow_open=False))
@@ -38,21 +38,21 @@ class TestFrettedInstrumentFrets(unittest.TestCase):
         # self.assertEqual(AROUND_FIVE_SEVEN, frets_make((3, 9), True))
         # self.assertEqual(AROUND_FIVE_SEVEN, frets_make().restrict_around(Fret.make(5, True)).restrict_around(Fret.make(7, True)))
 
-    def test_is_empty(self):
+    def test_is_empty(self) -> None:
         """`is_empty()` is true only when neither open nor any closed fret is allowed."""
         self.assertFalse(ALL_PLAYED.is_empty())
         self.assertFalse(ONLY_OPEN.is_empty())
         self.assertTrue(NOT_PLAYED_FRETS.is_empty())
         self.assertTrue(CONTRADICTION.is_empty())
 
-    def test_is_contradiction(self):
+    def test_is_contradiction(self) -> None:
         """`is_contradiction()` is true only when the range is empty and not-played is also disallowed."""
         self.assertFalse(ALL_PLAYED.is_contradiction())
         self.assertFalse(ONLY_OPEN.is_contradiction())
         self.assertFalse(NOT_PLAYED_FRETS.is_contradiction())
         self.assertTrue(CONTRADICTION.is_contradiction())
 
-    def test_frets(self):
+    def test_frets(self) -> None:
         """Iterating a `Frets` range yields not-played (if allowed), then open (if allowed), then each closed fret in order."""
         self.assertEqual(list(ALL_PLAYED), [Fret.make(fret, True) for fret in range(0, 25)])
         self.assertEqual(list(ALL_CLOSED), [Fret.make(fret, True) for fret in range(1, 25)])

@@ -172,7 +172,7 @@ class SaxophoneFingering(ChromaticNote, SvgGenerator):
             value = chromatic_note_description
         return cls(buttons = buttons, fingering_symbol=fingering_symbol, authors = authors, test= test, value = value, fingerings=[])
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate `buttons`, then (unless `test`) register `self` under its pitch `value` in
         `value_to_fingering` so it's picked up when generating the fingering charts."""
         super().__post_init__()
@@ -186,21 +186,21 @@ class SaxophoneFingering(ChromaticNote, SvgGenerator):
             value_to_fingering[self.value] = []
         value_to_fingering[self.value].append(self)
 
-    def  __repr__(self):
+    def  __repr__(self) -> str:
         """Return a `SaxophoneFingering.make(...)`-shaped string that reconstructs this fingering, for
         debugging/assertion messages."""
         return f"""Fingering.make(value={self.get_name_with_octave()}, buttons={", ".join(str(button) for button in self.buttons)}, fingering_symbol={self.fingering_symbol})"""
 
-    def __eq__(self, other: "SaxophoneFingering"):
+    def __eq__(self, other: "SaxophoneFingering") -> bool:
         """Two fingerings are equal if they're for the same pitch and press the same `buttons`."""
         assert isinstance(other, SaxophoneFingering), f"""Comparing {other} to a fingering"""
         return self.buttons == other.buttons and super().__eq__(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash consistently with `__eq__`, combining the pitch hash with `buttons`."""
         return hash((super().__hash__(), self.buttons))
 
-    def _add_buttons_interval(self, interval: int, *args):
+    def _add_buttons_interval(self, interval: int, *args: Union[SaxophoneButton, FingeringSymbol]) -> "SaxophoneFingering":
         """Build a new `SaxophoneFingering` `interval` semitones away from `self`, adding the given buttons on
         top of `self.buttons`. `args` is the buttons to add, optionally followed by a trailing `FingeringSymbol`
         (defaulting to `N_COMPLETLY_EXPOSED` otherwise); shared by `add_octave`/`add_semi_tone`/`remove_semi_tone`/
@@ -225,28 +225,28 @@ class SaxophoneFingering(ChromaticNote, SvgGenerator):
             fingering_symbol = self.fingering_symbol
         return self._add_buttons_interval(12, octave, fingering_symbol)
 
-    def add_semi_tone(self, *args) -> "SaxophoneFingering":
+    def add_semi_tone(self, *args: Union[SaxophoneButton, FingeringSymbol]) -> "SaxophoneFingering":
         """Return the fingering a semitone higher, additionally pressing the given buttons (optionally ending
         in a `FingeringSymbol`)."""
         return self._add_buttons_interval(1, *args)
 
-    def remove_semi_tone(self, *args) -> "SaxophoneFingering":
+    def remove_semi_tone(self, *args: Union[SaxophoneButton, FingeringSymbol]) -> "SaxophoneFingering":
         """Return the fingering a semitone lower, additionally pressing the given buttons (optionally ending
         in a `FingeringSymbol`)."""
         return self._add_buttons_interval(-1, *args)
 
-    def silent_button(self, *args) -> "SaxophoneFingering":
+    def silent_button(self, *args: Union[SaxophoneButton, FingeringSymbol]) -> "SaxophoneFingering":
         """Return a fingering for the *same* pitch, additionally pressing the given buttons (optionally ending
         in a `FingeringSymbol`) — used for buttons that don't change the sound (e.g. held down only to ease a
         transition to/from an adjacent note)."""
         return self._add_buttons_interval(0, *args)
 
-    def add_tone(self, *args) -> "SaxophoneFingering":
+    def add_tone(self, *args: Union[SaxophoneButton, FingeringSymbol]) -> "SaxophoneFingering":
         """Return the fingering a whole tone higher, additionally pressing the given buttons (optionally ending
         in a `FingeringSymbol`)."""
         return self._add_buttons_interval(2, *args)
 
-    def remove_tone(self, *args) -> "SaxophoneFingering":
+    def remove_tone(self, *args: Union[SaxophoneButton, FingeringSymbol]) -> "SaxophoneFingering":
         """Return the fingering a whole tone lower, additionally pressing the given buttons (optionally ending
         in a `FingeringSymbol`)."""
         return self._add_buttons_interval(-2, *args)

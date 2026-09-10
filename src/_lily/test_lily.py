@@ -2,13 +2,22 @@
 `test_chord`/`test_compile`/`test_chord_compile` rely on `chord`/`compile_`, which no longer exist there (see
 `_lily/README.md`) — moot for now anyway since this module fails to even collect under pytest (a separate,
 pre-existing `'lily' is not a package` import-path issue, reproducible on a clean checkout)."""
+from __future__ import annotations
+
 import unittest
+from typing import List
 from _lily.lily import *
 
 from sh import shell
 
 class TestLily(unittest.TestCase):
-    def setUp(self):
+
+    c_pentatonic_minor_5th_right: List[PianoNote]
+    """The right-hand fixture built by `setUp`: an ascending C minor pentatonic 5th, fingered 1-2-3-5."""
+    c_pentatonic_minor_5th_left: List[PianoNote]
+    """The left-hand fixture built by `setUp`: a descending C minor pentatonic 5th, fingered 5-3-2-1."""
+
+    def setUp(self) -> None:
         """Build the two hand fixtures (`c_pentatonic_minor_5th_right`/`_left`) shared by the tests below."""
         from instruments.piano.piano_note import PianoNote
 
@@ -77,7 +86,7 @@ class TestLily(unittest.TestCase):
   }
 }"""
 
-    def test_indent(self):
+    def test_indent(self) -> None:
         """indent() prefixes every line of its input with two spaces."""
         self.assertEqual(indent("""foo
   bar"""), """  foo
@@ -224,7 +233,7 @@ class TestLily(unittest.TestCase):
     # }"""
     #         )
 
-    def test_chord(self):
+    def test_chord(self) -> None:
         """chord() renders a list of simultaneous notes as one LilyPond `<...>` chord on a single staff."""
         generated = chord(self.c_pentatonic_minor_5th_right, )
         self.assertEqual(generated,
@@ -242,7 +251,7 @@ class TestLily(unittest.TestCase):
   }
 }""")
 
-    def test_compile(self):
+    def test_compile(self) -> None:
         """compile_() writes the .ly source for a two-hand piece to disk and returns a callable that renders it to audio (played back via `vlc`, so this test requires manual audio verification)."""
         prefix_path = "test_arpeggio"
         lily_path = f"{prefix_path}.ly"
@@ -256,7 +265,7 @@ class TestLily(unittest.TestCase):
         cmd()
         shell(f"vlc {prefix_path}.wav&")
 
-    def test_chord_compile(self):
+    def test_chord_compile(self) -> None:
         """Like test_compile, but for a chord (`chords_lily`) rather than a melodic two-hand piece."""
         prefix_path = "test_chords"
         lily_path = f"{prefix_path}.ly"

@@ -19,7 +19,7 @@ class ChromaticIntervalListPattern(AbstractIntervalListPattern[ChromaticInterval
     """Storage type for `_absolute_intervals`."""
 
     @classmethod
-    def _note_list_constructor(cls):
+    def _note_list_constructor(cls) -> Callable[["NoteType"], "AbstractNoteList"]:
         """Return `ChromaticNoteList`, the note-list type matching purely chromatic intervals."""
         from solfege.value.note.set.note_list import ChromaticNoteList
         return ChromaticNoteList

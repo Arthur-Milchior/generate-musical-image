@@ -10,35 +10,35 @@ from solfege.pattern.chord.test_constants import *
 
 
 class TestChordPattern(unittest.TestCase):
-    def test_il_found(self):
+    def test_il_found(self) -> None:
         """The dominant seventh chord is registered under its full (root-position) interval list."""
         il = IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)])
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_recorded_container(il))
 
-    def test_il_no_fifth_found(self):
+    def test_il_no_fifth_found(self) -> None:
         """The dominant seventh chord is also registered under its fifth-omitted interval list."""
         il = IntervalList.make_absolute([(4, 2), (10, 6)])
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_recorded_container(il))
 
-    def test_il_chromatic_found(self):
+    def test_il_chromatic_found(self) -> None:
         """The dominant seventh chord is retrievable by its chromatic-only (root-position) interval list."""
         il_chromatic = ChromaticIntervalListPattern.make_absolute([4, 7, 10])
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_from_chromatic_interval_list(il_chromatic))
 
-    def test_il_no_fifth_chromatic_found(self):
+    def test_il_no_fifth_chromatic_found(self) -> None:
         """The dominant seventh chord is retrievable by its chromatic-only, fifth-omitted interval list."""
         il = IntervalList.make_absolute([(4, 2), (10, 6)])
         il_chromatic = ChromaticIntervalListPattern.make_absolute([4, 10])
         self.assertEqual([dominant_seventh_chord], interval_to_chord.get_from_chromatic_interval_list(il_chromatic))
 
-    def test_inversion(self):
+    def test_inversion(self) -> None:
         """`ChordPattern.inversion(n)` matches the expected pre-built inversion for n = 0..3."""
         self.assertEqual(dominant_seventh_chord.inversion(0), dominant_seventh_chord_zeroth_inversion)
         self.assertEqual(dominant_seventh_chord.inversion(1), dominant_seventh_chord_first_inversion)
         self.assertEqual(dominant_seventh_chord.inversion(2), dominant_seventh_chord_second_inversion)
         self.assertEqual(dominant_seventh_chord.inversion(3), dominant_seventh_chord_third_inversion)
 
-    def test_inversions(self):
+    def test_inversions(self) -> None:
         """Every inversion (fifth included and omitted) of the dominant seventh chord matches the expected
         pre-built set, in order."""
         inversions = dominant_seventh_chord.compute_all_inversions()

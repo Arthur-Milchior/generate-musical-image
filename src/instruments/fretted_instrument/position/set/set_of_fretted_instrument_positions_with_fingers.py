@@ -21,7 +21,7 @@ class ScaleColors(ColorsWithTonic):
     """Human-readable identifier used when naming generated files."""
 
     #pragma mark - ColorsWithTonic
-    def get_color_from_interval(self, chromatic_interval: ChromaticInterval):
+    def get_color_from_interval(self, chromatic_interval: ChromaticInterval) -> str:
         """The color for a note at `chromatic_interval` above the tonic, indexed by that interval folded into
         the base octave (0 to 11 half-steps)."""
         color = [COLOR_TONIC,

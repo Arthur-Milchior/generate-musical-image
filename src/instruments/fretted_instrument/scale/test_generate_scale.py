@@ -15,6 +15,7 @@ Tests cover:
 
 import itertools
 import unittest
+from typing import Any, Sequence
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fret.fret import Fret
@@ -28,7 +29,7 @@ from solfege.pattern.scale.scale_patterns import major_scale, blues
 
 from .anki_scale import _generate_scale
 
-def position_make(string: int, fret:int, fingers:Set[int]):
+def position_make(string: int, fret:int, fingers:Set[int]) -> PositionOnFrettedInstrumentWithFingers:
     """Create a fingered guitar position for the test fixtures."""
     string = Guitar.string(string)
     fret = Fret.make(fret, True)
@@ -112,18 +113,18 @@ for i, notes in enumerate([major_2_octave_1, major_2_octave_2, major_2_octave_3,
     # save_file(path, SetOfFrettedInstrumentPositions.make(positions=notes).svg(absolute=False))
     # display_svg_file(path)
 
-def anki_scale_make(*args, **kwargs):
+def anki_scale_make(*args, **kwargs) -> AnkiScaleWithFingersAndString:
     """Build an `AnkiScaleWithFingersAndString` for Guitar from the given arguments, for use in test fixtures."""
     return AnkiScaleWithFingersAndString.make(Guitar, *args, **kwargs)
 
-def set_of_pos_make(*args, **kwargs):
+def set_of_pos_make(*args, **kwargs) -> SetOfPositionOnFrettedInstrument:
     """Build an absolute `SetOfPositionOnFrettedInstrument` from the given positions, for use in test fixtures."""
     return SetOfPositionOnFrettedInstrument.make(*args, **kwargs, absolute=True)
 
 chromatic_relative_intervals = major_scale.get_interval_list().get_chromatic_interval_list().relative_intervals()
 chromatic_relative_intervals_2_octaves = major_scale.multiple_octaves(2).get_chromatic_interval_list().relative_intervals()
 class TestGenerateScale(unittest.TestCase):
-    def assertEqualAnkiScaleWithFingersAndString(self, expected:AnkiScaleWithFingersAndString, actual: AnkiScaleWithFingersAndString):
+    def assertEqualAnkiScaleWithFingersAndString(self, expected:AnkiScaleWithFingersAndString, actual: AnkiScaleWithFingersAndString) -> None:
         """Assert that two `AnkiScaleWithFingersAndString` instances have the same start string, octave count,
         starting fingers, pattern, and list of scales."""
         self.assertEqual(expected.start_string, actual.start_string)
@@ -132,7 +133,7 @@ class TestGenerateScale(unittest.TestCase):
         self.assertEqual(expected.pattern, actual.pattern)
         self.assert_equal_list_of_scales(expected.scales, actual.scales)
 
-    def assertEqualAnkiScaleWithString(self, expected:AnkiScalesWithSameFirstString, actual: AnkiScalesWithSameFirstString):
+    def assertEqualAnkiScaleWithString(self, expected:AnkiScalesWithSameFirstString, actual: AnkiScalesWithSameFirstString) -> None:
         """Assert that two `AnkiScalesWithSameFirstString` instances have the same start string, octave count,
         and pattern, and that their `fingers_to_scales` maps hold the same keys with equal values."""
         self.assertEqual(expected.start_string, actual.start_string)
@@ -145,21 +146,21 @@ class TestGenerateScale(unittest.TestCase):
             self.assertIn(actual_fingers, expected.fingers_to_scales)
             self.assertEqualAnkiScaleWithFingersAndString(expected.fingers_to_scales[actual_fingers], actual.fingers_to_scales[actual_fingers])
 
-    def assert_equal_list_of_scales(self, expecteds, actuals):
+    def assert_equal_list_of_scales(self, expecteds: Sequence[Any], actuals: Sequence[Any]) -> None:
         """Assert that two lists of scales have the same length and equal elements, reporting the index of
         the first mismatch."""
         self.assertEqual(len(expecteds), len(actuals))
         for i, (expected, actual) in enumerate(itertools.zip_longest(expecteds, actuals)):
             self.assertEqual(expected, actual, f"\n\n{i}-th scale differs:\n{expecteds[i]}\n{actuals[i]}")
 
-    def assert_equal_list_of_anki_notes(self, expected, actual):
+    def assert_equal_list_of_anki_notes(self, expected: Sequence[Any], actual: Sequence[Any]) -> None:
         """Assert that two lists of Anki notes have the same length and equal elements, reporting the index
         of the first mismatch."""
         self.assertEqual(len(expected), len(actual))
         for i in range(len(expected)):
             self.assertEqual(expected[i], actual[i], f"\n\n{i}-th anki note differs:\n{expected[i]}\n{actual[i]}")
 
-    def test_major_1(self):
+    def test_major_1(self) -> None:
         """Verify `_generate_scale` returns the two expected major-scale paths for a one-octave scale starting on string 1."""
         # The scale (1, 12), (1, 14), (1, 16), (2, 12), (2, 14), (3,11), (3, 13), (3, 14) is not generated because it requires to have 2 frets difference between two fingers that are closed together on first string.
         expected = [major_1rst_string_standard_from_index, major_1rst_string_from_index_too_big]
@@ -168,7 +169,7 @@ class TestGenerateScale(unittest.TestCase):
                 chromatic_relative_intervals)
         self.assertEqual(expected, list(actual))
         
-    def test_major_all_fingers(self):
+    def test_major_all_fingers(self) -> None:
         """Verify that when all fingers are allowed, `_generate_scale` finds all valid one-octave major-scale shapes starting from the same note."""
         expected = [major_1rst_string_standard_from_123, major_1rst_string_from_123_too_big, major_1rst_string_from_ring]
         actual = _generate_scale(
@@ -177,7 +178,7 @@ class TestGenerateScale(unittest.TestCase):
             chromatic_relative_intervals)
         self.assertEqual(expected, list(actual))
         
-    def test_2_major_all_fingers(self):
+    def test_2_major_all_fingers(self) -> None:
         """Verify that two-octave major-scale generation enumerates the expected fingering variants from a single start position."""
         self.assert_equal_list_of_scales(
             [major_2_octave_1, major_2_octave_2,
@@ -189,7 +190,7 @@ class TestGenerateScale(unittest.TestCase):
         )
         
         
-    def test_anki_notes(self):
+    def test_anki_notes(self) -> None:
         """Verify `generate_scale` correctly groups generated major-scale variants by starting finger set into an Anki-style scale object."""
         one_two_three = anki_scale_make(
             start_string=strings[0], 
@@ -218,7 +219,7 @@ class TestGenerateScale(unittest.TestCase):
         )
 
     
-    def test_show_scale(self):
+    def test_show_scale(self) -> None:
         """Verify that a generated blues scale can be saved as an SVG diagram without raising errors."""
         first_position = PositionOnFrettedInstrument.make(Guitar.string(2), Fret(3, absolute=False))
         tonic = first_position.get_chromatic()

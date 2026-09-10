@@ -29,7 +29,7 @@ class FrettedPositionMakerWithLetter(FrettedPositionMaker):
     #     if self.color is not None:
     #         yield f".colored {{fill: {self.color} }}"
 
-    def require_color(self):
+    def require_color(self) -> str:
         """The circle's outline color: `circle_color` if set, otherwise `DEFAULT_COLOR`."""
         if self.circle_color is None:
             return DEFAULT_COLOR
@@ -61,7 +61,7 @@ class FrettedPositionMakerWithLetter(FrettedPositionMaker):
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `circle_color`/`style` to `None` and `text_size` to `FONT_SIZE`."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         kwargs["circle_color"] = None
@@ -70,7 +70,7 @@ class FrettedPositionMakerWithLetter(FrettedPositionMaker):
         return kwargs
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Normalize constructor arguments: make `style`, `circle_color` and `text_size` keyword arguments."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         args, kwargs = cls._maybe_arg_to_kwargs(args, kwargs, "style")

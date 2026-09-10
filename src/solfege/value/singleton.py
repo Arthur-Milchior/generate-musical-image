@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import Callable, ClassVar, Dict, List, Self, Type, TypeVar, Union
+from typing import Callable, ClassVar, Dict, List, Self, Tuple, Type, TypeVar, Union
 
 from solfege.value.abstract import Abstract
 from utils.frozenlist import MakeableWithSingleArgument
@@ -24,15 +24,15 @@ class Singleton(Abstract, MakeableWithSingleArgument):
     """The raw count of semitones (chromatic) or scale degrees (diatonic), 0 at C4/unison."""
 
     @classmethod
-    def make_instance_of_selfs_class(cls: Type[Self], value: int):
+    def make_instance_of_selfs_class(cls: Type[Self], value: int) -> Self:
         """Build a new instance of `cls` from a raw int `value`."""
         return cls.make(value)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """If the interval is passed as argument, it is copied. Otherwise, the value is used."""
         assert_typing(self.value, int)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Self) -> bool:
         """Equal iff `other` is the exact same class and has the same `value`; raises if the classes
         differ, rather than silently returning False, to catch accidental cross-class comparisons
         (e.g. a `ChromaticNote` compared to a `ChromaticInterval`)."""
@@ -40,21 +40,21 @@ class Singleton(Abstract, MakeableWithSingleArgument):
             raise Exception(f"Comparison of two distinct classes: {self}:{self.__class__} and {other}:{other.__class__}")
         return self.value == other.value
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash by the raw int value."""
         return self.value
 
-    def __le__(self, other: Self):
+    def __le__(self, other: Self) -> bool:
         """Ordered by `value`; `other` must be the same class."""
         assert_typing(other, self.__class__)
         return self.value <= other.value
 
-    def __lt__(self, other: Self):
+    def __lt__(self, other: Self) -> bool:
         """Ordered by `value`; `other` must be the same class."""
         assert_typing(other, self.__class__)
         return self.value < other.value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Evaluable repr, e.g. `ChromaticNote(value=0)`."""
         return f"{self.__class__.__name__}(value={self.value})"
 
@@ -71,8 +71,8 @@ class Singleton(Abstract, MakeableWithSingleArgument):
         return cls.make_instance_of_selfs_class(value)
     
     #pragma mark - Abstract
-    
-    def octave(self):
+
+    def octave(self) -> int:
         """The octave number. 0 for unison/central C up to seventh/C one octave above."""
         return math.floor(self.value / self.__class__.number_of_interval_in_an_octave)
 
@@ -83,19 +83,19 @@ class Singleton(Abstract, MakeableWithSingleArgument):
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """No defaults of its own; delegates to the superclass chain."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         return kwargs
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Map a single positional argument to the `value` keyword argument."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "value")
         return args, kwargs
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Delegates to the superclass chain (no extra validation of its own beyond `Abstract`'s)."""
         super().__post_init__()
 

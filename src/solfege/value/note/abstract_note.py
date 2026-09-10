@@ -92,7 +92,7 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
             return "," * (-self.octave() - 1)
         raise assert_never(octave_notation)
 
-    def file_name_for_lily_with_a_single_note(self, clef: Optional[Clef]):
+    def file_name_for_lily_with_a_single_note(self, clef: Optional[Clef]) -> str:
         """Return the file for a lily partition of this note only in this clef."""
         assert_optional_typing(clef, Clef)
         from solfege.value.note.chromatic_note import Chromatic
@@ -101,7 +101,7 @@ class AbstractNote(Abstract, ABC, Generic[IntervalType]):
         # adding _ at start so that it's not deleted by anki.
         return f"_{str(clef)}_{self.non_ambiguous_string_for_file_name()}"
 
-    def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs):
+    def get_name_with_octave(self, octave_notation: OctaveOutput, **kwargs) -> str:
         """Return the note's full name (`get_name_up_to_octave`) followed by its octave marker
         (`get_octave_name`). `kwargs` are forwarded to `get_name_up_to_octave`."""
         return f"{self.get_name_up_to_octave(**kwargs)}{str(self.get_octave_name(octave_notation=octave_notation))}"

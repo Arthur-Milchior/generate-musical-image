@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Dict, Generic, Iterable, List, Tuple, Type, TypeVar
+from typing import ClassVar, Dict, Generic, Iterable, List, Optional, Tuple, Type, TypeVar
 from solfege.pattern.chord.chord_pattern import ChordPattern
 from solfege.pattern.pattern_with_interval_lists import PatternWithIntervalLists
 from solfege.value.interval.interval import Interval
@@ -46,11 +46,11 @@ class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern"
     tonic_minus_lowest_note: Interval
     """For a scale whose lowest note is n, you get the position of the tonic with n+tonic_minus_lowest_note."""
 
-    def get_tonic_minus_lowest_note(self):
+    def get_tonic_minus_lowest_note(self) -> Interval:
         """For a scale whose lowest note is n, you get the position of the tonic with n+tonic_minus_lowest_note."""
         return self.tonic_minus_lowest_note
 
-    def get_tonic(self, lowest_note: Note):
+    def get_tonic(self, lowest_note: Note) -> Note:
         """Returns the tonic assuming that the pattern start with this `lowest_note`."""
         assert_typing(lowest_note, Note)
         return lowest_note - self.tonic_minus_lowest_note
@@ -85,12 +85,12 @@ class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern"
         return max(base_physical) < min(extension_physical)
 
     @classmethod
-    def _new_record_keeper(cls):
+    def _new_record_keeper(cls) -> "IntervalListToInversionPattern":
         """Build this class's `IntervalListToInversionPattern` record keeper."""
         from solfege.pattern.inversion.interval_list_to_inversion_pattern import IntervalListToInversionPattern
         return IntervalListToInversionPattern.make()
 
-    def names(self):
+    def names(self) -> List[str]:
         """`base`'s names, each suffixed with this inversion's ordinal (e.g. " first inversion"), or left
         unsuffixed for root position (inversion 0)."""
         names = []
@@ -109,20 +109,20 @@ class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern"
             names.append(f"""{chord_name}{suffix}""")
         return names
 
-    def notation(self):
+    def notation(self) -> str:
         """`base`'s notation, suffixed with "/<inversion>" (e.g. "/1") unless this is root position."""
         suffix = "" if self.inversion == 0 else f"/{self.inversion}"
         return f"""{self.base.notation}{suffix}"""
 
-    def __lt__(self, other: "InversionPattern"):
+    def __lt__(self, other: "InversionPattern") -> bool:
         """Order by inversion number first, then chords with the fifth before those without it, then by `base`."""
         return (self.inversion, not self.fifth_omitted, self.base) < (other.inversion, not other.fifth_omitted, other.base)
 
-    def intervals_with_all_notes(self):
+    def intervals_with_all_notes(self) -> IntervalList:
         """`base`'s full interval list (fifth included), recomputed relative to this inversion's bass note."""
         return self.base.interval_list_of_inversion(self.inversion)
 
-    def intervals_without_fifth(self):
+    def intervals_without_fifth(self) -> Optional[IntervalList]:
         """Same as `intervals_with_all_notes()` but with the fifth dropped, or None if `base.optional_fifth`
         is False (the fifth can't be omitted) or this inversion's bass note is itself the fifth."""
         if self.base.optional_fifth is False:
@@ -153,7 +153,7 @@ class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern"
 
     # pragma mark - DataClassWithDefaultArgument
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `inversion` is a valid index into `base`'s notes, and that every interval list this
         inversion registers under starts at unison and stays within one octave, then chain to the rest of
         construction."""
@@ -166,14 +166,14 @@ class InversionPattern(PatternWithIntervalLists["IntervalListToInversionPattern"
         super().__post_init__()
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `fifth_omitted` to False (the fifth is part of the voicing)."""
         default_dict = super()._default_arguments_for_constructor(args, kwargs)
         default_dict["fifth_omitted"] = False
         return default_dict
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Pass `inversion`/`base` through positional-to-keyword normalization."""
         cls.arg_to_kwargs(args, kwargs, "inversion")
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "base")

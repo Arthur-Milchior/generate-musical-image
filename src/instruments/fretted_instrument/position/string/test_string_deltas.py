@@ -1,4 +1,5 @@
 import unittest
+from typing import Iterable, Optional
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fret.fret import Fret
@@ -6,7 +7,7 @@ from instruments.fretted_instrument.position.string.string_deltas import *
 from instruments.fretted_instrument.position.string.strings import *
 from instruments.fretted_instrument.position.string.string import String
 
-def strings_make(l):
+def strings_make(l: Optional[Iterable[String]]) -> Strings:
     """Shorthand to build a `Strings` set from an iterable of `String`."""
     return Strings.make(l)
 
@@ -22,7 +23,7 @@ instrument = Guitar
 
 
 class TestStringDeltas(unittest.TestCase):
-    def test_min(self):
+    def test_min(self) -> None:
         """`min()` for each named delta kind, at both interior and edge (last string) reference points."""
         self.assertEqual(StringDelta.SAME_STRING_ONLY(Guitar).min(Guitar, empty_first_string), strings[0])
         self.assertEqual(StringDelta.SAME_OR_NEXT_STRING(Guitar).min(Guitar, empty_first_string), strings[0])
@@ -43,7 +44,7 @@ class TestStringDeltas(unittest.TestCase):
         self.assertEqual(StringDelta.NEXT_STRING_OR_GREATER(Guitar).min(Guitar, empty_sixth_string), None)
         self.assertEqual(StringDelta.ANY_STRING(Guitar).min(Guitar, empty_sixth_string), strings[0])
 
-    def test_max(self):
+    def test_max(self) -> None:
         """`max()` for each named delta kind, at both interior and edge (last string) reference points."""
         self.assertEqual(StringDelta.SAME_STRING_ONLY(Guitar).max(Guitar, empty_first_string), strings[0])
         self.assertEqual(StringDelta.SAME_OR_NEXT_STRING(Guitar).max(Guitar, empty_first_string), strings[1])
@@ -64,7 +65,7 @@ class TestStringDeltas(unittest.TestCase):
         self.assertEqual(StringDelta.NEXT_STRING_OR_GREATER(Guitar).max(Guitar, empty_sixth_string), strings[5])
         self.assertEqual(StringDelta.ANY_STRING(Guitar).max(Guitar, empty_sixth_string), strings[5])
 
-    def test_strings(self):
+    def test_strings(self) -> None:
         """`range()` resolves each named delta kind to the expected concrete `Strings` set, including the
         empty set when a delta falls off the edge of the fretboard."""
         same_string_only = StringDelta.SAME_STRING_ONLY(Guitar)

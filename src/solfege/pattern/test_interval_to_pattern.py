@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Iterable, Tuple
 import unittest
 
 from solfege.value.interval.interval import Interval, IntervalFrozenList
@@ -22,7 +22,7 @@ class FakePattern(PatternWithIntervalLists["FakeIntervalListToFakePatterns", int
     """The relative (step-to-step) intervals defining this test pattern's shape."""
 
     @classmethod
-    def _new_record_keeper(cls):
+    def _new_record_keeper(cls) -> "FakeIntervalListToFakePatterns":
         """Build this class's `FakeIntervalListToFakePatterns`."""
         return FakeIntervalListToFakePatterns.make()
 
@@ -43,9 +43,9 @@ class FakePattern(PatternWithIntervalLists["FakeIntervalListToFakePatterns", int
     #pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Coerce `_relative_intervals` into an `IntervalFrozenList` of `Interval`s."""
-        def clean_intervals(intervals):
+        def clean_intervals(intervals: Iterable) -> IntervalFrozenList:
             """Coerce each element of `intervals` into an `Interval`, then wrap them in an `IntervalFrozenList`."""
             return IntervalFrozenList([Interval.make_single_argument(interval) for interval in intervals])
 
@@ -61,7 +61,7 @@ class FakeChromaticIntervalListToFakePatterns(ChromaticIntervalListToPatterns[Fa
     _recorded_container_type: ClassVar[Type] = list
     """Same as RecordedContainerType."""
 
-    def is_key_valid(self, key: ChromaticIntervalListPattern):
+    def is_key_valid(self, key: ChromaticIntervalListPattern) -> bool:
         """Any key is accepted."""
         return True
 
@@ -82,7 +82,7 @@ class FakeIntervalListToFakePatterns(IntervalListToPattern[FakePattern]):
     _chromatic_recorded_container_type: ClassVar[Type] = list
     """The container type used by the chromatic-only companion record keeper (see `make_chromatic_record_keeper`)."""
 
-    def is_key_valid(self, key: ChromaticIntervalListPattern):
+    def is_key_valid(self, key: ChromaticIntervalListPattern) -> bool:
         """Any key is accepted."""
         return True
 
@@ -94,7 +94,7 @@ class FakeIntervalListToFakePatterns(IntervalListToPattern[FakePattern]):
     #pragma mark - IntervalListToPatterns
 
     @classmethod
-    def make_chromatic_record_keeper(self):
+    def make_chromatic_record_keeper(self) -> FakeChromaticIntervalListToFakePatterns:
         """Build the companion `FakeChromaticIntervalListToFakePatterns`."""
         return FakeChromaticIntervalListToFakePatterns.make()
 
@@ -103,7 +103,7 @@ fake_pattern_second_major = FakePattern.make([(2,1)])
 fake_pattern_third_major = FakePattern.make([(4,2)])
 
 class TestIntervalToPattern(unittest.TestCase):
-    def test_add_retrieve(self):
+    def test_add_retrieve(self) -> None:
         """Registering a pattern under an interval list makes it retrievable by exact interval list, by
         chromatic-only interval list, and via the "easiest pattern for this chromatic shape" lookup."""
         itp = FakeIntervalListToFakePatterns.make()

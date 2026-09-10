@@ -9,7 +9,7 @@ from solfege.value.key.key import *
 from solfege.pattern.chord.test_constants import *
 
 class TestInversionPattern(unittest.TestCase):
-    def check_inversion_equal(self, inv1:InversionPattern, inv2:InversionPattern):
+    def check_inversion_equal(self, inv1:InversionPattern, inv2:InversionPattern) -> None:
         """Assert two `InversionPattern`s share the same base, fifth-omitted flag, interval list, and
         inversion number."""
         assert_typing(inv1, InversionPattern)
@@ -19,20 +19,20 @@ class TestInversionPattern(unittest.TestCase):
         self.assertEqual(inv1.interval_list, inv2.interval_list)
         self.assertEqual(inv1.inversion, inv2.inversion)
 
-    def test_eq(self):
+    def test_eq(self) -> None:
         """Checks that "record" is ignored for equality."""
         self.assertFalse(dominant_seventh_chord_zeroth_inversion.record)
         self.assertTrue(dominant_seventh_chord.inversions[0].record)
         self.assertEqual(dominant_seventh_chord_zeroth_inversion, dominant_seventh_chord.inversions[0])
 
-    def test_il_found(self):
+    def test_il_found(self) -> None:
         """The dominant seventh chord's root-position inversion is registered under its full interval list."""
         il = IntervalList.make_absolute([(4, 2), (7, 4), (10, 6)])
         iv = make_inversion(0, il, dominant_seventh_chord, (0,0))
         actual = interval_to_inversion.get_recorded_container(il)
         self.assertEqual(iv, actual)
 
-    def test_il_no_fifth_found(self):
+    def test_il_no_fifth_found(self) -> None:
         """The dominant seventh chord's fifth-omitted root-position inversion is registered under its
         fifth-omitted interval list."""
         il = IntervalList.make_absolute([(4, 2), (10, 6)])

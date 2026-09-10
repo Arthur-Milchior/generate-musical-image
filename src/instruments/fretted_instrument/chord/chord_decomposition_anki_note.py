@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Generator, List, Tuple
+from typing import Generator, List, Optional, Tuple, Union
 
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
@@ -32,17 +32,17 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
     chord: ChordOnFrettedInstrument
     """The way the chord is played on the instrument."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate the types of `instrument`, `inversion` and `chord`."""
         assert_typing(self.instrument, FrettedInstrument)
         assert_typing(self.inversion, ChromaticInversionInstantiation)
         assert_typing(self.chord, ChordOnFrettedInstrument)
 
-    def is_open(self):
+    def is_open(self) -> bool:
         """Whether the chord fingering includes open strings (delegates to `ChordOnFrettedInstrument.is_open`)."""
         return self.chord.is_open()
 
-    def decomposition_lily_field(self):
+    def decomposition_lily_field(self) -> str:
         """Render the chord's notes (in the octave they're actually played) as a LilyPond staff-notation image and
         return its `<img>` tag."""
         lowest_note = Note.from_chromatic(self.chord.get_most_grave_note().get_chromatic())
@@ -58,11 +58,11 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
 
         return img_tag(sheet.maybe_generate())
     
-    def is_open(self):
+    def is_open(self) -> bool:
         """Duplicate of the identically-defined `is_open` above (dead code, harmless: both return the same value)."""
         return self.chord.is_open()
 
-    def fretted_position_maker(self, all_marked:bool):
+    def fretted_position_maker(self, all_marked:bool) -> "FrettedPositionMakerForInterval":
         """Build the `FrettedPositionMakerForInterval` used to draw this chord's diagram. If `all_marked`, every
         note is drawn in red with an italic label (used for the "fully colored" chord image); otherwise the
         pattern's normal per-interval colors are used (see `ChordColors`/`ColorsWithTonic`)."""
@@ -76,14 +76,14 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
             circle_color=color
             )
 
-    def tonic(self):
+    def tonic(self) -> "ChromaticNote":
         """The chord's tonic note, computed from the lowest played note and the inversion's known offset from
         the tonic."""
         lowest_note = self.chord.get_most_grave_note().get_chromatic()
         delta = self.inversion.pattern.get_tonic_minus_lowest_note().get_chromatic()
         return lowest_note - delta
 
-    def single_role_field(self, folder_path: str, interval_values: List[int]):
+    def single_role_field(self, folder_path: str, interval_values: List[int]) -> str:
         """Render (and save) a diagram of `self.chord` with only the notes at chromatic `interval_values` (from
         the tonic) shown in black and everything else hidden, and return its `<img>` tag -- or `""` if the chord
         doesn't actually contain a note at one of the base-octave equivalents of `interval_values`."""
@@ -101,14 +101,14 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         svg_file_name = self.chord.save_svg(folder_path, instrument=self.instrument, fretted_position_maker=fretted_position_maker, absolute=is_open, minimal_number_of_frets=minimal_number_of_frets)
         return img_tag(svg_file_name)
 
-    def first_string(self):
+    def first_string(self) -> int:
         """The 1-based index of the lowest-indexed string that is actually played in this chord."""
         for string_number, fret in enumerate(self.chord.get_frets(self.instrument)):
             if fret.is_played():
                 return string_number + 1
         assert False
 
-    def last_string(self):
+    def last_string(self) -> int:
         """The 1-based index of the highest-indexed string that is actually played in this chord."""
         last_string = None
         for string_number, fret in enumerate(self.chord.get_frets(self.instrument)):
@@ -117,23 +117,23 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         assert last_string
         return last_string
 
-    def last_shown_fret(self):
+    def last_shown_fret(self) -> Optional["Fret"]:
         """The highest fret that needs to be shown on this chord's diagram (delegates to
         `ChordOnFrettedInstrument.last_shown_fret`)."""
         return self.chord.last_shown_fret()
 
-    def source_field(self):
+    def source_field(self) -> str:
         """The chord pattern's Wikipedia (or other) source(s), as clickable links -- see ChordPattern.source."""
         pattern = self.inversion.pattern.base
         links = ", ".join(f'<a href="{url}">{url}</a>' for url in pattern.source)
         return links.replace('"', "'")
 
-    def description_field(self):
+    def description_field(self) -> str:
         """The chord pattern's description -- see ChordPattern.description. May contain HTML links."""
         pattern = self.inversion.pattern.base
         return pattern.description.replace('"', "'")
-    
-    def strings(self, folder_path: str):
+
+    def strings(self, folder_path: str) -> str:
         """Render (and save) a diagram highlighting just the strings spanned by this chord (from `first_string`
         to `last_string`), with no notes marked, and return its `<img>` tag."""
         selected_strings = SetOfPositionOnFrettedInstrument.make(
@@ -178,7 +178,7 @@ class ChordDecompositionAnkiNote(ClassWithEasyness[Tuple[Tuple[int, int], int]],
         """The easiest chord decomposition is the one with lowest inversion, easiest pattern, and then the easiest way to play the chord."""
         return (self.inversion.easy_key(), self.chord.easy_key())
 
-    def best_chord(self):
+    def best_chord(self) -> Tuple[int, int, int, Union["Fret", int]]:
         """This decomposition's chord's ease-of-play sort key (delegates to `ChordOnFrettedInstrument.best_chord_key`);
         used to order decompositions across different chords in `generate_chords.generate_instrument`."""
         return self.chord.best_chord_key()

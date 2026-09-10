@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Generator
+from typing import ClassVar, Generator
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 from instruments.fretted_instrument.position.fret.fret import Fret
 from instruments.fretted_instrument.position.fretted_instrument_position import PositionOnFrettedInstrument
@@ -31,16 +31,20 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
     """The scale/arpeggio pattern this note is generated for."""
     # note 3 and 4 are the same. One octave higher than note 1. This ensure that
     # if we generate a scale starting on note 3 and 4 and it's the same pattern than a two-octave scale on note 1, the actual positions are the same.
-    string_1_pos = PositionOnFrettedInstrument.make(Guitar.string(1), Fret.make(12, absolute=False))
-    string_2_pos = PositionOnFrettedInstrument.make(Guitar.string(2), Fret.make(12, absolute=False))
-    string_3_pos = PositionOnFrettedInstrument.make(Guitar.string(3), Fret.make(14, absolute=False))
-    string_4_pos = PositionOnFrettedInstrument.make(Guitar.string(4), Fret.make(9, absolute=False))
+    string_1_pos: ClassVar[PositionOnFrettedInstrument] = PositionOnFrettedInstrument.make(Guitar.string(1), Fret.make(12, absolute=False))
+    """Fixed reference position (string 1, 12th fret) used as the transposition anchor for the string-1 fingering."""
+    string_2_pos: ClassVar[PositionOnFrettedInstrument] = PositionOnFrettedInstrument.make(Guitar.string(2), Fret.make(12, absolute=False))
+    """Fixed reference position (string 2, 12th fret) used as the transposition anchor for the string-2 fingering."""
+    string_3_pos: ClassVar[PositionOnFrettedInstrument] = PositionOnFrettedInstrument.make(Guitar.string(3), Fret.make(14, absolute=False))
+    """Fixed reference position (string 3, 14th fret) used as the transposition anchor for the string-3 fingering."""
+    string_4_pos: ClassVar[PositionOnFrettedInstrument] = PositionOnFrettedInstrument.make(Guitar.string(4), Fret.make(9, absolute=False))
+    """Fixed reference position (string 4, 9th fret) used as the transposition anchor for the string-4 fingering."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `scale_pattern` has the right type."""
         assert_typing(self.scale_pattern, ScalePattern)
 
-    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers):
+    def generate_svg(self, scale: SetOfFrettedInstrumentPositionsWithFingers) -> str:
         """Transpose `scale` to start at fret one, resolve its fingering, render it, and return the saved
         SVG's file name."""
         assert_typing(scale, SetOfFrettedInstrumentPositionsWithFingers)
@@ -75,7 +79,7 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
             #pattern_to_avoid_list=avoid # uncomment if you want to avoid having one scale being a subset of two scales
             ).best_for_each_finger()
 
-        def keep_scale_with_fifth_string(scale: SetOfFrettedInstrumentPositionsWithFingers):
+        def keep_scale_with_fifth_string(scale: SetOfFrettedInstrumentPositionsWithFingers) -> bool:
             """Filter predicate: keep only scales that include a position on string 5."""
             return 5 in [pos.string.value for pos in scale]
 
@@ -120,7 +124,7 @@ class ScaleOnGuitarAnkiNote(CsvGenerator):
             file_name = self.generate_svg(scale)
             yield img_tag(file_name)
 
-def generate_guitar():
+def generate_guitar() -> None:
     """Generate the Anki notes (and diagrams) for every registered scale/arpeggio pattern on guitar, and
     save them as a CSV."""
     anki_notes = []

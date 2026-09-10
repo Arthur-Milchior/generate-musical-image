@@ -3,7 +3,7 @@ into a `Fingerings`, and builds one `Fingerings` per note from `b_flat_3` (lowes
 altissimo range) by pulling in the individual fingerings defined across `main_column`, `k`/`k_silent`,
 `cn`/`cn_silent`, `overtone` and `rascher`. `generate.py` iterates `value_to_fingerings` to render the charts
 and Anki notes."""
-from typing import Dict
+from typing import Dict, Iterator, List
 
 from instruments.saxophone.fingering import cn
 from instruments.saxophone.fingering.cn import cn_silent
@@ -18,7 +18,10 @@ class Fingerings():
     """All the alternate fingerings for one single note, e.g. the several ways to finger `d6`. Registers
     itself under its shared pitch `value` in `value_to_fingerings`, and back-links itself onto each of its
     `fingerings` (via their `.fingerings` list) so a fingering can find the alternatives it belongs to."""
-    def __init__(self, *fingerings: SaxophoneFingering):
+    fingerings: List[SaxophoneFingering]
+    """The alternate fingerings in this group, in the order they were given."""
+
+    def __init__(self, *fingerings: SaxophoneFingering) -> None:
         """Group `fingerings` (all must share the same pitch `value`) into one `Fingerings`. Asserts no two of
         them press the same buttons, and (Rascher aside) that no two share the same `fingering_symbol`."""
         self.fingerings = list(fingerings)
@@ -37,25 +40,25 @@ class Fingerings():
                 if first.fingering_symbol != FingeringSymbol.RASCHER:
                     assert first.fingering_symbol != second.fingering_symbol, f"""{first.get_name_with_octave()}: {first} and {second} have the same symbols"""
 
-    def add_octave(self, *fingerings: SaxophoneFingering):
+    def add_octave(self, *fingerings: SaxophoneFingering) -> "Fingerings":
         """Return a new `Fingerings`, one octave above `self`, made of every one of `self`'s fingerings raised
         an octave, plus any extra `fingerings` given directly (for alternates that only exist at that octave)."""
         plus_octave = [fingering.add_octave() for fingering in self.fingerings]
         return Fingerings(*plus_octave, *fingerings)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a `Fingerings(...)`-shaped string listing every contained fingering, for debugging."""
         return f"""Fingerings({", ".join(str(fingering) for fingering in  self.fingerings)})"""
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[SaxophoneFingering]:
         """Iterate over the individual `SaxophoneFingering` alternates, in the order they were given."""
         return iter(self.fingerings)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the number of alternate fingerings for this note."""
         return len(self.fingerings)
 
-    def get_name_with_octave(self):
+    def get_name_with_octave(self) -> str:
         """Return the note name (with octave) shared by every fingering in this group."""
         return self.fingerings[0].get_name_with_octave()
 

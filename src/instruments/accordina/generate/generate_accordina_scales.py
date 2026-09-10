@@ -14,7 +14,13 @@ class SetOfAccordinaNoteForScale(SetOfAccordinaNote):
     """A `SetOfAccordinaNote` for one rendering of one scale (a specific pattern, starting note and number of
     octaves), used to give the generated SVG a scale-specific file name."""
 
-    def __init__(self, notes: List[AccordinaNote], scale: ScalePattern, number_of_octaves: int):
+    scale: ScalePattern
+    """The `ScalePattern` being pictured, used to name the file after it."""
+
+    number_of_octaves: int
+    """How many octaves this rendering spans (1 or 2), used to name the file."""
+
+    def __init__(self, notes: List[AccordinaNote], scale: ScalePattern, number_of_octaves: int) -> None:
         """`notes` are the scale's notes to highlight; `scale` and `number_of_octaves` are kept only to build
         the file name in `_svg_name_base`."""
         self.scale = scale
@@ -33,7 +39,7 @@ class SetOfAccordinaNoteForScale(SetOfAccordinaNote):
 
 
 
-def generate():
+def generate() -> None:
     """Render every practiced scale (see `scale_patterns_I_practice`) at 1 and 2 octaves from 3 starting
     button positions, and write the resulting Anki notes CSV.
 

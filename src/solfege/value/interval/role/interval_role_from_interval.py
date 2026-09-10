@@ -1,7 +1,7 @@
 
         
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from solfege.value.interval.interval import Interval
 from solfege.value.interval.role.interval_role import IntervalRole
 from solfege.value.interval.too_big_alterations_exception import TooBigAlterationException
@@ -28,19 +28,19 @@ class IntervalRoleFromInterval(IntervalRole):
 
     # Pragma mark - DataClassWithDefaultArgument
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """No defaults of its own; delegates to the superclass chain."""
         kwargs = super()._default_arguments_for_constructor(args, kwargs)
         return kwargs
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Map a single positional argument to the `interval` keyword argument."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
         args, kwargs = cls.arg_to_kwargs(args, kwargs, "interval")
         return args, kwargs
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `interval` is an `Interval`."""
         assert_typing(self.interval, Interval)
         super().__post_init__()

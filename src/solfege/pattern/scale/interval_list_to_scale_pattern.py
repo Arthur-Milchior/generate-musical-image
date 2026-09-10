@@ -15,7 +15,7 @@ class IntervalListToScalePattern(IntervalListToPattern[ScalePattern]):
     _recorded_type: ClassVar[Type] = ScalePattern
     """Same as RecordedType."""
 
-    def is_key_valid(self, key: ChromaticIntervalListPattern):
+    def is_key_valid(self, key: ChromaticIntervalListPattern) -> bool:
         """Only interval lists within one octave (the last note may land exactly on the octave) are valid
         scale shapes."""
         return key.is_in_base_octave(accepting_octave=True)
@@ -28,7 +28,7 @@ class IntervalListToScalePattern(IntervalListToPattern[ScalePattern]):
 
     #pragma mark - IntervalListToPatterns
     @classmethod
-    def make_chromatic_record_keeper(self):
+    def make_chromatic_record_keeper(self) -> ChromaticIntervalListToScalePattern:
         """Build the companion `ChromaticIntervalListToScalePattern`."""
         return ChromaticIntervalListToScalePattern.make()
     

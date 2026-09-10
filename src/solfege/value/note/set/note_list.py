@@ -26,7 +26,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
     note_type: ClassVar[Type[AbstractNote]] = Note
     """The concrete note class this list holds."""
 
-    def find_note_from_list_up_to_octave(self, chromatic_note: ChromaticNote):
+    def find_note_from_list_up_to_octave(self, chromatic_note: ChromaticNote) -> Optional[Note]:
         """Return a note that is enharmonic to `chromatic_note` and equal - up to octave - to a note of `self`.
         In case of ambiguity, assert.
         """
@@ -39,11 +39,11 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
                 found = changed
         return found
     
-    def lily_chord(self):
+    def lily_chord(self) -> str:
         """Lily code for this chord."""
         return f"""<{" ".join(note.syntax_for_lily() for note in self)}>"""
-    
-    def lily_file_with_only_chord(self, clef: Clef):
+
+    def lily_file_with_only_chord(self, clef: Clef) -> str:
         """Lily code for a file containing just this as a chord"""
         assert_typing(clef, Clef)
         return f"""\\version "2.20.0"
@@ -58,8 +58,8 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
 {indent(self.lily_chord(), 6)}
   }}
 }}"""
-    
-    def lily_file_name(self, clef: Clef):
+
+    def lily_file_name(self, clef: Clef) -> str:
         """Return a name for the file containing those notes, without extension"""
         assert_typing(clef, Clef)
         notes = list(self)
@@ -72,7 +72,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
             ) for note in self)
         return f"chord_{str(clef)}_{notes_str}"
     
-    def chromatic(self):
+    def chromatic(self) -> ChromaticNoteList:
         """Return the `ChromaticNoteList` obtained by dropping the diatonic component of each note."""
         return ChromaticNoteList.make(note.get_chromatic() for note in self)
 
@@ -89,7 +89,7 @@ class NoteList(AbstractNoteList[Note, Interval, IntervalList], ClassWithEasyness
             notes.append(note)
         return self.__class__.make(notes)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Debug representation as a `NoteList.make([(chromatic, diatonic), ...])` call."""
         return f"""NoteList.make([{", ".join(f"({note.get_chromatic().value}, {note._diatonic.value})" for note in self)}])"""
     

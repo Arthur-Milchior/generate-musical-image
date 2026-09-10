@@ -50,26 +50,26 @@ class SaxophoneButton(SvgLine):
         SaxophoneButton.first_free_index += 1
         return cls(svg_unfilled=svg_unfilled, jay_name=jay_name, londeix=londeix, name=name, index=index)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Register this button in the module-level `buttons` list so it appears (unselected by default) in
         every rendered fingering diagram."""
         buttons.append(self)
 
-    def __repr__(self):
+    def __repr__(self) -> Optional[str]:
         """Return the button's human-readable `name`."""
         return self.name
 
-    def __lt__(self, other):
+    def __lt__(self, other: "SaxophoneButton") -> bool:
         """Order buttons by creation-order `index`."""
         assert isinstance(other, SaxophoneButton)
         return self.index < other.index
 
-    def __eq__(self, other: "SaxophoneButton"):
+    def __eq__(self, other: "SaxophoneButton") -> bool:
         """Buttons are unique objects: equal only to themselves (identity), never to an equivalent copy."""
         assert_typing(other, SaxophoneButton)
         return self is other
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash by `svg_unfilled`, which is unique per button."""
         return hash(self.svg_unfilled)
 

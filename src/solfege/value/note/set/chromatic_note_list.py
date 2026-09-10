@@ -18,6 +18,6 @@ class ChromaticNoteList(AbstractNoteList[ChromaticNote, ChromaticInterval, Chrom
     _frozen_list_type: ClassVar[Type[FrozenList[AbstractNote]]] = ChromaticNoteFrozenList
     """The `FrozenList` subclass used to store `notes`."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Debug representation as a `ChromaticNoteList.make([...])` call."""
         return f"""ChromaticNoteList.make([{", ".join(str(note.value) for note in self)}])"""

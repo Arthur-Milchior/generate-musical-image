@@ -15,7 +15,7 @@ class Penalty(PenaltyForScale):
     class MockFingering(Fingering):
         """A constant fingering, so that _ordinal still works and ignore the ends"""
 
-        def __init__(self):
+        def __init__(self) -> None:
             """Create a placeholder right-hand fingering with no note/tonic assigned."""
             super().__init__(for_right_hand=True)
 
@@ -31,6 +31,6 @@ class Penalty(PenaltyForScale):
             """Always None: the tonic/thumb-side finger isn't known before the fingering is complete."""
             return None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Create a `PenaltyForScale` using `MockFingering` as its (placeholder) `fingering`."""
         super().__init__(fingering=Penalty.MockFingering(), *args, **kwargs)

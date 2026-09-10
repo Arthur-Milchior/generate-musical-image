@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, Iterable, List
 from lily.sheet.lily_sheet import LilySheet
 from lily.sheet.lily_sheet_single_staff import LilySheetSingleStaff
 from lily.staff.lily_chord_staff import LilyChordStaff
@@ -27,7 +27,7 @@ class LilyChordSheet(LilySheetSingleStaff):
             va_part = ""
         else:
             va_part = f"_ottava_{va}"
-        def name(note: Note):
+        def name(note: Note) -> str:
             """The note's ASCII, fixed-width name (e.g. `C____________4`), used as a filesystem-safe token."""
             return note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.ASCII, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.UNDERSCORE_DOUBLE)
         return f"""{str(self.staff.clef)}_chord_{"_".join(name(note) for note in self.staff.notes)}{va_part}"""
@@ -41,7 +41,7 @@ class LilyChordSheet(LilySheetSingleStaff):
     #     args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)
     #     return args, kwargs
 
-def lily_chord_sheet(notes: List, clef: Clef, key: Key=key_of_C) ->LilyChordSheet:
+def lily_chord_sheet(notes: Iterable[Note], clef: Clef, key: Key=key_of_C) ->LilyChordSheet:
     """Build a `LilyChordSheet` from a plain list of `notes`, a `clef`, and a `key` (defaulting to C major)."""
     staff = LilyChordStaff.make(notes= notes, clef=clef, first_key = key)
     return LilyChordSheet.make(staff=staff)

@@ -106,7 +106,7 @@ class AbstractDelta(ABC, Generic[Ts, T]):
         min_delta, max_delta = self.deltas
         return self.__class__((-max_delta, -min_delta))
 
-    def contains_delta(self, delta: int):
+    def contains_delta(self, delta: int) -> bool:
         """Whether the raw integer offset `delta` falls within `[min_delta, max_delta]` (unbounded sides always match, and an empty delta set matches nothing)."""
         assert_typing(delta, int)
         if self.deltas is None:
@@ -125,7 +125,7 @@ class AbstractDelta(ABC, Generic[Ts, T]):
     
     #pragma mark - DataClass
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `deltas`, when not `None`, is a pair of optional ints."""
         if self.deltas is not None:
             min_delta, max_delta = self.deltas

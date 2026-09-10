@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, Dict, List, Self
+from typing import ClassVar, Dict, List, Self, Tuple
 
 from solfege.value.interval.interval import Interval
 from solfege.value.note.chromatic_note import ChromaticNote
@@ -29,16 +29,16 @@ class Key(DataClassWithDefaultArgument):
     _key_to_simplest_enharmonic: ClassVar[Dict[Note, Note]] = {}
     """Map each note to the simplest enharmonic of this note."""
 
-    def lily_key(self):
+    def lily_key(self) -> str:
         """LilyPond key signature representation, delegating to `Note.lily_key()`."""
         return self.note.lily_key()
 
-    def simplest_enharmonic_major(self):
+    def simplest_enharmonic_major(self) -> Key:
         """Return the `Key` sharing this key's enharmonic set that has the fewest alterations (e.g.
         prefer C major over B# major)."""
         return self.from_note(self._key_to_simplest_enharmonic[self.note.in_base_octave()])
 
-    def simplest_enharmonic_minor(self):
+    def simplest_enharmonic_minor(self) -> Key:
         """Like `simplest_enharmonic_major`, but treats this key as a minor key by first looking up
         its relative major (a minor third up) and converting the result back down."""
         relative_interval = Interval.make(_chromatic=3, _diatonic=2)
@@ -46,14 +46,14 @@ class Key(DataClassWithDefaultArgument):
             self._key_to_simplest_enharmonic[(self.note + relative_interval).in_base_octave()] - relative_interval)
 
     @classmethod
-    def add_enharmonic_set(cls, enharmonic_set: List[Key]):
+    def add_enharmonic_set(cls, enharmonic_set: List[Key]) -> None:
         """Register `enharmonic_set` (a list of enharmonically-equivalent keys, e.g. C/B#/Dbb) so that
         every key in it maps to the first (simplest) one via `_key_to_simplest_enharmonic`."""
         simplest = enharmonic_set[0]
         for key in enharmonic_set:
             cls._key_to_simplest_enharmonic[key.note.in_base_octave()] = simplest.note
 
-    def _number_of_alterations(self):
+    def _number_of_alterations(self) -> int:
         """Total alteration count (flats + sharps), used to rank keys by simplicity."""
         return self.number_of_flats + self.number_of_sharps
 
@@ -64,23 +64,23 @@ class Key(DataClassWithDefaultArgument):
             note = Note.from_chromatic(note)
         return cls._from_note[note.in_base_octave()]
 
-    def __eq__(self, other):
+    def __eq__(self, other: Key) -> bool:
         """Equal iff the tonic note is equal (signature counts are not part of equality)."""
         return self.note == other.note
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash by the tonic note."""
         return hash(self.note)
 
-    def __le__(self, other: Key):
+    def __le__(self, other: Key) -> bool:
         """Ordered by (number of alterations, note): fewer alterations first, then by note."""
         return (self._number_of_alterations(), self.note) <= (other._number_of_alterations(), other.note)
 
-    def __lt__(self, other: Key):
+    def __lt__(self, other: Key) -> bool:
         """Ordered by (number of alterations, note): fewer alterations first, then by note."""
         return (self._number_of_alterations(), self.note) < (other._number_of_alterations(), other.note)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """The tonic note's plain letter name, plus " with N ♭"/" with N #" if this key's signature
         has any alterations."""
         return self.note.get_name_with_octave(octave_notation=OctaveOutput.MIDDLE_IS_4, alteration_output=AlterationOutput.ASCII, note_output=NoteOutput.LETTER, fixed_length=FixedLengthOutput.NO) + (f" with {self.number_of_flats} ♭" if self.number_of_flats else "") + (
@@ -90,7 +90,7 @@ class Key(DataClassWithDefaultArgument):
     # pragma mark - DataClassWithDefaultArgument
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default both `number_of_flats` and `number_of_sharps` to 0."""
         default = super()._default_arguments_for_constructor(args, kwargs)
         default["number_of_flats"] = 0
@@ -98,9 +98,9 @@ class Key(DataClassWithDefaultArgument):
         return default
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Normalize `note` to its base octave before construction."""
-        def clean_note(note: Note):
+        def clean_note(note: Note) -> Note:
             """Fold `note` into the base octave."""
             return note.in_base_octave()
         cls.arg_to_kwargs(args, kwargs, "note", clean_note)
@@ -108,7 +108,7 @@ class Key(DataClassWithDefaultArgument):
         cls._maybe_arg_to_kwargs(args, kwargs, "number_of_sharps")
         return super()._clean_arguments_for_constructor(args, kwargs)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate field types and that `note` is already in the base octave, then register this
         key into `_from_note` so `Key.from_note` can look it up later."""
         assert_typing(self.note, Note)

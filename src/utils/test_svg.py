@@ -19,21 +19,21 @@ class FakeSvgGenerator(SvgGenerator):
     _height: int
     """Fixed value returned by `svg_height()`."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Sanity-check the field types."""
         assert_iterable_typing(self.svgs, str)
         assert_typing(self._width, int)
         assert_typing(self._height, int)
 
-    def svg_lines(self):
+    def svg_lines(self) -> List[str]:
         """Return the fixed `svgs` lines."""
         return self.svgs
 
-    def svg_width(self):
+    def svg_width(self) -> int:
         """Return the fixed `_width`."""
         return self._width
 
-    def svg_height(self):
+    def svg_height(self) -> int:
         """Return the fixed `_height`."""
         return self._height
 
@@ -51,7 +51,7 @@ line_8 = """<line test 2/>"""
 class TestSvgGenerator(unittest.TestCase):
     """Tests for `_SvgLine` indentation detection and `SvgGenerator.svg()` assembly."""
 
-    def test_svg_line(self):
+    def test_svg_line(self) -> None:
         """`_SvgLine` detects opening/closing-tag indentation and renders itself indented by a given amount."""
         svg_line_2 = _SvgLine(line_2)
         self.assertEqual(svg_line_2.indent(), 1)
@@ -62,7 +62,7 @@ class TestSvgGenerator(unittest.TestCase):
         self.assertEqual(svg_line_7.indented_line(0) , """<line test/><!-- foo -->""")
         self.assertEqual(svg_line_7.indented_line(1) , """  <line test/><!-- foo -->""")
 
-    def test_svg_file(self):
+    def test_svg_file(self) -> None:
         """`svg()` wraps the generator's lines in an `<svg>` root with the right dimensions, indenting each
         line according to its nesting."""
         fake = FakeSvgGenerator(

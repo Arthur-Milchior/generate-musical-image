@@ -5,7 +5,7 @@ from instruments.fretted_instrument.pair.generate_fretted_instrument_interval im
 from instruments.fretted_instrument.position.fret.fret import Fret
 
 class TestPair(unittest.TestCase):
-    def test_pairs(self):
+    def test_pairs(self) -> None:
         """pairs_of_frets_values(2) yields (1,1) once, then (1,2)/(2,1) and (1,3)/(3,1) in both orders."""
         actual = list(pairs_of_frets_values(2))
         expected = [(Fret(s, False), Fret(f,False)) for s, f in [

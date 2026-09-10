@@ -37,7 +37,7 @@ class Fingering:
     """The finger used to play the tonic once at an extremity. Usually the fifth, or sometime fourth, to start the
     increasing scale on the left hand and to end the increasing scale on the right end."""
 
-    def __init__(self, for_right_hand: bool):
+    def __init__(self, for_right_hand: bool) -> None:
         """Create an empty fingering (no note assigned yet) for the given hand."""
         self._dic = dict()
         self.tonic = None
@@ -158,7 +158,7 @@ class Fingering:
         """The finger playing the tonic at the pinky-side extremity of the scale (where the scale ends)."""
         return self.pinky_side_tonic_finger
 
-    def get_finger(self, note: Note, pinky_side_finger=False) -> Optional[int]:
+    def get_finger(self, note: Note, pinky_side_finger: bool = False) -> Optional[int]:
         """Get the finger for `note`.
         If `note` is the tonic and `starting_finger` holds, get the starting finger"""
         note = note.in_base_octave()
@@ -168,7 +168,7 @@ class Fingering:
         assert not isinstance(note, PianoNote)
         return self._dic.get(note)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """`eval`-able representation reconstructing this fingering via `add_pinky_side`/`add` calls."""
         text = f"""scales(for_right_hand={self.for_right_hand})"""
         if self.tonic:

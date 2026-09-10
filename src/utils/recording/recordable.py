@@ -47,7 +47,7 @@ class Recordable(ABC, Generic[KeyType, RecordKeeperType]):
 
     def _associate_keys_to_self(self,
                                 keys: Optional[Union[List[KeyType], KeyType]] = None,
-                                record_keeper: Optional[RecordKeeperType]=None):
+                                record_keeper: Optional[RecordKeeperType]=None) -> None:
         """Register `self` under `keys` (a single key, a list of keys, or `self.get_interval_lists()` if
         omitted) in `record_keeper` (defaulting to `self.get_record_keeper()`)."""
         from solfege.pattern.interval_list_to_pattern import IntervalListToPattern

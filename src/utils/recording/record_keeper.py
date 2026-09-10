@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar, Dict, Generator, Generic, Optional, Tuple, Type, TypeVar
+from typing import ClassVar, Dict, Generator, Generic, List, Optional, Tuple, Type, TypeVar
 
 from utils.data_class_with_default_argument import DataClassWithDefaultArgument
 from utils.easyness import KeyType
@@ -39,7 +39,7 @@ class RecordKeeper(ABC, Generic[KeyType, RecordedType, RecordedContainerType], D
     _records: Dict[KeyType, RecordedContainerType]
     """Associate the key to the set of recorded type"""
 
-    def register(self, key: KeyType, recorded: RecordedType):
+    def register(self, key: KeyType, recorded: RecordedType) -> None:
         """Record `recorded` under `key`: asserts `key`/`recorded` have the expected types and that `is_key_valid
         (key)`, then appends `recorded` to that key's container (creating the container on first use)."""
         assert_typing(key, self._key_type, exact=True)
@@ -77,18 +77,18 @@ class RecordKeeper(ABC, Generic[KeyType, RecordedType, RecordedContainerType], D
         """Iterate over `(key, container)` pairs, like `dict.items()`."""
         return iter(self._records.items())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Show the configured types but elide the (potentially large) `_records` content."""
         return f"{self.__class__.__name__}(_recorded_type={self._recorded_type}, _key_type={self._key_type}, _recorded_container_type={self._recorded_container_type}, _records=...)"
 
     # pragma mark - DataClassWithDefaultArgument
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Sanity-check that `_records` is a plain `dict`."""
         assert_typing(self._records, dict)
 
     @classmethod
-    def _default_arguments_for_constructor(cls, args, kwargs):
+    def _default_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Dict:
         """Default `_records` to a fresh empty `dict` when not explicitly supplied."""
         default = super()._default_arguments_for_constructor(args, kwargs)
         default["_records"] = dict()

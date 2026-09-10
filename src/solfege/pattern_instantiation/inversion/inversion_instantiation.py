@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from typing import ClassVar, Tuple
+from typing import ClassVar, List, Tuple
 
 from solfege.pattern.inversion.inversion_pattern import InversionPattern
 from solfege.pattern_instantiation.chord.chord import Chord
@@ -29,12 +29,12 @@ class InversionInstantiation(
         via the pattern's `tonic_minus_lowest_note`."""
         return (self.lowest_note - self.pattern.tonic_minus_lowest_note)
 
-    def _get_chord(self):
+    def _get_chord(self) -> Chord:
         """The root-position `Chord` this is an inversion of, anchored on its tonic (in the base octave)."""
         inversion = self.pattern
         return Chord.make(pattern=inversion.base, lowest_note =self.get_tonic().in_base_octave())
 
-    def names(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
+    def names(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO) -> List[str]:
         """This inversion's names: the underlying chord's names as-is for root position (inversion 0), or
         each suffixed with "over <bass note>" (e.g. "C Major triad over E") for any other inversion."""
         inversion = self.pattern
@@ -47,7 +47,7 @@ class InversionInstantiation(
         else:
             return [f"{chord_name} over {lowest_note_name}" for chord_name in chord_names]
 
-    def notation(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
+    def notation(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO) -> str:
         """This inversion's short notation: the underlying chord's notation as-is for root position
         (inversion 0), or "<chord notation>/<bass note>" (e.g. "CM/E") for any other inversion."""
         inversion = self.pattern

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import dataclasses
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Self, Tuple, TypeVar, Union
 
 from instruments.fretted_instrument.fretted_instrument.fretted_instrument import FrettedInstrument
 from instruments.fretted_instrument.position.fret.fret import Fret
@@ -43,7 +43,7 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
     """The fret this position is on (0 for open, `None`/not-played encoded via `Fret.is_not_played()`)."""
 
     @staticmethod
-    def from_chromatic(instrument: FrettedInstrument, note:ChromaticNote, absolute: bool, strings: Optional[Strings] = None, frets: Optional[Frets] = None):
+    def from_chromatic(instrument: FrettedInstrument, note:ChromaticNote, absolute: bool, strings: Optional[Strings] = None, frets: Optional[Frets] = None) -> List[PositionOnFrettedInstrument]:
         """Return every position playing `note` on `instrument`, restricted to `strings` (default: all strings)
         and `frets` (default: all playable frets). `absolute` is passed through to `String.position_for_note`
         to control whether the resulting fret is expressed as an absolute fret number or relative to some origin."""
@@ -83,12 +83,12 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         chromatic_note = self.get_chromatic() + interval
         return PositionOnFrettedInstrument.from_chromatic(instrument, chromatic_note, self.fret.absolute, strings, frets)
 
-    def __eq__(self, other: PositionOnFrettedInstrument):
+    def __eq__(self, other: PositionOnFrettedInstrument) -> bool:
         """Two positions are equal iff they share the same string and fret."""
         assert_typing(other, PositionOnFrettedInstrument)
         return isinstance(other, PositionOnFrettedInstrument) and self.fret == other.fret and self.string == other.string
 
-    def __lt__(self, other: PositionOnFrettedInstrument):
+    def __lt__(self, other: PositionOnFrettedInstrument) -> bool:
         """Order by chromatic pitch, then by string (see class docstring). A not-played position (no chromatic
         note) sorts as maximal, i.e. never less than anything."""
         if self.get_chromatic() is None:
@@ -97,15 +97,15 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
             return True
         return (self.get_chromatic(), self.string) < (other.get_chromatic(), other.string)
 
-    def __le__(self, other: PositionOnFrettedInstrument):
+    def __le__(self, other: PositionOnFrettedInstrument) -> bool:
         """`self == other or self < other`."""
         return self == other or self<other
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash consistent with `__eq__`: based on `(fret, string)`."""
         return hash((self.fret, self.string))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """A `.make(...)` call that reconstructs this position, e.g. `PositionOnFrettedInstrument.make(1, 0)`."""
         return f"{self.__class__.__name__}.make({self.string.value}, {self.fret.value})"
 
@@ -114,23 +114,23 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         assert isinstance(other, PositionOnFrettedInstrument)
         return self.get_chromatic() - other.get_chromatic()
 
-    def singleton_diagram_svg_name(self, instrument: FrettedInstrument):
+    def singleton_diagram_svg_name(self, instrument: FrettedInstrument) -> str:
         """A unique filename for the diagram containing only this note."""
         assert_typing(instrument, FrettedInstrument)
         return f"""{self.singleton_diagram_key(instrument)}.svg"""
 
-    def singleton_diagram_key(self, instrument: FrettedInstrument):
+    def singleton_diagram_key(self, instrument: FrettedInstrument) -> str:
         """A unique name short name for this position."""
         assert_typing(instrument, FrettedInstrument)
         return f"""{instrument.get_name()}_{self.string.value}_{self.fret.value}"""
 
-    def singleton_diagram_svg(self, instrument: FrettedInstrument, fretted_position_maker: "FrettedPositionMaker"):
+    def singleton_diagram_svg(self, instrument: FrettedInstrument, fretted_position_maker: "FrettedPositionMaker") -> str:
         """The svg for a diagram with only this note"""
         assert_typing(instrument, FrettedInstrument)
         from instruments.fretted_instrument.position.set.set_of_fretted_instrument_positions import SetOfPositionOnFrettedInstrument
         return SetOfPositionOnFrettedInstrument.make({self}, absolute=True).svg(instrument=instrument, absolute=True, fretted_position_maker = fretted_position_maker)
 
-    def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool):
+    def transpose_same_string(self, transpose: int, transpose_open: bool, transpose_not_played: bool) -> Self:
         """Return `self` with the fret shifted by `transpose` half-steps on the same string.
         `transpose_open`/`transpose_not_played` control whether an open/not-played fret is itself shifted
         (see `Fret.transpose`) or left as-is."""
@@ -143,7 +143,7 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
         return f"""{(self.string.value, self.fret.value)}"""
 
     @classmethod
-    def _make_single_argument(cls, arg: Tuple[FrettedInstrument, Union[String, int], Union[Fret, int]]):
+    def _make_single_argument(cls, arg: Tuple[FrettedInstrument, Union[String, int], Union[Fret, int]]) -> Self:
         """Build an instance from a `(string, fret)` pair, as required by `MakeableWithSingleArgument`."""
         string, fret = arg
         return cls.make(string= string, fret=fret)
@@ -158,13 +158,13 @@ class PositionOnFrettedInstrument(MakeableWithSingleArgument, DataClassWithDefau
 
     # pragma mark - DataClassWithDefaultArgument
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate that `fret` and `string` have the expected types."""
         assert_typing(self.fret, Fret)
         assert_typing(self.string, String)
 
     @classmethod
-    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict):
+    def _clean_arguments_for_constructor(cls, args: List, kwargs: Dict) -> Tuple[List, Dict]:
         """Normalize constructor arguments: positional `string`/`fret` become keyword arguments, and `fret` is
         additionally passed through `Fret.make_single_argument` so it may be given as a raw int/tuple."""
         args, kwargs = super()._clean_arguments_for_constructor(args, kwargs)

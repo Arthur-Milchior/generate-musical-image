@@ -1,12 +1,12 @@
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import *
 from instruments.fretted_instrument.fretted_instrument.fretted_instruments import Guitar
 
-def _make(l):
+def _make(l: List[Union[Fret, int, None]]) -> ChordOnFrettedInstrument:
     """Build an absolute `ChordOnFrettedInstrument` on Guitar from a list of fret values/`Fret`s (one per
     string), for use as a shared test fixture."""
     return ChordOnFrettedInstrument.make(Guitar, l, True)
 
-def fret(value):
+def fret(value: Optional[int]) -> Fret:
     """Build an absolute `Fret` from `value` (or the not-played fret when `value` is `None`)."""
     return Fret.make(value, absolute=True)
 
