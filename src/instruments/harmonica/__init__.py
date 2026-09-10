@@ -1,10 +1,14 @@
-"""Generates the harmonica diagram SVGs under `images/` (one per hole/direction combination): for each of the
-10 holes and each of blow/draw, draws the 10-hole harmonica outline with that hole highlighted and an arrow
-showing air direction. Running this module (e.g. via `python3 -m instruments.harmonica`, see `__main__.py`)
-regenerates all 20 files. Smaller/less developed than the other instrument packages: unlike them it writes
-straight to a relative `harmonica/images/` path (not through `consts.generate_root_folder`) and has no
-solfege/note-to-fingering model — the images are static per hole/direction, not per note."""
+"""Generates the harmonica diagram SVGs under `<generate_root_folder>/harmonica/images/` (one per
+hole/direction combination): for each of the 10 holes and each of blow/draw, draws the 10-hole harmonica
+outline with that hole highlighted and an arrow showing air direction. Running this module (e.g. via
+`python3 -m instruments.harmonica`, see `__main__.py`) regenerates all 20 files. Smaller/less developed than
+the other instrument packages: it has no solfege/note-to-fingering model — the images are static per
+hole/direction, not per note."""
+from consts import generate_root_folder
 from utils.util import *
+
+harmonica_images_folder = f"{generate_root_folder}/harmonica/images"
+"""Output folder for the generated harmonica diagram SVGs, per the shared `<generate_root_folder>/<instrument>` convention."""
 
 square = 30
 """Size (in SVG user units) of one grid cell; every coordinate in `drawHarmonica` is expressed as a multiple
@@ -41,6 +45,6 @@ def drawHarmonica(f, pos, draw):
 
 for draw in [True, False]:
     for pos in range(1, 11):
-        ensure_folder("harmonica/images/")
-        with open("harmonica/images/%s%d.svg" % ("draw" if draw else "blow", pos), "w") as f:
+        ensure_folder(harmonica_images_folder)
+        with open("%s/%s%d.svg" % (harmonica_images_folder, "draw" if draw else "blow", pos), "w") as f:
             drawHarmonica(f, pos, draw)

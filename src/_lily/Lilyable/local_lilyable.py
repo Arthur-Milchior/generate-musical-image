@@ -9,12 +9,7 @@ class LocalLilyable:
     represents a full renderable score). Used for the individual elements fed into
     `piano_lilyable._for_list_of_notes`."""
     def __eq__(self, other: LocalLilyable):
-        """Intended to compare by generated syntax, but compares the bound methods `self.syntax_for_lily` /
-        `other.syntax_for_lily` rather than calling them: bound-method equality falls back to identity of
-        `__self__`, so this is effectively identity comparison (`self is other`), not value equality, unless a
-        subclass supplies its own `__eq__` (e.g. `LiteralLocalLilyable`'s dataclass-generated one, which
-        overrides this). Verified: two distinct instances with identical `syntax_for_lily()` results compare
-        unequal here. Left as-is; likely a latent bug in this base class."""
+        """Two `LocalLilyable`s are equal iff they generate the same LilyPond syntax, regardless of type."""
         return self.syntax_for_lily() == other.syntax_for_lily()
 
     # Must be implemented by subclasses

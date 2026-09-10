@@ -21,12 +21,13 @@ class Chord(AbstractChord[Note, Interval], AbstractPairInstantiation[ChordPatter
 
     def names(self, alteration_output: AlterationOutput=AlterationOutput.SYMBOL, note_output: NoteOutput=NoteOutput.LETTER, fixed_length: FixedLengthOutput=FixedLengthOutput.NO):
         """This chord's full names: `lowest_note`'s spelled name followed by each of `pattern.names`, e.g.
-        ["C Major triad"]. `alteration_output`/`note_output`/`fixed_length` control how the note is spelled.
-        Note: `note_name` is built as a one-element set literal below, so the returned strings currently
-        include Python's set braces/quoting (e.g. "{'C'} Major triad") -- pre-existing, not fixed here."""
+        ["C Major triad"]. `alteration_output`/`note_output`/`fixed_length` control how the note is spelled."""
         names = []
         for name in self.pattern.names:
-            note_name = {self.lowest_note.get_name_up_to_octave(alteration_output=alteration_output, note_output=note_output, fixed_length=fixed_length)}
+            note_name = self.lowest_note.get_name_up_to_octave(
+                alteration_output=alteration_output,
+                note_output=note_output, 
+                fixed_length=fixed_length)
             names.append(f"{note_name} {name}")
         return names
 

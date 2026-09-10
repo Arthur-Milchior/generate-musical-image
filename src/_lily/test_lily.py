@@ -1,3 +1,7 @@
+"""Tests for `_lily/lily.py`. `test_indent` still passes (`indent` is re-exported from `utils.util`), but
+`test_chord`/`test_compile`/`test_chord_compile` rely on `chord`/`compile_`, which no longer exist there (see
+`_lily/README.md`) — moot for now anyway since this module fails to even collect under pytest (a separate,
+pre-existing `'lily' is not a package` import-path issue, reproducible on a clean checkout)."""
 import unittest
 from _lily.lily import *
 

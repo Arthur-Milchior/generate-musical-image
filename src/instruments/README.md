@@ -14,8 +14,9 @@ subpackage's own README for its details.
   wired up, see [`accordina/generate/README.md`](accordina/generate/README.md) — scales) for the
   [accordina](https://en.wikipedia.org/wiki/Accordina).
 - [`harmonica/`](harmonica/) — the smallest/least developed package: draws a fixed 10-hole outline with one
-  hole highlighted, for every hole and blow/draw direction; see its README for a gotcha where the generator
-  currently writes its output to the sibling top-level `src/harmonica/` folder instead of its own `images/`.
+  hole highlighted, for every hole and blow/draw direction; writes to `generated/harmonica/images/` like every
+  other instrument (see its README for the now-fixed relative-path bug that used to send output to the
+  sibling top-level `src/harmonica/` folder instead).
 
 `generate.py` at this level runs the accordina, saxophone and fretted-instrument generators together (piano
 and harmonica are currently commented out there); `__init__.py` is empty (just makes `instruments` a

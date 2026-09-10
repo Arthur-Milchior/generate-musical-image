@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from tkinter.font import names
 from typing import Generator, List, Tuple
 
 from instruments.fretted_instrument.chord.chord_on_fretted_instrument import ChordOnFrettedInstrument
@@ -13,7 +12,6 @@ from lily.sheet.lily_chord_sheet import LilyChordSheet
 from lily.staff.lily_chord_staff import LilyChordStaff
 from solfege.pattern_instantiation.inversion.chromatic_inversion_instantiation import ChromaticInversionInstantiation
 from solfege.value.interval.chromatic_interval import ChromaticInterval
-from _lily import lily
 from solfege.value.note.note import Note
 from solfege.value.note.set.note_list import NoteList
 from utils.csv import CsvGenerator

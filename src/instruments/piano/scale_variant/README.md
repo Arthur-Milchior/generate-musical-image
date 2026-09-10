@@ -15,7 +15,6 @@ away", a common practice exercise.
 - [`__main__.py`](__main__.py): entry point for `python3 -m instruments.piano.scale_variant`, just imports
   `main` for its side effect.
 
-Note: `main.py` hard-codes its output path
-(`/home/milchior/generate-musical-image/generated/piano/scales_half_tone_off`) rather than deriving it from
-[`consts.py`](../../../consts.py)'s `generate_root_folder` like the rest of the codebase — a pre-existing
-portability wrinkle, not fixed here.
+Note: `main.py` currently fails to import — its `compile_()` call (`from _lily.lily import compile_`) depends
+on a function that no longer exists there; see [`../../../_lily/README.md`](../../../_lily/README.md) for the
+shared gap this is part of. Not fixed here.

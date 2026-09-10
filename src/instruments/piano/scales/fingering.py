@@ -5,7 +5,8 @@ from typing import Dict, Optional, Union, List
 from instruments.piano.piano_note import PianoNote
 from solfege.value.interval.interval import Interval
 from solfege.value.note.note import Note
-from solfege.pattern.scale.scale_pattern import ScalePattern, minor_melodic
+from solfege.pattern.scale.scale_pattern import ScalePattern
+from solfege.pattern.scale.scale_patterns import minor_melodic
 from utils.util import assert_typing
 
 THUMB_TO_PINKY = -1

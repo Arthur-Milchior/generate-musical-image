@@ -13,10 +13,6 @@ diatonic+chromatic vs. chromatic-only split this folder plugs into.
   It has no diatonic spelling of its own, so `names()`/`notation()` pick one (`_get_chord()`, via
   `Note.from_chromatic`) and delegate to `Chord`.
 
-Note: `Chord.names()` builds each note's spelled name as a one-element Python `set` before interpolating it
-into the returned string -- a pre-existing bug that leaves the set's braces/quoting in the output (e.g.
-`"{'C'} Major triad"` instead of `"C Major triad"`); not fixed here.
-
 Since a `ChordPattern` registers an `InversionPattern` for every one of its notes as potential bass (see
 [../../pattern/chord/README.md](../../pattern/chord/README.md)), instantiating a specific inversion on a note
 goes through [../inversion/](../inversion/README.md) instead of this folder -- `Chord` only ever represents

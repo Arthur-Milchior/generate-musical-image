@@ -9,13 +9,14 @@ from solfege.pattern.scale.scale import Scale
 from solfege.pattern.scale.scale_pattern import major_scale, scale_patterns
 from solfege.value.note.abstract_note import AlterationOutput, FixedLengthOutput, NoteOutput, OctaveOutput
 from utils.util import ensure_folder, img_tag, save_file
+from consts import generate_root_folder
 
 """
 Generate the scales, followed by the same scale, moved by a semi-tone in the reverse side
 """
 
 anki_entries = []
-folder_path = "/home/milchior/generate-musical-image/generated/piano/scales_half_tone_off"
+folder_path = f"{generate_root_folder}/piano/scales_half_tone_off"
 ensure_folder(folder_path)
 
 for scale_pattern in scale_patterns:

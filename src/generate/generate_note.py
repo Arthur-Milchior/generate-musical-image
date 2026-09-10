@@ -3,7 +3,6 @@ from lily.sheet.lily_sheet_single_note import sheet_single_note
 from solfege.value.note import note_alteration
 from solfege.value.note.clef import Clef
 from solfege.value.note.note import Note
-from _lily.lily import compile_
 from utils import util
 from consts import generate_root_folder
 

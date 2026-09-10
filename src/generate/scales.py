@@ -21,9 +21,8 @@ from consts import generate_root_folder
 tin whistle, recorder, harmonica). Distinct from `scale_number.py`, which generates the scale-degree ("scale
 number") reference material instead.
 
-Note: this module currently has a syntax error (`AnkiNote.anki_fields`'s `yield anki_field.field())` has one
-extra closing paren) and cannot be imported as-is; not fixed here since this pass is documentation-only. See
-`generate/README.md`.
+Note: this module currently fails to import, because `compile_` (imported above from `_lily.lily`) no longer
+exists there — see `generate/README.md` for the shared, pre-existing gap this is part of.
 """
 
 folder_path = f"{generate_root_folder}/solfege/scales"
@@ -193,6 +192,7 @@ class Difficulties:
         return False
 
     def __str__(self):
+        """Render as the underlying `difficulties` dict, e.g. for debugging/logging."""
         return str(self.difficulties)
 
 @dataclass
@@ -274,14 +274,9 @@ class AnkiNote:
         return f"""\"{self.instrument} {self.scale_name().replace(",", "")} {self.tonic_name()} difficulty {self.difficulties()}\""""
 
     def anki_fields(self):
-        """Yield this note's per-scale-variant Anki fields, one per `(start_octave, number_of_octaves,
-        direction)` combination, generating and compiling each variant's LilyPond image along the way.
-
-        Note: because this function contains `yield`, it's a generator; the `fields` header block (key,
-        instrument image, blanks, tonic/scale name/notation, bass note images) it builds is computed but never
-        actually yielded — only reachable via the unused `StopIteration.value` from `return fields` — and the
-        method also has a pre-existing syntax error (`yield anki_field.field())`, an extra `)`). Neither is
-        fixed here (documentation-only pass); see the module docstring."""
+        """Yield this note's Anki fields: first the header block (key, instrument image, blanks,
+        tonic/scale name/notation, bass note images), then one field per `(start_octave, number_of_octaves,
+        direction)` combination, generating and compiling each variant's LilyPond image along the way."""
         bass_note = self.bass_note()
         fields = [
             self.key(),
@@ -299,12 +294,12 @@ class AnkiNote:
             bass_note.add_octave(2).image_html(),
             bass_note.add_octave(3).image_html(),
         ]
+        yield from fields
         for (start_octave, number_of_octaves) in [(0, 1), (1,1), (0,2), (2,1), (1,2), (0,3)]:
             for direction in [Direction.INCREASING, Direction.DECREASING, Direction.TOTAL, Direction.REVERSE]:
                 anki_field = AnkiField(self, start_octave, number_of_octaves, direction)
-                yield anki_field.field())
+                yield anki_field.field()
                 anki_field.generate_and_compile_lily()
-        return fields
     
     def anki_csv(self):
         """Render this note as one comma-joined CSV row of `anki_fields()`."""

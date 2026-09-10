@@ -11,14 +11,14 @@ from typing import Optional, List, Callable, Tuple
 
 from _lily.Lilyable.list_piano_lilyable import ListPianoLilyable
 from _lily.Lilyable.piano_lilyable import LiteralPianoLilyable, lilypond_code_for_one_hand
-from _lily.lily import compile_
 from instruments.piano.fingering_generation.penalty import Penalty
 from instruments.piano.piano_note import PianoNote
 from instruments.piano.fingering_generation.penalty_for_scale import PenaltyForScale
 from instruments.piano.scales.fingering import Fingering
-from solfege.pattern.chord.chord_pattern import minor_seven, augmented_major_seventh_chord
+from solfege.pattern.chord.chord_patterns import minor_seven, augmented_major_seventh_chord
 from solfege.value.note.note import Note
-from solfege.pattern.scale.scale_pattern import ScalePattern, blues, pentatonic_major, minor_melodic
+from solfege.pattern.scale.scale_pattern import ScalePattern
+from solfege.pattern.scale.scale_patterns import blues, pentatonic_major, minor_melodic
 from utils.constants import test_folder
 from utils.util import ensure_folder, delete_file_if_exists
 
